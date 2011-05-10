@@ -15,20 +15,20 @@ module Command
 		FILES = {}
 
 		def self.add(name, msg, fname, common=false)
-			LIST << [name, msg, fname, common]
+			LIST << [name, msg, common]
 			FILES[name] = fname
 		end
 
-		add 'account',         'set your account',       'config', true
-		add 'create-database', 'create a database',      'api', true
-		add 'drop-database',   'delete a database',      'api', true
-		add 'create-table',    'create a table',         'api', true
-		add 'drop-table',      'delete a table',         'api', true
-		add 'show-databases',  'show list of databases', 'api', true
-		add 'show-tables',     'show list of tables',    'api', true
-		add 'import',          'import file to a table', 'import', true  # TODO
-		add 'query',           'execute a query',        'query', true   # TODO
-		add 'help',            'show usage of a command', 'help', true
+		add 'account',         'Set your account',       'config', true
+		add 'create-database', 'Create a database',      'api', true
+		add 'drop-database',   'Delete a database',      'api', true
+		add 'create-table',    'Create a table',         'api', true
+		add 'drop-table',      'Delete a table',         'api', true
+		add 'show-databases',  'Show list of databases', 'api', true
+		add 'show-tables',     'Show list of tables',    'api', true
+		add 'import',          'Import file to a table', 'import', true  # TODO
+		add 'query',           'Execute a query',        'query', true   # TODO
+		add 'help',            'Show usage of a command', 'help', false
 
 		def self.common_help(indent='')
 			LIST.map {|name,msg,common|
@@ -56,7 +56,7 @@ module Command
 
 		private
 		def self.format_help(name, msg, indent='')
-		"#{indent}%-20s %s" % [name, msg]
+		"#{indent}%-17s %s" % [name, msg]
 		end
 	end
 

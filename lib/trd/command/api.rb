@@ -19,9 +19,9 @@ description:
 		end
 	end
 
-	require 'trd/api'
-
 	arg = {}
+
+	require 'trd/api'
 	TRD::API.option(op, arg)
 
 	begin
@@ -34,7 +34,6 @@ description:
 		usage $!.to_s
 	end
 
-	require 'trd/config'
 	conf = TRD::Config.read(CONFIG_PATH)
 
 	api = TRD::API.new(arg, conf)
@@ -63,9 +62,9 @@ description:
 		end
 	end
 
-	require 'trd/api'
-
 	arg = {}
+
+	require 'trd/api'
 	TRD::API.option(op, arg)
 
 	begin
@@ -84,10 +83,10 @@ description:
 		usage $!.to_s
 	end
 
-	require 'trd/config'
 	conf = TRD::Config.read(CONFIG_PATH)
 
 	api = TRD::API.new(arg, conf)
+
 	api.create_table(db, table)
 
 	puts "Table '#{name}' is created."
@@ -120,9 +119,9 @@ description:
 		end
 	end
 
-	require 'trd/api'
-
 	arg = {}
+
+	require 'trd/api'
 	TRD::API.option(op, arg)
 
 	begin
@@ -135,7 +134,6 @@ description:
 		usage $!.to_s
 	end
 
-	require 'trd/config'
 	conf = TRD::Config.read(CONFIG_PATH)
 
 	api = TRD::API.new(arg, conf)
@@ -186,9 +184,9 @@ description:
 		end
 	end
 
-	require 'trd/api'
-
 	arg = {}
+
+	require 'trd/api'
 	TRD::API.option(op, arg)
 
 	begin
@@ -207,7 +205,6 @@ description:
 		usage $!.to_s
 	end
 
-	require 'trd/config'
 	conf = TRD::Config.read(CONFIG_PATH)
 
 	api = TRD::API.new(arg, conf)

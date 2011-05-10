@@ -22,6 +22,8 @@ op.summary_indent = "  "
 		puts "commands:"
 		puts TRD::Command::List.common_help(op.summary_indent)
 		puts ""
+		puts "See 'trd help COMMAND' for more information on a specific command.
+"
 		if errmsg
 			puts "error: #{errmsg}"
 			exit 1
@@ -38,6 +40,7 @@ end
 
 config_path = TRD::DEFAULT_CONFIG_PATH
 verbose = false
+debug = false
 
 op.on('-c', '--config PATH', "config file path (#{config_path})") {|s|
 	config_path = s
@@ -45,6 +48,10 @@ op.on('-c', '--config PATH', "config file path (#{config_path})") {|s|
 
 op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
 	verbose = b
+}
+
+op.on('-d', '--debug', "debug mode", TrueClass) {|b|
+	debug = b
 }
 
 begin
@@ -61,8 +68,18 @@ rescue
 	usage $!.to_s
 end
 
-require 'trd/command/list'
+require 'trd/log'
 require 'trd/config'
+require 'trd/command/list'
+
+if debug
+	$log = TRD::Log.new(TRD::Log::LEVEL_TRACE)
+	$log.enable_debug
+elsif verbose
+	$log = TRD::Log.new(TRD::Log::LEVEL_DEBUG)
+else
+	$log = TRD::Log.new(TRD::Log::LEVEL_WARN)
+end
 
 begin
 	TRD::Command::List.call(cmd)
