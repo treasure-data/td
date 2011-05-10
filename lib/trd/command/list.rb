@@ -20,12 +20,12 @@ module Command
 		end
 
 		add 'account',         'Set your account',       'config', true
-		add 'create-database', 'Create a database',      'api', true
-		add 'drop-database',   'Delete a database',      'api', true
-		add 'create-table',    'Create a table',         'api', true
-		add 'drop-table',      'Delete a table',         'api', true
-		add 'show-databases',  'Show list of databases', 'api', true
-		add 'show-tables',     'Show list of tables',    'api', true
+		add 'create-database', 'Create a database',      'db_table', true
+		add 'drop-database',   'Delete a database',      'db_table', true
+		add 'create-table',    'Create a table',         'db_table', true
+		add 'drop-table',      'Delete a table',         'db_table', true
+		add 'show-databases',  'Show list of databases', 'show', true
+		add 'show-tables',     'Show list of tables',    'show', true
 		add 'import',          'Import file to a table', 'import', true  # TODO
 		add 'query',           'Execute a query',        'query', true   # TODO
 		add 'help',            'Show usage of a command', 'help', false
