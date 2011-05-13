@@ -40,15 +40,14 @@ description:
 		usage $!.to_s
 	end
 
-	if db = arg[:database]
-		query = "USE #{db}; "+query
-	end
+	db = arg[:database]
+	db || ''
 
 	conf = TRD::Config.read(CONFIG_PATH)
 
 	api = TRD::API.new(arg, conf)
 
-	result = api.query(query)
+	result = api.query(db, query)
 
 	# TODO
 	p result

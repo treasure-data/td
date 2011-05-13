@@ -26,9 +26,9 @@ module Command
 		add 'drop-table',      'Delete a table',         'db_table', true
 		add 'show-databases',  'Show list of databases', 'show', true
 		add 'show-tables',     'Show list of tables',    'show', true
-		add 'import',          'Import file to a table', 'import', true  # TODO
-		add 'query',           'Execute a query',        'query', true   # TODO
-		add 'help',            'Show usage of a command', 'help', false
+		#add 'import',          'Import file to a table', 'import', true  # TODO
+		add 'query',           'Execute a query',        'query', true
+		add 'help',            'Show usage of a command','help', false
 
 		def self.common_help(indent='')
 			LIST.map {|name,msg,common|

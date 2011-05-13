@@ -37,6 +37,12 @@ description:
 
 	databases = api.databases
 
+	if databases.empty?
+		puts "There are no databases."
+		puts "Use '#{$prog} create-database <db>' to create a database."
+		exit 0
+	end
+
 	databases.each {|db|
 		puts "#{db}"
 	}
