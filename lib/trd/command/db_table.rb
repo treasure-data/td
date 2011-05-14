@@ -40,7 +40,7 @@ description:
 	api.create_database(name)
 
 	puts "Database '#{name}' is created."
-	puts "Use '#{$prog} create-table #{name}.<tabl name>' to create a table."
+	puts "Use '#{$prog} create-log-table #{name}.<tabl name>' to create a table."
 end
 
 

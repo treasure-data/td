@@ -12,10 +12,10 @@ class API
 	def self.option(op, arg)
 	end
 
-	HOST = 'office.pfidev.jp'
+	HOST = 'api.treasure-data.com'
 	PORT = 80
 	USE_SSL = false
-	BASE_URL = '/td_api2'
+	BASE_URL = ''
 
 	def initialize(arg, conf)
 		require 'json'
@@ -27,7 +27,9 @@ class API
 		if code != "200"
 			raise_error("Authentication failed", res)
 		end
-		return body
+		js = JSON.load(body)
+		apikey = js['apikey']
+		return apikey
 	end
 
 	def create_database(db)

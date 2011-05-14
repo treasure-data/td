@@ -66,6 +66,7 @@ options:
 			system "stty -echo"  # TODO termios
 			print "Password: "
 			password = STDIN.gets || ""
+			password = password[0..-2]  # strip \n
 		ensure
 			system "stty echo"   # TODO termios
 			print "\n"

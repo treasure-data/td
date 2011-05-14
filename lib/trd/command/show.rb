@@ -46,21 +46,19 @@ description:
 	databases.each {|db|
 		puts "Database '#{db}'"
 
-		puts "  Log tables:"
 		begin
 			log_tables = api.log_tables(db)
 			log_tables.each {|t|
-				puts "    '#{t}'"
+				puts "  log table: '#{db}.#{t}'"
 			}
 		rescue
 			# TODO
 		end
 
-		puts "  Item tables:"
 		begin
-			item_tables = api.log_tables(db)
-			log_tables.each {|t|
-				puts "    '#{t}'"
+			item_tables = api.item_tables(db)
+			item_tables.each {|t|
+				puts "  item table: '#{db}.#{t}'"
 			}
 		rescue
 			# TODO
