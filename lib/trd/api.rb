@@ -12,12 +12,13 @@ class API
 	def self.option(op, arg)
 	end
 
-	HOST = 'api.treasure-data.com'
+	HOST = 'office.pfidev.jp'
 	PORT = 80
 	USE_SSL = false
-	BASE_URL = ""
+	BASE_URL = '/td_api2'
 
 	def initialize(arg, conf)
+		require 'json'
 		@conf = conf
 	end
 
@@ -82,8 +83,10 @@ class API
 		if code != "200"
 			raise_error("List databases failed", res)
 		end
-		# TODO format
-		return JSON.load(body)
+		# TODO format check
+		js = JSON.load(body)
+		names = js["databases"].map {|dbinfo| dbinfo['name'] }
+		return names
 	end
 
 	def log_tables(db)
@@ -93,8 +96,10 @@ class API
 		elsif code != "200"
 			raise_error("List log tables failed", res)
 		end
-		# TODO format
-		return JSON.load(body)
+		# TODO format check
+		js = JSON.load(body)
+		names = js["log_tables"].map {|tblinfo| tblinfo['name'] }
+		names
 	end
 
 	def item_tables(db)
@@ -104,7 +109,10 @@ class API
 		elsif code != "200"
 			raise_error("List item tables failed", res)
 		end
-		return JSON.load(body)
+		# TODO format check
+		js = JSON.load(body)
+		names = js["item_tables"].map {|tblinfo| tblinfo['name'] }
+		names
 	end
 
 	def query(db, q)
@@ -126,7 +134,7 @@ class API
 			}.join('&')
 		end
 
-		request = Net::HTTP::Get.new(url, header)
+		request = Net::HTTP::Get.new(path, header)
 
 		response = http.request(request)
 		return [response.code, response.body, response]
@@ -137,7 +145,7 @@ class API
 
 		path = BASE_URL + url
 
-		request = Net::HTTP::Post.new(url, header)
+		request = Net::HTTP::Post.new(path, header)
 		request.set_form_data(params) if params
 
 		response = http.request(request)
@@ -164,7 +172,7 @@ class API
 			unless apikey
 				raise "Account is not configured. Run '#{$prog} account' first."
 			end
-			header['Authenticate'] = apikey
+			header['Authorization'] = "TRD #{apikey}"
 		end
 		header['Date'] = Time.now.rfc2822
 

@@ -19,16 +19,17 @@ module Command
 			FILES[name] = fname
 		end
 
-		add 'account',         'Set your account',       'config', true
-		add 'create-database', 'Create a database',      'db_table', true
-		add 'drop-database',   'Delete a database',      'db_table', true
-		add 'create-table',    'Create a table',         'db_table', true
-		add 'drop-table',      'Delete a table',         'db_table', true
-		add 'show-databases',  'Show list of databases', 'show', true
-		add 'show-tables',     'Show list of tables',    'show', true
-		#add 'import',          'Import file to a table', 'import', true  # TODO
-		add 'query',           'Execute a query',        'query', true
-		add 'help',            'Show usage of a command','help', false
+		add 'account',            'Set your account',       'config', true
+		add 'create-database',    'Create a database',      'db_table', true
+		add 'drop-database',      'Delete a database',      'db_table', true
+		add 'create-log-table',   'Create a log table',     'db_table', true
+		add 'create-item-table',  'Create an item table',   'db_table', true
+		add 'drop-table',         'Delete a table',         'db_table', true
+		add 'show-databases',     'Show list of databases', 'show', true
+		add 'show-tables',        'Show list of tables',    'show', true
+		#add 'import',             'Import file to a table', 'import', true  # TODO
+		add 'query',              'Execute a query',        'query', true
+		add 'help',               'Show usage of a command','help', false
 
 		def self.common_help(indent='')
 			LIST.map {|name,msg,common|
@@ -56,7 +57,7 @@ module Command
 
 		private
 		def self.format_help(name, msg, indent='')
-		"#{indent}%-17s %s" % [name, msg]
+			"#{indent}%-18s %s" % [name, msg]
 		end
 	end
 

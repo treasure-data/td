@@ -44,7 +44,27 @@ description:
 	end
 
 	databases.each {|db|
-		puts "#{db}"
+		puts "Database '#{db}'"
+
+		puts "  Log tables:"
+		begin
+			log_tables = api.log_tables(db)
+			log_tables.each {|t|
+				puts "    '#{t}'"
+			}
+		rescue
+			# TODO
+		end
+
+		puts "  Item tables:"
+		begin
+			item_tables = api.log_tables(db)
+			log_tables.each {|t|
+				puts "    '#{t}'"
+			}
+		rescue
+			# TODO
+		end
 	}
 end
 
@@ -111,14 +131,14 @@ description:
 	if log_tables
 		puts "Log tables:"
 		log_tables.each {|t|
-			puts "  #{t}"
+			puts "  '#{t}'"
 		}
 	end
 
 	if item_tables
 		puts "Item tables:"
 		item_tables.each {|t|
-			puts "  #{t}"
+			puts "  '#{t}'"
 		}
 	end
 
