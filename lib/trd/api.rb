@@ -1,197 +1,361 @@
+require 'trd/api_iface'
+require 'trd/error'
 
 module TRD
 
-class APIError < StandardError
-end
-
-class AuthError < APIError
-end
-
-
 class API
-	def self.option(op, arg)
+	def self.authenticate(user, password)
+		iface = APIInterface.new(nil)
+		apikey = iface.authenticate(user, password)
+		new(apikey)
 	end
 
-	HOST = 'api.treasure-data.com'
-	PORT = 80
-	USE_SSL = false
-	BASE_URL = ''
-
-	def initialize(arg, conf)
-		require 'json'
-		@conf = conf
+	def initialize(apikey)
+		@iface = APIInterface.new(apikey)
 	end
 
-	def authenticate(user, password)
-		code, body, res = post("/v2/user/authenticate", {'user'=>user, 'password'=>password})
-		if code != "200"
-			raise_error("Authentication failed", res)
+	attr_reader :iface
+
+	def apikey
+		@iface.apikey
+	end
+
+	def database(db_name, create=false)
+		if create
+			@iface.create_database(db_name)
 		end
-		js = JSON.load(body)
-		apikey = js['apikey']
-		return apikey
-	end
-
-	def create_database(db)
-		code, body, res = post("/v2/database/create/#{e db}")
-		if code != "200"
-			raise_error("Create database failed", res)
-		end
-		return nil
-	end
-
-	def create_log_table(db, table)
-		code, body, res = post("/v2/log_table/create/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Create log table failed", res)
-		end
-		return nil
-	end
-
-	def create_item_table(db, table)
-		code, body, res = post("/v2/item_table/create/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Create item table failed", res)
-		end
-		return nil
-	end
-
-	def drop_database(db)
-		code, body, res = post("/v2/database/delete/#{e db}")
-		if code != "200"
-			raise_error("Drop database failed", res)
-		end
-		return nil
-	end
-
-	def drop_log_table(db, table)
-		code, body, res = post("/v2/log_table/delete/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Drop log table failed", res)
-		end
-		return nil
-	end
-
-	def drop_item_table(db, table)
-		code, body, res = post("/v2/item_table/delete/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Drop item table failed", res)
-		end
-		return nil
+		log_counts, item_counts = @iface.show_tables(db_name)
+		logs = log_counts.map {|table_name,count|
+			LogTable.new(self, db_name, table_name, count)
+		}
+		items = item_counts.map {|table_name,count|
+			ItemTable.new(self, db_name, table_name, count)
+		}
+		tables = logs + items
+		Database.new(self, db_name, tables)
 	end
 
 	def databases
-		code, body, res = get("/v2/database/list")
-		if code != "200"
-			raise_error("List databases failed", res)
+		names = @iface.list_databases
+		names.map {|db_name|
+			Database.new(self, db_name)
+		}
+	end
+
+	def delete_database(db_name)
+		@iface.drop_database(db_name)
+	end
+
+	def log_table(db_name, table_name, create=false)
+		if create
+			@iface.create_log_table(db_name, table_name)
+			return LogTable.new(self, db_name, table_name)
 		end
-		# TODO format check
-		js = JSON.load(body)
-		names = js["databases"].map {|dbinfo| dbinfo['name'] }
-		return names
-	end
-
-	def log_tables(db)
-		code, body, res = get("/v2/log_table/list/#{e db}")
-		if code == "404"
-			return nil
-		elsif code != "200"
-			raise_error("List log tables failed", res)
+		count = @iface.show_log_tables(db_name)[table_name]
+		unless count
+			raise NotFoundError, "Log table '#{table_name}' does not exist"
 		end
-		# TODO format check
-		js = JSON.load(body)
-		names = js["log_tables"].map {|tblinfo| tblinfo['name'] }
-		names
+		LogTable.new(self, db_name, table_name, count)
 	end
 
-	def item_tables(db)
-		code, body, res = get("/v2/item_table/list/#{e db}")
-		if code == "404"
-			return nil
-		elsif code != "200"
-			raise_error("List item tables failed", res)
+	def item_table(db_name, table_name, create=false)
+		if create
+			@iface.create_item_table(db_name, table_name)
+			return ItemTable.new(self, db_name, table_name)
 		end
-		# TODO format check
-		js = JSON.load(body)
-		names = js["item_tables"].map {|tblinfo| tblinfo['name'] }
-		names
-	end
-
-	def query(db, q)
-		code, body, res = post("/v2/hive/issue/#{e db}", {'query'=>q})
-		if code != "200"
-			raise_error("Query failed", res)
+		count = @iface.show_item_tables(db_name)[table_name]
+		unless count
+			raise NotFoundError, "Item table '#{table_name}' does not exist"
 		end
-		return JSON.load(body)
+		ItemTable.new(self, db_name, table_name, count)
 	end
 
-	private
-	def get(url, params=nil, api_auth=true)
-		http, header = new_http(api_auth, :get)
+	def log_tables(db_name)
+		counts = @iface.show_log_tables(db_name)
+		counts.map {|table_name,count|
+			LogTable.new(self, db_name, table_name, count)
+		}
+	end
 
-		path = BASE_URL + url
-		if params && !params.empty?
-			path << params.map {|k,v|
-				"#{k}=#{e v}"
-			}.join('&')
+	def item_tables(db_name)
+		counts = @iface.show_item_tables(db_name)
+		counts.map {|table_name,count|
+			ItemTable.new(self, db_name, table_name, count)
+		}
+	end
+
+	def delete_log_table(db_name, table_name)
+		@iface.drop_log_table(db_name, table_name)
+	end
+
+	def delete_item_table(db_name, table_name)
+		@iface.drop_item_table(db_name, table_name)
+	end
+
+	def delete_table(db_name, table_name)
+		begin
+			@iface.drop_log_table(db_name, table_name)
+		rescue NotFoundError
+			@iface.drop_item_table(db_name, table_name)
 		end
-
-		request = Net::HTTP::Get.new(path, header)
-
-		response = http.request(request)
-		return [response.code, response.body, response]
 	end
 
-	def post(url, params=nil, api_auth=true)
-		http, header = new_http(api_auth, :post)
-
-		path = BASE_URL + url
-
-		request = Net::HTTP::Post.new(path, header)
-		request.set_form_data(params) if params
-
-		response = http.request(request)
-		return [response.code, response.body, response]
+	def tables(db_name)
+		log_tables(db_name) + item_tables(db_name)
 	end
 
-	def new_http(api_auth, type)
-		require 'net/http'
-		require 'time'
-
-		http = Net::HTTP.new(HOST, PORT)
-		if USE_SSL
-			http.use_ssl = true
-			http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-			store = OpenSSL::X509::Store.new
-			http.cert_store = store
+	def log_count(db_name, table_name)
+		count = @iface.show_log_tables(db_name)[table_name]
+		unless count
+			raise NotFoundError, "Log table '#{table_name}' does not exist"
 		end
+		count
+	end
 
-		#http.read_timeout = options[:read_timeout]
-
-		header = {}
-		if api_auth
-			apikey = @conf['account.apikey']
-			unless apikey
-				raise "Account is not configured. Run '#{$prog} account' first."
-			end
-			header['Authorization'] = "TRD #{apikey}"
+	def item_count(db_name, table_name)
+		count = @iface.show_item_tables(db_name)[table_name]
+		unless count
+			raise NotFoundError, "Item table '#{table_name}' does not exist"
 		end
-		header['Date'] = Time.now.rfc2822
-
-		return http, header
+		count
 	end
 
-	def raise_error(msg, res)
-		# TODO error
-		raise APIError, "#{msg}: #{res.body}"
+	def query(db_name, query)
+		job_id = @iface.query(db_name, query)
+		Job.new(self, db_name, job_id)
 	end
 
-	def e(s)
-		require 'cgi'
-		CGI.escape(s.to_s)
+	def job(db_name, job_id)
+		job_id = job_id.to_s
+		jobs = @iface.list_jobs
+		j = jobs.find {|j| j[:job_id] == job_id }
+		unless j
+			raise NotFoundError, "Job #{job_id} does not exist"
+		end
+		Job.new(self, db_name, job_id, j['status'])
+	end
+
+	def jobs
+		js = @iface.list_jobs
+		js.map {|j|
+			Job.new(self, j['database'], j['job_id'], j['status'])
+		}
 	end
 end
 
+end
+
+
+module TRD
+
+class APIObject
+	def initialize(api)
+		@api = api
+	end
+end
+
+class Database < APIObject
+	def initialize(api, db_name, tables=nil)
+		super(api)
+		@db_name = db_name
+		@tables = tables
+	end
+
+	def name
+		@db_name
+	end
+
+	def query(q)
+		@api.query(@db_name, q)
+	end
+
+	def log_tables
+		update_tables! unless @tables
+		@tables.select {|table| table.log_table?  }
+	end
+
+	def item_tables
+		update_tables! unless @tables
+		@tables.select {|table| table.item_table?  }
+	end
+
+	def tables
+		update_tables! unless @tables
+		@tables
+	end
+
+	def log_table(table_name)
+		log_tables.find {|table| table.name == table_name }
+	end
+
+	def item_table(table_name)
+		item_tables.find {|table| table.name == table_name }
+	end
+
+	def table(table_name, type=nil, create=false)
+		update_tables! unless @tables
+		case type
+		when nil
+			return @tables.find {|table| table.name == table_name }
+		when :log, :item
+			table = @tables.find {|table|
+				table.type == type && table.name == table_name
+			}
+			if table
+				return table
+			end
+
+			if create
+				if type == :log
+					table = @api.log_table(@db_name, table_name, true)
+				else
+					table = @api.item_table(@db_name, table_name, true)
+				end
+				@tables << table
+				return table
+			end
+		else
+			raise ArgumentError, "invalid type name '#{type}'"
+		end
+		nil
+	end
+
+	def log_table(table_name, create=false)
+		table(table_name, :log, create)
+	end
+
+	def item_table(table_name, create=false)
+		table(table_name, :item, create)
+	end
+
+	def delete
+		@api.delete_database(@db_name)
+	end
+
+	def update_tables!
+		@tables = @api.tables(@db_name)
+	end
+end
+
+class Table < APIObject
+	def initialize(api, type, db_name, table_name, count=nil)
+		super(api)
+		@type = type
+		@db_name = db_name
+		@table_name = table_name
+		@count = count
+	end
+
+	attr_reader :type
+
+	def database_name
+		@db_name
+	end
+
+	def database
+		@api.database(@db_name)
+	end
+
+	def name
+		@table_name
+	end
+
+	def identifier
+		"#{@db_name}.#{@table_name}"
+	end
+
+	def log_table?
+		@type == :log
+	end
+
+	def item_table?
+		@type == :item
+	end
+
+	def count
+		update_count! unless @count
+	end
+
+	def delete
+		if log_table?
+			@api.delete_log_table(@db_name, @table_name)
+		else
+			@api.delete_item_table(@db_name, @table_name)
+		end
+	end
+end
+
+class ItemTable < Table
+	def initialize(api, db_name, table_name, count=nil)
+		super(api, :item, db_name, table_name, count)
+	end
+
+	def update_count!
+		@count = @api.item_count(@db_name, @table_name)
+	end
+end
+
+class LogTable < Table
+	def initialize(api, db_name, table_name, count=nil)
+		super(api, :log, db_name, table_name, count)
+	end
+
+	def update_count!
+		@count = @api.log_count(@db_name, @table_name)
+	end
+end
+
+class Job < APIObject
+	def initialize(api, db_name, job_id, status=nil, result=nil, debug=nil)
+		super(api)
+		@db_name = db_name
+		@job_id = job_id
+		@status = status
+		@result = result
+		@debug = debug
+	end
+
+	attr_reader :job_id
+
+	def database_name
+		@db_name
+	end
+
+	def wait(timeout=nil)
+		# TODO
+	end
+
+	def status
+		return nil unless finished?
+		@status
+	end
+
+	def result
+		return nil unless finished?
+		@result
+	end
+
+	def debug
+		return nil unless finished?
+		@debug
+	end
+
+	def finished?
+		update_status! unless @status
+		@status != "running"
+	end
+
+	def running?
+		!finished?
+	end
+
+	def update_status!
+		map = @api.iface.show_job(db_name, job_id)
+		@result = map['result']
+		@status = map['status']
+		@debug = map['debug']
+	end
+end
 
 end
 

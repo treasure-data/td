@@ -1,65 +1,83 @@
 
 module TRD
 module Command
+module List
 
-	def self.define_command(name, &block)
-		define_method(name) {|argv|
-			op = OptionParser.new
-			op.banner = "usage: #{$prog} #{name}"
-			block.call(argv,op)
-		}
+	LIST = []
+	ALIASES = {}
+
+	def self.add_list(file, cmd, description)
+		LIST << [cmd, file, description]
 	end
 
-	module List
-		LIST = []
-		FILES = {}
+	def self.add_alias(new_cmd, old_cmd)
+		ALIASES[new_cmd] = old_cmd
+	end
 
-		def self.add(name, msg, fname, common=false)
-			LIST << [name, msg, common]
-			FILES[name] = fname
-		end
-
-		add 'account',            'Set your account',       'config', true
-		add 'create-database',    'Create a database',      'db_table', true
-		add 'drop-database',      'Delete a database',      'db_table', true
-		add 'create-log-table',   'Create a log table',     'db_table', true
-		add 'create-item-table',  'Create an item table',   'db_table', true
-		add 'drop-table',         'Delete a table',         'db_table', true
-		add 'show-databases',     'Show list of databases', 'show', true
-		add 'show-tables',        'Show list of tables',    'show', true
-		#add 'import',             'Import file to a table', 'import', true  # TODO
-		add 'query',              'Execute a query',        'query', true
-		add 'help',               'Show usage of a command','help', false
-
-		def self.common_help(indent='')
-			LIST.map {|name,msg,common|
-				format_help(name, msg, indent) if common
-			}.compact.join("\n")
-		end
-
-		def self.all_help(indent='')
-			LIST.map {|name,msg,common|
-				format_help(name, msg, indent) if common
-			}.join("\n")
-		end
-
-		def self.call(cmd)
-			fname = FILES[cmd]
-			mname = cmd.gsub(/[^a-zA-Z0-9]+/,'_')
-			begin
-				require "trd/command/#{fname}"
-				m = TRD::Command.method(mname)
-			rescue LoadError, NameError
-				raise "'#{cmd}' is not a trd command. See '#{$prog} --help'"
+	def self.get_description(command)
+		LIST.each {|cmd,file,description|
+			if cmd == command
+				return description
 			end
-			m.call
-		end
-
-		private
-		def self.format_help(name, msg, indent='')
-			"#{indent}%-18s %s" % [name, msg]
-		end
+		}
+		nil
 	end
+
+	add_list 'list', 'help', 'Show usage of a command'
+	add_list 'account', 'account', 'Setup an account'
+	add_list 'database', 'show-databases', 'Show list of databases'
+	add_list 'table', 'show-tables', 'Show list of tables'
+	add_list 'query', 'show-jobs', 'Show list of jobs'
+	add_list 'database', 'create-database', 'Create a database'
+	add_list 'table', 'create-log-table', 'Create a log table'
+	add_list 'table', 'create-item-table', 'Create a item table'
+	add_list 'database', 'drop-database', 'Delete a database'
+	add_list 'table', 'drop-log-table', 'Delete a log table'
+	add_list 'table', 'drop-item-table', 'Delete a item table'
+	add_list 'table', 'drop-table', 'Delete a table'
+	add_list 'query', 'query', 'Start a query'
+	add_list 'query', 'job', 'Show status of a job'
+
+	add_alias 'show-dbs', 'show-databases'
+	add_alias 'create-db', 'create-databases'
+	add_alias 'drop-db', 'create-databases'
+
+	def self.get_method(command)
+		command = ALIASES[command] || command
+		LIST.each {|cmd,file,description|
+			if cmd == command
+				require 'trd/command/common'
+				require "trd/command/#{file}"
+				name = command.gsub('-','_')
+				return Object.new.extend(Command).method(name)
+			end
+		}
+		nil
+	end
+
+	def self.help(indent)
+		LIST.map {|cmd,file,description|
+			"#{indent}%-18s %s" % [cmd, description.split("\n").first]
+		}.join("\n")
+	end
+
+end
+
+def help
+	op = cmd_opt 'help', :command
+	cmd = op.cmd_parse
+
+	ARGV.clear
+	ARGV[0] = '--help'
+
+	method = List.get_method(cmd)
+	unless method
+		$stderr.puts "'#{cmd}' is not a trd command. Run '#{$prog}' to show the list."
+		exit 1
+	end
+
+	method.call
+end
 
 end
 end
