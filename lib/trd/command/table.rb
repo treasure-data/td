@@ -47,6 +47,7 @@ module Command
 		unless table
 			$stderr.puts "No such table: '#{db_name}.#{table_name}'"
 			$stderr.puts "Use '#{$prog} show-tables #{db_name}' to show list of tables."
+			exit 1
 		end
 
 		table.delete
@@ -64,6 +65,7 @@ module Command
 		unless table
 			$stderr.puts "No such #{type} table: '#{db_name}.#{table_name}'"
 			$stderr.puts "Use '#{$prog} show-tables #{db_name}' to show list of tables."
+			exit 1
 		end
 
 		table.delete
@@ -103,7 +105,7 @@ module Command
 		rows = []
 		dbs.each {|db|
 			db.tables.each {|table|
-				rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s }
+				rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s} #TODO, :Count => count }
 			}
 		}
 		rows = rows.sort_by {|map|

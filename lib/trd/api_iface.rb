@@ -107,7 +107,7 @@ class APIInterface
 		js = JSON.load(body)
 		result = {}
 		js["log_tables"].each {|m|
-			result[m['name']] = m['count']
+			result[m['name']] = m['count'] || 0  # TODO?
 		}
 		return result
 	end
@@ -160,6 +160,22 @@ class APIInterface
 		js
 	end
 
+	def import_log(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
+		code, body, res = put("/v2/log_table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
+		if code[0] != ?2
+			raise_error("Import log failed", res)
+		end
+		return true
+	end
+
+	def import_item(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
+		code, body, res = put("/v2/item_table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
+		if code[0] != ?2
+			raise_error("Import item failed", res)
+		end
+		return true
+	end
+
 	def authenticate(user, password)
 		code, body, res = post("/v2/user/authenticate", {'user'=>user, 'password'=>password})
 		if code != "200"
@@ -178,7 +194,7 @@ class APIInterface
 	BASE_URL = ''
 
 	def get(url, params=nil)
-		http, header = new_http(:get)
+		http, header = new_http
 
 		path = BASE_URL + url
 		if params && !params.empty?
@@ -194,7 +210,7 @@ class APIInterface
 	end
 
 	def post(url, params=nil)
-		http, header = new_http(:post)
+		http, header = new_http
 
 		path = BASE_URL + url
 
@@ -205,7 +221,25 @@ class APIInterface
 		return [response.code, response.body, response]
 	end
 
-	def new_http(type)
+	def put(url, stream, stream_size)
+		http, header = new_http
+
+		path = BASE_URL + url
+
+		header['Content-Length'] = stream_size.to_s
+
+		request = Net::HTTP::Put.new(url, header)
+		if request.respond_to?(:body_stream=)
+			request.body_stream = stream
+		else  # Ruby 1.8
+			request.body = stream.read
+		end
+
+		response = http.request(request)
+		return [response.code, response.body, response]
+	end
+
+	def new_http
 		require 'net/http'
 		require 'time'
 

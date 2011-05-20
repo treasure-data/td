@@ -3,17 +3,23 @@ module TRD
 module Command
 	private
 	def cmd_opt(name, *args)
+		if args.last.to_s =~ /_$/
+			args.push args.pop.to_s[0..-2]+'...'
+			multi = true
+		end
+
 		req_args, opt_args = args.partition {|a| a.to_s !~ /\?$/ }
 		opt_args = opt_args.map {|a| a.to_s[0..-2].to_sym }
 		args = req_args + opt_args
 
-		args_line = req_args.map {|a| "<#{a}>" } + opt_args.map {|a| "[#{a}]" }
+		args_line = req_args.map {|a| "<#{a}>" }
+		args_line.concat opt_args.map {|a| "[#{a}]" }
 		args_line = args_line.join(' ')
 
 		description = List.get_description(name)
 
 		op = OptionParser.new
-		op.summary_indent = "  "
+		op.summary_indent = ""
 		op.banner = <<EOF
 usage: #{$prog} #{name} #{args_line}
 
@@ -33,10 +39,9 @@ EOF
 				begin
 					parse!(ARGV)
 					if ARGV.length < req_args.length - opt_args.length ||
-							ARGV.length > args.length
+							(!multi && ARGV.length > args.length)
 						cmd_usage nil
 					end
-					#Hash[*args.zip(ARGV).flatten]
 					if ARGV.length <= 1
 						ARGV[0]
 					else
@@ -80,7 +85,7 @@ EOF
 		db = dbs.find {|db| db.name == db_name }
 		unless db
 			$stderr.puts "No such database: '#{db_name}'"
-			$stderr.puts "Use '#{$prog} show-database' to show list of databases."
+			$stderr.puts "Use '#{$prog} show-databases' to show list of databases."
 			exit 1
 		end
 		db

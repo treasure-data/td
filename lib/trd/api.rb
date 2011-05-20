@@ -141,6 +141,24 @@ class API
 			Job.new(self, j['database'], j['job_id'], j['status'])
 		}
 	end
+
+	def import(type, db, table, stream, stream_size=stream.lstat.size, format="json.gz")
+		if type == :log
+			import_log(db, table, stream, stream_size, format)
+		elsif type == :item
+			import_item(db, table, stream, stream_size, format)
+		else
+			raise ArgumentError, "type should be :log or :item"
+		end
+	end
+
+	def import_log(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
+		@iface.import_log(db, table, stream, stream_size, format)
+	end
+
+	def import_item(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
+		@iface.import_item(db, table, stream, stream_size, format)
+	end
 end
 
 end
@@ -274,6 +292,7 @@ class Table < APIObject
 
 	def count
 		update_count! unless @count
+		@count
 	end
 
 	def delete
