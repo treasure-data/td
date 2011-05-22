@@ -122,23 +122,23 @@ class API
 
 	def query(db_name, query)
 		job_id = @iface.query(db_name, query)
-		Job.new(self, db_name, job_id)
+		Job.new(self, job_id)
 	end
 
-	def job(db_name, job_id)
+	def job(job_id)
 		job_id = job_id.to_s
 		jobs = @iface.list_jobs
-		j = jobs.find {|j| j[:job_id] == job_id }
+		j = jobs.find {|j| j['job_id'].to_s == job_id }
 		unless j
 			raise NotFoundError, "Job #{job_id} does not exist"
 		end
-		Job.new(self, db_name, job_id, j['status'])
+		Job.new(self, job_id, j['status'])
 	end
 
 	def jobs
 		js = @iface.list_jobs
 		js.map {|j|
-			Job.new(self, j['database'], j['job_id'], j['status'])
+			Job.new(self, j['job_id'], j['status'])
 		}
 	end
 
@@ -325,9 +325,8 @@ class LogTable < Table
 end
 
 class Job < APIObject
-	def initialize(api, db_name, job_id, status=nil, result=nil, debug=nil)
+	def initialize(api, job_id, status=nil, result=nil, debug=nil)
 		super(api)
-		@db_name = db_name
 		@job_id = job_id
 		@status = status
 		@result = result
@@ -336,22 +335,22 @@ class Job < APIObject
 
 	attr_reader :job_id
 
-	def database_name
-		@db_name
-	end
-
 	def wait(timeout=nil)
 		# TODO
 	end
 
 	def status
-		return nil unless finished?
+		finished?
 		@status
 	end
 
 	def result
 		return nil unless finished?
-		@result
+		#@result
+		# TODO format of result is currentry TSV
+		@result.split("\n").map {|line|
+			line.split("\t")
+		}
 	end
 
 	def debug
@@ -360,8 +359,14 @@ class Job < APIObject
 	end
 
 	def finished?
-		update_status! unless @status
-		@status != "running"
+		if !@status
+			update_status!
+		elsif @status != "running"
+			update_status! unless @result
+			return true
+		else
+			return false
+		end
 	end
 
 	def running?
@@ -369,7 +374,7 @@ class Job < APIObject
 	end
 
 	def update_status!
-		map = @api.iface.show_job(db_name, job_id)
+		map = @api.iface.show_job(@job_id)
 		@result = map['result']
 		@status = map['status']
 		@debug = map['debug']

@@ -135,7 +135,7 @@ class APIInterface
 		end
 		# TODO format check
 		js = JSON.load(body)
-		return js['job_id']
+		return js['job_id'].to_s
 	end
 
 	# [{'job_id' => id:Integer, 'database' => db:String, 'status' => str}]
@@ -150,8 +150,8 @@ class APIInterface
 	end
 
 	# {'job_id' => id:Integer, 'database' => db:String, 'status' => str, 'result' => obj, 'debug' => obj}
-	def show_job(db, job_id)
-		code, body, res = get("/v2/hive/status/#{e db}/#{e job_id}")
+	def show_job(job_id)
+		code, body, res = get("/v2/job/show/#{e job_id}")
 		if code != "200"
 			raise_error("Show job failed", res)
 		end

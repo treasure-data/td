@@ -105,7 +105,7 @@ module Command
 		rows = []
 		dbs.each {|db|
 			db.tables.each {|table|
-				rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s} #TODO, :Count => count }
+				rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s} # TODO , :Count => table.count}
 			}
 		}
 		rows = rows.sort_by {|map|

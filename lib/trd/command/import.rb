@@ -34,7 +34,6 @@ module Command
 			end
 		}
 
-
 		files.zip(paths).each {|file,path|
 			ib = ImportFileBuilder.new(db_name, table_name)
 			begin
@@ -60,13 +59,14 @@ module Command
 			@db = db
 			@table = table
 			@file = Tempfile.new('trd-import')
+			@path = @file.path
 			@writer = Zlib::GzipWriter.new(@file)
 			@first = true
 			write_header
 		rescue
 			@writer.close if @writer rescue nil
 			@file.close if @file rescue nil
-			@file.unlink if @file rescue nil
+			File.unlink(@path) if @path rescue nil
 			raise
 		end
 
@@ -74,16 +74,17 @@ module Command
 
 		def flush
 			write_footer
-			@writer.flush
-			size = @file.pos
-			@file.pos = 0
+			@writer.close
+			# TODO GzipWriter must be closed to flush
+			@file = File.open(@path)
+			size = @file.lstat.size
 			return @file, size
 		end
 
 		def close
-			@writer.close
-			@file.close
-			@file.unlink
+			@writer.close rescue nil
+			@file.close rescue nil
+			File.unlink(@path) rescue nil
 		end
 
 		def write_header

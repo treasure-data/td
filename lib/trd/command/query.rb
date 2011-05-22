@@ -14,7 +14,7 @@ module Command
 		job = db.query(query)
 
 		$stderr.puts "Job #{job.job_id} is started."
-		$stderr.puts "Use '#{$0} job #{db_name} #{job.job_id}' to show the status."
+		$stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
 	end
 
 	def show_jobs
@@ -28,14 +28,14 @@ module Command
 
 		rows = []
 		jobs.each {|job|
-			rows << {:Database => job.database_name, :JobID => job.job_id, :Status => job.status}
+			rows << {:JobID => job.job_id, :Status => job.status}
 		}
 
 		puts cmd_render_table(rows)
 	end
 
 	def job
-		op = cmd_opt 'job', :db_name, :job_id
+		op = cmd_opt 'job', :job_id
 
 		op.banner << "\noptions:\n"
 
@@ -44,23 +44,34 @@ module Command
 			verbose = b
 		}
 
-		db_name, job_id = op.cmd_parse
+		job_id = op.cmd_parse
 
 		conf = cmd_config
 		api = cmd_api(conf)
 
-		db = find_database(api, db_name)
+		job = api.job(job_id)
 
-		job = api.job(db_name, job_id)
-
-		puts "Database   : #{job.database_name}"
 		puts "JobID      : #{job.job_id}"
 		puts "Status     : #{job.status}"
-		puts "Debug      :\n#{job.debug}" if verbose
+		if verbose # TODO debug message on show job
+			puts "Debug      :"
+			(job.debug || {}).each_pair {|k,v|
+				puts "  #{k}:"
+				v.to_s.split("\n").each {|line|
+					puts "    "+line
+				}
+			}
+		end
+		#puts "Debug      :\n#{job.debug}"# if verbose
 
 		if job.finished?
-			puts cmd_render_table(job.result)
+			puts "Result     :"
+			cmd_render_table(job.result).split("\n").each {|line|
+				puts line
+			}
 		end
+
+		$stderr.puts "Use '-v' option to show detailed messages." unless verbose
 	end
 
 end

@@ -19,7 +19,7 @@ module Command
 		description = List.get_description(name)
 
 		op = OptionParser.new
-		op.summary_indent = ""
+		op.summary_indent = "  "
 		op.banner = <<EOF
 usage: #{$prog} #{name} #{args_line}
 
