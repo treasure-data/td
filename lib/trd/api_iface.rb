@@ -3,278 +3,307 @@ module TRD
 
 
 class APIInterface
-	def initialize(apikey)
-		require 'json'
-		@apikey = apikey
-	end
+  def initialize(apikey)
+    require 'json'
+    @apikey = apikey
+  end
 
-	# TODO error check & raise appropriate errors
+  # TODO error check & raise appropriate errors
 
-	attr_reader :apikey
+  attr_reader :apikey
 
-	# => true
-	def create_database(db)
-		code, body, res = post("/v2/database/create/#{e db}")
-		if code != "200"
-			raise_error("Create database failed", res)
-		end
-		return true
-	end
+  ####
+  ## Database API
+  ##
 
-	# => true
-	def create_log_table(db, table)
-		code, body, res = post("/v2/log_table/create/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Create log table failed", res)
-		end
-		return true
-	end
+  # => [name:String]
+  def list_databases
+    code, body, res = get("/v2/database/list")
+    if code != "200"
+      raise_error("List databases failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    names = js["databases"].map {|dbinfo| dbinfo['name'] }
+    return names
+  end
 
-	# => true
-	def create_item_table(db, table)
-		code, body, res = post("/v2/item_table/create/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Create item table failed", res)
-		end
-		return true
-	end
+  # => true
+  def delete_database(db)
+    code, body, res = post("/v2/database/delete/#{e db}")
+    if code != "200"
+      raise_error("Delete database failed", res)
+    end
+    return true
+  end
 
-	# => true
-	def drop_database(db)
-		code, body, res = post("/v2/database/delete/#{e db}")
-		if code != "200"
-			raise_error("Drop database failed", res)
-		end
-		return true
-	end
+  # => true
+  def create_database(db)
+    code, body, res = post("/v2/database/create/#{e db}")
+    if code != "200"
+      raise_error("Create database failed", res)
+    end
+    return true
+  end
 
-	# => true
-	def drop_log_table(db, table)
-		code, body, res = post("/v2/log_table/delete/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Drop log table failed", res)
-		end
-		return true
-	end
 
-	# => true
-	def drop_item_table(db, table)
-		code, body, res = post("/v2/item_table/delete/#{e db}/#{e table}")
-		if code != "200"
-			raise_error("Drop item table failed", res)
-		end
-		return true
-	end
+  ####
+  ## Table API
+  ##
 
-	# => [name:String]
-	def list_databases
-		code, body, res = get("/v2/database/list")
-		if code != "200"
-			raise_error("List databases failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		names = js["databases"].map {|dbinfo| dbinfo['name'] }
-		return names
-	end
+  # => {name:String => [type:Symbol, count:Integer]}
+  def list_tables(db)
+    code, body, res = get("/v2/table/list/#{e db}")
+    if code != "200"
+      raise_error("List tables failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    result = {}
+    js["tables"].map {|m|
+      name = m['name']
+      type = m['type'].to_sym
+      count = m['count'] || 0  # TODO?
+      result[name] = [type, count]
+    }
+    return result
+  end
 
-	# => [logTables, itemTables]
-	def show_tables(db)
-		code, body, res = get("/v2/database/show/#{e db}")
-		if code != "200"
-			raise_error("List item tables failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		logs = {}
-		js["log_tables"].each {|m|
-			logs[m['name']] = m['count']
-		}
-		items = {}
-		js["item_tables"].each {|m|
-			items[m['name']] = m['count']
-		}
-		return logs, items
-	end
+  # => true
+  def create_table(db, table, type)
+    code, body, res = post("/v2/table/create/#{e db}/#{e table}/#{type}")
+    if code != "200"
+      raise_error("Create #{type} table failed", res)
+    end
+    return true
+  end
 
-	# => {name:String => count:Integer}
-	def show_log_tables(db)
-		code, body, res = get("/v2/log_table/list/#{e db}")
-		if code != "200"
-			raise_error("List log tables failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		result = {}
-		js["log_tables"].each {|m|
-			result[m['name']] = m['count'] || 0  # TODO?
-		}
-		return result
-	end
+  # => true
+  def create_log_table(db, table)
+    create_table(db, table, :log)
+  end
 
-	# => {name:String => count:Integer}
-	def show_item_tables(db)
-		code, body, res = get("/v2/item_table/list/#{e db}")
-		if code != "200"
-			raise_error("List item tables failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		result = {}
-		js["item_tables"].each {|m|
-			result[m['name']] = m['count']
-		}
-		return result
-	end
+  # => true
+  def create_item_table(db, table)
+    create_table(db, table, :item)
+  end
 
-	# => jobId:Integer
-	def query(db, q)
-		code, body, res = post("/v2/hive/issue/#{e db}", {'query'=>q})
-		if code != "200"
-			raise_error("Query failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		return js['job_id'].to_s
-	end
+  # => type:Symbol
+  def delete_table(db, table)
+    code, body, res = post("/v2/table/delete/#{e db}/#{e table}")
+    if code != "200"
+      raise_error("Drop table failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    type = js['type'].to_sym
+    return type
+  end
 
-	# [{'job_id' => id:Integer, 'database' => db:String, 'status' => str}]
-	def list_jobs
-		code, body, res = get("/v2/job/list")
-		if code != "200"
-			raise_error("List jobs failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		js['jobs']
-	end
 
-	# {'job_id' => id:Integer, 'database' => db:String, 'status' => str, 'result' => obj, 'debug' => obj}
-	def show_job(job_id)
-		code, body, res = get("/v2/job/show/#{e job_id}")
-		if code != "200"
-			raise_error("Show job failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		js
-	end
+  ####
+  ## Job API
+  ##
 
-	def import_log(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
-		code, body, res = put("/v2/log_table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
-		if code[0] != ?2
-			raise_error("Import log failed", res)
-		end
-		return true
-	end
+  # => [(jobId:String, type:Symbol, status:String)]
+  def list_jobs(from=0, to=nil)
+    code, body, res = get("/v2/job/list")
+    if code != "200"
+      raise_error("List jobs failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    result = []
+    js['jobs'].each {|m|
+      job_id = m['job_id']
+      type = m['type'].to_sym
+      status = m['status']
+      result << [job_id, type, status]
+    }
+    return result
+  end
 
-	def import_item(db, table, stream, stream_size=stream.lstat.size, format="json.gz")
-		code, body, res = put("/v2/item_table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
-		if code[0] != ?2
-			raise_error("Import item failed", res)
-		end
-		return true
-	end
+  # => (type:Symbol, status:String, result:String, url:String)
+  def show_job(job_id)
+    code, body, res = get("/v2/job/show/#{e job_id}")
+    if code != "200"
+      raise_error("Show job failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    type = js['type'].to_sym
+    status = js['status']
+    result = js['result']
+    url = js['url']
+    return [type, status, result, url]
+  end
 
-	def authenticate(user, password)
-		code, body, res = post("/v2/user/authenticate", {'user'=>user, 'password'=>password})
-		if code != "200"
-			raise_error("Authentication failed", res)
-		end
-		# TODO format check
-		js = JSON.load(body)
-		apikey = js['apikey']
-		return apikey
-	end
+  # => jobId:String
+  def hive_query(q, db=nil)
+    code, body, res = post("/v2/job/issue/hive/#{e db}", {'query'=>q})
+    if code != "200"
+      raise_error("Query failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    return js['job_id'].to_s
+  end
 
-	private
-	HOST = 'api.treasure-data.com'
-	PORT = 80
-	USE_SSL = false
-	BASE_URL = ''
 
-	def get(url, params=nil)
-		http, header = new_http
+  ####
+  ## Import API
+  ##
 
-		path = BASE_URL + url
-		if params && !params.empty?
-			path << params.map {|k,v|
-				"#{k}=#{e v}"
-			}.join('&')
-		end
+  # => time:Float
+  def import(db, table, format, stream, stream_size=stream.lstat.size)
+    code, body, res = put("/v2/table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
+    if code[0] != ?2
+      raise_error("Import failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    time = js['time'].to_f
+    return time
+  end
 
-		request = Net::HTTP::Get.new(path, header)
 
-		response = http.request(request)
-		return [response.code, response.body, response]
-	end
+  ####
+  ## User API
+  ##
 
-	def post(url, params=nil)
-		http, header = new_http
+  # apikey:String
+  def authenticate(user, password)
+    code, body, res = post("/v2/user/authenticate", {'user'=>user, 'password'=>password})
+    if code != "200"
+      raise_error("Authentication failed", res)
+    end
+    # TODO format check
+    js = JSON.load(body)
+    apikey = js['apikey']
+    return apikey
+  end
 
-		path = BASE_URL + url
+  ####
+  ## Server Status API
+  ##
 
-		request = Net::HTTP::Post.new(path, header)
-		request.set_form_data(params) if params
+  # => status:String
+  def server_status
+    code, body, res = get('/v2/system/server_status')
+    if code != "200"
+      return "Server is down (#{code})"
+    end
+    # TODO format check
+    js = JSON.load(body)
+    status = js['status']
+    return status
+  end
 
-		response = http.request(request)
-		return [response.code, response.body, response]
-	end
+  private
+  HOST = 'api.treasure-data.com'
+  PORT = 80
+  USE_SSL = false
+  BASE_URL = ''
 
-	def put(url, stream, stream_size)
-		http, header = new_http
+  def get(url, params=nil)
+    http, header = new_http
 
-		path = BASE_URL + url
+    path = BASE_URL + url
+    if params && !params.empty?
+      path << params.map {|k,v|
+        "#{k}=#{e v}"
+      }.join('&')
+    end
 
-		header['Content-Length'] = stream_size.to_s
+    request = Net::HTTP::Get.new(path, header)
 
-		request = Net::HTTP::Put.new(url, header)
-		if request.respond_to?(:body_stream=)
-			request.body_stream = stream
-		else  # Ruby 1.8
-			request.body = stream.read
-		end
+    response = http.request(request)
+    return [response.code, response.body, response]
+  end
 
-		response = http.request(request)
-		return [response.code, response.body, response]
-	end
+  def post(url, params=nil)
+    http, header = new_http
 
-	def new_http
-		require 'net/http'
-		require 'time'
+    path = BASE_URL + url
 
-		http = Net::HTTP.new(HOST, PORT)
-		if USE_SSL
-			http.use_ssl = true
-			http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-			store = OpenSSL::X509::Store.new
-			http.cert_store = store
-		end
+    request = Net::HTTP::Post.new(path, header)
+    request.set_form_data(params) if params
 
-		#http.read_timeout = options[:read_timeout]
+    response = http.request(request)
+    return [response.code, response.body, response]
+  end
 
-		header = {}
-		if @apikey
-			header['Authorization'] = "TRD #{apikey}"
-		end
-		header['Date'] = Time.now.rfc2822
+  def put(url, stream, stream_size)
+    http, header = new_http
 
-		return http, header
-	end
+    path = BASE_URL + url
 
-	def raise_error(msg, res)
-		# TODO error
-		if res.code == "404"
-			raise NotFoundError, "#{msg}: #{res.body}"
-		else
-			raise APIError, "#{msg}: #{res.body}"
-		end
-	end
+    header['Content-Length'] = stream_size.to_s
 
-	def e(s)
-		require 'cgi'
-		CGI.escape(s.to_s)
-	end
+    request = Net::HTTP::Put.new(url, header)
+    if request.respond_to?(:body_stream=)
+      request.body_stream = stream
+    else  # Ruby 1.8
+      request.body = stream.read
+    end
+
+    response = http.request(request)
+    return [response.code, response.body, response]
+  end
+
+  def new_http
+    require 'net/http'
+    require 'time'
+
+    http = Net::HTTP.new(HOST, PORT)
+    if USE_SSL
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      store = OpenSSL::X509::Store.new
+      http.cert_store = store
+    end
+
+    #http.read_timeout = options[:read_timeout]
+
+    header = {}
+    if @apikey
+      header['Authorization'] = "TRD #{apikey}"
+    end
+    header['Date'] = Time.now.rfc2822
+
+    return http, header
+  end
+
+  def raise_error(msg, res)
+    begin
+      js = JSON.load(res.body)
+      msg = js['message']
+      error_code = js['error_code']
+
+      if res.code == "404"
+        raise NotFoundError, "#{error_code}: #{msg}"
+      elsif res.code == "409"
+        raise AlreadyExistsError, "#{error_code}: #{msg}"
+      else
+        raise APIError, "#{error_code}: #{msg}"
+      end
+
+    rescue
+      if res.code == "404"
+        raise NotFoundError, "#{msg}: #{res.body}"
+      elsif res.code == "409"
+        raise AlreadyExistsError, "#{msg}: #{res.body}"
+      else
+        raise APIError, "#{msg}: #{res.body}"
+      end
+    end
+    # TODO error
+  end
+
+  def e(s)
+    require 'cgi'
+    CGI.escape(s.to_s)
+  end
 end
 
 

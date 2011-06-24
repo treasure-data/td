@@ -2,77 +2,74 @@
 module TRD
 module Command
 
-	def query
-		op = cmd_opt 'query', :db_name, :query
-		db_name, query = op.cmd_parse
+  def query
+    op = cmd_opt 'query', :query, :db_name?
+    query, db_name = op.cmd_parse
 
-		conf = cmd_config
-		api = cmd_api(conf)
+    conf = cmd_config
+    api = cmd_api(conf)
 
-		db = find_database(api, db_name)
+    if db_name
+      find_database(api, db_name)
+    end
 
-		job = db.query(query)
+    job = api.query(query, db_name)
 
-		$stderr.puts "Job #{job.job_id} is started."
-		$stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
-	end
+    $stderr.puts "Job #{job.job_id} is started."
+    $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
+    $stderr.puts "See #{job.url} to see the progress."
+  end
 
-	def show_jobs
-		op = cmd_opt 'show-jobs', :db_name?
-		db_name = op.cmd_parse
+  def show_jobs
+    # TODO paging
 
-		conf = cmd_config
-		api = cmd_api(conf)
+    op = cmd_opt 'show-jobs', :db_name?
+    db_name = op.cmd_parse
 
-		jobs = api.jobs
+    conf = cmd_config
+    api = cmd_api(conf)
 
-		rows = []
-		jobs.each {|job|
-			rows << {:JobID => job.job_id, :Status => job.status}
-		}
+    jobs = api.jobs
 
-		puts cmd_render_table(rows)
-	end
+    rows = []
+    jobs.each {|job|
+      rows << {:JobID => job.job_id, :Status => job.status}
+    }
 
-	def job
-		op = cmd_opt 'job', :job_id
+    puts cmd_render_table(rows)
+  end
 
-		op.banner << "\noptions:\n"
+  def job
+    op = cmd_opt 'job', :job_id
 
-		verbose = nil
-		op.on('-v', '--verbose', 'show verbose messages', TrueClass) {|b|
-			verbose = b
-		}
+    op.banner << "\noptions:\n"
 
-		job_id = op.cmd_parse
+    #verbose = nil
+    #op.on('-v', '--verbose', 'show verbose messages', TrueClass) {|b|
+    #  verbose = b
+    #}
 
-		conf = cmd_config
-		api = cmd_api(conf)
+    job_id = op.cmd_parse
 
-		job = api.job(job_id)
+    conf = cmd_config
+    api = cmd_api(conf)
 
-		puts "JobID      : #{job.job_id}"
-		puts "Status     : #{job.status}"
-		if verbose # TODO debug message on show job
-			puts "Debug      :"
-			(job.debug || {}).each_pair {|k,v|
-				puts "  #{k}:"
-				v.to_s.split("\n").each {|line|
-					puts "    "+line
-				}
-			}
-		end
-		#puts "Debug      :\n#{job.debug}"# if verbose
+    job = api.job(job_id)
 
-		if job.finished?
-			puts "Result     :"
-			cmd_render_table(job.result).split("\n").each {|line|
-				puts line
-			}
-		end
+    puts "JobID      : #{job.job_id}"
+    puts "URL        : #{job.url}"
+    puts "Status     : #{job.status}"
 
-		$stderr.puts "Use '-v' option to show detailed messages." unless verbose
-	end
+    if job.finished?
+      puts "Result     :"
+      puts cmd_render_table(job.result)
+      #cmd_render_table(job.result).split("\n").each {|line|
+      #  puts line
+      #}
+    end
+
+    $stderr.puts "Use '-v' option to show detailed messages." unless verbose
+  end
 
 end
 end

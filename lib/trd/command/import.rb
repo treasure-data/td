@@ -2,148 +2,123 @@
 module TRD
 module Command
 
-	def import
-		op = cmd_opt 'import', :db_name, :table_name, :files_
+  IMPORT_TEMPLATES = {
+    'apache' => [/^(?<host>.*?) .*? (?<user>.*?) \[(?<time>.*?)\] "(?<method>\S+?)(?: +(?<path>.*?) +\S*?)?" (?<code>.*?) (?<size>.*?)(?: "(?<referer>.*?)" "(?<agent>.*?)")?/, "%d/%b/%Y:%H:%M:%S %z"],
+    'syslog' => [/^(?<time>.*? .*? .*?) (?<host>.*?) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?[^\:]*\: *(?<message>.*)/, "%b %d %H:%M:%S"],
+  }
 
-		op.banner << "\noptions:\n"
+  # TODO import-item
+  # TODO tail
 
-		format = :apache
+  def import
+    op = cmd_opt 'import', :db_name, :table_name, :files_
 
-		op.on('--apache', 'import apache common log file (default)') {
-			format = :apache
-		}
+    op.banner << "\noptions:\n"
 
-		db_name, table_name, *paths = op.cmd_parse
+    format = 'apache'
 
-		conf = cmd_config
-		api = cmd_api(conf)
+    op.on('--format FORMAT', "file format (default: #{format})") {|s|
+      format = s.to_sym
+    }
 
-		db = find_database(api, db_name)
+    op.on('--apache', "same as --format apache; apache common log format") {
+      format = 'apache'
+    }
 
-		unless db.log_table(table_name)
-			$stderr.puts "No such log table: '#{db_name}.#{table_name}'"
-			$stderr.puts "Use '#{$prog} show-tables #{db_name}' to show list of tables."
-			exit 1
-		end
+    db_name, table_name, *paths = op.cmd_parse
 
-		files = paths.map {|path|
-			if path == '-'
-				$stdin
-			else
-				File.open(path)
-			end
-		}
+    conf = cmd_config
+    api = cmd_api(conf)
 
-		files.zip(paths).each {|file,path|
-			ib = ImportFileBuilder.new(db_name, table_name)
-			begin
-				puts "importing #{path}..."
-				import_apache(file, path, ib)
+    regexp, time_format = IMPORT_TEMPLATES[format]
+    if !regexp || !time_format
+      $stderr.puts "Unknown format '#{format}'"
+      exit 1
+    end
 
-				puts "uploading #{path}..."
-				file, size = ib.flush
-				api.import_log(db_name, table_name, file)
-			ensure
-				ib.close
-			end
-		}
+    find_table(api, db_name, table_name, :log)
 
-		puts "done."
-	end
+    files = paths.map {|path|
+      if path == '-'
+        $stdin
+      else
+        File.open(path)
+      end
+    }
 
-	private
-	class ImportFileBuilder
-		def initialize(db, table)
-			require 'tempfile'
-			require 'zlib'
-			@db = db
-			@table = table
-			@file = Tempfile.new('trd-import')
-			@path = @file.path
-			@writer = Zlib::GzipWriter.new(@file)
-			@first = true
-			write_header
-		rescue
-			@writer.close if @writer rescue nil
-			@file.close if @file rescue nil
-			File.unlink(@path) if @path rescue nil
-			raise
-		end
+    require 'zlib'
+    require 'time'  # Time#strptime
+    require 'msgpack'
+    require 'tempfile'
+    #require 'thread'
 
-		attr_reader :db, :table
+    files.zip(paths).each {|file,path|
+      puts "importing #{path}..."
 
-		def flush
-			write_footer
-			@writer.close
-			# TODO GzipWriter must be closed to flush
-			@file = File.open(@path)
-			size = @file.lstat.size
-			return @file, size
-		end
+      out = Tempfile.new('trd-import')
+      def out.close
+        # don't remove the file on close
+        super(false)
+      end
+      writer = Zlib::GzipWriter.new(out)
 
-		def close
-			@writer.close rescue nil
-			@file.close rescue nil
-			File.unlink(@path) rescue nil
-		end
+      begin
+        import_log_file(regexp, time_format, file, path, writer)
 
-		def write_header
-			@writer << %<{"table":#{(@db+'.'+@table).to_json},"logs":[>
-		end
+        # GzipWriter must be closed to flush
+        writer.close
+        # reopen for read
+        out = out.open
 
-		def add(time, props)
-			if @first
-				@first = false
-			else
-				@writer.write(',')
-			end
-			props["timestamp"] = time
-			@writer << JSON.dump(props)
-		end
+        # TODO upload on background thread
+        puts "uploading #{path}..."
+        api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
 
-		def write_footer
-			@writer << %<]}>
-		end
-	end
+      ensure
+        writer.close unless writer.closed?
+        out.close unless writer.closed?
+        File.unlink(out.path) rescue nil
+      end
+    }
 
-	def import_apache(file, path, ib)
-		i = 0
-		n = 0
-		file.each_line {|l|
-			i += 1
-			begin
-				m = /^(.*?) .*? .*? \[(.*?)\] "(\S+?)(?: +(.*?) +(\S*?))?" (.*?) .*? "(.*?)" "(.*?)"/.match(l)
-				unless m
-					raise "invalid log format at #{path}:#{i}"
-				end
-				t = /^(\d*?)\/(\w\w\w?)\/(\d\d\d\d)\:(\d\d\:\d\d\:\d\d) ([\d\+\-]*)/.match(m[2])
-				unless t
-					raise "invalid time format at #{path}:#{i}"
-				end
+    puts "done."
+  end
 
-				time = Time.parse("#{t[2]} #{t[1]} #{t[3]} #{t[4]} #{t[5]}").utc.to_i
+  private
+  def import_log_file(regexp, time_format, file, path, writer)
+    i = 0
+    n = 0
+    file.each_line {|line|
+      i += 1
+      begin
+        m = regexp.match(line)
+        unless m
+          raise "invalid log format at #{path}:#{i}"
+        end
 
-				cols = {
-					"ip" => m[1],
-					"method" => m[3],
-					"url" => m[4],
-					"code" => m[6],
-					"ua" => m[8],
-				}
+        record = {}
 
-				ib.add(time, cols)
+        m.names.each {|name|
+          if value = m[name]
+            if name == "time"
+              time = Time.strptime(value, time_format).to_i
+            end
+            record[name] = value
+          end
+        }
 
-				n += 1
-				if n % 10000 == 0
-					puts "imported #{n} entries..."
-				end
-			rescue
-				puts "ignored: #{l.dump}"
-				puts "(#{$!})"
-			end
-		}
-		puts "imported #{n} entries."
-	end
+        writer.write record.to_msgpack
+
+        n += 1
+        if n % 10000 == 0
+          puts "imported #{n} entries from #{path}..."
+        end
+      rescue
+        $stderr.puts "#{$!}: #{line.dump}"
+      end
+    }
+    puts "imported #{n} entries from #{path}."
+  end
 end
 end
 

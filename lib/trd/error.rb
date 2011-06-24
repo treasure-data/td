@@ -18,7 +18,7 @@ end
 class AuthError < APIError
 end
 
-class ExistsError < APIError
+class AlreadyExistsError < APIError
 end
 
 class NotFoundError < APIError
