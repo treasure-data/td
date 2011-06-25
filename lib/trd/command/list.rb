@@ -5,6 +5,7 @@ module List
 
   LIST = []
   ALIASES = {}
+  GUESS = {}
 
   def self.add_list(file, cmd, description)
     LIST << [cmd, file, description]
@@ -21,6 +22,10 @@ module List
       end
     }
     nil
+  end
+
+  def self.add_guess(wrong, correct)
+    GUESS[wrong] = correct
   end
 
   add_list 'list', 'help', 'Show usage of a command'
@@ -42,8 +47,18 @@ module List
   add_list 'import', 'import', 'Import files to a table'
 
   add_alias 'show-dbs', 'show-databases'
+  add_alias 'show-database', 'show-databases'
   add_alias 'create-db', 'create-databases'
   add_alias 'drop-db', 'create-databases'
+  add_alias 'show-table', 'show-tables'
+  add_alias 'delete-database', 'drop-database'
+  add_alias 'delete-table', 'drop-table'
+
+  add_guess 'create-table', 'create-log-table'
+  add_guess 'drop-log-table', 'drop-table'
+  add_guess 'drop-item-table', 'drop-table'
+  add_guess 'delete-log-table', 'drop-table'
+  add_guess 'delete-item-table', 'drop-table'
 
   def self.get_method(command)
     command = ALIASES[command] || command
@@ -58,12 +73,17 @@ module List
     nil
   end
 
+  def self.show_guess(wrong)
+    if correct = GUESS[wrong]
+      $stderr.puts "Did you mean this?: #{correct}"
+    end
+  end
+
   def self.help(indent)
     LIST.map {|cmd,file,description|
       "#{indent}%-18s %s" % [cmd, description.split("\n").first]
     }.join("\n")
   end
-
 end
 
 def help
@@ -76,6 +96,7 @@ def help
   method = List.get_method(cmd)
   unless method
     $stderr.puts "'#{cmd}' is not a trd command. Run '#{$prog}' to show the list."
+    List.show_guess(cmd)
     exit 1
   end
 

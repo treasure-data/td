@@ -32,19 +32,19 @@ op.summary_indent = "  "
 end
 
 config_path = File.join(ENV['HOME'], '.trd', 'trd.conf')
-#verbose = false
-#debug = false
+$verbose = false
+#$debug = false
 
 op.on('-c', '--config PATH', "path to config file (#{config_path})") {|s|
 	config_path = s
 }
 
-#op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
-#	verbose = b
-#}
-#
+op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
+	$verbose = b
+}
+
 #op.on('-d', '--debug', "debug mode", TrueClass) {|b|
-#	debug = b
+#	$debug = b
 #}
 
 begin
@@ -61,6 +61,7 @@ require 'trd/command/list'
 method = TRD::Command::List.get_method(cmd)
 unless method
 	$stderr.puts "'#{cmd}' is not a trd command. Run '#{$prog}' to show the list."
+  TRD::Command::List.show_guess(cmd)
 	exit 1
 end
 
@@ -69,7 +70,14 @@ require 'trd/error'
 begin
 	method.call
 rescue TRD::ConfigError
-	puts "TreasureData account is not configured yet."
-	puts "Run '#{$prog} account' first."
+	$stderr.puts "TreasureData account is not configured yet."
+	$stderr.puts "Run '#{$prog} account' first."
+rescue
+  $stderr.puts "error #{$!.class}: backtrace:"
+  $!.backtrace.each {|b|
+    $stderr.puts "  #{b}"
+  }
+  puts ""
+  puts $!
 end
 

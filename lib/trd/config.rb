@@ -31,7 +31,9 @@ class Config
 		begin
 			data = File.read(@path)
 		rescue
-			raise ConfigNotFoundError, $!.to_s
+			e = ConfigNotFoundError.new($!.to_s)
+      e.set_backtrace($!.backtrace)
+      raise e
 		end
 
 		section = ""

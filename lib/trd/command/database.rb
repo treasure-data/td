@@ -65,7 +65,7 @@ module Command
     dbs.each {|db|
       rows << {:Name => db.name}
     }
-    puts cmd_render_table(rows)
+    puts cmd_render_table(rows, :fields => [:Name])
 
     if dbs.empty?
       $stderr.puts "There are no databases."

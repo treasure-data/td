@@ -52,10 +52,10 @@ class API
     names = @iface.list_databases
     names.each {|n|
       if n == db_name
-        return Database.new(self, name)
+        return Database.new(self, db_name)
       end
     }
-    raise NotFoundError, "Database #{db_name} does not exist"
+    raise NotFoundError, "Database '#{db_name}' does not exist"
   end
 
   # => true

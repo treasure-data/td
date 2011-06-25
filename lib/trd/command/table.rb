@@ -9,10 +9,12 @@ module Command
     begin
       api.create_table(db_name, table_name, type)
     rescue NotFoundError
+      cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
       $stderr.puts "Use '#{$prog} create-database #{db_name}' to create the database."
       exit 1
     rescue AlreadyExistsError
+      cmd_debug_error $!
       $stderr.puts "Table '#{db_name}.#{table_name}' already exists."
       exit 1
     end
@@ -45,6 +47,7 @@ module Command
     begin
       api.delete_table(db_name, table_name)
     rescue NotFoundError
+      cmd_debug_error $!
       $stderr.puts "Table '#{db_name}.#{table_name}' does not exist."
       $stderr.puts "Use '#{$prog} show-tables #{db_name}' to show list of the tables."
       exit 1
@@ -77,7 +80,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count])
 
     if rows.empty?
       if db_name

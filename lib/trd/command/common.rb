@@ -71,20 +71,31 @@ EOF
     api = API.new(apikey)
   end
 
-  def cmd_render_table(rows)
+  def cmd_render_table(rows, *opts)
     require 'hirb'
-    Hirb::Helpers::Table.render(rows)
+    Hirb::Helpers::Table.render(rows, *opts)
   end
 
-  def cmd_render_tree(nodes)
+  def cmd_render_tree(nodes, *opts)
     require 'hirb'
-    Hirb::Helpers::Tree.render(nodes)
+    Hirb::Helpers::Tree.render(nodes, *opts)
+  end
+
+  def cmd_debug_error(ex)
+    if $verbose
+      $stderr.puts "error: #{$!.class}: #{$!.to_s}"
+      $!.backtrace.each {|b|
+        $stderr.puts "  #{b}"
+      }
+        $stderr.puts ""
+    end
   end
 
   def find_database(api, db_name)
     begin
       return api.database(db_name)
     rescue
+      cmd_debug_error $!
       $stderr.puts $!
       $stderr.puts "Use '#{$prog} show-databases' to show the list of databases."
       exit 1

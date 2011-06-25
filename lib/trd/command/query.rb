@@ -36,7 +36,7 @@ module Command
       rows << {:JobID => job.job_id, :Status => job.status}
     }
 
-    puts cmd_render_table(rows)
+    puts cmd_render_table(rows, :fields => [:JobID, :Status])
   end
 
   def job
