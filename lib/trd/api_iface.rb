@@ -18,7 +18,7 @@ class APIInterface
 
   # => [name:String]
   def list_databases
-    code, body, res = get("/v2/database/list")
+    code, body, res = get("/v3/database/list")
     if code != "200"
       raise_error("List databases failed", res)
     end
@@ -30,7 +30,7 @@ class APIInterface
 
   # => true
   def delete_database(db)
-    code, body, res = post("/v2/database/delete/#{e db}")
+    code, body, res = post("/v3/database/delete/#{e db}")
     if code != "200"
       raise_error("Delete database failed", res)
     end
@@ -39,7 +39,7 @@ class APIInterface
 
   # => true
   def create_database(db)
-    code, body, res = post("/v2/database/create/#{e db}")
+    code, body, res = post("/v3/database/create/#{e db}")
     if code != "200"
       raise_error("Create database failed", res)
     end
@@ -53,7 +53,7 @@ class APIInterface
 
   # => {name:String => [type:Symbol, count:Integer]}
   def list_tables(db)
-    code, body, res = get("/v2/table/list/#{e db}")
+    code, body, res = get("/v3/table/list/#{e db}")
     if code != "200"
       raise_error("List tables failed", res)
     end
@@ -71,7 +71,7 @@ class APIInterface
 
   # => true
   def create_table(db, table, type)
-    code, body, res = post("/v2/table/create/#{e db}/#{e table}/#{type}")
+    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
     if code != "200"
       raise_error("Create #{type} table failed", res)
     end
@@ -90,7 +90,7 @@ class APIInterface
 
   # => type:Symbol
   def delete_table(db, table)
-    code, body, res = post("/v2/table/delete/#{e db}/#{e table}")
+    code, body, res = post("/v3/table/delete/#{e db}/#{e table}")
     if code != "200"
       raise_error("Drop table failed", res)
     end
@@ -107,7 +107,7 @@ class APIInterface
 
   # => [(jobId:String, type:Symbol, status:String)]
   def list_jobs(from=0, to=nil)
-    code, body, res = get("/v2/job/list")
+    code, body, res = get("/v3/job/list")
     if code != "200"
       raise_error("List jobs failed", res)
     end
@@ -125,7 +125,7 @@ class APIInterface
 
   # => (type:Symbol, status:String, result:String, url:String)
   def show_job(job_id)
-    code, body, res = get("/v2/job/show/#{e job_id}")
+    code, body, res = get("/v3/job/show/#{e job_id}")
     if code != "200"
       raise_error("Show job failed", res)
     end
@@ -140,7 +140,7 @@ class APIInterface
 
   # => jobId:String
   def hive_query(q, db=nil)
-    code, body, res = post("/v2/job/issue/hive/#{e db}", {'query'=>q})
+    code, body, res = post("/v3/job/issue/hive/#{e db}", {'query'=>q})
     if code != "200"
       raise_error("Query failed", res)
     end
@@ -156,7 +156,7 @@ class APIInterface
 
   # => time:Float
   def import(db, table, format, stream, stream_size=stream.lstat.size)
-    code, body, res = put("/v2/table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
+    code, body, res = put("/v3/table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
     if code[0] != ?2
       raise_error("Import failed", res)
     end
@@ -173,7 +173,7 @@ class APIInterface
 
   # apikey:String
   def authenticate(user, password)
-    code, body, res = post("/v2/user/authenticate", {'user'=>user, 'password'=>password})
+    code, body, res = post("/v3/user/authenticate", {'user'=>user, 'password'=>password})
     if code != "200"
       raise_error("Authentication failed", res)
     end
@@ -189,7 +189,7 @@ class APIInterface
 
   # => status:String
   def server_status
-    code, body, res = get('/v2/system/server_status')
+    code, body, res = get('/v3/system/server_status')
     if code != "200"
       return "Server is down (#{code})"
     end

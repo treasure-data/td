@@ -24,6 +24,7 @@ module List
   end
 
   add_list 'list', 'help', 'Show usage of a command'
+  add_list 'server', 'server-status', 'Show status of the Treasure Data server'
   add_list 'account', 'account', 'Setup an account'
   add_list 'database', 'show-databases', 'Show list of databases'
   add_list 'table', 'show-tables', 'Show list of tables'

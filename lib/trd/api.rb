@@ -10,6 +10,11 @@ class API
     new(apikey)
   end
 
+  def self.server_status
+    iface = APIInterface.new(nil)
+    iface.server_status
+  end
+
   def initialize(apikey)
     @iface = APIInterface.new(apikey)
   end
@@ -18,6 +23,10 @@ class API
 
   def apikey
     @iface.apikey
+  end
+
+  def server_status
+    @iface.server_status
   end
 
   # => true
