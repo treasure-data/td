@@ -4,11 +4,11 @@ module Command
 
   IMPORT_TEMPLATES = {
     'apache' => [
-                  /^(.*?) .*? (.*?) \[(.*?)\] "(\S+?)(?: +(.*?) +\S*?)?" (.*?) (.*?)(?: "(.*?)" "(.*?)")?/,
+                  /^([^ ]*) [^ ]* ([^ ]*) \[([^\]]*)\] "(\S+)(?: +([^ ]*) +\S*)?" ([^ ]*) ([^ ]*)(?: "([^\"]*)" "([^\"]*)")?$/,
                   ['host', 'user', 'time', 'method', 'path', 'code', 'size', 'referer', 'agent'],
                   "%d/%b/%Y:%H:%M:%S %z"],
     'syslog' => [
-                  /^(.*? .*? .*?) (.*?) ([a-zA-Z0-9_\/\.\-]*)(?:\[([0-9]+)\])?[^\:]*\: *(.*)/,
+                  /^([^ ]* [^ ]* [^ ]*) ([^ ]*) ([a-zA-Z0-9_\/\.\-]*)(?:\[([0-9]+)\])?[^\:]*\: *(.*)$/,
                   ['time', 'host', 'ident', 'pid', 'message'],
                   "%b %d %H:%M:%S"],
   }
@@ -24,7 +24,7 @@ module Command
     format = 'apache'
 
     op.on('--format FORMAT', "file format (default: #{format})") {|s|
-      format = s.to_sym
+      format = s
     }
 
     op.on('--apache', "same as --format apache; apache common log format") {
@@ -76,7 +76,7 @@ module Command
 
         # TODO upload on background thread
         puts "uploading #{path}..."
-        api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
+        #api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
 
       ensure
         writer.close unless writer.closed?
@@ -102,8 +102,10 @@ module Command
 
         record = {}
 
+        p m
+        cap = m.captures
         names.each_with_index {|name,i|
-          if value = m[i+1]
+          if value = cap[i]
             if name == "time"
               time = parse_time(value, time_format).to_i
             end
@@ -111,6 +113,7 @@ module Command
           end
         }
 
+        p record
         writer.write record.to_msgpack
 
         n += 1
