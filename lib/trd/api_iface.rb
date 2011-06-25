@@ -124,8 +124,11 @@ class APIInterface
   end
 
   # => (type:Symbol, status:String, result:String, url:String)
-  def show_job(job_id)
-    code, body, res = get("/v3/job/show/#{e job_id}")
+  def show_job(job_id, from=nil, to=nil)
+    params = {}
+    params['from'] = from.to_s if from
+    params['to'] = to.to_s if to
+    code, body, res = get("/v3/job/show/#{e job_id}", params)
     if code != "200"
       raise_error("Show job failed", res)
     end

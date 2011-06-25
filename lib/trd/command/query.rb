@@ -3,8 +3,8 @@ module TRD
 module Command
 
   def query
-    op = cmd_opt 'query', :query, :db_name?
-    query, db_name = op.cmd_parse
+    op = cmd_opt 'query', :sql, :db_name?
+    sql, db_name = op.cmd_parse
 
     conf = cmd_config
     api = cmd_api(conf)
@@ -13,7 +13,7 @@ module Command
       find_database(api, db_name)
     end
 
-    job = api.query(query, db_name)
+    job = api.query(sql, db_name)
 
     $stderr.puts "Job #{job.job_id} is started."
     $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
@@ -21,15 +21,16 @@ module Command
   end
 
   def show_jobs
-    # TODO paging
+    op = cmd_opt 'show-jobs', :db_name?, :max?, :from?
+    db_name, max, from = op.cmd_parse
 
-    op = cmd_opt 'show-jobs', :db_name?
-    db_name = op.cmd_parse
+    max = (max || 19).to_i
+    from = (from || 0).to_i
 
     conf = cmd_config
     api = cmd_api(conf)
 
-    jobs = api.jobs
+    jobs = api.jobs(from, from+max)
 
     rows = []
     jobs.each {|job|
@@ -42,8 +43,8 @@ module Command
   def job
     op = cmd_opt 'job', :job_id
 
-    op.banner << "\noptions:\n"
-
+    #op.banner << "\noptions:\n"
+    #
     #verbose = nil
     #op.on('-v', '--verbose', 'show verbose messages', TrueClass) {|b|
     #  verbose = b

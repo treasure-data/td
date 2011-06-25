@@ -103,10 +103,9 @@ class API
     Job.new(self, job_id, :hive)
   end
 
-  # => [Job]
-  def jobs
-    # TODO from, to
-    js = @iface.list_jobs
+  # => [Job=]
+  def jobs(from=nil, to=nil)
+    js = @iface.list_jobs(from, to)
     js.map {|job_id,type,status|
       Job.new(self, job_id, type, nil, status)
     }

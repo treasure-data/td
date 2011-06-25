@@ -4,8 +4,8 @@ module Command
   private
   def cmd_opt(name, *args)
     if args.last.to_s =~ /_$/
-      args.push args.pop.to_s[0..-2]+'...'
       multi = true
+      args.push args.pop.to_s[0..-2]+'...'
     end
 
     req_args, opt_args = args.partition {|a| a.to_s !~ /\?$/ }
@@ -38,8 +38,7 @@ EOF
       define_method(:cmd_parse) do
         begin
           parse!(ARGV)
-          if ARGV.length < req_args.length - opt_args.length ||
-              (!multi && ARGV.length > args.length)
+          if ARGV.length < req_args.length || (!multi && ARGV.length > args.length)
             cmd_usage nil
           end
           if ARGV.length <= 1

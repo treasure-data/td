@@ -65,10 +65,9 @@ module Command
       begin
         import_log_file(regexp, time_format, file, path, writer)
 
-        # GzipWriter must be closed to flush
-        writer.close
-        # reopen for read
-        out = out.open
+        writer.finish
+        size = out.pos
+        out.pos = 0
 
         # TODO upload on background thread
         puts "uploading #{path}..."
@@ -76,7 +75,7 @@ module Command
 
       ensure
         writer.close unless writer.closed?
-        out.close unless writer.closed?
+        out.close unless out.closed?
         File.unlink(out.path) rescue nil
       end
     }
@@ -111,13 +110,13 @@ module Command
 
         n += 1
         if n % 10000 == 0
-          puts "imported #{n} entries from #{path}..."
+          puts "  imported #{n} entries from #{path}..."
         end
       rescue
         $stderr.puts "#{$!}: #{line.dump}"
       end
     }
-    puts "imported #{n} entries from #{path}."
+    puts "  imported #{n} entries from #{path}."
   end
 end
 end
