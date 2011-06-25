@@ -76,7 +76,7 @@ module Command
 
         # TODO upload on background thread
         puts "uploading #{path}..."
-        #api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
+        api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
 
       ensure
         writer.close unless writer.closed?
@@ -102,7 +102,6 @@ module Command
 
         record = {}
 
-        p m
         cap = m.captures
         names.each_with_index {|name,i|
           if value = cap[i]
@@ -113,7 +112,6 @@ module Command
           end
         }
 
-        p record
         writer.write record.to_msgpack
 
         n += 1
