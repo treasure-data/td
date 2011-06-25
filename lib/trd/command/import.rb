@@ -3,8 +3,14 @@ module TRD
 module Command
 
   IMPORT_TEMPLATES = {
-    'apache' => [/^(?<host>.*?) .*? (?<user>.*?) \[(?<time>.*?)\] "(?<method>\S+?)(?: +(?<path>.*?) +\S*?)?" (?<code>.*?) (?<size>.*?)(?: "(?<referer>.*?)" "(?<agent>.*?)")?/, "%d/%b/%Y:%H:%M:%S %z"],
-    'syslog' => [/^(?<time>.*? .*? .*?) (?<host>.*?) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?[^\:]*\: *(?<message>.*)/, "%b %d %H:%M:%S"],
+    'apache' => [
+                  /^(.*?) .*? (.*?) \[(.*?)\] "(\S+?)(?: +(.*?) +\S*?)?" (.*?) (.*?)(?: "(.*?)" "(.*?)")?/,
+                  ['host', 'user', 'time', 'method', 'path', 'code', 'size', 'referer', 'agent'],
+                  "%d/%b/%Y:%H:%M:%S %z"],
+    'syslog' => [
+                  /^(.*? .*? .*?) (.*?) ([a-zA-Z0-9_\/\.\-]*)(?:\[([0-9]+)\])?[^\:]*\: *(.*)/,
+                  ['time', 'host', 'ident', 'pid', 'message'],
+                  "%b %d %H:%M:%S"],
   }
 
   # TODO import-item
@@ -30,8 +36,8 @@ module Command
     conf = cmd_config
     api = cmd_api(conf)
 
-    regexp, time_format = IMPORT_TEMPLATES[format]
-    if !regexp || !time_format
+    regexp, names, time_format = IMPORT_TEMPLATES[format]
+    if !regexp || !names || !time_format
       $stderr.puts "Unknown format '#{format}'"
       exit 1
     end
@@ -47,7 +53,6 @@ module Command
     }
 
     require 'zlib'
-    require 'time'  # Time#strptime
     require 'msgpack'
     require 'tempfile'
     #require 'thread'
@@ -63,7 +68,7 @@ module Command
       writer = Zlib::GzipWriter.new(out)
 
       begin
-        import_log_file(regexp, time_format, file, path, writer)
+        import_log_file(regexp, names, time_format, file, path, writer)
 
         writer.finish
         size = out.pos
@@ -84,7 +89,7 @@ module Command
   end
 
   private
-  def import_log_file(regexp, time_format, file, path, writer)
+  def import_log_file(regexp, names, time_format, file, path, writer)
     i = 0
     n = 0
     file.each_line {|line|
@@ -97,10 +102,10 @@ module Command
 
         record = {}
 
-        m.names.each {|name|
-          if value = m[name]
+        names.each_with_index {|name,i|
+          if value = m[i+1]
             if name == "time"
-              time = Time.strptime(value, time_format).to_i
+              time = parse_time(value, time_format).to_i
             end
             record[name] = value
           end
@@ -117,6 +122,19 @@ module Command
       end
     }
     puts "  imported #{n} entries from #{path}."
+  end
+
+  require 'date'  # DateTime#strptime
+  require 'time'  # Time#strptime, Time#parse
+
+  if Time.respond_to?(:strptime)
+    def parse_time(value, time_format)
+      Time.strptime(value, time_format)
+    end
+  else
+    def parse_time(value, time_format)
+      Time.parse(DateTime.strptime(value, time_format).to_s)
+    end
   end
 end
 end
