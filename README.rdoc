@@ -1,0 +1,18 @@
+= Treasure Data command line tool
+
+= Getting Started
+
+Install trd command as a gem.
+
+    > gem install trd
+
+See help message for details.
+
+    > trd
+
+
+== Copyright
+
+Copyright:: Copyright (c) 2011 Treasure Data Inc.
+License::   Apache License, Version 2.0
+
