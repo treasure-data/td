@@ -69,7 +69,7 @@ module Command
       #}
     end
 
-    $stderr.puts "Use '-v' option to show detailed messages." unless verbose
+    #$stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
 end

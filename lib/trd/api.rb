@@ -100,14 +100,14 @@ class API
   # => Job
   def query(q, db_name=nil)
     job_id = @iface.hive_query(q, db_name)
-    Job.new(self, job_id, :hive)
+    Job.new(self, job_id, :hive, nil)  # TODO url
   end
 
   # => [Job=]
   def jobs(from=nil, to=nil)
     js = @iface.list_jobs(from, to)
     js.map {|job_id,type,status|
-      Job.new(self, job_id, type, nil, status)
+      Job.new(self, job_id, type, nil, status)  # TODO url
     }
   end
 
@@ -119,8 +119,8 @@ class API
   end
 
   # => type:Symbol, result:String, url:String
-  def job_status(job)
-    type, status, result, url = @iface.show_job(job.job_id)
+  def job_status(job_id)
+    type, status, result, url = @iface.show_job(job_id)
     return status, result, url
   end
 
@@ -265,8 +265,8 @@ class Job < APIObject
   end
 
   def update_status!
-    type, status, result, url = @api.iface.job_status(@job_id)
-    @type = type
+    # TODO url
+    status, result, url = @api.job_status(@job_id)
     @status = status
     @result = result
     @url = url
