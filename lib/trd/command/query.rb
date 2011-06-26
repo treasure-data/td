@@ -3,8 +3,16 @@ module TRD
 module Command
 
   def query
-    op = cmd_opt 'query', :sql, :db_name?
-    sql, db_name = op.cmd_parse
+    op = cmd_opt 'query', :sql
+
+    op.banner << "\noptions:\n"
+
+    db_name = nil
+    op.on('-d', '--database DB_NAME', 'use the database') {|s|
+      db_name = s
+    }
+
+    sql = op.cmd_parse
 
     conf = cmd_config
     api = cmd_api(conf)
