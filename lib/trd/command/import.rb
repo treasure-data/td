@@ -44,54 +44,39 @@ module Command
 
     find_table(api, db_name, table_name, :log)
 
+    require 'zlib'
+
     files = paths.map {|path|
       if path == '-'
         $stdin
+      elsif path =~ /\.gz$/
+        Zlib::GzipReader.open(path)
       else
         File.open(path)
       end
     }
 
-    require 'zlib'
     require 'msgpack'
     require 'tempfile'
     #require 'thread'
 
     files.zip(paths).each {|file,path|
-      puts "importing #{path}..."
-
-      out = Tempfile.new('trd-import')
-      def out.close
-        # don't remove the file on close
-        super(false)
-      end
-      writer = Zlib::GzipWriter.new(out)
-
-      begin
-        import_log_file(regexp, names, time_format, file, path, writer)
-
-        writer.finish
-        size = out.pos
-        out.pos = 0
-
-        # TODO upload on background thread
-        puts "uploading #{path}..."
-        api.import(db_name, table_name, "msgpack.gz", out, out.lstat.size)
-
-      ensure
-        writer.close unless writer.closed?
-        out.close unless out.closed?
-        File.unlink(out.path) rescue nil
-      end
+      import_log_file(regexp, names, time_format, file, path, api, db_name, table_name)
     }
 
     puts "done."
   end
 
   private
-  def import_log_file(regexp, names, time_format, file, path, writer)
+  def import_log_file(regexp, names, time_format, file, path, api, db_name, table_name)
+    puts "importing #{path}..."
+
+    out = Tempfile.new('trd-import')
+    writer = Zlib::GzipWriter.new(out)
+
     i = 0
     n = 0
+    x = 0
     file.each_line {|line|
       i += 1
       begin
@@ -115,14 +100,50 @@ module Command
         writer.write record.to_msgpack
 
         n += 1
+        x += 1
         if n % 10000 == 0
           puts "  imported #{n} entries from #{path}..."
+
+        elsif out.pos > 1024*1024  # TODO size
+          puts "  imported #{n} entries from #{path}..."
+          begin
+            writer.finish
+            size = out.pos
+            out.pos = 0
+
+            puts "  uploading #{size} bytes..."
+            api.import(db_name, table_name, "msgpack.gz", out, size)
+
+            out.truncate(0)
+            out.pos = 0
+            x = 0
+            writer = Zlib::GzipWriter.new(out)
+          rescue
+            $stderr.puts "  #{$!}"
+            return 1 # TODO error
+          end
         end
+
       rescue
-        $stderr.puts "#{$!}: #{line.dump}"
+        $stderr.puts "  skipped: #{$!}: #{line.dump}"
       end
     }
+
+    if x != 0
+      writer.finish
+      size = out.pos
+      out.pos = 0
+
+      puts "  uploading #{size} bytes..."
+      # TODO upload on background thread
+      api.import(db_name, table_name, "msgpack.gz", out, size)
+    end
+
     puts "  imported #{n} entries from #{path}."
+
+  ensure
+    out.close rescue nil
+    writer.close rescue nil
   end
 
   require 'date'  # DateTime#strptime

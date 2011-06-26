@@ -135,7 +135,7 @@ class APIInterface
     # TODO format check
     js = JSON.load(body)
     # TODO debug
-    type = (js['type'] || 'hive').to_sym  # TODO
+    type = (js['type'] || '').to_sym  # TODO
     status = js['status']
     result = js['result']
     url = js['url']
