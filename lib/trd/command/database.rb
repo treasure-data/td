@@ -21,7 +21,7 @@ module Command
   end
 
   def drop_database
-    op = cmd_opt 'drop-databases', :db_name
+    op = cmd_opt 'drop-database', :db_name
 
     op.banner << "\noptions:\n"
 
