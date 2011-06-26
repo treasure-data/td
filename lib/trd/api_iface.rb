@@ -204,7 +204,7 @@ class APIInterface
   end
 
   private
-  HOST = '50.19.208.190'
+  HOST = 'api.treasure-data.com'
   PORT = 80
   USE_SSL = false
   BASE_URL = ''
