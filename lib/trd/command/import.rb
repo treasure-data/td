@@ -106,7 +106,7 @@ module Command
         names.each_with_index {|name,i|
           if value = cap[i]
             if name == "time"
-              time = parse_time(value, time_format).to_i
+              value = parse_time(value, time_format).to_i
             end
             record[name] = value
           end
