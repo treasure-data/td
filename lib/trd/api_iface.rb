@@ -62,8 +62,8 @@ class APIInterface
     result = {}
     js["tables"].map {|m|
       name = m['name']
-      type = m['type'].to_sym
-      count = m['count'] || 0  # TODO?
+      type = (m['type'] || '?').to_sym
+      count = (m['count'] || 0).to_i  # TODO?
       result[name] = [type, count]
     }
     return result
@@ -96,7 +96,7 @@ class APIInterface
     end
     # TODO format check
     js = JSON.load(body)
-    type = js['type'].to_sym
+    type = (js['type'] || '?').to_sym
     return type
   end
 
@@ -116,7 +116,7 @@ class APIInterface
     result = []
     js['jobs'].each {|m|
       job_id = m['job_id']
-      type = m['type'].to_sym
+      type = (m['type'] || '?').to_sym
       status = m['status']
       result << [job_id, type, status]
     }
@@ -135,7 +135,7 @@ class APIInterface
     # TODO format check
     js = JSON.load(body)
     # TODO debug
-    type = (js['type'] || '').to_sym  # TODO
+    type = (js['type'] || '?').to_sym  # TODO
     status = js['status']
     result = js['result']
     url = js['url']
