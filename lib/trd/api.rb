@@ -215,7 +215,7 @@ class Table < APIObject
 end
 
 class Job < APIObject
-  def initialize(api, job_id, type, url, status=nil, result=nil, deubg=nil)
+  def initialize(api, job_id, type, url, status=nil, result=nil, debug=nil)
     super(api)
     @job_id = job_id
     @type = type
