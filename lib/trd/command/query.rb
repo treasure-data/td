@@ -79,12 +79,12 @@ module Command
 
     if verbose
       puts ""
-      puts "stdout     :"
-      job.debug['stdout'].to_s.split("\n").each {|line|
+      puts "cmdout:"
+      job.debug['cmdout'].to_s.split("\n").each {|line|
         puts "  "+line
       }
       puts ""
-      puts "stderr     :"
+      puts "stderr:"
       job.debug['stderr'].to_s.split("\n").each {|line|
         puts "  "+line
       }
