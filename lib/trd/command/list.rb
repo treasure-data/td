@@ -36,7 +36,7 @@ module List
   add_list 'query', 'show-jobs', 'Show list of jobs'
   add_list 'database', 'create-database', 'Create a database'
   add_list 'table', 'create-log-table', 'Create a log table'
-  add_list 'table', 'create-item-table', 'Create a item table'
+  #add_list 'table', 'create-item-table', 'Create a item table'
   add_list 'database', 'drop-database', 'Delete a database'
   add_list 'table', 'drop-table', 'Delete a table'
   add_list 'query', 'query', 'Start a query'
@@ -54,9 +54,9 @@ module List
 
   add_guess 'create-table', 'create-log-table'
   add_guess 'drop-log-table', 'drop-table'
-  add_guess 'drop-item-table', 'drop-table'
+  #add_guess 'drop-item-table', 'drop-table'
   add_guess 'delete-log-table', 'drop-table'
-  add_guess 'delete-item-table', 'drop-table'
+  #add_guess 'delete-item-table', 'drop-table'
   add_guess 'show-job', 'job'
 
   def self.get_method(command)
