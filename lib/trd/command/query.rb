@@ -51,12 +51,12 @@ module Command
   def job
     op = cmd_opt 'job', :job_id
 
-    #op.banner << "\noptions:\n"
-    #
-    #verbose = nil
-    #op.on('-v', '--verbose', 'show verbose messages', TrueClass) {|b|
-    #  verbose = b
-    #}
+    op.banner << "\noptions:\n"
+
+    verbose = nil
+    op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
+      verbose = b
+    }
 
     job_id = op.cmd_parse
 
@@ -77,7 +77,20 @@ module Command
       #}
     end
 
-    #$stderr.puts "Use '-v' option to show detailed messages." unless verbose
+    if verbose
+      puts ""
+      puts "stdout     :"
+      job.debug['stdout'].to_s.split("\n").each {|line|
+        puts "  "+line
+      }
+      puts ""
+      puts "stderr     :"
+      job.debug['stderr'].to_s.split("\n").each {|line|
+        puts "  "+line
+      }
+    end
+
+    $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
 end

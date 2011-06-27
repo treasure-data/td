@@ -29,8 +29,8 @@ module List
   end
 
   add_list 'list', 'help', 'Show usage of a command'
+  add_list 'account', 'account', 'Setup a Treasure Data account'
   add_list 'server', 'server-status', 'Show status of the Treasure Data server'
-  add_list 'account', 'account', 'Setup an account'
   add_list 'database', 'show-databases', 'Show list of databases'
   add_list 'table', 'show-tables', 'Show list of tables'
   add_list 'query', 'show-jobs', 'Show list of jobs'
@@ -40,7 +40,7 @@ module List
   add_list 'database', 'drop-database', 'Delete a database'
   add_list 'table', 'drop-table', 'Delete a table'
   add_list 'query', 'query', 'Start a query'
-  add_list 'query', 'job', 'Show status of a job'
+  add_list 'query', 'job', 'Show status and result of a job'
   add_list 'import', 'import', 'Import files to a table'
 
   add_alias 'show-dbs', 'show-databases'

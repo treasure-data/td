@@ -138,8 +138,9 @@ class APIInterface
     type = (js['type'] || '?').to_sym  # TODO
     status = js['status']
     result = js['result']
+    debug = js['debug']
     url = js['url']
-    return [type, status, result, url]
+    return [type, status, result, url, debug]
   end
 
   # => jobId:String

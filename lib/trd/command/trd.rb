@@ -20,8 +20,7 @@ op.summary_indent = "  "
 		puts "commands:"
 		puts TRD::Command::List.help(op.summary_indent)
 		puts ""
-		puts "See 'trd help COMMAND' for more information on a specific command.
-"
+		puts "Type 'trd help COMMAND' for more information on a specific command."
 		if errmsg
 			puts "error: #{errmsg}"
 			exit 1
@@ -35,7 +34,7 @@ config_path = File.join(ENV['HOME'], '.trd', 'trd.conf')
 $verbose = false
 #$debug = false
 
-op.on('-c', '--config PATH', "path to config file (#{config_path})") {|s|
+op.on('-c', '--config PATH', "path to config file (~/.trd/trd.conf)") {|s|
 	config_path = s
 }
 

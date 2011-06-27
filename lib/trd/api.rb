@@ -114,14 +114,14 @@ class API
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, status, result, url = @iface.show_job(job_id)
+    type, status, result, url, debug = @iface.show_job(job_id)
     Job.new(self, job_id, type, url, status, result)
   end
 
   # => type:Symbol, result:String, url:String
   def job_status(job_id)
-    type, status, result, url = @iface.show_job(job_id)
-    return status, result, url
+    type, status, result, url, debug = @iface.show_job(job_id)
+    return status, result, url, debug
   end
 
   # => time:Flaot
@@ -215,13 +215,14 @@ class Table < APIObject
 end
 
 class Job < APIObject
-  def initialize(api, job_id, type, url, status=nil, result=nil)
+  def initialize(api, job_id, type, url, status=nil, result=nil, deubg=nil)
     super(api)
     @job_id = job_id
     @type = type
     @url = url
     @status = status
     @result = result
+    @debug = debug
   end
 
   attr_reader :job_id, :type
@@ -238,6 +239,11 @@ class Job < APIObject
   def url
     update_status! unless @url
     @url
+  end
+
+  def debug
+    update_status! unless @debug
+    @debug
   end
 
   def result
@@ -266,10 +272,11 @@ class Job < APIObject
 
   def update_status!
     # TODO url
-    status, result, url = @api.job_status(@job_id)
+    status, result, url, debug = @api.job_status(@job_id)
     @status = status
     @result = result
     @url = url
+    @debug = debug
     self
   end
 end
