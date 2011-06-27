@@ -100,28 +100,28 @@ class API
   # => Job
   def query(q, db_name=nil)
     job_id = @iface.hive_query(q, db_name)
-    Job.new(self, job_id, :hive, nil)  # TODO url
+    Job.new(self, job_id, :hive, q)  # TODO url
   end
 
   # => [Job=]
   def jobs(from=nil, to=nil)
     js = @iface.list_jobs(from, to)
-    js.map {|job_id,type,status|
-      Job.new(self, job_id, type, nil, status)  # TODO url
+    js.map {|job_id,type,status,query|
+      Job.new(self, job_id, type, query, status)  # TODO url
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, status, result, url, debug = @iface.show_job(job_id)
-    Job.new(self, job_id, type, url, status, result)
+    type, query, status, result, url, debug = @iface.show_job(job_id)
+    Job.new(self, job_id, type, query, url, status, result)
   end
 
   # => type:Symbol, result:String, url:String
   def job_status(job_id)
-    type, status, result, url, debug = @iface.show_job(job_id)
-    return status, result, url, debug
+    type, query, status, result, url, debug = @iface.show_job(job_id)
+    return query, status, result, url, debug
   end
 
   # => time:Flaot
@@ -215,11 +215,12 @@ class Table < APIObject
 end
 
 class Job < APIObject
-  def initialize(api, job_id, type, url, status=nil, result=nil, debug=nil)
+  def initialize(api, job_id, type, query, status=nil, url=nil, result=nil, debug=nil)
     super(api)
     @job_id = job_id
     @type = type
     @url = url
+    @query = query
     @status = status
     @result = result
     @debug = debug
@@ -229,6 +230,11 @@ class Job < APIObject
 
   def wait(timeout=nil)
     # TODO
+  end
+
+  def query
+    update_status! unless @query
+    @query
   end
 
   def status
@@ -272,7 +278,8 @@ class Job < APIObject
 
   def update_status!
     # TODO url
-    status, result, url, debug = @api.job_status(@job_id)
+    query, status, result, url, debug = @api.job_status(@job_id)
+    @query = query
     @status = status
     @result = result
     @url = url

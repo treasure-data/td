@@ -42,10 +42,14 @@ module Command
 
     rows = []
     jobs.each {|job|
-      rows << {:JobID => job.job_id, :Status => job.status}
+      query = job.query.to_s
+      if query.size > 100
+        query = query[0..100-4]+" ..."
+      end
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => query}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Query])
   end
 
   def job
@@ -68,6 +72,7 @@ module Command
     puts "JobID      : #{job.job_id}"
     puts "URL        : #{job.url}"
     puts "Status     : #{job.status}"
+    puts "Query      : #{job.query}"
 
     if job.finished?
       puts "Result     :"

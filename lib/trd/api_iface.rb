@@ -118,7 +118,8 @@ class APIInterface
       job_id = m['job_id']
       type = (m['type'] || '?').to_sym
       status = m['status']
-      result << [job_id, type, status]
+      query = m['query']
+      result << [job_id, type, status, query]
     }
     return result
   end
@@ -136,11 +137,12 @@ class APIInterface
     js = JSON.load(body)
     # TODO debug
     type = (js['type'] || '?').to_sym  # TODO
+    query = js['query']
     status = js['status']
     result = js['result']
     debug = js['debug']
     url = js['url']
-    return [type, status, result, url, debug]
+    return [type, query, status, result, url, debug]
   end
 
   # => jobId:String
