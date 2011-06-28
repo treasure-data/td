@@ -115,7 +115,7 @@ class API
   def job(job_id)
     job_id = job_id.to_s
     type, query, status, result, url, debug = @iface.show_job(job_id)
-    Job.new(self, job_id, type, query, url, status, result, debug)
+    Job.new(self, job_id, type, query, status, url, result, debug)
   end
 
   # => type:Symbol, result:String, url:String

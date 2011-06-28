@@ -79,6 +79,11 @@ module Command
       wait = b
     }
 
+    json = false
+    op.on('-w', '--json', 'use json format to show the results', TrueClass) {|b|
+      json = b
+    }
+
     job_id = op.cmd_parse
 
     conf = cmd_config
@@ -94,12 +99,20 @@ module Command
     if wait && !job.finished?
       wait_job(job)
       puts "Result     :"
-      puts cmd_render_table(job.result)
+      if json
+        puts job.result.to_json
+      else
+        puts cmd_render_table(job.result)
+      end
 
     else
       if job.finished?
         puts "Result     :"
-        puts cmd_render_table(job.result)
+        if json
+          puts job.result.to_json
+        else
+          puts cmd_render_table(job.result)
+        end
       end
 
       if verbose
