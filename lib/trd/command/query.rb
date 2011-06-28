@@ -41,16 +41,16 @@ module Command
   end
 
   def show_jobs
-    op = cmd_opt 'show-jobs', :db_name?, :max?, :from?
-    db_name, max, from = op.cmd_parse
+    op = cmd_opt 'show-jobs', :max?, :from?
+    max, from = op.cmd_parse
 
-    max = (max || 19).to_i
+    max = (max || 20).to_i
     from = (from || 0).to_i
 
     conf = cmd_config
     api = cmd_api(conf)
 
-    jobs = api.jobs(from, from+max)
+    jobs = api.jobs(from, from+max-1)
 
     rows = []
     jobs.each {|job|

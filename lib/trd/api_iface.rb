@@ -107,7 +107,10 @@ class APIInterface
 
   # => [(jobId:String, type:Symbol, status:String)]
   def list_jobs(from=0, to=nil)
-    code, body, res = get("/v3/job/list")
+    params = {}
+    params['from'] = from.to_s if from
+    params['to'] = to.to_s if to
+    code, body, res = get("/v3/job/list", params)
     if code != "200"
       raise_error("List jobs failed", res)
     end
@@ -125,11 +128,8 @@ class APIInterface
   end
 
   # => (type:Symbol, status:String, result:String, url:String)
-  def show_job(job_id, from=nil, to=nil)
-    params = {}
-    params['from'] = from.to_s if from
-    params['to'] = to.to_s if to
-    code, body, res = get("/v3/job/show/#{e job_id}", params)
+  def show_job(job_id)
+    code, body, res = get("/v3/job/show/#{e job_id}")
     if code != "200"
       raise_error("Show job failed", res)
     end
@@ -217,7 +217,7 @@ class APIInterface
 
     path = BASE_URL + url
     if params && !params.empty?
-      path << params.map {|k,v|
+      path << "?"+params.map {|k,v|
         "#{k}=#{e v}"
       }.join('&')
     end
