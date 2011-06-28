@@ -13,7 +13,7 @@ module Command
     }
 
     wait = false
-    op.on('-w', '--wait', 'wait to stop the job', TrueClass) {|b|
+    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
     }
 
@@ -32,31 +32,8 @@ module Command
     $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
     $stderr.puts "See #{job.url} to see the progress."
 
-    if wait
-      $stderr.print "waiting"
-
-      cmdout_lines = 0
-      stderr_lines = 0
-
-      until job.finished?
-        sleep 2
-
-        job.update_status!
-
-        cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1]
-        stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1]
-        if !cmdout.empty? || !stderr.empty?
-          $stderr.puts ""
-          (cmdout + stderr).each {|line|
-            puts "  "+line
-          }
-          cmdout_lines += cmdout.size
-          stderr_lines += stderr.size
-        else
-          $stderr.print "."
-        end
-      end
-
+    if wait && !job.finished?
+      wait_job(job)
       puts "Status     : #{job.status}"
       puts "Result     :"
       puts cmd_render_table(job.result)
@@ -97,6 +74,11 @@ module Command
       verbose = b
     }
 
+    wait = false
+    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
+      wait = b
+    }
+
     job_id = op.cmd_parse
 
     conf = cmd_config
@@ -109,30 +91,60 @@ module Command
     puts "Status     : #{job.status}"
     puts "Query      : #{job.query}"
 
-    if job.finished?
+    if wait && !job.finished?
+      wait_job(job)
       puts "Result     :"
       puts cmd_render_table(job.result)
-      #cmd_render_table(job.result).split("\n").each {|line|
-      #  puts line
-      #}
-    end
 
-    if verbose
-      puts ""
-      puts "cmdout:"
-      job.debug['cmdout'].to_s.split("\n").each {|line|
-        puts "  "+line
-      }
-      puts ""
-      puts "stderr:"
-      job.debug['stderr'].to_s.split("\n").each {|line|
-        puts "  "+line
-      }
+    else
+      if job.finished?
+        puts "Result     :"
+        puts cmd_render_table(job.result)
+      end
+
+      if verbose
+        puts ""
+        puts "cmdout:"
+        job.debug['cmdout'].to_s.split("\n").each {|line|
+          puts "  "+line
+        }
+        puts ""
+        puts "stderr:"
+        job.debug['stderr'].to_s.split("\n").each {|line|
+          puts "  "+line
+        }
+      end
     end
 
     $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
+  private
+  def wait_job(job)
+    $stderr.print "waiting"
+
+    cmdout_lines = 0
+    stderr_lines = 0
+
+    until job.finished?
+      sleep 2
+
+      job.update_status!
+
+      cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1]
+      stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1]
+      if !cmdout.empty? || !stderr.empty?
+        $stderr.puts ""
+        (cmdout + stderr).each {|line|
+          puts "  "+line
+        }
+        cmdout_lines += cmdout.size
+        stderr_lines += stderr.size
+      else
+        $stderr.print "."
+      end
+    end
+  end
 end
 end
 
