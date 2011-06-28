@@ -36,7 +36,7 @@ module Command
       wait_job(job)
       puts "Status     : #{job.status}"
       puts "Result     :"
-      puts cmd_render_table(job.result)
+      puts cmd_render_table(job.result, :max_width=>10000)
     end
   end
 
@@ -54,11 +54,7 @@ module Command
 
     rows = []
     jobs.each {|job|
-      query = job.query.to_s
-      if query.size > 100
-        query = query[0..100-3]+" ..."
-      end
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => query}
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s}
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Status, :Query])
@@ -79,11 +75,6 @@ module Command
       wait = b
     }
 
-    json = false
-    op.on('-w', '--json', 'use json format to show the results', TrueClass) {|b|
-      json = b
-    }
-
     job_id = op.cmd_parse
 
     conf = cmd_config
@@ -99,20 +90,12 @@ module Command
     if wait && !job.finished?
       wait_job(job)
       puts "Result     :"
-      if json
-        puts job.result.to_json
-      else
-        puts cmd_render_table(job.result)
-      end
+      puts cmd_render_table(job.result, :max_width=>10000)
 
     else
       if job.finished?
         puts "Result     :"
-        if json
-          puts job.result.to_json
-        else
-          puts cmd_render_table(job.result)
-        end
+        puts cmd_render_table(job.result, :max_width=>10000)
       end
 
       if verbose
