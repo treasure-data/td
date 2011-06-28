@@ -12,6 +12,11 @@ module Command
       db_name = s
     }
 
+    wait = false
+    op.on('-w', '--wait', 'wait to stop the job', TrueClass) {|b|
+      wait = b
+    }
+
     sql = op.cmd_parse
 
     conf = cmd_config
@@ -26,6 +31,36 @@ module Command
     $stderr.puts "Job #{job.job_id} is started."
     $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
     $stderr.puts "See #{job.url} to see the progress."
+
+    if wait
+      $stderr.print "waiting"
+
+      cmdout_lines = 0
+      stderr_lines = 0
+
+      until job.finished?
+        sleep 2
+
+        job.update_status!
+
+        cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1]
+        stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1]
+        if !cmdout.empty? || !stderr.empty?
+          $stderr.puts ""
+          (cmdout + stderr).each {|line|
+            puts "  "+line
+          }
+          cmdout_lines += cmdout.size
+          stderr_lines += stderr.size
+        else
+          $stderr.print "."
+        end
+      end
+
+      puts "Status     : #{job.status}"
+      puts "Result     :"
+      puts cmd_render_table(job.result)
+    end
   end
 
   def show_jobs
@@ -44,7 +79,7 @@ module Command
     jobs.each {|job|
       query = job.query.to_s
       if query.size > 100
-        query = query[0..100-4]+" ..."
+        query = query[0..100-3]+" ..."
       end
       rows << {:JobID => job.job_id, :Status => job.status, :Query => query}
     }

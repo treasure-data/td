@@ -115,7 +115,7 @@ class API
   def job(job_id)
     job_id = job_id.to_s
     type, query, status, result, url, debug = @iface.show_job(job_id)
-    Job.new(self, job_id, type, query, url, status, result)
+    Job.new(self, job_id, type, query, url, status, result, debug)
   end
 
   # => type:Symbol, result:String, url:String
@@ -262,10 +262,8 @@ class Job < APIObject
   end
 
   def finished?
-    if !@status
-      update_status!
-    end
-    if @status != "running"
+    update_status! unless @status
+    if @status == "success" || @status == "error"
       return true
     else
       return false
@@ -277,7 +275,6 @@ class Job < APIObject
   end
 
   def update_status!
-    # TODO url
     query, status, result, url, debug = @api.job_status(@job_id)
     @query = query
     @status = status
