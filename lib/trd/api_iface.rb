@@ -245,6 +245,7 @@ class APIInterface
 
     path = BASE_URL + url
 
+    header['Content-Type'] = 'application/octet-stream'
     header['Content-Length'] = stream_size.to_s
 
     request = Net::HTTP::Put.new(url, header)
