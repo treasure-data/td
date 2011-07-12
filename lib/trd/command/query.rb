@@ -62,19 +62,20 @@ module Command
         if e > 3600
           elapsed << "#{e/3600}h "
           e %= 3600
-          elapsed << "#{e/60}m "
+          elapsed << "% 2dm " % (e/60)
           e %= 60
-          elapsed << "#{e}sec"
+          elapsed << "% 2dsec" % e
         elsif e > 60
-          elapsed << "#{e/60}m "
+          elapsed << "% 2dm " % (e/60)
           e %= 60
-          elapsed << "#{e}sec"
+          elapsed << "% 2dsec" % e
         else
-          elapsed << "#{e}sec"
+          elapsed << "% 2dsec" % e
         end
       else
         elapsed = ''
       end
+      elapsed = "% 10s" % elapsed  # right aligned
 
       rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => start, :Elapsed => elapsed}
     }
