@@ -56,7 +56,10 @@ module Command
     jobs.each {|job|
       start = job.start_at
       finish = job.end_at
-      if start && finish
+      if start
+        if !finish
+          finish = Time.now.utc
+        end
         e = finish.to_i - start.to_i
         elapsed = ''
         if e > 3600
