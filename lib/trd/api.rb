@@ -1,3 +1,4 @@
+require 'time'
 require 'trd/api_iface'
 require 'trd/error'
 
@@ -106,22 +107,22 @@ class API
   # => [Job=]
   def jobs(from=nil, to=nil)
     js = @iface.list_jobs(from, to)
-    js.map {|job_id,type,status,query|
-      Job.new(self, job_id, type, query, status)  # TODO url
+    js.map {|job_id,type,status,query,start_at,end_at|
+      Job.new(self, job_id, type, query, status, nil, nil, nil, start_at, end_at)
     }
   end
 
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, result, url, debug = @iface.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, result, debug)
+    type, query, status, result, url, debug, start_at, end_at = @iface.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, result, debug, start_at, end_at)
   end
 
   # => type:Symbol, result:String, url:String
   def job_status(job_id)
-    type, query, status, result, url, debug = @iface.show_job(job_id)
-    return query, status, result, url, debug
+    type, query, status, result, url, debug, start_at, end_at = @iface.show_job(job_id)
+    return query, status, result, url, debug, start_at, end_at
   end
 
   # => time:Flaot
@@ -215,7 +216,7 @@ class Table < APIObject
 end
 
 class Job < APIObject
-  def initialize(api, job_id, type, query, status=nil, url=nil, result=nil, debug=nil)
+  def initialize(api, job_id, type, query, status=nil, url=nil, result=nil, debug=nil, start_at=nil, end_at=nil)
     super(api)
     @job_id = job_id
     @type = type
@@ -224,6 +225,8 @@ class Job < APIObject
     @status = status
     @result = result
     @debug = debug
+    @start_at = start_at
+    @end_at = end_at
   end
 
   attr_reader :job_id, :type
@@ -252,6 +255,16 @@ class Job < APIObject
     @debug
   end
 
+  def start_at
+    update_status! unless @start_at
+    @start_at && !@start_at.empty? ? Time.parse(@start_at) : nil
+  end
+
+  def end_at
+    update_status! unless @end_at
+    @end_at && !@end_at.empty? ? Time.parse(@end_at) : nil
+  end
+
   def result
     return nil unless finished?
     update_status! unless @result
@@ -275,12 +288,14 @@ class Job < APIObject
   end
 
   def update_status!
-    query, status, result, url, debug = @api.job_status(@job_id)
+    query, status, result, url, debug, start_at, end_at = @api.job_status(@job_id)
     @query = query
     @status = status
     @result = result
     @url = url
     @debug = debug
+    @start_at = start_at
+    @end_at = end_at
     self
   end
 end

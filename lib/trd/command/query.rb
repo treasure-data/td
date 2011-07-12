@@ -54,10 +54,10 @@ module Command
 
     rows = []
     jobs.each {|job|
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s}
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => job.start_at, :End => job.end_at}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Query])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :End, :Query])
   end
 
   def job

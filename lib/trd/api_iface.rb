@@ -105,7 +105,7 @@ class APIInterface
   ## Job API
   ##
 
-  # => [(jobId:String, type:Symbol, status:String)]
+  # => [(jobId:String, type:Symbol, status:String, start_at:String, end_at:String)]
   def list_jobs(from=0, to=nil)
     params = {}
     params['from'] = from.to_s if from
@@ -122,7 +122,9 @@ class APIInterface
       type = (m['type'] || '?').to_sym
       status = m['status']
       query = m['query']
-      result << [job_id, type, status, query]
+      start_at = js['start_at']
+      end_at = js['end_at']
+      result << [job_id, type, status, query, start_at, end_at]
     }
     return result
   end
@@ -142,7 +144,9 @@ class APIInterface
     result = js['result']
     debug = js['debug']
     url = js['url']
-    return [type, query, status, result, url, debug]
+    start_at = js['start_at']
+    end_at = js['end_at']
+    return [type, query, status, result, url, debug, start_at, end_at]
   end
 
   # => jobId:String
@@ -207,7 +211,8 @@ class APIInterface
   end
 
   private
-  HOST = 'api.treasure-data.com'
+#  HOST = 'api.treasure-data.com'
+  HOST = 'ec2-184-72-213-196.compute-1.amazonaws.com'
   PORT = 80
   USE_SSL = false
   BASE_URL = ''
