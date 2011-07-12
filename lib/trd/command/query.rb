@@ -117,7 +117,7 @@ module Command
 
   private
   def wait_job(job)
-    $stderr.print "waiting"
+    $stderr.puts "running..."
 
     cmdout_lines = 0
     stderr_lines = 0
@@ -129,16 +129,11 @@ module Command
 
       cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1]
       stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1]
-      if !cmdout.empty? || !stderr.empty?
-        $stderr.puts ""
-        (cmdout + stderr).each {|line|
-          puts "  "+line
-        }
-        cmdout_lines += cmdout.size
-        stderr_lines += stderr.size
-      else
-        $stderr.print "."
-      end
+      (cmdout + stderr).each {|line|
+        puts "  "+line
+      }
+      cmdout_lines += cmdout.size
+      stderr_lines += stderr.size
     end
   end
 end
