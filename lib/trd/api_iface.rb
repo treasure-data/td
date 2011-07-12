@@ -122,8 +122,8 @@ class APIInterface
       type = (m['type'] || '?').to_sym
       status = m['status']
       query = m['query']
-      start_at = js['start_at']
-      end_at = js['end_at']
+      start_at = m['start_at']
+      end_at = m['end_at']
       result << [job_id, type, status, query, start_at, end_at]
     }
     return result
