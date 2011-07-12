@@ -54,10 +54,32 @@ module Command
 
     rows = []
     jobs.each {|job|
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => job.start_at, :End => job.end_at}
+      start = job.start_at
+      finish = job.end_at
+      if start && finish
+        e = finish.to_i - start.to_i
+        elapsed = ''
+        if e > 3600
+          elapsed << "#{e/3600}h "
+          e %= 3600
+          elapsed << "#{e/60}m "
+          e %= 60
+          elapsed << "#{e}sec"
+        elsif e > 60
+          elapsed << "#{e/60}m "
+          e %= 60
+          elapsed << "#{e}sec"
+        else
+          elapsed << "#{e}sec"
+        end
+      else
+        elapsed = ''
+      end
+
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => start, :Elapsed => elapsed}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :End, :Query])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Query])
   end
 
   def job
