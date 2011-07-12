@@ -62,13 +62,13 @@ module Command
         end
         e = finish.to_i - start.to_i
         elapsed = ''
-        if e > 3600
+        if e >= 3600
           elapsed << "#{e/3600}h "
           e %= 3600
           elapsed << "% 2dm " % (e/60)
           e %= 60
           elapsed << "% 2dsec" % e
-        elsif e > 60
+        elsif e >= 60
           elapsed << "% 2dm " % (e/60)
           e %= 60
           elapsed << "% 2dsec" % e
