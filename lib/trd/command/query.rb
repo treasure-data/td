@@ -127,8 +127,8 @@ module Command
 
       job.update_status!
 
-      cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1]
-      stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1]
+      cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
+      stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
       (cmdout + stderr).each {|line|
         puts "  "+line
       }
