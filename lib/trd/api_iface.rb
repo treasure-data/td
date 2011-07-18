@@ -211,8 +211,7 @@ class APIInterface
   end
 
   private
-#  HOST = 'api.treasure-data.com'
-  HOST = 'ec2-184-72-213-196.compute-1.amazonaws.com'
+  HOST = 'api.treasure-data.com'
   PORT = 80
   USE_SSL = false
   BASE_URL = ''

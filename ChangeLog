@@ -1,0 +1,10 @@
+
+== 2011-07-18 version 0.6.3
+
+* show-jobs: shows elapsed time
+* query: updated behavior of the -w option for new api
+* import: supported --json and --msgpack format
+* Added 'version' command
+
+== 2011-06-27 version 0.6.2
+
