@@ -211,7 +211,7 @@ class APIInterface
   end
 
   private
-  HOST = 'api.treasure-data.com'
+  HOST = ENV['TRD_API_SERVER'] || 'api.treasure-data.com'
   PORT = 80
   USE_SSL = false
   BASE_URL = ''
