@@ -231,8 +231,13 @@ module Command
             raise "record doesn't have '#{@time_key}' column"
           end
 
-          t = Time.parse(time)
-          record['time'] = t.to_i
+          case time
+          when Integer
+            # do nothing
+          else
+            time = Time.parse(time.to_s).to_i
+          end
+          record['time'] = time
 
           block.call(record)
 
@@ -259,8 +264,13 @@ module Command
             raise "record doesn't have '#{@time_key}' column"
           end
 
-          t = Time.parse(time)
-          record['time'] = t.to_i
+          case time
+          when Integer
+            # do nothing
+          else
+            time = Time.parse(time.to_s).to_i
+          end
+          record['time'] = time
 
           block.call(record)
 
