@@ -5,7 +5,7 @@ require 'rake/clean'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "trd"
+    gemspec.name = "td"
     gemspec.summary = "Treasure Data command line tool"
     gemspec.authors = ["Sadayuki Furuhashi"]
     #gemspec.email = "frsyuki@users.sourceforge.jp"
@@ -17,20 +17,20 @@ begin
     gemspec.add_dependency "hirb", ">= 0.4.5"
     gemspec.test_files = Dir["test/**/*.rt"]
     gemspec.files = Dir["lib/**/*", "ext/**/*", "test/**/*.rb", "test/**/*.rt"]
-    gemspec.executables = ['trd']
+    gemspec.executables = ['td']
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
 end
 
-VERSION_FILE = "lib/trd/version.rb"
+VERSION_FILE = "lib/td/version.rb"
 
 file VERSION_FILE => ["VERSION"] do |t|
   version = File.read("VERSION").strip
   File.open(VERSION_FILE, "w") {|f|
     f.write <<EOF
-module TRD
+module TD
 
 VERSION = '#{version}'
 

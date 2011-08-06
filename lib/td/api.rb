@@ -1,8 +1,8 @@
 require 'time'
-require 'trd/api_iface'
-require 'trd/error'
+require 'td/api_iface'
+require 'td/error'
 
-module TRD
+module TD
 
 class API
   def self.authenticate(user, password)
@@ -134,7 +134,7 @@ end
 end
 
 
-module TRD
+module TD
 
 class APIObject
   def initialize(api)

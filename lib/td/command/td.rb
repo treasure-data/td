@@ -14,13 +14,13 @@ op.summary_indent = "  "
 
 (class<<self;self;end).module_eval do
 	define_method(:usage) do |errmsg|
-		require 'trd/command/list'
+		require 'td/command/list'
 		puts op.to_s
 		puts ""
 		puts "commands:"
-		puts TRD::Command::List.help(op.summary_indent)
+		puts TD::Command::List.help(op.summary_indent)
 		puts ""
-		puts "Type 'trd help COMMAND' for more information on a specific command."
+		puts "Type 'td help COMMAND' for more information on a specific command."
 		if errmsg
 			puts "error: #{errmsg}"
 			exit 1
@@ -30,11 +30,11 @@ op.summary_indent = "  "
 	end
 end
 
-config_path = File.join(ENV['HOME'], '.trd', 'trd.conf')
+config_path = File.join(ENV['HOME'], '.td', 'td.conf')
 $verbose = false
 #$debug = false
 
-op.on('-c', '--config PATH', "path to config file (~/.trd/trd.conf)") {|s|
+op.on('-c', '--config PATH', "path to config file (~/.td/td.conf)") {|s|
 	config_path = s
 }
 
@@ -55,20 +55,20 @@ rescue
 	usage $!.to_s
 end
 
-require 'trd/command/list'
+require 'td/command/list'
 
-method = TRD::Command::List.get_method(cmd)
+method = TD::Command::List.get_method(cmd)
 unless method
-	$stderr.puts "'#{cmd}' is not a trd command. Run '#{$prog}' to show the list."
-  TRD::Command::List.show_guess(cmd)
+	$stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
+  TD::Command::List.show_guess(cmd)
 	exit 1
 end
 
-require 'trd/error'
+require 'td/error'
 
 begin
 	method.call
-rescue TRD::ConfigError
+rescue TD::ConfigError
 	$stderr.puts "TreasureData account is not configured yet."
 	$stderr.puts "Run '#{$prog} account' first."
 rescue

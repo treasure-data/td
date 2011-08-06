@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
 
   IMPORT_TEMPLATES = {
@@ -111,7 +111,7 @@ module Command
   def import_log_file(file, path, api, db_name, table_name, parser)
     puts "importing #{path}..."
 
-    out = Tempfile.new('trd-import')
+    out = Tempfile.new('td-import')
     writer = Zlib::GzipWriter.new(out)
 
     n = 0

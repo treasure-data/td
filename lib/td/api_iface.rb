@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 
 
 class APIInterface
@@ -211,7 +211,7 @@ class APIInterface
   end
 
   private
-  HOST = ENV['TRD_API_SERVER'] || 'api.treasure-data.com'
+  HOST = ENV['TD_API_SERVER'] || 'api.treasure-data.com'
   PORT = 80
   USE_SSL = false
   BASE_URL = ''
@@ -279,7 +279,7 @@ class APIInterface
 
     header = {}
     if @apikey
-      header['Authorization'] = "TRD #{apikey}"
+      header['Authorization'] = "TD1 #{apikey}"
     end
     header['Date'] = Time.now.rfc2822
 

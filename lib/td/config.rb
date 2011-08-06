@@ -1,6 +1,6 @@
-require 'trd/error'
+require 'td/error'
 
-module TRD
+module TD
 
 
 class Config

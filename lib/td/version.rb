@@ -1,4 +1,4 @@
-module TRD
+module TD
 
 VERSION = '0.6.3'
 

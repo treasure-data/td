@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 
 
 class ConfigError < StandardError

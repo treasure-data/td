@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
   private
   def cmd_opt(name, *args)
@@ -57,7 +57,7 @@ EOF
   end
 
   def cmd_config
-    require 'trd/config'
+    require 'td/config'
     Config.read($TRD_CONFIG_PATH)
   end
 
@@ -66,7 +66,7 @@ EOF
     unless apikey
       raise ConfigError, "Account is not configured."
     end
-    require 'trd/api'
+    require 'td/api'
     api = API.new(apikey)
   end
 

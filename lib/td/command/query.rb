@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
 
   def query

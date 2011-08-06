@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
 module List
 
@@ -64,8 +64,8 @@ module List
     command = ALIASES[command] || command
     LIST.each {|cmd,file,description|
       if cmd == command
-        require 'trd/command/common'
-        require "trd/command/#{file}"
+        require 'td/command/common'
+        require "td/command/#{file}"
         name = command.gsub('-','_')
         return Object.new.extend(Command).method(name)
       end
@@ -97,7 +97,7 @@ def help
 
   method = List.get_method(cmd)
   unless method
-    $stderr.puts "'#{cmd}' is not a trd command. Run '#{$prog}' to show the list."
+    $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
     List.show_guess(cmd)
     exit 1
   end
@@ -106,8 +106,8 @@ def help
 end
 
 def version
-  require 'trd/version'
-  puts "trd-#{TRD::VERSION}"
+  require 'td/version'
+  puts "td-#{TD::VERSION}"
 end
 
 end

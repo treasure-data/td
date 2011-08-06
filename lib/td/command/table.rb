@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
 
   def create_table_type(type, db_name, table_name)

@@ -2,13 +2,13 @@
 
 = Getting Started
 
-Install trd command as a gem.
+Install td command as a gem.
 
-    > gem install trd
+    > gem install td
 
 See help message for details.
 
-    > trd
+    > td
 
 
 == Copyright

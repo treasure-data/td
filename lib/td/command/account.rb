@@ -1,5 +1,5 @@
 
-module TRD
+module TD
 module Command
 
   def account
@@ -14,7 +14,7 @@ module Command
 
     user_name = op.cmd_parse
 
-    require 'trd/config'
+    require 'td/config'
     conf = nil
     begin
       conf = Config.read($TRD_CONFIG_PATH)
@@ -57,11 +57,11 @@ module Command
         exit 0
       end
 
-      require 'trd/api'
+      require 'td/api'
 
       begin
         api = API.authenticate(user_name, password)
-      rescue TRD::AuthError
+      rescue TD::AuthError
         $stderr.puts "User name or password mismatched."
       end
 
