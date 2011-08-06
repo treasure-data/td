@@ -129,6 +129,23 @@ class API
 	def import(db_name, table_name, format, stream, stream_size=stream.lstat.size)
     @iface.import(db_name, table_name, format, stream, stream_size)
 	end
+
+  def self.validate_database_name(name)
+    name = name.to_s
+    if name.empty?
+      raise "Empty name is not allowed"
+    end
+    if name.length < 3 || 32 < name.length
+      raise "Name must be 3 to 32 characters, got #{name.length} characters."
+    end
+    unless name =~ /^([a-z0-9_]+)$/
+      raise "Name must consist only of alphabets, numbers, '_'."
+    end
+  end
+
+  def self.validate_table_name(name)
+    validate_database_name(name)
+  end
 end
 
 end

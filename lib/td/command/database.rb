@@ -9,6 +9,8 @@ module Command
     conf = cmd_config
     api = cmd_api(conf)
 
+    API.validate_database_name(db_name)
+
     begin
       api.create_database(db_name)
     rescue AlreadyExistsError
@@ -76,7 +78,6 @@ module Command
   alias show_dbs show_databases
   alias create_db create_database
   alias drop_db drop_database
-
 end
 end
 

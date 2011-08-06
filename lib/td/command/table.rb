@@ -6,6 +6,8 @@ module Command
     conf = cmd_config
     api = cmd_api(conf)
 
+    API.validate_table_name(table_name)
+
     begin
       api.create_table(db_name, table_name, type)
     rescue NotFoundError
