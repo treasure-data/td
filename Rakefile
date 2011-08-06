@@ -12,7 +12,7 @@ begin
     #gemspec.homepage = "http://example.com/"
     gemspec.has_rdoc = false
     gemspec.require_paths = ["lib"]
-		gemspec.add_dependency "msgpack", "~> 0.4.4"
+    gemspec.add_dependency "msgpack", "~> 0.4.4"
     gemspec.add_dependency "json", ">= 1.4.3"
     gemspec.add_dependency "hirb", ">= 0.4.5"
     gemspec.test_files = Dir["test/**/*.rt"]
