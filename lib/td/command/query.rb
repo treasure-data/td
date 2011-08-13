@@ -116,12 +116,12 @@ module Command
     if wait && !job.finished?
       wait_job(job)
       puts "Result     :"
-      puts cmd_render_table(job.result, :max_width=>10000)
+      puts render_result(job.result)
 
     else
       if job.finished?
         puts "Result     :"
-        puts cmd_render_table(job.result, :max_width=>10000)
+        puts render_result(job.result)
       end
 
       if verbose
@@ -161,6 +161,19 @@ module Command
       cmdout_lines += cmdout.size
       stderr_lines += stderr.size
     end
+  end
+
+  def render_result(result)
+    rows = result.map {|row|
+      row.map {|v|
+        if v.is_a?(String)
+          v.to_s
+        else
+          v.to_json
+        end
+      }
+    }
+    puts cmd_render_table(rows, :max_width=>10000)
   end
 end
 end

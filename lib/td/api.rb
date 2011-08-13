@@ -125,6 +125,11 @@ class API
     return query, status, result, url, debug, start_at, end_at
   end
 
+  # => [Hash]
+  def job_result(job_id)
+    @iface.job_result(job_id)
+  end
+
   # => time:Flaot
 	def import(db_name, table_name, format, stream, stream_size=stream.lstat.size)
     @iface.import(db_name, table_name, format, stream, stream_size)
@@ -240,7 +245,7 @@ class Job < APIObject
     @url = url
     @query = query
     @status = status
-    @result = result
+    #@result = result  # TODO get result using API#job_result
     @debug = debug
     @start_at = start_at
     @end_at = end_at
@@ -283,12 +288,11 @@ class Job < APIObject
   end
 
   def result
-    return nil unless finished?
-    update_status! unless @result
-    @result.split("\n").map {|line|
-      # TODO format of the result is TSV for now
-      line.split("\t")
-    }
+    unless @result
+      return nil unless finished?
+      @result = @api.job_result(@job_id)
+    end
+    @result
   end
 
   def finished?

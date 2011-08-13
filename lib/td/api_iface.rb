@@ -149,6 +149,23 @@ class APIInterface
     return [type, query, status, result, url, debug, start_at, end_at]
   end
 
+  def job_result(job_id)
+    # TODO msgpack
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'json'})
+    if code != "200"
+      raise_error("Get job result failed", res)
+    end
+    return JSON.load(body)
+  end
+
+  def job_result_raw(job_id, format)
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
+    if code != "200"
+      raise_error("Get job result failed", res)
+    end
+    return body
+  end
+
   # => jobId:String
   def hive_query(q, db=nil)
     code, body, res = post("/v3/job/issue/hive/#{e db}", {'query'=>q})
