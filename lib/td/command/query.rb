@@ -36,7 +36,7 @@ module Command
       wait_job(job)
       puts "Status     : #{job.status}"
       puts "Result     :"
-      puts cmd_render_table(job.result, :max_width=>10000)
+      puts render_result(job.result)
     end
   end
 
