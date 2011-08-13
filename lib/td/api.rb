@@ -108,7 +108,7 @@ class API
   def jobs(from=nil, to=nil)
     js = @iface.list_jobs(from, to)
     js.map {|job_id,type,status,query,start_at,end_at|
-      Job.new(self, job_id, type, query, status, nil, nil, nil, start_at, end_at)
+      Job.new(self, job_id, type, query, status, nil, nil, start_at, end_at)
     }
   end
 
