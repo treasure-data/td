@@ -211,8 +211,16 @@ class APIInterface
   end
 
   private
-  HOST = ENV['TD_API_SERVER'] || 'api.treasure-data.com'
-  PORT = 80
+  host = 'api.treasure-data.com'
+  port = 80
+  if e = ENV['TD_API_SERVER']
+    host, port_ = e.split(':',2)
+    port_ = port_.to_i
+    port = port_ if port_ != 0
+  end
+
+  HOST = host
+  PORT = port
   USE_SSL = false
   BASE_URL = ''
 
