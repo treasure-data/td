@@ -141,12 +141,11 @@ class APIInterface
     type = (js['type'] || '?').to_sym  # TODO
     query = js['query']
     status = js['status']
-    result = js['result']
     debug = js['debug']
     url = js['url']
     start_at = js['start_at']
     end_at = js['end_at']
-    return [type, query, status, result, url, debug, start_at, end_at]
+    return [type, query, status, url, debug, start_at, end_at]
   end
 
   def job_result(job_id)

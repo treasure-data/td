@@ -115,14 +115,14 @@ class API
   # => Job
   def job(job_id)
     job_id = job_id.to_s
-    type, query, status, result, url, debug, start_at, end_at = @iface.show_job(job_id)
-    Job.new(self, job_id, type, query, status, url, result, debug, start_at, end_at)
+    type, query, status, url, debug, start_at, end_at = @iface.show_job(job_id)
+    Job.new(self, job_id, type, query, status, url, debug, start_at, end_at)
   end
 
-  # => type:Symbol, result:String, url:String
+  # => type:Symbol, url:String
   def job_status(job_id)
-    type, query, status, result, url, debug, start_at, end_at = @iface.show_job(job_id)
-    return query, status, result, url, debug, start_at, end_at
+    type, query, status, url, debug, start_at, end_at = @iface.show_job(job_id)
+    return query, status, url, debug, start_at, end_at
   end
 
   # => [Hash]
@@ -238,17 +238,17 @@ class Table < APIObject
 end
 
 class Job < APIObject
-  def initialize(api, job_id, type, query, status=nil, url=nil, result=nil, debug=nil, start_at=nil, end_at=nil)
+  def initialize(api, job_id, type, query, status=nil, url=nil, debug=nil, start_at=nil, end_at=nil, result=nil)
     super(api)
     @job_id = job_id
     @type = type
     @url = url
     @query = query
     @status = status
-    #@result = result  # TODO get result using API#job_result
     @debug = debug
     @start_at = start_at
     @end_at = end_at
+    @result = result
   end
 
   attr_reader :job_id, :type
@@ -309,10 +309,9 @@ class Job < APIObject
   end
 
   def update_status!
-    query, status, result, url, debug, start_at, end_at = @api.job_status(@job_id)
+    query, status, url, debug, start_at, end_at = @api.job_status(@job_id)
     @query = query
     @status = status
-    @result = result
     @url = url
     @debug = debug
     @start_at = start_at
