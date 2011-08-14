@@ -149,12 +149,16 @@ class APIInterface
   end
 
   def job_result(job_id)
-    # TODO msgpack
-    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'json'})
+    require 'msgpack'
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
     if code != "200"
       raise_error("Get job result failed", res)
     end
-    return JSON.load(body)
+    result = []
+    MessagePack::Unpacker.new.feed_each(body) {|row|
+      result << row
+    }
+    return result
   end
 
   def job_result_raw(job_id, format)

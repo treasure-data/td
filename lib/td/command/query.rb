@@ -164,6 +164,7 @@ module Command
   end
 
   def render_result(result)
+    require 'json'
     rows = result.map {|row|
       row.map {|v|
         if v.is_a?(String)
