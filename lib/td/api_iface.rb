@@ -161,6 +161,20 @@ class APIInterface
     return result
   end
 
+  def job_result_each(job_id, &block)
+    # TODO chunked encoding
+    require 'msgpack'
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>'msgpack'})
+    if code != "200"
+      raise_error("Get job result failed", res)
+    end
+    result = []
+    MessagePack::Unpacker.new.feed_each(body) {|row|
+      yield row
+    }
+    nil
+  end
+
   def job_result_raw(job_id, format)
     code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
     if code != "200"

@@ -99,7 +99,7 @@ class API
   end
 
   # => Job
-  def query(q, db_name=nil)
+  def query(db_name, q)
     job_id = @iface.hive_query(q, db_name)
     Job.new(self, job_id, :hive, q)  # TODO url
   end
@@ -125,9 +125,14 @@ class API
     return query, status, url, debug, start_at, end_at
   end
 
-  # => [Hash]
+  # => result:[{column:String=>value:Object]
   def job_result(job_id)
     @iface.job_result(job_id)
+  end
+
+  # => nil
+  def job_result_each(job_id, &block)
+    @iface.job_result_each(job_id, &block)
   end
 
   # => time:Flaot
@@ -295,6 +300,15 @@ class Job < APIObject
     @result
   end
 
+  def result_each(&block)
+    if @result
+      @result.each(&block)
+    else
+      @api.job_result_each(&block)
+    end
+    nil
+  end
+
   def finished?
     update_status! unless @status
     if @status == "success" || @status == "error"
@@ -306,6 +320,14 @@ class Job < APIObject
 
   def running?
     !finished?
+  end
+
+  def success?
+    @status == "success"
+  end
+
+  def error?
+    @status == "error"
   end
 
   def update_status!

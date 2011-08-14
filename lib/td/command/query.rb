@@ -8,7 +8,7 @@ module Command
     op.banner << "\noptions:\n"
 
     db_name = nil
-    op.on('-d', '--database DB_NAME', 'use the database') {|s|
+    op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
 
@@ -22,11 +22,14 @@ module Command
     conf = cmd_config
     api = cmd_api(conf)
 
-    if db_name
-      find_database(api, db_name)
+    unless db_name
+      $stderr.puts "-d, --database DB_NAME option is required."
+      exit 1
     end
 
-    job = api.query(sql, db_name)
+    find_database(api, db_name)
+
+    job = api.query(db_name, sql)
 
     $stderr.puts "Job #{job.job_id} is started."
     $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
