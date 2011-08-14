@@ -1,4 +1,11 @@
 
+== 2011-08-15 version 0.7.2
+
+* Supports TD_API_KEY and TD_CONFIG_PATH environment variable
+* query, show-job: supports --output and --format options
+* show-jobs: supports --page, --skip, --from and --around options
+
+
 == 2011-08-15 version 0.7.1
 
 * Validate name of a database/table on create-database/create-log-table
