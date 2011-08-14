@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 module Command
   private
   def cmd_opt(name, *args)

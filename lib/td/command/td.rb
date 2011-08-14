@@ -18,7 +18,7 @@ op.summary_indent = "  "
     puts op.to_s
     puts ""
     puts "commands:"
-    puts TD::Command::List.help(op.summary_indent)
+    puts TreasureData::Command::List.help(op.summary_indent)
     puts ""
     puts "Type 'td help COMMAND' for more information on a specific command."
     if errmsg
@@ -58,10 +58,10 @@ begin
 
   require 'td/config'
   if config_path
-    TD::Config.path = config_path
+    TreasureData::Config.path = config_path
   end
   if apikey
-    TD::Config.apikey = apikey
+    TreasureData::Config.apikey = apikey
   end
 rescue
   usage $!.to_s
@@ -69,10 +69,10 @@ end
 
 require 'td/command/list'
 
-method = TD::Command::List.get_method(cmd)
+method = TreasureData::Command::List.get_method(cmd)
 unless method
   $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
-  TD::Command::List.show_guess(cmd)
+  TreasureData::Command::List.show_guess(cmd)
   exit 1
 end
 
@@ -80,7 +80,7 @@ require 'td/error'
 
 begin
   method.call
-rescue TD::ConfigError
+rescue TreasureData::ConfigError
   $stderr.puts "TreasureData account is not configured yet."
   $stderr.puts "Run '#{$prog} account' first."
 rescue

@@ -1,4 +1,4 @@
-module TD
+module TreasureData
 
 VERSION = '0.7.2'
 

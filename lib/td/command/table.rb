@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 module Command
 
   def create_table_type(type, db_name, table_name)

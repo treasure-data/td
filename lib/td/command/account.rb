@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 module Command
 
   def account
@@ -61,7 +61,7 @@ module Command
 
       begin
         api = API.authenticate(user_name, password)
-      rescue TD::AuthError
+      rescue TreasureData::AuthError
         $stderr.puts "User name or password mismatched."
       end
 

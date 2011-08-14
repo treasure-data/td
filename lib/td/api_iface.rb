@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 
 
 class APIInterface

@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 module Command
 
   IMPORT_TEMPLATES = {

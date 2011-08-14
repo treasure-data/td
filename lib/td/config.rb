@@ -1,6 +1,6 @@
 require 'td/error'
 
-module TD
+module TreasureData
 
 
 class Config

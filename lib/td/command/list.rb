@@ -1,5 +1,5 @@
 
-module TD
+module TreasureData
 module Command
 module List
 
@@ -107,7 +107,7 @@ end
 
 def version
   require 'td/version'
-  puts "td-#{TD::VERSION}"
+  puts "td-#{TreasureData::VERSION}"
 end
 
 end

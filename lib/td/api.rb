@@ -2,7 +2,7 @@ require 'time'
 require 'td/api_iface'
 require 'td/error'
 
-module TD
+module TreasureData
 
 class API
   def self.authenticate(user, password)
@@ -163,10 +163,6 @@ class API
   end
 end
 
-end
-
-
-module TD
 
 class APIObject
   def initialize(api)
