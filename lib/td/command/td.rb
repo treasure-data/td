@@ -30,12 +30,17 @@ op.summary_indent = "  "
 	end
 end
 
-config_path = File.join(ENV['HOME'], '.td', 'td.conf')
+config_path = nil
+apikey = nil
 $verbose = false
 #$debug = false
 
 op.on('-c', '--config PATH', "path to config file (~/.td/td.conf)") {|s|
 	config_path = s
+}
+
+op.on('-k', '--apikey KEY', "use this API key instead of reading the config file") {|s|
+  apikey = s
 }
 
 op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
@@ -50,7 +55,14 @@ begin
 	op.order!(ARGV)
 	usage nil if ARGV.empty?
 	cmd = ARGV.shift
-	$TRD_CONFIG_PATH = config_path
+
+  require 'td/config'
+  if config_path
+    TD::Config.path = config_path
+  end
+  if apikey
+    TD::Config.apikey = apikey
+  end
 rescue
 	usage $!.to_s
 end

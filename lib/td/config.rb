@@ -9,7 +9,7 @@ class Config
 		@conf = {}   # section.key = val
 	end
 
-	def self.read(path, create=false)
+	def self.read(path=Config.path, create=false)
 		new.read(path)
 	end
 
@@ -19,11 +19,6 @@ class Config
 
 	def []=(cate_key, val)
 		@conf[cate_key] = val
-	end
-
-	def save(path=@path)
-		@path = path
-		write
 	end
 
 	def read(path=@path)
@@ -57,6 +52,12 @@ class Config
 		self
 	end
 
+	def save(path=@path||Config.path)
+		@path = path
+		write
+	end
+
+  private
 	def write
 		require 'fileutils'
 		FileUtils.mkdir_p File.dirname(@path)
@@ -73,6 +74,26 @@ class Config
 			}
 		}
 	end
+
+  @@path = ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
+  @@apikey = ENV['TD_API_KEY']
+  @@apikey = nil if @@apikey == ""
+
+  def self.path
+    @@path
+  end
+
+  def self.path=(path)
+    @@path = path
+  end
+
+  def self.apikey
+    @@apikey || Config.read['account.apikey']
+  end
+
+  def self.apikey=(apikey)
+    @@apikey = apikey
+  end
 end
 
 

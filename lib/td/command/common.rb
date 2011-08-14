@@ -56,13 +56,8 @@ EOF
     op
   end
 
-  def cmd_config
-    require 'td/config'
-    Config.read($TRD_CONFIG_PATH)
-  end
-
-  def cmd_api(conf)
-    apikey = conf['account.apikey']
+  def cmd_api
+    apikey = Config.apikey
     unless apikey
       raise ConfigError, "Account is not configured."
     end

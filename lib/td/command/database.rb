@@ -6,8 +6,7 @@ module Command
     op = cmd_opt 'create-database', :db_name
     db_name = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     API.validate_database_name(db_name)
 
@@ -34,8 +33,7 @@ module Command
 
     db_name = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     begin
       db = api.database(db_name)
@@ -58,8 +56,7 @@ module Command
     op = cmd_opt 'show-databases'
     op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     dbs = api.databases
 

@@ -3,8 +3,7 @@ module TD
 module Command
 
   def create_table_type(type, db_name, table_name)
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     API.validate_table_name(table_name)
 
@@ -43,8 +42,7 @@ module Command
     op = cmd_opt 'drop-table', :db_name, :table_name
     db_name, table_name = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     begin
       api.delete_table(db_name, table_name)
@@ -62,8 +60,7 @@ module Command
     op = cmd_opt 'show-tables', :db_name?
     db_name = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     if db_name
       db = find_database(api, db_name)

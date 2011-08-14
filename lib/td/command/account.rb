@@ -17,7 +17,7 @@ module Command
     require 'td/config'
     conf = nil
     begin
-      conf = Config.read($TRD_CONFIG_PATH)
+      conf = Config.read
     rescue ConfigError
     end
     if conf && conf['account.user']
@@ -74,7 +74,7 @@ module Command
     conf ||= Config.new
     conf["account.user"] = user_name
     conf["account.apikey"] = api.apikey
-    conf.save($TRD_CONFIG_PATH)
+    conf.save
 
     $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."
   end

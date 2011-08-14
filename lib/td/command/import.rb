@@ -56,8 +56,7 @@ module Command
 
     db_name, table_name, *paths = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     case format
     when 'json', 'msgpack'

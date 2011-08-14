@@ -19,8 +19,7 @@ module Command
 
     sql = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
@@ -70,8 +69,7 @@ module Command
 
     max = (max || 20).to_i
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     if from || around
       jobs = api.jobs(0, 1)
@@ -139,8 +137,7 @@ module Command
 
     job_id = op.cmd_parse
 
-    conf = cmd_config
-    api = cmd_api(conf)
+    api = cmd_api
 
     job = api.job(job_id)
 
