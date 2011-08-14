@@ -333,10 +333,12 @@ class Job < APIObject
   end
 
   def success?
+    update_status! unless @status
     @status == "success"
   end
 
   def error?
+    update_status! unless @status
     @status == "error"
   end
 
