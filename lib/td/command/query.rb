@@ -8,13 +8,24 @@ module Command
     op.banner << "\noptions:\n"
 
     db_name = nil
+    wait = false
+    output = nil
+    format = 'tsv'
+
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
-
-    wait = false
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-o', '--output PATH', 'write result to the file') {|s|
+      output = s
+    }
+    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
+      unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
+        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack"
+      end
+      format = s
     }
 
     sql = op.cmd_parse
@@ -38,7 +49,7 @@ module Command
       wait_job(job)
       puts "Status     : #{job.status}"
       puts "Result     :"
-      puts render_result(job.result)
+      show_result(job, output, format)
     end
   end
 
@@ -126,13 +137,24 @@ module Command
     op.banner << "\noptions:\n"
 
     verbose = nil
+    wait = false
+    output = nil
+    format = 'tsv'
+
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
       verbose = b
     }
-
-    wait = false
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-o', '--output PATH', 'write result to the file') {|s|
+      output = s
+    }
+    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
+      unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
+        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack"
+      end
+      format = s
     }
 
     job_id = op.cmd_parse
@@ -149,12 +171,12 @@ module Command
     if wait && !job.finished?
       wait_job(job)
       puts "Result     :"
-      puts render_result(job.result)
+      show_result(job, output, format)
 
     else
       if job.finished?
         puts "Result     :"
-        puts render_result(job.result)
+        show_result(job, output, format)
       end
 
       if verbose
@@ -196,10 +218,75 @@ module Command
     end
   end
 
-  def render_result(result)
+  def show_result(job, output, format)
+    if output
+      write_result(job, output, format)
+      puts "written to #{output} in #{format} format"
+    else
+      render_result(job)
+    end
+  end
+
+  def write_result(job, output, format)
+    case format
+    when 'json'
+      require 'json'
+      first = true
+      File.open(output, "w") {|f|
+        f.write "["
+        job.result_each {|row|
+          if first
+            first = false
+          else
+            f.write ","
+          end
+          f.write row.to_json
+        }
+        f.write "]"
+      }
+
+    when 'msgpack'
+      File.open(output, "w") {|f|
+        f.write job.result_format('msgpack')
+      }
+
+    when 'csv'
+      require 'json'
+      require 'csv'
+      CSV.open(output, "w") {|writer|
+        job.result_each {|row|
+          writer << row.map {|col| col.is_a?(String) ? col.to_s : col.to_json }
+        }
+      }
+
+    when 'tsv'
+      require 'json'
+      File.open(output, "w") {|f|
+        job.result_each {|row|
+          first = true
+          row.each {|col|
+            if first
+              first = false
+            else
+              f.write "\t"
+            end
+            f.write col.is_a?(String) ? col.to_s : col.to_json
+          }
+          f.write "\n"
+        }
+      }
+
+    else
+      raise "Unknown format #{format.inspect}"
+    end
+  end
+
+  def render_result(job)
     require 'json'
-    rows = result.map {|row|
-      row.map {|v|
+    rows = []
+    job.result_each {|row|
+      # TODO limit number of rows to show
+      rows << row.map {|v|
         if v.is_a?(String)
           v.to_s
         else

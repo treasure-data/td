@@ -161,6 +161,15 @@ class APIInterface
     return result
   end
 
+  def job_result_format(job_id, format)
+    # TODO chunked encoding
+    code, body, res = get("/v3/job/result/#{e job_id}", {'format'=>format})
+    if code != "200"
+      raise_error("Get job result failed", res)
+    end
+    return body
+  end
+
   def job_result_each(job_id, &block)
     # TODO chunked encoding
     require 'msgpack'

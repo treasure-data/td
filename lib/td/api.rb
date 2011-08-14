@@ -130,6 +130,11 @@ class API
     @iface.job_result(job_id)
   end
 
+  # => result:String
+  def job_result_format(job_id, format)
+    @iface.job_result_format(job_id, format)
+  end
+
   # => nil
   def job_result_each(job_id, &block)
     @iface.job_result_each(job_id, &block)
@@ -300,11 +305,16 @@ class Job < APIObject
     @result
   end
 
+  def result_format(format)
+    return nil unless finished?
+    @api.job_result_format(@job_id, format)
+  end
+
   def result_each(&block)
     if @result
       @result.each(&block)
     else
-      @api.job_result_each(&block)
+      @api.job_result_each(@job_id, &block)
     end
     nil
   end
