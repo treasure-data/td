@@ -136,9 +136,9 @@ class API
   end
 
   # => time:Flaot
-	def import(db_name, table_name, format, stream, stream_size=stream.lstat.size)
+  def import(db_name, table_name, format, stream, stream_size=stream.lstat.size)
     @iface.import(db_name, table_name, format, stream, stream_size)
-	end
+  end
 
   def self.validate_database_name(name)
     name = name.to_s
