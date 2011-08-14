@@ -1,4 +1,13 @@
 
+== 2011-08-15 version 0.7.1
+
+* Validate name of a database/table on create-database/create-log-table
+subcommands
+* -d, --database DB_NAME option is now required on query subcommand
+* Uses /v3/job/result?format=msgpack API to get result of a job
+* API server can be changed using TD_API_SERVER=HOST:PORT environment variable
+
+
 == 2011-08-06 version 0.7.0
 
 * import subcommand accepts UNIX time integer value on --json and --msgpack format
