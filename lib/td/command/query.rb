@@ -30,16 +30,16 @@ module Command
 
     sql = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
       exit 1
     end
 
-    find_database(api, db_name)
+    find_database(client, db_name)
 
-    job = api.query(db_name, sql)
+    job = client.query(db_name, sql)
 
     $stderr.puts "Job #{job.job_id} is started."
     $stderr.puts "Use '#{$prog} job #{job.job_id}' to show the status."
@@ -82,10 +82,10 @@ module Command
 
     max = (max || 20).to_i
 
-    api = cmd_api
+    client = get_client
 
     if from || around
-      jobs = api.jobs(0, 1)
+      jobs = client.jobs(0, 1)
       if last = jobs[0]
         if from
           skip += last.job_id.to_i - from - (max-1)
@@ -97,7 +97,7 @@ module Command
     if page
       skip += max * page
     end
-    jobs = api.jobs(skip, skip+max-1)
+    jobs = client.jobs(skip, skip+max-1)
 
     rows = []
     jobs.each {|job|
@@ -161,9 +161,9 @@ module Command
 
     job_id = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
-    job = api.job(job_id)
+    job = client.job(job_id)
 
     puts "JobID      : #{job.job_id}"
     puts "URL        : #{job.url}"

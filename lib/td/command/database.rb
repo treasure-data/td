@@ -6,12 +6,12 @@ module Command
     op = cmd_opt 'create-database', :db_name
     db_name = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     API.validate_database_name(db_name)
 
     begin
-      api.create_database(db_name)
+      client.create_database(db_name)
     rescue AlreadyExistsError
       $stderr.puts "Database '#{db_name}' already exists."
       exit 1
@@ -33,10 +33,10 @@ module Command
 
     db_name = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     begin
-      db = api.database(db_name)
+      db = client.database(db_name)
 
       if !force && !db.tables.empty?
         $stderr.puts "Database '#{db_name}' is not empty. Use '-f' option or drop tables first."
@@ -56,9 +56,9 @@ module Command
     op = cmd_opt 'show-databases'
     op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
-    dbs = api.databases
+    dbs = client.databases
 
     rows = []
     dbs.each {|db|

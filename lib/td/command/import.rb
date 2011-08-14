@@ -56,7 +56,7 @@ module Command
 
     db_name, table_name, *paths = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     case format
     when 'json', 'msgpack'
@@ -81,7 +81,7 @@ module Command
       parser = TextParser.new(names, regexp, time_format)
     end
 
-    find_table(api, db_name, table_name, :log)
+    find_table(client, db_name, table_name, :log)
 
     require 'zlib'
 
@@ -100,14 +100,14 @@ module Command
     #require 'thread'
 
     files.zip(paths).each {|file,path|
-      import_log_file(file, path, api, db_name, table_name, parser)
+      import_log_file(file, path, client, db_name, table_name, parser)
     }
 
     puts "done."
   end
 
   private
-  def import_log_file(file, path, api, db_name, table_name, parser)
+  def import_log_file(file, path, client, db_name, table_name, parser)
     puts "importing #{path}..."
 
     out = Tempfile.new('td-import')
@@ -131,7 +131,7 @@ module Command
           out.pos = 0
 
           puts "  uploading #{size} bytes..."
-          api.import(db_name, table_name, "msgpack.gz", out, size)
+          client.import(db_name, table_name, "msgpack.gz", out, size)
 
           out.truncate(0)
           out.pos = 0
@@ -151,7 +151,7 @@ module Command
 
       puts "  uploading #{size} bytes..."
       # TODO upload on background thread
-      api.import(db_name, table_name, "msgpack.gz", out, size)
+      client.import(db_name, table_name, "msgpack.gz", out, size)
     end
 
     puts "  imported #{n} entries from #{path}."

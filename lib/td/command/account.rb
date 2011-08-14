@@ -39,7 +39,7 @@ module Command
       exit 0
     end
 
-    api = nil
+    client = nil
 
     2.times do
       begin
@@ -57,23 +57,23 @@ module Command
         exit 0
       end
 
-      require 'td/api'
+      require 'td/client'
 
       begin
-        api = API.authenticate(user_name, password)
+        client = Client.authenticate(user_name, password)
       rescue TreasureData::AuthError
         $stderr.puts "User name or password mismatched."
       end
 
-      break if api
+      break if client
     end
-    return unless api
+    return unless client
 
     $stderr.puts "Authenticated successfully."
 
     conf ||= Config.new
     conf["account.user"] = user_name
-    conf["account.apikey"] = api.apikey
+    conf["account.apikey"] = client.apikey
     conf.save
 
     $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."

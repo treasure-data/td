@@ -6,8 +6,8 @@ module Command
     op = cmd_opt 'server-status'
     op.cmd_parse
 
-    require 'td/api'
-    puts API.server_status
+    require 'td/client'
+    puts Client.server_status
   end
 
 end

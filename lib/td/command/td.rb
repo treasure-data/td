@@ -76,8 +76,6 @@ unless method
   exit 1
 end
 
-require 'td/error'
-
 begin
   method.call
 rescue TreasureData::ConfigError

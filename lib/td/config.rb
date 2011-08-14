@@ -1,6 +1,15 @@
-require 'td/error'
 
 module TreasureData
+
+
+class ConfigError < StandardError
+end
+
+class ConfigNotFoundError < ConfigError
+end
+
+class ConfigParseError < ConfigError
+end
 
 
 class Config

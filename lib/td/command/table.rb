@@ -3,12 +3,12 @@ module TreasureData
 module Command
 
   def create_table_type(type, db_name, table_name)
-    api = cmd_api
+    client = get_client
 
     API.validate_table_name(table_name)
 
     begin
-      api.create_table(db_name, table_name, type)
+      client.create_table(db_name, table_name, type)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -42,10 +42,10 @@ module Command
     op = cmd_opt 'drop-table', :db_name, :table_name
     db_name, table_name = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     begin
-      api.delete_table(db_name, table_name)
+      client.delete_table(db_name, table_name)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Table '#{db_name}.#{table_name}' does not exist."
@@ -60,13 +60,13 @@ module Command
     op = cmd_opt 'show-tables', :db_name?
     db_name = op.cmd_parse
 
-    api = cmd_api
+    client = get_client
 
     if db_name
-      db = find_database(api, db_name)
+      db = find_database(client, db_name)
       dbs = [db]
     else
-      dbs = api.databases
+      dbs = client.databases
     end
 
     rows = []

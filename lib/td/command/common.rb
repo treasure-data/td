@@ -56,13 +56,13 @@ EOF
     op
   end
 
-  def cmd_api
+  def get_client
     apikey = Config.apikey
     unless apikey
       raise ConfigError, "Account is not configured."
     end
-    require 'td/api'
-    api = API.new(apikey)
+    require 'td/client'
+    Client.new(apikey)
   end
 
   def cmd_render_table(rows, *opts)
@@ -85,9 +85,9 @@ EOF
     end
   end
 
-  def find_database(api, db_name)
+  def find_database(client, db_name)
     begin
-      return api.database(db_name)
+      return client.database(db_name)
     rescue
       cmd_debug_error $!
       $stderr.puts $!
@@ -97,8 +97,8 @@ EOF
     db
   end
 
-  def find_table(api, db_name, table_name, type=nil)
-    db = find_database(api, db_name)
+  def find_table(client, db_name, table_name, type=nil)
+    db = find_database(client, db_name)
     begin
       table = db.table(table_name)
     rescue
