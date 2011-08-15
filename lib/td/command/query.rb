@@ -62,20 +62,12 @@ module Command
 
     page = 0
     skip = 0
-    from = nil
-    around = nil
 
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
     }
     op.on('-s', '--skip N', 'skip N jobs', Integer) {|i|
       skip = i
-    }
-    op.on('-f', '--from JOB_ID', 'show jobs from the id', Integer) {|i|
-      from = i
-    }
-    op.on('-a', '--around JOB_ID', 'show jobs around the id', Integer) {|i|
-      around = i
     }
 
     max = op.cmd_parse
@@ -84,16 +76,6 @@ module Command
 
     client = get_client
 
-    if from || around
-      jobs = client.jobs(0, 1)
-      if last = jobs[0]
-        if from
-          skip += last.job_id.to_i - from - (max-1)
-        else
-          skip += last.job_id.to_i - around - (max-1) + (max-1)/2
-        end
-      end
-    end
     if page
       skip += max * page
     end
