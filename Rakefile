@@ -30,7 +30,7 @@ file VERSION_FILE => ["VERSION"] do |t|
   version = File.read("VERSION").strip
   File.open(VERSION_FILE, "w") {|f|
     f.write <<EOF
-module TD
+module TreasureData
 
 VERSION = '#{version}'
 

@@ -1,4 +1,10 @@
 
+== 2011-08-15 version 0.7.3
+
+* show-jobs: removed --from and --around options
+* changed library namespace from TD to TreasureData
+
+
 == 2011-08-15 version 0.7.2
 
 * Supports TD_API_KEY and TD_CONFIG_PATH environment variable

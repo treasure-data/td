@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{td}
-  s.version = "0.7.2"
+  s.version = "0.7.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     "lib/td/api.rb",
-     "lib/td/api_iface.rb",
+     "lib/td/client.rb",
      "lib/td/command/account.rb",
      "lib/td/command/common.rb",
      "lib/td/command/database.rb",
@@ -29,7 +29,6 @@ Gem::Specification.new do |s|
      "lib/td/command/table.rb",
      "lib/td/command/td.rb",
      "lib/td/config.rb",
-     "lib/td/error.rb",
      "lib/td/version.rb"
   ]
   s.rdoc_options = ["--charset=UTF-8"]
