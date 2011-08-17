@@ -14,6 +14,9 @@ module Command
     if args.last.to_s =~ /_$/
       multi = true
       args.push args.pop.to_s[0..-2]+'...'
+    elsif args.last.to_s =~ /_\?$/
+      multi = true
+      args.push args.pop.to_s[0..-3]+'...?'
     end
 
     req_args, opt_args = args.partition {|a| a.to_s !~ /\?$/ }

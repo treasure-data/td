@@ -61,19 +61,28 @@ module Command
   end
 
   def set_schema
-    op = cmd_opt 'set-schema', :db_name, :table_name, :columns_
+    op = cmd_opt 'set-schema', :db_name, :table_name, :columns_?
 
     db_name, table_name, *columns = op.cmd_parse
 
     schema = Schema.new
     columns.each {|column|
       name, type = column.split(':',2)
+      name = name.to_s
+      type = type.to_s
+
       API.validate_column_name(name)
       type = API.normalize_type_name(type)
+
+      if schema.fields.find {|f| f.name == name }
+        $stderr.puts "Column name '#{name}' is duplicated."
+        exit 1
+      end
       schema.add_field(name, type)
 
       if name == 'v' || name == 'time'
-        raise "column name '#{name}' is reserved."
+        $stderr.puts "Column name '#{name}' is reserved."
+        exit 1
       end
     }
 
@@ -84,6 +93,7 @@ module Command
     client.update_schema(db_name, table_name, schema)
 
     $stderr.puts "Schema is updated on #{db_name}.#{table_name} table."
+    $stderr.puts "Use '#{$prog} describe-table #{db_name} #{table_name}' to confirm the schema."
   end
 
   def show_tables
