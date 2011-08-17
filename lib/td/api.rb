@@ -36,10 +36,32 @@ class API
     unless name =~ /^([a-z0-9_]+)$/
       raise "Name must consist only of alphabets, numbers, '_'."
     end
+    name
   end
 
   def self.validate_table_name(name)
     validate_database_name(name)
+  end
+
+  def self.validate_column_name(name)
+    validate_database_name(name)
+  end
+
+  def self.normalize_type_name(name)
+    case name
+    when /int/i
+      "int"
+    when /long/i, /bigint/i
+      "long"
+    when /string/i
+      "string"
+    when /float/i
+      "float"
+    when /double/i
+      "double"
+    else
+      raise "Type name must eather of int, long, string float or double"
+    end
   end
 
   ####
@@ -94,19 +116,23 @@ class API
       name = m['name']
       type = (m['type'] || '?').to_sym
       count = (m['count'] || 0).to_i  # TODO?
-      result[name] = [type, count]
+      ref_type = m['ref_type']
+      ref_db = m['ref_db']
+      ref_table = m['ref_table']
+      schema = m['schema']
+      result[name] = [type, count, ref_type, ref_db, ref_table, schema]
     }
     return result
   end
 
-  # => true
-  def create_table(db, table, type)
+  def create_log_or_item_table(db, table, type)
     code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
     if code != "200"
       raise_error("Create #{type} table failed", res)
     end
     return true
   end
+  private :create_log_or_item_table
 
   # => true
   def create_log_table(db, table)
@@ -116,6 +142,16 @@ class API
   # => true
   def create_item_table(db, table)
     create_table(db, table, :item)
+  end
+
+  # => true
+  def create_schema_table(db, table, target_table, schema)
+    schema = schema.to_s
+    code, body, res = post("/v3/table/create/#{e db}/#{e table}/schema", {'target_table'=>target_table, 'schema'=>schema})
+    if code != "200"
+      raise_error("Create schema table failed", res)
+    end
+    return true
   end
 
   # => type:Symbol

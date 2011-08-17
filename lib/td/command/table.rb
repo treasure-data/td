@@ -2,13 +2,17 @@
 module TreasureData
 module Command
 
-  def create_table_type(type, db_name, table_name)
+  def create_log_or_item_table(mode_log, db_name, table_name)
     client = get_client
 
     API.validate_table_name(table_name)
 
     begin
-      client.create_table(db_name, table_name, type)
+      if mode_log
+        client.create_log_table(db_name, table_name)
+      else
+        client.create_item_table(db_name, table_name)
+      end
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -22,20 +26,20 @@ module Command
 
     $stderr.puts "Table '#{db_name}.#{table_name}' is created."
   end
-  private :create_table_type
+  private :create_log_or_item_table
 
   def create_log_table
     op = cmd_opt 'create-log-table', :db_name, :table_name
     db_name, table_name = op.cmd_parse
 
-    create_table_type(:log, db_name, table_name)
+    create_log_or_item_table(true, db_name, table_name)
   end
 
   def create_item_table
     op = cmd_opt 'create-item-table', :db_name, :table_name
     db_name, table_name = op.cmd_parse
 
-    create_table_type(:item, db_name, table_name)
+    create_log_or_item_table(false, db_name, table_name)
   end
 
   def drop_table
@@ -55,6 +59,46 @@ module Command
 
     $stderr.puts "Table '#{db_name}.#{table_name}' is deleted."
   end
+
+  def create_or_alter_schema_table(mode_create)
+    if mode_create
+      op = cmd_opt 'create-schema-table', :db_name, :table_name, :schema_name, :columns_
+    else
+      op = cmd_opt 'alter-schema-table', :db_name, :table_name, :schema_name, :columns_
+    end
+
+    db_name, table_name, schema_name, *columns = op.cmd_parse
+
+    schema = Schema.new
+    columns.each {|column|
+      name, type = column.split(':',2)
+      API.validate_column_name(name)
+      type = API.normalize_type_name.(type)
+      schema.add_field(name, type)
+    }
+
+    client = get_client
+
+    find_table(client, db_name, table_name)
+
+    #TODO
+    #if mode_create
+      client.create_schema_table(db_name, schema_name, table_name, schema)
+      $stderr.puts "Schema table #{db_name}.#{schema_name} is created on #{table_name} table."
+    #else
+    #  client.alter_schema_table(db_name, schema_name, table_name, schema)
+    #  $stderr.puts "Schema table #{db_name}.#{schema_name} on #{table_name} table is updated."
+    #end
+  end
+  private :create_or_alter_schema_table
+
+  def create_schema_table
+    create_or_alter_schema_table(true)
+  end
+
+  #def alter_schema_table
+  #  create_or_alter_schema_table(false)
+  #end
 
   def show_tables
     op = cmd_opt 'show-tables', :db_name?

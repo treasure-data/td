@@ -1,5 +1,13 @@
 
 module TreasureData
+
+autoload :API, 'td/api'
+autoload :Client, 'td/client'
+autoload :Database, 'td/client'
+autoload :Table, 'td/client'
+autoload :Schema, 'td/client'
+autoload :Job, 'td/client'
+
 module Command
   private
   def cmd_opt(name, *args)
@@ -61,7 +69,6 @@ EOF
     unless apikey
       raise ConfigError, "Account is not configured."
     end
-    require 'td/client'
     Client.new(apikey)
   end
 

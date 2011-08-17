@@ -37,6 +37,8 @@ module List
   add_list 'database', 'create-database', 'Create a database'
   add_list 'table', 'create-log-table', 'Create a log table'
   #add_list 'table', 'create-item-table', 'Create a item table'
+#  add_list 'table', 'create-schema-table', 'Create a schema table on a table'
+  #add_list 'table', 'alter-schema-table', 'Updates a schema table'
   add_list 'database', 'drop-database', 'Delete a database'
   add_list 'table', 'drop-table', 'Delete a table'
   add_list 'query', 'query', 'Start a query'
@@ -52,6 +54,8 @@ module List
   add_alias 'delete-database', 'drop-database'
   add_alias 'delete-table', 'drop-table'
   add_alias 'jobs', 'show-jobs'
+#  add_alias 'create-schema', 'create-schema-table'
+  #add_alias 'alter-schema', 'alter-schema-table'
 
   add_guess 'create-table', 'create-log-table'
   add_guess 'drop-log-table', 'drop-table'

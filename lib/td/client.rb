@@ -59,18 +59,18 @@ class Client
   end
 
   # => true
-  def create_table(db_name, table_name, type)
-    @api.create_table(db_name, table_name, type)
-  end
-
-  # => true
   def create_log_table(db_name, table_name)
-    create_table(db_name, table_name, :log)
+    @api.create_log_table(db_name, table_name)
   end
 
   # => true
   def create_item_table(db_name, table_name)
-    create_table(db_name, table_name, :item)
+    @api.create_item_table(db_name, table_name)
+  end
+
+  # => true
+  def create_schema_table(db_name, table_name, target_table_name, schema)
+    @api.create_schema_table(db_name, table_name, target_table_name, schema)
   end
 
   # => type:Symbol
@@ -81,17 +81,18 @@ class Client
   # => [Table]
   def tables(db_name)
     m = @api.list_tables(db_name)
-    m.map {|table_name,(type,count)|
-      Table.new(self, db_name, table_name, type, count)
+    refs = []
+    m.map {|table_name,(type,count,ref_type,ref_db,ref_table,schema)|
+      schema = Schema.parse(schema) if schema
+      Table.new(self, db_name, table_name, type, count, ref_type, ref_db, ref_table, schema)
     }
   end
 
   # => Table
   def table(db_name, table_name)
-    m = @api.list_tables(db_name)
-    m.each_pair {|name,(type,count)|
-      if name == table_name
-        return Table.new(self, db_name, name, type, count)
+    tables(db_name).each {|t|
+      if t.name == table_name
+        return t
       end
     }
     raise NotFoundError, "Table '#{db_name}.#{table_name}' does not exist"
@@ -168,16 +169,12 @@ class Database < Model
     @tables
   end
 
-  def create_table(name, type)
-    @client.create_table(@db_name, name, type)
-  end
-
   def create_log_table(name)
-    create_table(name, :log)
+    @client.create_log_table(@db_name, name)
   end
 
   def create_item_table(name)
-    create_table(name, :item)
+    @client.create_item_table(@db_name, name)
   end
 
   def table(table_name)
@@ -194,26 +191,26 @@ class Database < Model
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, count)
+  def initialize(client, db_name, table_name, type, count, ref_type, ref_db_name, ref_table_name, schema)
     super(client)
     @db_name = db_name
     @table_name = table_name
     @type = type
     @count = count
+    @ref_type = ref_type
+    @ref_db_name = ref_db_name
+    @ref_table_name = ref_table_name
   end
 
-  attr_reader :type, :count
+  attr_reader :type, :db_name, :table_name, :count
 
-  def database_name
-    @db_name
-  end
+  alias database_name db_name
+  alias name table_name
+
+  attr_reader :ref_type, :ref_db_name, :ref_table_name
 
   def database
     @client.database(@db_name)
-  end
-
-  def name
-    @table_name
   end
 
   def identifier
@@ -222,6 +219,39 @@ class Table < Model
 
   def delete
     @client.delete_table(@db_name, @table_name)
+  end
+end
+
+class Schema
+  class Field
+    def initialize(name, type)
+      @name = name
+      @type = type
+    end
+    attr_reader :name
+    attr_reader :type
+  end
+
+  def self.parse(cols)
+    fields = cols.split(',').map {|col|
+      name, type, *_ = col.split(':')
+      Field.new(name, type)
+    }
+    Schema.new(fields)
+  end
+
+  def initialize(fields=[])
+    @fields = fields
+  end
+
+  attr_reader :fields
+
+  def add_field(name, type)
+    @fields << Field.new(name, type)
+  end
+
+  def to_s
+    @fields.map {|f| "#{f.name}:#{f.type}" }.join(',')
   end
 end
 
@@ -331,7 +361,6 @@ class Job < Model
     self
   end
 end
-
 
 end
 
