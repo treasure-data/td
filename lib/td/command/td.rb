@@ -1,9 +1,11 @@
 
 require 'optparse'
+require 'td/version'
 
 $prog = File.basename($0)
 
 op = OptionParser.new
+op.version = TreasureData::VERSION
 op.banner = <<EOF
 usage: #{$prog} [options] COMMAND [args]
 

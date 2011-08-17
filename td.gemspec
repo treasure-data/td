@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{td}
-  s.version = "0.7.3"
+  s.version = "0.7.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = %q{2011-08-15}
+  s.date = %q{2011-08-18}
   s.default_executable = %q{td}
   s.executables = ["td"]
   s.extra_rdoc_files = [
