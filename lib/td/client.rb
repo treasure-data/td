@@ -69,8 +69,8 @@ class Client
   end
 
   # => true
-  def create_schema_table(db_name, table_name, target_table_name, schema)
-    @api.create_schema_table(db_name, table_name, target_table_name, schema)
+  def update_schema(db_name, table_name, schema)
+    @api.update_schema(db_name, table_name, schema.to_json)
   end
 
   # => type:Symbol
@@ -81,10 +81,9 @@ class Client
   # => [Table]
   def tables(db_name)
     m = @api.list_tables(db_name)
-    refs = []
-    m.map {|table_name,(type,count,ref_type,ref_db,ref_table,schema)|
-      schema = Schema.parse(schema) if schema
-      Table.new(self, db_name, table_name, type, count, ref_type, ref_db, ref_table, schema)
+    m.map {|table_name,(type,schema,count)|
+      schema = Schema.new.from_json(schema)
+      Table.new(self, db_name, table_name, type, schema, count)
     }
   end
 
@@ -191,23 +190,19 @@ class Database < Model
 end
 
 class Table < Model
-  def initialize(client, db_name, table_name, type, count, ref_type, ref_db_name, ref_table_name, schema)
+  def initialize(client, db_name, table_name, type, schema, count)
     super(client)
     @db_name = db_name
     @table_name = table_name
     @type = type
+    @schema = schema
     @count = count
-    @ref_type = ref_type
-    @ref_db_name = ref_db_name
-    @ref_table_name = ref_table_name
   end
 
-  attr_reader :type, :db_name, :table_name, :count
+  attr_reader :type, :db_name, :table_name, :schema, :count
 
   alias database_name db_name
   alias name table_name
-
-  attr_reader :ref_type, :ref_db_name, :ref_table_name
 
   def database
     @client.database(@db_name)
@@ -252,6 +247,17 @@ class Schema
 
   def to_s
     @fields.map {|f| "#{f.name}:#{f.type}" }.join(',')
+  end
+
+  def to_json(*args)
+    @fields.map {|f| [f.name, f.type] }.to_json(*args)
+  end
+
+  def from_json(obj)
+    @fields = obj.map {|f|
+      Field.new(f[0], f[1])
+    }
+    self
   end
 end
 

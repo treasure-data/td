@@ -60,45 +60,31 @@ module Command
     $stderr.puts "Table '#{db_name}.#{table_name}' is deleted."
   end
 
-  def create_or_alter_schema_table(mode_create)
-    if mode_create
-      op = cmd_opt 'create-schema-table', :db_name, :table_name, :schema_name, :columns_
-    else
-      op = cmd_opt 'alter-schema-table', :db_name, :table_name, :schema_name, :columns_
-    end
+  def set_schema
+    op = cmd_opt 'set-schema', :db_name, :table_name, :columns_
 
-    db_name, table_name, schema_name, *columns = op.cmd_parse
+    db_name, table_name, *columns = op.cmd_parse
 
     schema = Schema.new
     columns.each {|column|
       name, type = column.split(':',2)
       API.validate_column_name(name)
-      type = API.normalize_type_name.(type)
+      type = API.normalize_type_name(type)
       schema.add_field(name, type)
+
+      if name == 'v' || name == 'time'
+        raise "column name '#{name}' is reserved."
+      end
     }
 
     client = get_client
 
     find_table(client, db_name, table_name)
 
-    #TODO
-    #if mode_create
-      client.create_schema_table(db_name, schema_name, table_name, schema)
-      $stderr.puts "Schema table #{db_name}.#{schema_name} is created on #{table_name} table."
-    #else
-    #  client.alter_schema_table(db_name, schema_name, table_name, schema)
-    #  $stderr.puts "Schema table #{db_name}.#{schema_name} on #{table_name} table is updated."
-    #end
-  end
-  private :create_or_alter_schema_table
+    client.update_schema(db_name, table_name, schema)
 
-  def create_schema_table
-    create_or_alter_schema_table(true)
+    $stderr.puts "Schema is updated on #{db_name}.#{table_name} table."
   end
-
-  #def alter_schema_table
-  #  create_or_alter_schema_table(false)
-  #end
 
   def show_tables
     op = cmd_opt 'show-tables', :db_name?
@@ -116,14 +102,17 @@ module Command
     rows = []
     dbs.each {|db|
       db.tables.each {|table|
-        rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s}
+        pschema = table.schema.fields.map {|f|
+          "#{f.name}:#{f.type}"
+        }.join(', ')
+        rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s, :Schema=>pschema.to_s}
       }
     }
     rows = rows.sort_by {|map|
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count])
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Schema])
 
     if rows.empty?
       if db_name
@@ -139,6 +128,24 @@ module Command
     end
   end
 
+  def describe_table
+    op = cmd_opt 'describe-table', :db_name, :table_name
+
+    db_name, table_name = op.cmd_parse
+
+    client = get_client
+
+    table = find_table(client, db_name, table_name)
+
+    puts "Name      : #{table.db_name}.#{table.name}"
+    puts "Type      : #{table.type}"
+    puts "Count     : #{table.count}"
+    puts "Schema    : ("
+    table.schema.fields.each {|f|
+      puts "    #{f.name}:#{f.type}"
+    }
+    puts ")"
+  end
 end
 end
 

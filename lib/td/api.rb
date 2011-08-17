@@ -44,12 +44,21 @@ class API
   end
 
   def self.validate_column_name(name)
-    validate_database_name(name)
+    name = name.to_s
+    if name.empty?
+      raise "Empty column name is not allowed"
+    end
+    if 32 < name.length
+      raise "Column name must be to 32 characters, got #{name.length} characters."
+    end
+    unless name =~ /^([a-z0-9_]+)$/
+      raise "Column name must consist only of alphabets, numbers, '_'."
+    end
   end
 
   def self.normalize_type_name(name)
     case name
-    when /int/i
+    when /int/i, /integer/i
       "int"
     when /long/i, /bigint/i
       "long"
@@ -116,11 +125,8 @@ class API
       name = m['name']
       type = (m['type'] || '?').to_sym
       count = (m['count'] || 0).to_i  # TODO?
-      ref_type = m['ref_type']
-      ref_db = m['ref_db']
-      ref_table = m['ref_table']
-      schema = m['schema']
-      result[name] = [type, count, ref_type, ref_db, ref_table, schema]
+      schema = JSON.parse(m['schema']) # FIXME?
+      result[name] = [type, schema, count]
     }
     return result
   end
@@ -144,10 +150,19 @@ class API
     create_table(db, table, :item)
   end
 
-  # => true
-  def create_schema_table(db, table, target_table, schema)
+  def create_table(db, table, type)
     schema = schema.to_s
-    code, body, res = post("/v3/table/create/#{e db}/#{e table}/schema", {'target_table'=>target_table, 'schema'=>schema})
+    code, body, res = post("/v3/table/create/#{e db}/#{e table}/#{type}")
+    if code != "200"
+      raise_error("Create #{type} table failed", res)
+    end
+    return true
+  end
+  private :create_table
+
+  # => true
+  def update_schema(db, table, schema_json)
+    code, body, res = post("/v3/table/update-schema/#{e db}/#{e table}", {'schema'=>schema_json})
     if code != "200"
       raise_error("Create schema table failed", res)
     end
