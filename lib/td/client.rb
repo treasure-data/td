@@ -245,8 +245,16 @@ class Schema
     @fields << Field.new(name, type)
   end
 
-  def to_s
-    @fields.map {|f| "#{f.name}:#{f.type}" }.join(',')
+  def merge(schema)
+    nf = @fields.dup
+    schema.fields.each {|f|
+      if i = nf.find_index {|sf| sf.name == f.name }
+        nf[i] = f
+      else
+        nf << f
+      end
+    }
+    Schema.new(nf)
   end
 
   def to_json(*args)

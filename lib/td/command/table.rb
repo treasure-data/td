@@ -63,13 +63,32 @@ module Command
   def set_schema
     op = cmd_opt 'set-schema', :db_name, :table_name, :columns_?
 
+    op.banner << "\noptions:\n"
+
+    reset = nil
+    op.on('-R', '--reset', "Reset all columns", TrueClass) {|b|
+      reset = b
+    }
+
     db_name, table_name, *columns = op.cmd_parse
+
+    if !reset && columns.empty?
+      puts op.to_s
+      exit 1
+    end
+
+    rmcols = []
 
     schema = Schema.new
     columns.each {|column|
       name, type = column.split(':',2)
       name = name.to_s
       type = type.to_s
+
+      if name.empty?
+        rmcols << type
+        next
+      end
 
       API.validate_column_name(name)
       type = API.normalize_type_name(type)
@@ -88,7 +107,13 @@ module Command
 
     client = get_client
 
-    find_table(client, db_name, table_name)
+    table = find_table(client, db_name, table_name)
+
+    unless reset
+      schema = table.schema.merge(schema)
+      schema.fields.delete_if {|f| rmcols.include?(f.name) }
+    end
+    puts schema.inspect
 
     client.update_schema(db_name, table_name, schema)
 
