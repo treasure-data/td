@@ -113,7 +113,6 @@ module Command
       schema = table.schema.merge(schema)
       schema.fields.delete_if {|f| rmcols.include?(f.name) }
     end
-    puts schema.inspect
 
     client.update_schema(db_name, table_name, schema)
 

@@ -1,4 +1,10 @@
 
+== 2011-08-18 version 0.7.5
+
+* set-schema: adds column instead of replacing all columns
+* set-schema: adds -R, --reset option
+
+
 == 2011-08-18 version 0.7.4
 
 * Added set-schema subcommand

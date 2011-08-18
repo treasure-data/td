@@ -125,7 +125,7 @@ class API
       name = m['name']
       type = (m['type'] || '?').to_sym
       count = (m['count'] || 0).to_i  # TODO?
-      schema = JSON.parse(m['schema']) # FIXME?
+      schema = JSON.parse(m['schema'] || '[]')
       result[name] = [type, schema, count]
     }
     return result
