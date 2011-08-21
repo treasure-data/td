@@ -1,7 +1,7 @@
 
 module TreasureData
 
-autoload :API, 'td/api'
+autoload :API, 'td/client/api'
 autoload :Client, 'td/client'
 autoload :Database, 'td/client'
 autoload :Table, 'td/client'
