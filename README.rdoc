@@ -1,5 +1,12 @@
 = Treasure Data command line tool
 
+This CUI utility wraps the td-client-ruby (https://github.com/treasure-data/td-client-ruby),
+the REST API for managing databases and jobs on the Treasure Data Cloud.
+
+For more about Treasure Data, see <http://treasure-data.com/>.
+
+For full documentation see <http://docs.treasure-data.com/>.
+
 = Getting Started
 
 Install td command as a gem.
@@ -10,9 +17,19 @@ See help message for details.
 
     > td
 
+You need to authorize the account, before executing any other commands.
 
-== Copyright
+    > td account
+
+= Sample Workflow
+
+    > td account -f                       # authorize an account
+    user: k@treasure-data.com
+    password: **********
+    > td create-database mydb             # create db
+    > td create-log-table mydb www_access # create table
+
+= Copyright
 
 Copyright:: Copyright (c) 2011 Treasure Data Inc.
 License::   Apache License, Version 2.0
-
