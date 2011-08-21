@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{td}
-  s.version = "0.7.5"
+  s.version = "0.8.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = %q{2011-08-18}
+  s.date = %q{2011-08-21}
   s.default_executable = %q{td}
   s.executables = ["td"]
   s.extra_rdoc_files = [
@@ -17,9 +17,7 @@ Gem::Specification.new do |s|
      "README.rdoc"
   ]
   s.files = [
-    "lib/td/api.rb",
-     "lib/td/client.rb",
-     "lib/td/command/account.rb",
+    "lib/td/command/account.rb",
      "lib/td/command/common.rb",
      "lib/td/command/database.rb",
      "lib/td/command/import.rb",
@@ -44,15 +42,18 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_runtime_dependency(%q<json>, [">= 1.4.3"])
       s.add_runtime_dependency(%q<hirb>, [">= 0.4.5"])
+      s.add_runtime_dependency(%q<td-client>, ["~> 0.8.0"])
     else
       s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_dependency(%q<json>, [">= 1.4.3"])
       s.add_dependency(%q<hirb>, [">= 0.4.5"])
+      s.add_dependency(%q<td-client>, ["~> 0.8.0"])
     end
   else
     s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
     s.add_dependency(%q<json>, [">= 1.4.3"])
     s.add_dependency(%q<hirb>, [">= 0.4.5"])
+    s.add_dependency(%q<td-client>, ["~> 0.8.0"])
   end
 end
 

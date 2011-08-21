@@ -1,4 +1,9 @@
 
+== 2011-08-21 version 0.8.0
+
+* Splits API libraries to td-client gem
+
+
 == 2011-08-18 version 0.7.5
 
 * set-schema: adds column instead of replacing all columns
