@@ -140,8 +140,8 @@ class Client
   end
 
   # => time:Flaot
-  def import(db_name, table_name, format, stream, stream_size=stream.lstat.size)
-    @api.import(db_name, table_name, format, stream, stream_size)
+  def import(db_name, table_name, format, stream, size)
+    @api.import(db_name, table_name, format, stream, size)
   end
 end
 

@@ -290,8 +290,8 @@ class API
   ##
 
   # => time:Float
-  def import(db, table, format, stream, stream_size=stream.lstat.size)
-    code, body, res = put("/v3/table/import/#{e db}/#{e table}/#{format}", stream, stream_size)
+  def import(db, table, format, stream, size)
+    code, body, res = put("/v3/table/import/#{e db}/#{e table}/#{format}", stream, size)
     if code[0] != ?2
       raise_error("Import failed", res)
     end
@@ -376,19 +376,23 @@ class API
     return [response.code, response.body, response]
   end
 
-  def put(url, stream, stream_size)
+  def put(url, stream, size)
     http, header = new_http
 
     path = BASE_URL + url
 
     header['Content-Type'] = 'application/octet-stream'
-    header['Content-Length'] = stream_size.to_s
+    header['Content-Length'] = size.to_s
 
     request = Net::HTTP::Put.new(url, header)
-    if request.respond_to?(:body_stream=)
-      request.body_stream = stream
-    else  # Ruby 1.8
-      request.body = stream.read
+    if stream.class.name == 'StringIO'
+      request.body = stream.string
+    else
+      if request.respond_to?(:body_stream=)
+        request.body_stream = stream
+      else  # Ruby 1.8
+        request.body = stream.read
+      end
     end
 
     response = http.request(request)
