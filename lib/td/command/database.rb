@@ -2,8 +2,8 @@
 module TreasureData
 module Command
 
-  def create_database
-    op = cmd_opt 'create-database', :db_name
+  def database_create
+    op = cmd_opt 'database:create', :db_name
     db_name = op.cmd_parse
 
     client = get_client
@@ -21,8 +21,8 @@ module Command
     $stderr.puts "Use '#{$prog} create-log-table #{db_name} <table_name>' to create a table."
   end
 
-  def drop_database
-    op = cmd_opt 'drop-database', :db_name
+  def database_delete
+    op = cmd_opt 'database:delete', :db_name
 
     op.banner << "\noptions:\n"
 
@@ -52,8 +52,8 @@ module Command
     $stderr.puts "Database '#{db_name}' is deleted."
   end
 
-  def show_databases
-    op = cmd_opt 'show-databases'
+  def database_list
+    op = cmd_opt 'database:list'
     op.cmd_parse
 
     client = get_client
@@ -71,10 +71,6 @@ module Command
       $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."
     end
   end
-
-  alias show_dbs show_databases
-  alias create_db create_database
-  alias drop_db drop_database
 end
 end
 

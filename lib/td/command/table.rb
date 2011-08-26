@@ -42,8 +42,8 @@ module Command
     create_log_or_item_table(false, db_name, table_name)
   end
 
-  def drop_table
-    op = cmd_opt 'drop-table', :db_name, :table_name
+  def table_delete
+    op = cmd_opt 'table:delete', :db_name, :table_name
     db_name, table_name = op.cmd_parse
 
     client = get_client
@@ -60,8 +60,8 @@ module Command
     $stderr.puts "Table '#{db_name}.#{table_name}' is deleted."
   end
 
-  def set_schema
-    op = cmd_opt 'set-schema', :db_name, :table_name, :columns_?
+  def schema_set
+    op = cmd_opt 'schema:set', :db_name, :table_name, :columns_?
 
     op.banner << "\noptions:\n"
 
@@ -120,8 +120,8 @@ module Command
     $stderr.puts "Use '#{$prog} describe-table #{db_name} #{table_name}' to confirm the schema."
   end
 
-  def show_tables
-    op = cmd_opt 'show-tables', :db_name?
+  def table_list
+    op = cmd_opt 'table:list', :db_name?
     db_name = op.cmd_parse
 
     client = get_client
@@ -162,8 +162,8 @@ module Command
     end
   end
 
-  def describe_table
-    op = cmd_opt 'describe-table', :db_name, :table_name
+  def table_show
+    op = cmd_opt 'table:show', :db_name, :table_name
 
     db_name, table_name = op.cmd_parse
 

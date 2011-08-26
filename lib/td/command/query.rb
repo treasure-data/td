@@ -55,8 +55,8 @@ module Command
     end
   end
 
-  def show_jobs
-    op = cmd_opt 'show-jobs', :max?
+  def job_list
+    op = cmd_opt 'job:list', :max?
 
     op.banner << "\noptions:\n"
 
@@ -115,8 +115,8 @@ module Command
     puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Query])
   end
 
-  def job
-    op = cmd_opt 'job', :job_id
+  def job_show
+    op = cmd_opt 'job:show', :job_id
 
     op.banner << "\noptions:\n"
 

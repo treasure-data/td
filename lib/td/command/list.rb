@@ -7,7 +7,7 @@ module List
   ALIASES = {}
   GUESS = {}
 
-  def self.add_list(file, cmd, description)
+  def self.add_list(cmd, file, description)
     LIST << [cmd, file, description]
   end
 
@@ -28,43 +28,75 @@ module List
     GUESS[wrong] = correct
   end
 
-  add_list 'list', 'help', 'Show usage of a command'
-  add_list 'account', 'account', 'Setup a Treasure Data account'
-  add_list 'server', 'server-status', 'Show status of the Treasure Data server'
-  add_list 'database', 'show-databases', 'Show list of databases'
-  add_list 'table', 'show-tables', 'Show list of tables'
-  add_list 'database', 'create-database', 'Create a database'
-  add_list 'table', 'create-log-table', 'Create a log table'
-  #add_list 'table', 'create-item-table', 'Create a item table'
-  add_list 'table', 'set-schema', 'Set a schema on a table'
-  add_list 'table', 'describe-table', 'Describe information of a table'
-  add_list 'database', 'drop-database', 'Delete a database'
-  add_list 'table', 'drop-table', 'Delete a table'
-  add_list 'query', 'query', 'Start a query'
-  add_list 'query', 'job', 'Show status and result of a job'
-  add_list 'query', 'show-jobs', 'Show list of jobs'
-  add_list 'import', 'import', 'Import files to a table'
-  add_list 'list', 'version', 'Show version'
 
-  add_alias 'show-dbs', 'show-databases'
-  add_alias 'databases', 'show-databases'
-  add_alias 'dbs', 'show-databases'
-  add_alias 'create-db', 'create-databases'
-  add_alias 'drop-db', 'create-databases'
-  add_alias 'tables', 'show-tables'
-  add_alias 'table', 'describe-table'
-  add_alias 'show-table', 'describe-table'
-  add_alias 'delete-database', 'drop-database'
-  add_alias 'delete-table', 'drop-table'
-  add_alias 'jobs', 'show-jobs'
-  add_alias 'update-schema', 'set-schema'
+  # commands
+  add_list 'database:show',     'database', 'Describe a information of a database'
+  add_list 'database:list',     'database', 'Show list of tables in a database'
+  add_list 'database:create',   'database', 'Create a database'
+  add_list 'database:delete',   'database', 'Delete a database'
 
-  add_guess 'create-table', 'create-log-table'
-  add_guess 'drop-log-table', 'drop-table'
-  #add_guess 'drop-item-table', 'drop-table'
-  add_guess 'delete-log-table', 'drop-table'
-  #add_guess 'delete-item-table', 'drop-table'
-  add_guess 'show-job', 'job'
+  add_list 'table:show',        'table', 'Describe a information of a table'
+  add_list 'table:list',        'table', 'Show list of tables'
+  add_list 'table:create',      'table', 'Create a table'
+  add_list 'table:delete',      'table', 'Delete a table'
+
+  add_list 'schema:show',       'schema', 'Show schema of a table'
+  add_list 'schema:set',        'schema', 'Set new schema on a table'
+  add_list 'schema:add',        'schema', 'Add new columns to a table'
+  add_list 'schema:remove',     'schema', 'Remove columns from a table'
+
+  add_list 'import',            'import', 'Import files to a table'
+
+  add_list 'query',             'query', 'Issue a query'
+
+  add_list 'job:show',          'query', 'Show status and result of a job'
+  add_list 'job:list',          'query', 'Show list of jobs'
+  #add_list 'job:cancel',        'query', 'Cancel a job'
+
+  add_list 'help',              'list', 'Show usage of a command'
+  add_list 'account',           'account', 'Setup a Treasure Data account'
+
+  add_list 'server:status',     'server', 'Show status of the Treasure Data server'
+
+  # aliases
+  add_alias 'database', 'database:show'
+  add_alias 'databases', 'database:list'
+
+  add_alias 'db:show', 'database:show'
+  add_alias 'db:list', 'database:list'
+  add_alias 'db:create', 'database:create'
+  add_alias 'db:delete', 'database:delete'
+  add_alias 'db', 'database:show'
+  add_alias 'dbs', 'database:list'
+
+  add_alias 'table', 'table:show'
+  add_alias 'tables', 'table:list'
+
+  add_alias 'schema', 'schema:show'
+
+  add_alias 'job', 'job:show'
+  add_alias 'jobs', 'job:list'
+
+  # backward compatibility
+  add_alias 'show-databases',   'database:list'
+  add_alias 'show-dbs',         'database:list'
+  add_alias 'create-database',  'database:create'
+  add_alias 'create-db',        'database:create'
+  add_alias 'drop-database',    'database:delete'
+  add_alias 'drop-db',          'database:delete'
+  add_alias 'delete-database',  'database:delete'
+  add_alias 'delete-db',        'database:delete'
+  add_alias 'show-tables',      'table:list'
+  add_alias 'show-table',       'table:show'
+  add_alias 'create-log-table', 'table:create'
+  add_alias 'create-table',     'table:create'
+  add_alias 'drop-log-table',   'table:delete'
+  add_alias 'drop-table',       'table:delete'
+  add_alias 'delete-log-table', 'table:delete'
+  add_alias 'delete-table',     'table:delete'
+  add_guess 'show-job',         'job:show'
+  add_guess 'show-jobs',        'job:list'
+  add_guess 'server-status',    'server:status'
 
   def self.get_method(command)
     command = ALIASES[command] || command
@@ -72,7 +104,7 @@ module List
       if cmd == command
         require 'td/command/common'
         require "td/command/#{file}"
-        name = command.gsub('-','_')
+        name = command.gsub(/[-:]/,'_')
         return Object.new.extend(Command).method(name)
       end
     }
