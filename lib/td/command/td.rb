@@ -20,7 +20,7 @@ op.summary_indent = "  "
     puts op.to_s
     puts ""
     puts "commands:"
-    puts TreasureData::Command::List.help(op.summary_indent)
+    TreasureData::Command::List.show_help(op.summary_indent)
     puts ""
     puts "Type 'td help COMMAND' for more information on a specific command."
     if errmsg

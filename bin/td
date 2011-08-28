@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
-#require 'rubygems' unless defined?(gem)
+require 'rubygems' unless defined?(gem)
+gem 'td-client'
 here = File.dirname(__FILE__)
 $LOAD_PATH << File.expand_path(File.join(here, '..', 'lib'))
 require 'td/command/td'

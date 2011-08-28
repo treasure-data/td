@@ -2,13 +2,57 @@
 module TreasureData
 module Command
 
-  def database_create
-    op = cmd_opt 'database:create', :db_name
+  def database_show
+    op = get_option('database:show')
+
     db_name = op.cmd_parse
 
     client = get_client
 
+    db = get_database(client, db_name)
+
+    rows = []
+    db.tables.each {|table|
+      pschema = table.schema.fields.map {|f|
+        "#{f.name}:#{f.type}"
+      }.join(', ')
+      rows << {:Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s, :Schema=>pschema.to_s}
+    }
+    rows = rows.sort_by {|map|
+      [map[:Type].size, map[:Table]]
+    }
+
+    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema])
+  end
+
+  def database_list
+    op = get_option('database:list')
+
+    op.cmd_parse
+
+    client = get_client
+    dbs = client.databases
+
+    rows = []
+    dbs.each {|db|
+      rows << {:Name => db.name}
+    }
+    puts cmd_render_table(rows, :fields => [:Name])
+
+    if dbs.empty?
+      $stderr.puts "There are no databases."
+      $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."
+    end
+  end
+
+  def database_create
+    op = get_option('database:create')
+
+    db_name = op.cmd_parse
+
     API.validate_database_name(db_name)
+
+    client = get_client
 
     begin
       client.create_database(db_name)
@@ -22,9 +66,7 @@ module Command
   end
 
   def database_delete
-    op = cmd_opt 'database:delete', :db_name
-
-    op.banner << "\noptions:\n"
+    op = get_option('database:delete')
 
     force = false
     op.on('-f', '--force', 'clear tables and delete the database', TrueClass) {|b|
@@ -46,31 +88,12 @@ module Command
       db.delete
     rescue NotFoundError
       $stderr.puts "Database '#{db_name}' does not exist."
-      eixt 1
+      exit 1
     end
 
     $stderr.puts "Database '#{db_name}' is deleted."
   end
 
-  def database_list
-    op = cmd_opt 'database:list'
-    op.cmd_parse
-
-    client = get_client
-
-    dbs = client.databases
-
-    rows = []
-    dbs.each {|db|
-      rows << {:Name => db.name}
-    }
-    puts cmd_render_table(rows, :fields => [:Name])
-
-    if dbs.empty?
-      $stderr.puts "There are no databases."
-      $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."
-    end
-  end
 end
 end
 

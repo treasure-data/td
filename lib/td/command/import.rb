@@ -16,16 +16,14 @@ module Command
   # TODO import-item
   # TODO tail
 
-  def import
-    op = cmd_opt 'import', :db_name, :table_name, :files_
+  def table_import
+    op = get_option('import')
 
     op.banner << "\nsupported formats:\n"
     op.banner << "  apache\n"
     op.banner << "  syslog\n"
     op.banner << "  msgpack\n"
     op.banner << "  json\n"
-
-    op.banner << "\noptions:\n"
 
     format = 'apache'
     time_key = nil
@@ -54,7 +52,8 @@ module Command
       time_key = s
     }
 
-    db_name, table_name, *paths = op.cmd_parse
+    table_ident, *paths = op.cmd_parse
+    db_name, table_name = parse_table_ident(table_ident)
 
     client = get_client
 
@@ -81,7 +80,7 @@ module Command
       parser = TextParser.new(names, regexp, time_format)
     end
 
-    find_table(client, db_name, table_name, :log)
+    get_table(client, db_name, table_name)
 
     require 'zlib'
 

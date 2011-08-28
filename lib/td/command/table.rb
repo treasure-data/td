@@ -2,17 +2,19 @@
 module TreasureData
 module Command
 
-  def create_log_or_item_table(mode_log, db_name, table_name)
-    client = get_client
+  def table_create
+    op = get_option('table:create')
 
+    table_ident = op.cmd_parse
+    db_name, table_name = parse_table_ident(table_ident)
+
+    #API.validate_database_name(db_name)
     API.validate_table_name(table_name)
 
+    client = get_client
+
     begin
-      if mode_log
-        client.create_log_table(db_name, table_name)
-      else
-        client.create_item_table(db_name, table_name)
-      end
+      client.create_log_table(db_name, table_name)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -26,25 +28,12 @@ module Command
 
     $stderr.puts "Table '#{db_name}.#{table_name}' is created."
   end
-  private :create_log_or_item_table
-
-  def create_log_table
-    op = cmd_opt 'create-log-table', :db_name, :table_name
-    db_name, table_name = op.cmd_parse
-
-    create_log_or_item_table(true, db_name, table_name)
-  end
-
-  def create_item_table
-    op = cmd_opt 'create-item-table', :db_name, :table_name
-    db_name, table_name = op.cmd_parse
-
-    create_log_or_item_table(false, db_name, table_name)
-  end
 
   def table_delete
-    op = cmd_opt 'table:delete', :db_name, :table_name
-    db_name, table_name = op.cmd_parse
+    op = get_option('table:delete')
+
+    table_ident = op.cmd_parse
+    db_name, table_name = parse_table_ident(table_ident)
 
     client = get_client
 
@@ -53,81 +42,22 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Table '#{db_name}.#{table_name}' does not exist."
-      $stderr.puts "Use '#{$prog} show-tables #{db_name}' to show list of the tables."
+      $stderr.puts "Use '#{$prog} table:list #{db_name}' to show list of the tables."
       exit 1
     end
 
     $stderr.puts "Table '#{db_name}.#{table_name}' is deleted."
   end
 
-  def schema_set
-    op = cmd_opt 'schema:set', :db_name, :table_name, :columns_?
-
-    op.banner << "\noptions:\n"
-
-    reset = nil
-    op.on('-R', '--reset', "Reset all columns", TrueClass) {|b|
-      reset = b
-    }
-
-    db_name, table_name, *columns = op.cmd_parse
-
-    if !reset && columns.empty?
-      puts op.to_s
-      exit 1
-    end
-
-    rmcols = []
-
-    schema = Schema.new
-    columns.each {|column|
-      name, type = column.split(':',2)
-      name = name.to_s
-      type = type.to_s
-
-      if name.empty?
-        rmcols << type
-        next
-      end
-
-      API.validate_column_name(name)
-      type = API.normalize_type_name(type)
-
-      if schema.fields.find {|f| f.name == name }
-        $stderr.puts "Column name '#{name}' is duplicated."
-        exit 1
-      end
-      schema.add_field(name, type)
-
-      if name == 'v' || name == 'time'
-        $stderr.puts "Column name '#{name}' is reserved."
-        exit 1
-      end
-    }
-
-    client = get_client
-
-    table = find_table(client, db_name, table_name)
-
-    unless reset
-      schema = table.schema.merge(schema)
-      schema.fields.delete_if {|f| rmcols.include?(f.name) }
-    end
-
-    client.update_schema(db_name, table_name, schema)
-
-    $stderr.puts "Schema is updated on #{db_name}.#{table_name} table."
-    $stderr.puts "Use '#{$prog} describe-table #{db_name} #{table_name}' to confirm the schema."
-  end
-
   def table_list
-    op = cmd_opt 'table:list', :db_name?
+    op = get_option('table:list')
+
     db_name = op.cmd_parse
 
     client = get_client
 
     if db_name
-      db = find_database(client, db_name)
+      db = get_database(client, db_name)
       dbs = [db]
     else
       dbs = client.databases
@@ -151,25 +81,26 @@ module Command
     if rows.empty?
       if db_name
         $stderr.puts "Database '#{db_name}' has no tables."
-        $stderr.puts "Use '#{$prog} create-log-table #{db_name} <table_name>' to create a table."
+        $stderr.puts "Use '#{$prog} table:create <db.table>' to create a table."
       elsif dbs.empty?
         $stderr.puts "There are no databases."
-        $stderr.puts "Use '#{$prog} create-database <db_name>' to create a database."
+        $stderr.puts "Use '#{$prog} database:create <db>' to create a database."
       else
         $stderr.puts "There are no tables."
-        $stderr.puts "Use '#{$prog} create-log-table <db_name> <table_name>' to create a table."
+        $stderr.puts "Use '#{$prog} table:create <db.table>' to create a table."
       end
     end
   end
 
   def table_show
-    op = cmd_opt 'table:show', :db_name, :table_name
+    op = get_option('table:show')
 
-    db_name, table_name = op.cmd_parse
+    table_ident = op.cmd_parse
+    db_name, table_name = parse_table_ident(table_ident)
 
     client = get_client
 
-    table = find_table(client, db_name, table_name)
+    table = get_table(client, db_name, table_name)
 
     puts "Name      : #{table.db_name}.#{table.name}"
     puts "Type      : #{table.type}"
@@ -180,6 +111,7 @@ module Command
     }
     puts ")"
   end
+
 end
 end
 
