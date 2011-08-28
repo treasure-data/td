@@ -125,6 +125,17 @@ module Command
     $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
+  def job_kill
+    op = get_option('job:show')
+
+    job_id = op.cmd_parse
+
+    client = get_client
+
+    client.kill_job(job_id)
+    # TODO error
+  end
+
   private
   def wait_job(job)
     $stderr.puts "running..."

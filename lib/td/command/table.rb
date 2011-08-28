@@ -112,6 +112,7 @@ module Command
     puts ")"
   end
 
+  require 'td/command/import'  # table:import
 end
 end
 

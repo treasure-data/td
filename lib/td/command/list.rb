@@ -153,7 +153,7 @@ module List
   add_list 'table:show', %w[db.table], 'Describe a information of a table'
   add_list 'table:create', %w[db.table], 'Create a table'
   add_list 'table:delete', %w[db.table], 'Delete a table'
-  add_list 'table:import', %w[db.table files_], 'Import files to a table'
+  add_list 'table:import', %w[db.table files_], 'Parse and import files to a table'
 
   add_list 'schema:show', %w[db.table], 'Show schema of a table'
   add_list 'schema:set', %w[db.table columns_?], 'Set new schema on a table'
