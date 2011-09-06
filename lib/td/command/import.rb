@@ -175,6 +175,7 @@ module Command
       file.each_line {|line|
         i += 1
         begin
+          line.rstrip!
           m = @regexp.match(line)
           unless m
             raise "invalid log format at #{path}:#{i}"
