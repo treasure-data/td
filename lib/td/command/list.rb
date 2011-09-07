@@ -144,10 +144,10 @@ module List
     }
   end
 
-  add_list 'database:list', %w[], 'Show list of tables in a database'
-  add_list 'database:show', %w[db], 'Describe a information of a database'
-  add_list 'database:create', %w[db], 'Create a database'
-  add_list 'database:delete', %w[db], 'Delete a database'
+  add_list 'db:list', %w[], 'Show list of tables in a database'
+  add_list 'db:show', %w[db], 'Describe a information of a database'
+  add_list 'db:create', %w[db], 'Create a database'
+  add_list 'db:delete', %w[db], 'Delete a database'
 
   add_list 'table:list', %w[db?], 'Show list of tables'
   add_list 'table:show', %w[db.table], 'Describe a information of a table'
@@ -173,15 +173,15 @@ module List
   add_list 'help', %w[command], 'Show usage of a command'
 
   # aliases
-  add_alias 'database', 'database:show'
-  add_alias 'databases', 'database:list'
+  add_alias 'db', 'db:show'
+  add_alias 'dbs', 'db:list'
 
-  add_alias 'db:show', 'database:show'
-  add_alias 'db:list', 'database:list'
-  add_alias 'db:create', 'database:create'
-  add_alias 'db:delete', 'database:delete'
-  add_alias 'db', 'database:show'
-  add_alias 'dbs', 'database:list'
+  add_alias 'database:show', 'db:show'
+  add_alias 'database:list', 'db:list'
+  add_alias 'database:create', 'db:create'
+  add_alias 'database:delete', 'db:delete'
+  add_alias 'database', 'db:show'
+  add_alias 'databases', 'db:list'
 
   add_alias 'table', 'table:show'
   add_alias 'tables', 'table:list'
@@ -192,14 +192,14 @@ module List
   add_alias 'jobs', 'job:list'
 
   # backward compatibility
-  add_alias 'show-databases',   'database:list'
-  add_alias 'show-dbs',         'database:list'
-  add_alias 'create-database',  'database:create'
-  add_alias 'create-db',        'database:create'
-  add_alias 'drop-database',    'database:delete'
-  add_alias 'drop-db',          'database:delete'
-  add_alias 'delete-database',  'database:delete'
-  add_alias 'delete-db',        'database:delete'
+  add_alias 'show-databases',   'db:list'
+  add_alias 'show-dbs',         'db:list'
+  add_alias 'create-database',  'db:create'
+  add_alias 'create-db',        'db:create'
+  add_alias 'drop-database',    'db:delete'
+  add_alias 'drop-db',          'db:delete'
+  add_alias 'delete-database',  'db:delete'
+  add_alias 'delete-db',        'db:delete'
   add_alias 'show-tables',      'table:list'
   add_alias 'show-table',       'table:show'
   add_alias 'create-log-table', 'table:create'
