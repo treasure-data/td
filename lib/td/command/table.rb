@@ -5,8 +5,7 @@ module Command
   def table_create
     op = get_option('table:create')
 
-    table_ident = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name = op.cmd_parse
 
     #API.validate_database_name(db_name)
     API.validate_table_name(table_name)
@@ -32,8 +31,7 @@ module Command
   def table_delete
     op = get_option('table:delete')
 
-    table_ident = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name = op.cmd_parse
 
     client = get_client
 
@@ -95,8 +93,7 @@ module Command
   def table_show
     op = get_option('table:show')
 
-    table_ident = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name = op.cmd_parse
 
     client = get_client
 

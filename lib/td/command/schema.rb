@@ -5,8 +5,7 @@ module Command
   def schema_show
     op = get_option('schema:show')
 
-    table_ident = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name = op.cmd_parse
 
     client = get_client
     table = get_table(client, db_name, table_name)
@@ -21,8 +20,7 @@ module Command
   def schema_set
     op = get_option('schema:set')
 
-    table_ident, *columns = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name, *columns = op.cmd_parse
     schema = parse_columns(columns)
 
     client = get_client
@@ -36,8 +34,7 @@ module Command
   def schema_add
     op = get_option('schema:add')
 
-    table_ident, *columns = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name, *columns = op.cmd_parse
     schema = parse_columns(columns)
 
     client = get_client
@@ -53,8 +50,7 @@ module Command
   def schema_remove
     op = get_option('schema:remove')
 
-    table_ident, *columns = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name, *columns = op.cmd_parse
 
     client = get_client
     table = get_table(client, db_name, table_name)

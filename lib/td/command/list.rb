@@ -150,15 +150,15 @@ module List
   add_list 'db:delete', %w[db], 'Delete a database'
 
   add_list 'table:list', %w[db?], 'Show list of tables'
-  add_list 'table:show', %w[db.table], 'Describe a information of a table'
-  add_list 'table:create', %w[db.table], 'Create a table'
-  add_list 'table:delete', %w[db.table], 'Delete a table'
-  add_list 'table:import', %w[db.table files_], 'Parse and import files to a table'
+  add_list 'table:show', %w[db table], 'Describe a information of a table'
+  add_list 'table:create', %w[db table], 'Create a table'
+  add_list 'table:delete', %w[db table], 'Delete a table'
+  add_list 'table:import', %w[db table files_], 'Parse and import files to a table'
 
-  add_list 'schema:show', %w[db.table], 'Show schema of a table'
-  add_list 'schema:set', %w[db.table columns_?], 'Set new schema on a table'
-  add_list 'schema:add', %w[db.table columns_], 'Add new columns to a table'
-  add_list 'schema:remove', %w[db.table columns_], 'Remove columns from a table'
+  add_list 'schema:show', %w[db table], 'Show schema of a table'
+  add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table'
+  add_list 'schema:add', %w[db table columns_], 'Add new columns to a table'
+  add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table'
 
   add_list 'query', %w[sql], 'Issue a query'
 
