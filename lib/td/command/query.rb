@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def query
-    op = get_option('query')
-
+  def query(op)
     db_name = nil
     wait = false
     output = nil

@@ -16,9 +16,7 @@ module Command
   # TODO import-item
   # TODO tail
 
-  def table_import
-    op = get_option('import')
-
+  def table_import(op)
     op.banner << "\nsupported formats:\n"
     op.banner << "  apache\n"
     op.banner << "  syslog\n"

@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def table_create
-    op = get_option('table:create')
-
+  def table_create(op)
     db_name, table_name = op.cmd_parse
 
     #API.validate_database_name(db_name)
@@ -28,9 +26,7 @@ module Command
     $stderr.puts "Table '#{db_name}.#{table_name}' is created."
   end
 
-  def table_delete
-    op = get_option('table:delete')
-
+  def table_delete(op)
     db_name, table_name = op.cmd_parse
 
     client = get_client
@@ -47,9 +43,7 @@ module Command
     $stderr.puts "Table '#{db_name}.#{table_name}' is deleted."
   end
 
-  def table_list
-    op = get_option('table:list')
-
+  def table_list(op)
     db_name = op.cmd_parse
 
     client = get_client
@@ -90,9 +84,7 @@ module Command
     end
   end
 
-  def table_show
-    op = get_option('table:show')
-
+  def table_show(op)
     db_name, table_name = op.cmd_parse
 
     client = get_client

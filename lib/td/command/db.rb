@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def db_show
-    op = get_option('db:show')
-
+  def db_show(op)
     db_name = op.cmd_parse
 
     client = get_client
@@ -25,9 +23,7 @@ module Command
     puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema])
   end
 
-  def db_list
-    op = get_option('db:list')
-
+  def db_list(op)
     op.cmd_parse
 
     client = get_client
@@ -45,9 +41,7 @@ module Command
     end
   end
 
-  def db_create
-    op = get_option('db:create')
-
+  def db_create(op)
     db_name = op.cmd_parse
 
     API.validate_database_name(db_name)
@@ -65,9 +59,7 @@ module Command
     $stderr.puts "Use '#{$prog} create-log-table #{db_name} <table_name>' to create a table."
   end
 
-  def db_delete
-    op = get_option('db:delete')
-
+  def db_delete(op)
     force = false
     op.on('-f', '--force', 'clear tables and delete the database', TrueClass) {|b|
       force = true

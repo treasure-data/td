@@ -38,6 +38,14 @@ module List
         banner << "  #{l}\n"
       }
       self.banner = banner
+
+      @message = nil
+    end
+
+    attr_accessor :message
+
+    def message
+      @message || banner
     end
 
     def banner
@@ -46,6 +54,7 @@ module List
         s << "\n"
         s << "options:\n"
       end
+      s << "\n"
       s
     end
 
@@ -68,9 +77,11 @@ module List
     end
 
     def cmd_usage(msg=nil)
-      puts self.to_s
-      puts ""
-      puts "error: #{msg}" if msg
+      puts self.message
+      if msg
+        puts ""
+        puts "error: #{msg}"
+      end
       exit 1
     end
 
@@ -111,7 +122,8 @@ module List
       require 'td/command/common'
       require "td/command/#{group}"
       cmd = name.gsub(':', '_')
-      return Object.new.extend(Command).method(cmd)
+      m = Object.new.extend(Command).method(cmd)
+      return Proc.new { m.call(op) }
     end
     nil
   end
@@ -141,6 +153,24 @@ module List
   def self.get_group(group)
     LIST.map {|op|
       op.group == group
+    }
+  end
+
+  def self.finishup
+    groups = {}
+    LIST.each {|op|
+      (groups[op.group] ||= []) << op
+    }
+    groups.each_pair {|group,ops|
+      if ops.size > 1 && xop = COMMAND[group].dup
+        msg = %[Additional commands, type "#{File.basename($0)} help COMMAND" for more details:\n\n]
+        ops.each {|op|
+          msg << %[  #{op.usage}\n]
+        }
+        msg << %[\n]
+        xop.message = msg
+        COMMAND[group] = xop
+      end
     }
   end
 
@@ -213,6 +243,7 @@ module List
   add_guess 'server-status',    'server:status'
   add_alias 'import',           'table:import'
 
+  finishup
 end
 end
 end

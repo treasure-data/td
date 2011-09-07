@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def server_status
-    op = get_option('server:status')
-
+  def server_status(op)
     op.cmd_parse
 
     puts Client.server_status

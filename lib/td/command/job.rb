@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def job_list
-    op = get_option('job:list')
-
+  def job_list(op)
     page = 0
     skip = 0
 
@@ -60,9 +58,7 @@ module Command
     puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Query])
   end
 
-  def job_show
-    op = get_option('job:show')
-
+  def job_show(op)
     verbose = nil
     wait = false
     output = nil
@@ -125,9 +121,7 @@ module Command
     $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
-  def job_kill
-    op = get_option('job:show')
-
+  def job_kill(op)
     job_id = op.cmd_parse
 
     client = get_client

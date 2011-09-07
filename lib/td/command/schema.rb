@@ -2,9 +2,7 @@
 module TreasureData
 module Command
 
-  def schema_show
-    op = get_option('schema:show')
-
+  def schema_show(op)
     db_name, table_name = op.cmd_parse
 
     client = get_client
@@ -17,9 +15,7 @@ module Command
     puts ")"
   end
 
-  def schema_set
-    op = get_option('schema:set')
-
+  def schema_set(op)
     db_name, table_name, *columns = op.cmd_parse
     schema = parse_columns(columns)
 
@@ -31,9 +27,7 @@ module Command
     $stderr.puts "Schema is updated on #{db_name}.#{table_name} table."
   end
 
-  def schema_add
-    op = get_option('schema:add')
-
+  def schema_add(op)
     db_name, table_name, *columns = op.cmd_parse
     schema = parse_columns(columns)
 
@@ -47,9 +41,7 @@ module Command
     $stderr.puts "Schema is updated on #{db_name}.#{table_name} table."
   end
 
-  def schema_remove
-    op = get_option('schema:remove')
-
+  def schema_remove(op)
     db_name, table_name, *columns = op.cmd_parse
 
     client = get_client
