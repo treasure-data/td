@@ -129,6 +129,7 @@ module Command
     former_status = client.kill(job_id)
     if TreasureData::Job::FINISHED_STATUS.include?(former_status)
       $stderr.puts "Job #{job_id} is already finished (#{former_status})"
+      exit 0
     end
 
     if former_status == TreasureData::Job::STATUS_RUNNING
