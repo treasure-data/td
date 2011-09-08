@@ -194,7 +194,7 @@ module List
 
   add_list 'job:show', %w[job_id], 'Show status and result of a job'
   add_list 'job:list', %w[max?], 'Show list of jobs'
-  #add_list 'job:kill', %w[job_id], 'Kill a job'
+  add_list 'job:kill', %w[job_id], 'Kill or cancel a job'
 
   add_list 'account', %w[], 'Setup a Treasure Data account'
 
@@ -220,6 +220,7 @@ module List
 
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
+  add_alias 'kill', 'job:kill'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'
