@@ -45,20 +45,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<json>, [">= 1.4.3"])
       s.add_runtime_dependency(%q<hirb>, [">= 0.4.5"])
       s.add_runtime_dependency(%q<td-client>, ["~> 0.8.0"])
-      s.add_runtime_dependency(%q<td-logger>, ["~> 0.2.1"])
+      s.add_runtime_dependency(%q<td-logger>, ["~> 0.2.2"])
     else
       s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_dependency(%q<json>, [">= 1.4.3"])
       s.add_dependency(%q<hirb>, [">= 0.4.5"])
       s.add_dependency(%q<td-client>, ["~> 0.8.0"])
-      s.add_dependency(%q<td-logger>, ["~> 0.2.1"])
+      s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
     end
   else
     s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
     s.add_dependency(%q<json>, [">= 1.4.3"])
     s.add_dependency(%q<hirb>, [">= 0.4.5"])
     s.add_dependency(%q<td-client>, ["~> 0.8.0"])
-    s.add_dependency(%q<td-logger>, ["~> 0.2.1"])
+    s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
   end
 end
 
