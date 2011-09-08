@@ -1,4 +1,10 @@
 
+== 2011-09-08 version 0.9.0
+
+* Changed subcommands grammer: action-group -> group:action
+* Fixed import subcommand to strip \n
+
+
 == 2011-08-21 version 0.8.0
 
 * Splits API libraries to td-client gem

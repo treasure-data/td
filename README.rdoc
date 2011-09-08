@@ -26,8 +26,8 @@ You need to authorize the account, before executing any other commands.
     > td account -f                       # authorize an account
     user: k@treasure-data.com
     password: **********
-    > td create-database mydb             # create db
-    > td create-log-table mydb www_access # create table
+    > td database:create mydb             # create a database
+    > td table:create mydb www_access     # create a table
 
 = Copyright
 
