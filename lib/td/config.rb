@@ -84,7 +84,7 @@ class Config
     }
   end
 
-  @@path = ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
+  @@path = ENV['TREASURE_DATA_CONFIG_PATH'] || ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
   @@apikey = ENV['TREASURE_DATA_API_KEY'] || ENV['TD_API_KEY']
   @@apikey = nil if @@apikey == ""
 
