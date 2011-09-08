@@ -16,6 +16,7 @@ begin
     gemspec.add_dependency "json", ">= 1.4.3"
     gemspec.add_dependency "hirb", ">= 0.4.5"
     gemspec.add_dependency "td-client", "~> 0.8.0"
+    gemspec.add_dependency "td-logger", "~> 0.2.1"
     gemspec.test_files = Dir["test/**/*.rt"]
     gemspec.files = Dir["lib/**/*", "ext/**/*", "test/**/*.rb", "test/**/*.rt"]
     gemspec.executables = ['td']
