@@ -197,6 +197,8 @@ module List
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job'
 
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
+  add_list 'apikey:show', %w[], 'Show Treasure Data API key'
+  add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
@@ -221,6 +223,8 @@ module List
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
   add_alias 'kill', 'job:kill'
+
+  add_alias 'apikey', 'apikey:show'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'

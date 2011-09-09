@@ -30,6 +30,10 @@ class Config
     @conf[cate_key] = val
   end
 
+  def delete(cate_key)
+    @conf.delete(cate_key)
+  end
+
   def read(path=@path)
     @path = path
     begin

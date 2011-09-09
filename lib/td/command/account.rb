@@ -6,7 +6,7 @@ module Command
     op.banner << "\noptions:\n"
 
     force = false
-    op.on('-f', '--force', 'overwrite current setting', TrueClass) {|b|
+    op.on('-f', '--force', 'overwrite current account setting', TrueClass) {|b|
       force = true
     }
 
@@ -17,10 +17,14 @@ module Command
       conf = Config.read
     rescue ConfigError
     end
-    if conf && conf['account.user']
+    if conf && conf['account.apikey']
       unless force
-        $stderr.puts "TreasureData account is already configured with '#{conf['account.user']}' account."
-        $stderr.puts "Add '-f' option to overwrite this setting."
+        if conf['account.user']
+          $stderr.puts "Account is already configured with '#{conf['account.user']}' account."
+        else
+          $stderr.puts "Account is already configured."
+        end
+        $stderr.puts "Add '-f' option to overwrite."
         exit 0
       end
     end
