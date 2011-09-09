@@ -15,7 +15,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
-      $stderr.puts "Use '#{$prog} create-database #{db_name}' to create the database."
+      $stderr.puts "Use '#{$prog} db:create #{db_name}' to create the database."
       exit 1
     rescue AlreadyExistsError
       cmd_debug_error $!
@@ -76,7 +76,7 @@ module Command
         $stderr.puts "Use '#{$prog} table:create <db.table>' to create a table."
       elsif dbs.empty?
         $stderr.puts "There are no databases."
-        $stderr.puts "Use '#{$prog} database:create <db>' to create a database."
+        $stderr.puts "Use '#{$prog} db:create <db>' to create a database."
       else
         $stderr.puts "There are no tables."
         $stderr.puts "Use '#{$prog} table:create <db.table>' to create a table."

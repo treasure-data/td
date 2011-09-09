@@ -196,7 +196,7 @@ module List
   add_list 'job:list', %w[max?], 'Show list of jobs'
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job'
 
-  add_list 'account', %w[], 'Setup a Treasure Data account'
+  add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
