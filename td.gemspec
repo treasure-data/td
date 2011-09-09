@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{td}
-  s.version = "0.9.1"
+  s.version = "0.9.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = %q{2011-09-08}
+  s.date = %q{2011-09-09}
   s.default_executable = %q{td}
   s.executables = ["td"]
   s.extra_rdoc_files = [
@@ -17,7 +17,8 @@ Gem::Specification.new do |s|
      "README.rdoc"
   ]
   s.files = [
-    "lib/td/command/common.rb",
+    "lib/td/command/account.rb",
+     "lib/td/command/common.rb",
      "lib/td/command/db.rb",
      "lib/td/command/help.rb",
      "lib/td/command/import.rb",
@@ -29,6 +30,7 @@ Gem::Specification.new do |s|
      "lib/td/command/table.rb",
      "lib/td/command/td.rb",
      "lib/td/config.rb",
+     "lib/td/td.rb",
      "lib/td/version.rb"
   ]
   s.rdoc_options = ["--charset=UTF-8"]
@@ -44,20 +46,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_runtime_dependency(%q<json>, [">= 1.4.3"])
       s.add_runtime_dependency(%q<hirb>, [">= 0.4.5"])
-      s.add_runtime_dependency(%q<td-client>, ["~> 0.8.0"])
+      s.add_runtime_dependency(%q<td-client>, ["~> 0.8.1"])
       s.add_runtime_dependency(%q<td-logger>, ["~> 0.2.2"])
     else
       s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_dependency(%q<json>, [">= 1.4.3"])
       s.add_dependency(%q<hirb>, [">= 0.4.5"])
-      s.add_dependency(%q<td-client>, ["~> 0.8.0"])
+      s.add_dependency(%q<td-client>, ["~> 0.8.1"])
       s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
     end
   else
     s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
     s.add_dependency(%q<json>, [">= 1.4.3"])
     s.add_dependency(%q<hirb>, [">= 0.4.5"])
-    s.add_dependency(%q<td-client>, ["~> 0.8.0"])
+    s.add_dependency(%q<td-client>, ["~> 0.8.1"])
     s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
   end
 end
