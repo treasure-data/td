@@ -17,7 +17,9 @@ Gem::Specification.new do |s|
      "README.rdoc"
   ]
   s.files = [
-    "lib/td/command/account.rb",
+    "lib/td.rb",
+     "lib/td/command/account.rb",
+     "lib/td/command/apikey.rb",
      "lib/td/command/common.rb",
      "lib/td/command/db.rb",
      "lib/td/command/help.rb",
@@ -30,7 +32,6 @@ Gem::Specification.new do |s|
      "lib/td/command/table.rb",
      "lib/td/command/td.rb",
      "lib/td/config.rb",
-     "lib/td/td.rb",
      "lib/td/version.rb"
   ]
   s.rdoc_options = ["--charset=UTF-8"]
@@ -47,20 +48,20 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<json>, [">= 1.4.3"])
       s.add_runtime_dependency(%q<hirb>, [">= 0.4.5"])
       s.add_runtime_dependency(%q<td-client>, ["~> 0.8.1"])
-      s.add_runtime_dependency(%q<td-logger>, ["~> 0.2.2"])
+      s.add_runtime_dependency(%q<td-logger>, ["~> 0.2.3"])
     else
       s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_dependency(%q<json>, [">= 1.4.3"])
       s.add_dependency(%q<hirb>, [">= 0.4.5"])
       s.add_dependency(%q<td-client>, ["~> 0.8.1"])
-      s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
+      s.add_dependency(%q<td-logger>, ["~> 0.2.3"])
     end
   else
     s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
     s.add_dependency(%q<json>, [">= 1.4.3"])
     s.add_dependency(%q<hirb>, [">= 0.4.5"])
     s.add_dependency(%q<td-client>, ["~> 0.8.1"])
-    s.add_dependency(%q<td-logger>, ["~> 0.2.2"])
+    s.add_dependency(%q<td-logger>, ["~> 0.2.3"])
   end
 end
 
