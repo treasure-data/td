@@ -26,18 +26,19 @@ module Command
 
     sql = op.cmd_parse
 
-    client = get_client
-
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
       exit 1
     end
 
+    client = get_client
+
+    # local existance check
     get_database(client, db_name)
 
     job = client.query(db_name, sql)
 
-    $stderr.puts "Job #{job.job_id} is started."
+    $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
     $stderr.puts "See #{job.url} to see the progress."
 
