@@ -55,15 +55,6 @@ module Command
     db
   end
 
-  def parse_table_ident(table_ident)
-    db_name, table_name = table_ident.split('.', 2)
-    unless table_name
-      $stderr.puts "Invalid table identifier '#{table_ident}'; expected 'DB.TABLE'"
-      exit 1
-    end
-    return db_name, table_name
-  end
-
   def get_table(client, db_name, table_name)
     db = get_database(client, db_name)
     begin
