@@ -50,8 +50,7 @@ module Command
       time_key = s
     }
 
-    table_ident, *paths = op.cmd_parse
-    db_name, table_name = parse_table_ident(table_ident)
+    db_name, table_name, *paths = op.cmd_parse
 
     client = get_client
 
