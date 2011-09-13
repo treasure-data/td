@@ -1,4 +1,9 @@
 
+== 2011-09-13 version 0.9.5
+
+* Supports scheduled queries
+
+
 == 2011-09-13 version 0.9.4
 
 * Updated dependency: td-logger-0.2.4
