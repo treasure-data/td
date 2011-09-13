@@ -192,7 +192,7 @@ module List
 
   add_list 'sched:list', %w[], 'Show list of schedules'
   add_list 'sched:create', %w[name cron sql], 'Create a schedule'
-  add_list 'sched:delete', %w[name cron sql], 'Delete a schedule'
+  add_list 'sched:delete', %w[name], 'Delete a schedule'
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries'
 
   add_list 'query', %w[sql], 'Issue a query'

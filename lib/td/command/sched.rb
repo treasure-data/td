@@ -40,7 +40,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>database)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
