@@ -190,10 +190,10 @@ module List
   add_list 'schema:add', %w[db table columns_], 'Add new columns to a table'
   add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table'
 
-  add_list 'sched:list', %w[], 'Show list of schedules'
-  add_list 'sched:create', %w[name cron sql], 'Create a schedule'
-  add_list 'sched:delete', %w[name], 'Delete a schedule'
-  add_list 'sched:history', %w[name max?], 'Show history of scheduled queries'
+  #add_list 'sched:list', %w[], 'Show list of schedules'
+  #add_list 'sched:create', %w[name cron sql], 'Create a schedule'
+  #add_list 'sched:delete', %w[name], 'Delete a schedule'
+  #add_list 'sched:history', %w[name max?], 'Show history of scheduled queries'
 
   add_list 'query', %w[sql], 'Issue a query'
 
@@ -225,15 +225,15 @@ module List
 
   add_alias 'schema', 'schema:show'
 
-  add_alias 'schedule:list', 'sched:list'
-  add_alias 'schedule:create', 'sched:create'
-  add_alias 'schedule:delete', 'sched:delete'
-  add_alias 'schedule:history', 'sched:history'
-  add_alias 'schedule:hist', 'sched:history'
-  add_alias 'sched:hist', 'sched:history'
-  add_alias 'sched', 'sched:history'
-  add_alias 'scheds', 'sched:list'
-  add_alias 'schedules', 'sched:list'
+  #add_alias 'schedule:list', 'sched:list'
+  #add_alias 'schedule:create', 'sched:create'
+  #add_alias 'schedule:delete', 'sched:delete'
+  #add_alias 'schedule:history', 'sched:history'
+  #add_alias 'schedule:hist', 'sched:history'
+  #add_alias 'sched:hist', 'sched:history'
+  #add_alias 'sched', 'sched:history'
+  #add_alias 'scheds', 'sched:list'
+  #add_alias 'schedules', 'sched:list'
 
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
