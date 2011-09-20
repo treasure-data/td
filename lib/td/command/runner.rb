@@ -12,7 +12,7 @@ class Runner
 
   attr_accessor :apikey, :config_path, :prog_name
 
-  def run(args=ARGV)
+  def run(argv=ARGV)
     require 'td/version'
     require 'optparse'
 
@@ -68,9 +68,9 @@ EOF
     #}
 
     begin
-      op.order!(args)
-      usage nil if args.empty?
-      cmd = args.shift
+      op.order!(argv)
+      usage nil if argv.empty?
+      cmd = argv.shift
 
       require 'td/config'
       if config_path
@@ -93,7 +93,7 @@ EOF
     end
 
     begin
-      method.call
+      method.call(argv)
     rescue TreasureData::ConfigError
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."

@@ -40,12 +40,13 @@ module List
       self.banner = banner
 
       @message = nil
+      @argv = nil
     end
 
-    attr_accessor :message
+    attr_accessor :message, :argv
 
     def message
-      @message || banner
+      @message || to_s
     end
 
     def banner
@@ -62,9 +63,9 @@ module List
       "%-40s   # %s" % [@usage_args, @description]
     end
 
-    def cmd_parse(argv=ARGV)
+    def cmd_parse(argv=@argv||ARGV)
       parse!(argv)
-      if argv.length < @req_args.length || (!@varlen && argv.length > @args.length)
+      if argv.length < @req_args.length || (!@varlen && argv.length > @argv.length)
         cmd_usage nil
       end
       if argv.length <= 1
@@ -89,9 +90,15 @@ module List
       name.split(':', 2).first
     end
 
-    def on(*args)
+    def on(*argv)
       @has_options = true
       super
+    end
+
+    def with_args(argv)
+      d = dup
+      d.argv = argv
+      d
     end
 
     attr_reader :name
@@ -123,7 +130,7 @@ module List
       require "td/command/#{group}"
       cmd = name.gsub(':', '_')
       m = Object.new.extend(Command).method(cmd)
-      return Proc.new { m.call(op) }
+      return Proc.new {|args| m.call(op.with_args(args)) }
     end
     nil
   end
