@@ -101,6 +101,35 @@ module Command
     puts ")"
   end
 
+  def table_tail(op)
+    from = nil
+    to = nil
+    num = 80
+
+    op.on('-f', '--from TIME', 'start time of logs to get') {|s|
+      from = Time.parse(s).to_i
+    }
+    op.on('-t', '--to TIME', 'end time of logs to get') {|s|
+      to = Time.parse(s).to_i
+    }
+    op.on('-n', '--num N', 'number of logs to get', Integer) {|i|
+      num = i
+    }
+
+    db_name, table_name = op.cmd_parse
+
+    client = get_client
+
+    table = get_table(client, db_name, table_name)
+
+    rows = table.tail(num, to, from)
+
+    require 'json'
+    rows.each {|row|
+      puts row.to_json
+    }
+  end
+
   require 'td/command/import'  # table:import
 end
 end
