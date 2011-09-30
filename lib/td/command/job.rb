@@ -52,7 +52,7 @@ module Command
       end
       elapsed = "% 10s" % elapsed  # right aligned
 
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => start, :Elapsed => elapsed}
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => start.localtime, :Elapsed => elapsed}
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Query])
