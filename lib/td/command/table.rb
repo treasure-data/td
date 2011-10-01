@@ -102,13 +102,9 @@ module Command
   end
 
   def table_tail(op)
-    from = nil
     to = nil
     count = 80
 
-    op.on('-f', '--from TIME', 'start time of logs to get') {|s|
-      from = Time.parse(s).to_i
-    }
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
       to = Time.parse(s).to_i
     }
@@ -122,7 +118,7 @@ module Command
 
     table = get_table(client, db_name, table_name)
 
-    rows = table.tail(count, to, from)
+    rows = table.tail(count, to)
 
     require 'json'
     rows.each {|row|
