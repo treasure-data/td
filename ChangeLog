@@ -1,4 +1,9 @@
 
+== 2011-10-03 version 0.9.8
+
+* Added table:tail subcommand
+
+
 == 2011-09-30 version 0.9.7
 
 * Use local time zone at job:list and sched:history subcommands
