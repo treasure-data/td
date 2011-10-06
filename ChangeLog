@@ -1,4 +1,9 @@
 
+== 2011-10-06 version 0.9.9
+
+* Updated dependency: td-logger-0.2.5
+
+
 == 2011-10-03 version 0.9.8
 
 * Added table:tail subcommand
