@@ -1,4 +1,9 @@
 
+== 2011-10-17 version 0.9.11
+
+* Updated dependency: td-logger-0.2.8
+
+
 == 2011-10-09 version 0.9.10
 
 * Updated dependency: td-logger-0.2.7
