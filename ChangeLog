@@ -1,4 +1,9 @@
 
+== 2011-11-10 version 0.10.0
+
+* Updated dependency: td-logger-0.3.2
+
+
 == 2011-11-08 version 0.9.12
 
 * Fixed 'undefined method `localtime' for nil:NilClass' error in job subcommand
