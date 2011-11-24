@@ -231,7 +231,8 @@ module Command
       # TODO limit number of rows to show
       rows << row.map {|v|
         if v.is_a?(String)
-          v.to_s
+          # TODO encoding check
+          v.to_s.force_encoding('ASCII-8BIT')
         else
           v.to_json
         end

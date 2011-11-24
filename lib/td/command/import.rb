@@ -222,6 +222,10 @@ module Command
         begin
           record = JSON.parse(line)
 
+          unless record.is_a?(Hash)
+            raise "record must be a Hash"
+          end
+
           time = record[@time_key]
           unless time
             raise "record doesn't have '#{@time_key}' column"
@@ -255,6 +259,10 @@ module Command
       MessagePack::Unpacker.new(file).each {|record|
         i += 1
         begin
+          unless record.is_a?(Hash)
+            raise "record must be a Hash"
+          end
+
           time = record[@time_key]
           unless time
             raise "record doesn't have '#{@time_key}' column"

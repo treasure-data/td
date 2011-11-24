@@ -128,7 +128,7 @@ module List
       group, action = op.group
       require 'td/command/common'
       require "td/command/#{group}"
-      cmd = name.gsub(':', '_')
+      cmd = name.gsub(/[\:\-]/, '_')
       m = Object.new.extend(Command).method(cmd)
       return Proc.new {|args| m.call(op.with_args(args)) }
     end
@@ -169,7 +169,8 @@ module List
       (groups[op.group] ||= []) << op
     }
     groups.each_pair {|group,ops|
-      if ops.size > 1 && xop = COMMAND[group].dup
+      if ops.size > 1 && xop = COMMAND[group]
+        xop = xop.dup
         msg = %[Additional commands, type "#{File.basename($0)} help COMMAND" for more details:\n\n]
         ops.each {|op|
           msg << %[  #{op.usage}\n]
@@ -213,6 +214,15 @@ module List
   add_list 'apikey:show', %w[], 'Show Treasure Data API key'
   add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
 
+  add_list 'aggr:list', %w[], 'Show list of aggregation schemas'
+  add_list 'aggr:show', %w[name], 'Describe a aggregation schema'
+  add_list 'aggr:create', %w[name relation_key], 'Create a aggregation schema'
+  add_list 'aggr:delete', %w[name], 'Delete a aggregation schema'
+  add_list 'aggr:add-log', %w[name db table entry_name o1_key? o2_key? o3_key?], 'Add a log aggregation entry'
+  add_list 'aggr:add-attr', %w[name db table entry_name method_name parameters_?], 'Add an attribute aggregation entry'
+  add_list 'aggr:del-log', %w[name entry_name], 'Delete a log aggregation entry'
+  add_list 'aggr:del-attr', %w[name entry_name], 'Delete an attribute aggregation entry'
+
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
   add_list 'help', %w[command], 'Show usage of a command'
@@ -246,6 +256,9 @@ module List
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
   add_alias 'kill', 'job:kill'
+
+  add_alias 'aggr', 'aggr:show'
+  add_alias 'aggrs', 'aggr:list'
 
   add_alias 'apikey', 'apikey:show'
 
