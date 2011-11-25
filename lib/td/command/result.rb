@@ -82,8 +82,16 @@ module Command
 
     info = client.result_set_info
 
+    cmd_start = Time.now
+
     STDERR.puts "> #{mysql} -h #{info.host} -P #{info.port} -u #{info.user} --password=#{info.password} #{info.database}"
     system(mysql, '-h', info.host, '-P', info.port.to_s, '-u', info.user, "--password=#{info.password}", info.database)
+
+    cmd_alive = Time.now - cmd_start
+    if $?.to_i != 0 && cmd_alive < 1.0
+      STDERR.puts "Command died within 1 second with exit code #{$?.to_i}."
+      STDERR.puts "Please confirm mysql command is installed."
+    end
   end
 
 end
