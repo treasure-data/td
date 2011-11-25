@@ -106,7 +106,11 @@ module Command
     count = 80
 
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
-      to = Time.parse(s).to_i
+      if s.to_i.to_s == s
+        to = s
+      else
+        to = Time.parse(s).to_i
+      end
     }
     op.on('-n', '--count N', 'number of logs to get', Integer) {|i|
       count = i
