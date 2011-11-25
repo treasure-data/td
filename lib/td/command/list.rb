@@ -194,6 +194,13 @@ module List
   add_list 'table:import', %w[db table files_], 'Parse and import files to a table'
   add_list 'table:tail', %w[db table], 'Get recently imported logs'
 
+  add_list 'result:info', %w[], 'Show information of the MySQL server'
+  add_list 'result:list', %w[], 'Show list of result tables'
+  add_list 'result:create', %w[name], 'Create a result table'
+  add_list 'result:delete', %w[name], 'Delete a result table'
+  add_list 'result:connect', %w[], 'Connect to the server using mysql command'
+  #add_list 'result:get', %w[name], 'Download dump of the result table'
+
   add_list 'schema:show', %w[db table], 'Show schema of a table'
   add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table'
   add_list 'schema:add', %w[db table columns_], 'Add new columns to a table'
@@ -241,6 +248,9 @@ module List
 
   add_alias 'table', 'table:show'
   add_alias 'tables', 'table:list'
+
+  add_alias 'result', 'help'  # dummy
+  add_alias 'results', 'result:list'
 
   add_alias 'schema', 'schema:show'
 

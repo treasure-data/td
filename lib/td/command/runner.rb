@@ -40,6 +40,7 @@ Basic commands:
   table          # create/delete/list/import/tail tables
   query          # issue a query
   job            # show/kill/list jobs
+  result         # create/delete/list/connect/get MySQL result set
 
 Additional commands:
 
