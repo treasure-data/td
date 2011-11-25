@@ -300,6 +300,7 @@ module List
   add_alias 'aggrs', 'aggr:list'
 
   add_alias 'apikey', 'apikey:show'
+  add_alias 'server', 'server:status'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'
