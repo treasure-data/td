@@ -86,22 +86,22 @@ module Command
 
     job = client.job(job_id)
 
-    puts "JobID      : #{job.job_id}"
-    puts "URL        : #{job.url}"
-    puts "Status     : #{job.status}"
-    puts "Query      : #{job.query}"
+    puts "JobID        : #{job.job_id}"
+    puts "URL          : #{job.url}"
+    puts "Status       : #{job.status}"
+    puts "Query        : #{job.query}"
     puts "Result table : #{job.rset_name}"
 
     if wait && !job.finished?
       wait_job(job)
       if job.success?
-        puts "Result     :"
+        puts "Result       :"
         show_result(job, output, format)
       end
 
     else
       if job.success?
-        puts "Result     :"
+        puts "Result       :"
         show_result(job, output, format)
       end
 

@@ -103,10 +103,10 @@ module Command
 
     rows = []
     history.each {|j|
-      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status}
+      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Result=>j.rset_name}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status])
+    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Result])
   end
 
 end
