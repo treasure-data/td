@@ -108,7 +108,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = ['help', 'account']
+  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/]
 
   def self.add_list(name, args, description)
     LIST << COMMAND[name] = CommandOption.new(name, args, description)
@@ -148,7 +148,7 @@ module List
   def self.show_help(indent='  ')
     before_group = nil
     LIST.each {|op|
-      next if HELP_EXCLUDE.include?(op.name)
+      next if HELP_EXCLUDE.any? {|pattern| pattern =~ op.name }
       if before_group != op.group
         before_group = op.group
         puts ""
@@ -225,6 +225,7 @@ module List
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
+  add_list 'help:all', %w[], 'Show usage of all commands'
   add_list 'help', %w[command], 'Show usage of a command'
 
   # aliases

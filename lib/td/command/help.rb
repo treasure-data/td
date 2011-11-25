@@ -15,5 +15,13 @@ module Command
     puts op.message
   end
 
+  def help_all(op)
+    cmd = op.cmd_parse
+
+    TreasureData::Command::List.show_help(op.summary_indent)
+    puts ""
+    puts "Type '#{$prog} help COMMAND' for more information on a specific command."
+  end
+
 end
 end

@@ -33,10 +33,24 @@ EOF
         require 'td/command/list'
         puts op.to_s
         puts ""
-        puts "commands:"
-        TreasureData::Command::List.show_help(op.summary_indent)
-        puts ""
-        puts "Type '#{$prog} help COMMAND' for more information on a specific command."
+        puts <<EOF
+Basic commands:
+
+  db             # create/delete/list databases
+  table          # create/delete/list/import/tail tables
+  query          # issue a query
+  job            # show/kill/list jobs
+
+Additional commands:
+
+  sched          # create/delete/list schedules that run a query periodically
+  schema         # create/delete/modify schemas of tables
+  apikey         # show/set API key
+  server         # show status of the Treasure Data server
+  help           # show help messages
+
+Type 'td help COMMAND' for more information on a specific command.
+EOF
         if errmsg
           puts "error: #{errmsg}"
           exit 1
