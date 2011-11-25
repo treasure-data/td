@@ -14,6 +14,7 @@ module Command
     puts "Port       : #{info.port}"
     puts "User       : #{info.user}"
     puts "Password   : #{info.password}"
+    puts "Database   : #{info.database}"
   end
 
   def result_list(op)
@@ -81,8 +82,8 @@ module Command
 
     info = client.result_set_info
 
-    # TODO database
-    system(mysql, '-h', info.host, '-P', info.port, '-u', info.user, '-p', info.password)
+    STDERR.puts "> #{mysql} -h #{info.host} -P #{info.port} -u #{info.user} --password=#{info.password} #{info.database}"
+    system(mysql, '-h', info.host, '-P', info.port.to_s, '-u', info.user, "--password=#{info.password}", info.database)
   end
 
 end
