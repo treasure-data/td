@@ -11,20 +11,24 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Query => sched.query}
+      rows << {:Name => sched.name, :Cron => sched.cron, :Result => sched.rset_name, :Query => sched.query}
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Query])
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Result, :Query])
   end
 
   def sched_create(op)
     db_name = nil
+    result = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
+    }
+    op.on('-r', '--result RESULT_TABLE', 'write result to the result table (use result:create command)') {|s|
+      result = s
     }
 
     name, cron, sql = op.cmd_parse
@@ -40,7 +44,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."

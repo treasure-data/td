@@ -52,10 +52,10 @@ module Command
       end
       elapsed = "% 10s" % elapsed  # right aligned
 
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed}
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Query])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
   end
 
   def job_show(op)
@@ -90,6 +90,7 @@ module Command
     puts "URL        : #{job.url}"
     puts "Status     : #{job.status}"
     puts "Query      : #{job.query}"
+    puts "Result table : #{job.rset_name}"
 
     if wait && !job.finished?
       wait_job(job)

@@ -7,12 +7,16 @@ module Command
     wait = false
     output = nil
     format = 'tsv'
+    result = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-r', '--result RESULT_TABLE', 'write result to the result table (use result:create command)') {|s|
+      result = s
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
@@ -36,7 +40,7 @@ module Command
     # local existance check
     get_database(client, db_name)
 
-    job = client.query(db_name, sql)
+    job = client.query(db_name, sql, result)
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
