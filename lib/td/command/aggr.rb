@@ -62,12 +62,12 @@ module Command
     }
 
     puts "Log entries:"
-    puts cmd_render_table(log_rows, :fields => [:Table, :Name, :o1_key, :o2_key, :o3_key, :value_key, :count_key, :Comment])
+    puts cmd_render_table(log_rows, :fields => [:Table, :Name, :o1_key, :o2_key, :o3_key, :value_key, :count_key, :Comment], :max_width=>400)
 
     puts ''
 
     puts "Attribute entries:"
-    puts cmd_render_table(attr_rows, :fields => [:Table, :Name, :Method, :Parameters, :Comment])
+    puts cmd_render_table(attr_rows, :fields => [:Table, :Name, :Method, :Parameters, :Comment], :max_width=>400)
   end
 
   def aggr_create(op)
