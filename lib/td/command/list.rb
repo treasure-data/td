@@ -3,64 +3,31 @@ module TreasureData
 module Command
 module List
 
-  class CommandOption < OptionParser
-    def initialize(name, args, description)
+  class CommandParser < OptionParser
+    def initialize(name, req_args, opt_args, varlen, argv)
       super()
-
-      @name = name
-      @description = description.to_s
-
-      if args.last.to_s =~ /_$/
-        @varlen = true
-        args.push args.pop.to_s[0..-2]+'...'
-      elsif args.last.to_s =~ /_\?$/
-        @varlen = true
-        args.push args.pop.to_s[0..-3]+'...?'
-      end
-
-      @req_args, opt_args = args.partition {|a| a.to_s !~ /\?$/ }
-      @opt_args = opt_args.map {|a| a.to_s[0..-2].to_sym }
-      @args = @req_args + @opt_args
-
-      @usage_args = "#{@name}"
-      @req_args.each {|a| @usage_args << " <#{a}>" }
-      @opt_args.each {|a| @usage_args << " [#{a}]" }
-
+      @req_args = req_args
+      @opt_args = opt_args
+      @varlen = varlen
+      @argv = argv
       @has_options = false
-
-      self.summary_indent = "  "
-
-      banner  = "usage:\n"
-      banner << "  $ #{File.basename($0)} #{@usage_args}\n"
-      banner << "\n"
-      banner << "description:\n"
-      @description.split("\n").each {|l|
-        banner << "  #{l}\n"
-      }
-      self.banner = banner
-
-      @message = nil
-      @argv = nil
+      @message = ''
     end
 
-    attr_accessor :message, :argv
+    attr_accessor :message
 
-    def message
-      @message || to_s
+    def on(*argv)
+      @has_options = true
+      super
     end
 
     def banner
-      s = super.dup
+      s = @message.dup
       if @has_options
         s << "\n"
         s << "options:\n"
       end
-      s << "\n"
       s
-    end
-
-    def usage
-      "%-40s   # %s" % [@usage_args, @description]
     end
 
     def cmd_parse(argv=@argv||ARGV)
@@ -78,31 +45,83 @@ module List
     end
 
     def cmd_usage(msg=nil)
-      puts self.message
-      if msg
-        puts ""
-        puts "error: #{msg}"
-      end
+      puts self.to_s
+      puts "error: #{msg}" if msg
       exit 1
+    end
+  end
+
+  class CommandOption
+    def initialize(name, args, description, examples)
+      @name = name
+      @args = args
+      @description = description.to_s
+      @examples = examples
+      @override_message = nil
+    end
+
+    attr_reader :name, :args, :description, :examples
+    attr_accessor :override_message
+
+    def compile!
+      return if @usage_args
+
+      args = @args.dup
+      if args.last.to_s =~ /_$/
+        @varlen = true
+        args.push args.pop.to_s[0..-2]+'...'
+      elsif args.last.to_s =~ /_\?$/
+        @varlen = true
+        args.push args.pop.to_s[0..-3]+'...?'
+      end
+
+      @req_args, @opt_args = args.partition {|a| a.to_s !~ /\?$/ }
+      @opt_args = @opt_args.map {|a| a.to_s[0..-2].to_sym }
+
+      @usage_args = "#{@name}"
+      @req_args.each {|a| @usage_args << " <#{a}>" }
+      @opt_args.each {|a| @usage_args << " [#{a}]" }
+    end
+
+    def create_optparse(argv)
+      compile!
+      op = CommandParser.new(@name, @req_args, @opt_args, @varlen, argv)
+
+      message = "usage:\n"
+      message << "  $ #{File.basename($0)} #{@usage_args}\n"
+      unless @examples.empty?
+        message << "\n"
+        message << "example:\n"
+        @examples.each {|l|
+          message << "  $ #{File.basename($0)} #{l}\n"
+        }
+      end
+      message << "\n"
+      message << "description:\n"
+      @description.split("\n").each {|l|
+        message << "  #{l}\n"
+      }
+
+      op.message = message
+      op.summary_indent = "  "
+
+      if msg = @override_message
+        (class<<op;self;end).module_eval do
+          define_method(:to_s) { msg }
+        end
+      end
+
+      op
+    end
+
+    def usage
+      compile!
+      "%-40s   # %s" % [@usage_args, @description]
     end
 
     def group
-      name.split(':', 2).first
+      @name.split(':', 2).first
     end
-
-    def on(*argv)
-      @has_options = true
-      super
-    end
-
-    def with_args(argv)
-      d = dup
-      d.argv = argv
-      d
-    end
-
-    attr_reader :name
-    attr_reader :description
   end
 
   LIST = []
@@ -110,8 +129,8 @@ module List
   GUESS = {}
   HELP_EXCLUDE = [/^help/, /^account/, /^aggr/]
 
-  def self.add_list(name, args, description)
-    LIST << COMMAND[name] = CommandOption.new(name, args, description)
+  def self.add_list(name, args, description, *examples)
+    LIST << COMMAND[name] = CommandOption.new(name, args, description, examples)
   end
 
   def self.add_alias(new_cmd, old_cmd)
@@ -122,15 +141,22 @@ module List
     GUESS[wrong] = correct
   end
 
+  def self.cmd_usage(name)
+    if c = COMMAND[name]
+      c.create_optparse([]).cmd_usage
+    end
+    nil
+  end
+
   def self.get_method(name)
-    if op = COMMAND[name]
-      name = op.name
-      group, action = op.group
+    if c = COMMAND[name]
+      name = c.name
+      group, action = c.group
       require 'td/command/common'
       require "td/command/#{group}"
       cmd = name.gsub(/[\:\-]/, '_')
       m = Object.new.extend(Command).method(cmd)
-      return Proc.new {|args| m.call(op.with_args(args)) }
+      return Proc.new {|args| m.call(c.create_optparse(args)) }
     end
     nil
   end
@@ -147,75 +173,77 @@ module List
 
   def self.show_help(indent='  ')
     before_group = nil
-    LIST.each {|op|
-      next if HELP_EXCLUDE.any? {|pattern| pattern =~ op.name }
-      if before_group != op.group
-        before_group = op.group
+    LIST.each {|c|
+      next if HELP_EXCLUDE.any? {|pattern| pattern =~ c.name }
+      if before_group != c.group
+        before_group = c.group
         puts ""
       end
-      puts "#{indent}#{op.usage}"
+      puts "#{indent}#{c.usage}"
     }
   end
 
   def self.get_group(group)
-    LIST.map {|op|
-      op.group == group
+    LIST.map {|c|
+      c.group == group
     }
   end
 
   def self.finishup
     groups = {}
-    LIST.each {|op|
-      (groups[op.group] ||= []) << op
+    LIST.each {|c|
+      (groups[c.group] ||= []) << c
     }
     groups.each_pair {|group,ops|
-      if ops.size > 1 && xop = COMMAND[group]
-        xop = xop.dup
+      if ops.size > 1 && c = COMMAND[group]
+        c = c.dup
+
         msg = %[Additional commands, type "#{File.basename($0)} help COMMAND" for more details:\n\n]
-        ops.each {|op|
-          msg << %[  #{op.usage}\n]
+        ops.each {|c|
+          msg << %[  #{c.usage}\n]
         }
         msg << %[\n]
-        xop.message = msg
-        COMMAND[group] = xop
+        c.override_message = msg
+
+        COMMAND[group] = c
       end
     }
   end
 
-  add_list 'db:list', %w[], 'Show list of tables in a database'
-  add_list 'db:show', %w[db], 'Describe a information of a database'
-  add_list 'db:create', %w[db], 'Create a database'
-  add_list 'db:delete', %w[db], 'Delete a database'
+  add_list 'db:list', %w[], 'Show list of tables in a database', 'db:list', 'dbs'
+  add_list 'db:show', %w[db], 'Describe a information of a database', 'db example_db'
+  add_list 'db:create', %w[db], 'Create a database', 'db:create example_db'
+  add_list 'db:delete', %w[db], 'Delete a database', 'db:delete example_db'
 
-  add_list 'table:list', %w[db?], 'Show list of tables'
-  add_list 'table:show', %w[db table], 'Describe a information of a table'
-  add_list 'table:create', %w[db table], 'Create a table'
-  add_list 'table:delete', %w[db table], 'Delete a table'
-  add_list 'table:import', %w[db table files_], 'Parse and import files to a table'
-  add_list 'table:tail', %w[db table], 'Get recently imported logs'
+  add_list 'table:list', %w[db?], 'Show list of tables', 'table:list', 'table:list example_db', 'tables'
+  add_list 'table:show', %w[db table], 'Describe a information of a table', 'table example_db table1'
+  add_list 'table:create', %w[db table], 'Create a table', 'table:create example_db table1'
+  add_list 'table:delete', %w[db table], 'Delete a table', 'table:delete example_db table1'
+  add_list 'table:import', %w[db table files_], 'Parse and import files to a table', 'table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json'
+  add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
 
-  add_list 'result:info', %w[], 'Show information of the MySQL server'
-  add_list 'result:list', %w[], 'Show list of result tables'
-  add_list 'result:create', %w[name], 'Create a result table'
-  add_list 'result:delete', %w[name], 'Delete a result table'
-  add_list 'result:connect', %w[], 'Connect to the server using mysql command'
+  add_list 'result:info', %w[], 'Show information of the MySQL server', 'result:info'
+  add_list 'result:list', %w[], 'Show list of result tables', 'result:list', 'results'
+  add_list 'result:create', %w[name], 'Create a result table', 'result:create rset1'
+  add_list 'result:delete', %w[name], 'Delete a result table', 'result:delete rset1'
+  add_list 'result:connect', %w[], 'Connect to the server using mysql command', 'result:connect'
   #add_list 'result:get', %w[name], 'Download dump of the result table'
 
-  add_list 'schema:show', %w[db table], 'Show schema of a table'
-  add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table'
-  add_list 'schema:add', %w[db table columns_], 'Add new columns to a table'
-  add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table'
+  add_list 'schema:show', %w[db table], 'Show schema of a table', 'schema example_db table1'
+  add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table', 'schema:set example_db table1 user:string size:int'
+  add_list 'schema:add', %w[db table columns_], 'Add new columns to a table', 'schema:add example_db table1 user:string size:int'
+  add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table', 'schema:remove example_db table1 user size'
 
-  add_list 'sched:list', %w[], 'Show list of schedules'
-  add_list 'sched:create', %w[name cron sql], 'Create a schedule'
-  add_list 'sched:delete', %w[name], 'Delete a schedule'
-  add_list 'sched:history', %w[name max?], 'Show history of scheduled queries'
+  add_list 'sched:list', %w[], 'Show list of schedules', 'sched:list', 'scheds'
+  add_list 'sched:create', %w[name cron sql], 'Create a schedule', 'sched:create sched1 "0 * * * *" -d example_db "select count(*) from table1" -r rset1'
+  add_list 'sched:delete', %w[name], 'Delete a schedule', 'sched:delete sched1'
+  add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', 'sched sched1 --page 1'
 
-  add_list 'query', %w[sql], 'Issue a query'
+  add_list 'query', %w[sql], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"'
 
-  add_list 'job:show', %w[job_id], 'Show status and result of a job'
-  add_list 'job:list', %w[max?], 'Show list of jobs'
-  add_list 'job:kill', %w[job_id], 'Kill or cancel a job'
+  add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job 1461'
+  add_list 'job:list', %w[max?], 'Show list of jobs', 'jobs', 'jobs --page 1'
+  add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
 
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
   add_list 'apikey:show', %w[], 'Show Treasure Data API key'

@@ -11,10 +11,6 @@ autoload :Job, 'td/client'
 module Command
 
   private
-  def get_option(name)
-    List.get_option(name)
-  end
-
   def get_client
     apikey = Config.apikey
     unless apikey
