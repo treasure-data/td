@@ -103,7 +103,7 @@ module Command
 
   def table_tail(op)
     to = nil
-    count = 10
+    count = nil
 
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
       if s.to_i.to_s == s
@@ -115,6 +115,21 @@ module Command
     op.on('-n', '--count N', 'number of logs to get', Integer) {|i|
       count = i
     }
+
+    if count == nil
+      # smart count calculation
+      begin
+        require "curses"
+	      if Curses.stdscr.maxy - 1 <= 40
+          count = 5
+        else
+          count = 10
+        end
+	      Curses.close_screen
+      rescue
+        count = 5
+      end
+    end
 
     db_name, table_name = op.cmd_parse
 
