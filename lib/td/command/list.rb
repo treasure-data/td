@@ -32,7 +32,7 @@ module List
 
     def cmd_parse(argv=@argv||ARGV)
       parse!(argv)
-      if argv.length < @req_args.length || (!@varlen && argv.length > @argv.length)
+      if argv.length < @req_args.length || (!@varlen && argv.length > (@req_args.length+@opt_args.length))
         cmd_usage nil
       end
       if argv.length <= 1
