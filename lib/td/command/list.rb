@@ -226,7 +226,7 @@ module List
   add_list 'result:list', %w[], 'Show list of result tables', 'result:list', 'results'
   add_list 'result:create', %w[name], 'Create a result table', 'result:create rset1'
   add_list 'result:delete', %w[name], 'Delete a result table', 'result:delete rset1'
-  add_list 'result:connect', %w[], 'Connect to the server using mysql command', 'result:connect'
+  add_list 'result:connect', %w[sql?], 'Connect to the server using mysql command', 'result:connect'
   #add_list 'result:get', %w[name], 'Download dump of the result table'
 
   add_list 'status', %w[], 'Show schedules, jobs, tables and results', 'status', 's'

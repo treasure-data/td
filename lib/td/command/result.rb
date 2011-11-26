@@ -79,16 +79,25 @@ module Command
       mysql = s
     }
 
-    op.cmd_parse
+    sql = op.cmd_parse
 
     client = get_client
 
     info = client.result_set_info
 
+    cmd = [mysql, '-h', info.host, '-P', info.port.to_s, '-u', info.user, "--password=#{info.password}", info.database]
+
     cmd_start = Time.now
 
-    STDERR.puts "> #{mysql} -h #{info.host} -P #{info.port} -u #{info.user} --password=#{info.password} #{info.database}"
-    system(mysql, '-h', info.host, '-P', info.port.to_s, '-u', info.user, "--password=#{info.password}", info.database)
+    if sql
+      IO.popen(cmd, "w") {|io|
+        io.write sql
+        io.close
+      }
+    else
+      STDERR.puts "> #{cmd.join(' ')}"
+      system(*cmd)
+    end
 
     cmd_alive = Time.now - cmd_start
     if $?.to_i != 0 && cmd_alive < 1.0
