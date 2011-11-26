@@ -103,7 +103,7 @@ module Command
 
   def table_tail(op)
     to = nil
-    count = 80
+    count = 10
 
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
       if s.to_i.to_s == s
