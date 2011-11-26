@@ -11,6 +11,10 @@ autoload :Job, 'td/client'
 module Command
 
   private
+  def initialize
+    @render_indent = ''
+  end
+
   def get_client
     apikey = Config.apikey
     unless apikey
@@ -24,10 +28,10 @@ module Command
     Hirb::Helpers::Table.render(rows, *opts)
   end
 
-  def cmd_render_tree(nodes, *opts)
-    require 'hirb'
-    Hirb::Helpers::Tree.render(nodes, *opts)
-  end
+  #def cmd_render_tree(nodes, *opts)
+  #  require 'hirb'
+  #  Hirb::Helpers::Tree.render(nodes, *opts)
+  #end
 
   def cmd_debug_error(ex)
     if $verbose
@@ -37,6 +41,32 @@ module Command
       }
         $stderr.puts ""
     end
+  end
+
+  def cmd_format_elapsed(start, finish)
+    if start
+      if !finish
+        finish = Time.now.utc
+      end
+      e = finish.to_i - start.to_i
+      elapsed = ''
+      if e >= 3600
+        elapsed << "#{e/3600}h "
+        e %= 3600
+        elapsed << "% 2dm " % (e/60)
+        e %= 60
+        elapsed << "% 2dsec" % e
+      elsif e >= 60
+        elapsed << "% 2dm " % (e/60)
+        e %= 60
+        elapsed << "% 2dsec" % e
+      else
+        elapsed << "% 2dsec" % e
+      end
+    else
+      elapsed = ''
+    end
+    elapsed = "% 10s" % elapsed  # right aligned
   end
 
   def get_database(client, db_name)

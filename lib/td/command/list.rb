@@ -229,6 +229,8 @@ module List
   add_list 'result:connect', %w[], 'Connect to the server using mysql command', 'result:connect'
   #add_list 'result:get', %w[name], 'Download dump of the result table'
 
+  add_list 'status', %w[], 'Show schedules, jobs, tables and results', 'status', 's'
+
   add_list 'schema:show', %w[db table], 'Show schema of a table', 'schema example_db table1'
   add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table', 'schema:set example_db table1 user:string size:int'
   add_list 'schema:add', %w[db table columns_], 'Add new columns to a table', 'schema:add example_db table1 user:string size:int'
@@ -301,6 +303,8 @@ module List
 
   add_alias 'apikey', 'apikey:show'
   add_alias 'server', 'server:status'
+
+  add_alias 's', 'status'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'

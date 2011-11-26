@@ -37,31 +37,7 @@ module Command
       next if running && !job.running?
       next if error && !job.error?
       start = job.start_at
-      finish = job.end_at
-      if start
-        if !finish
-          finish = Time.now.utc
-        end
-        e = finish.to_i - start.to_i
-        elapsed = ''
-        if e >= 3600
-          elapsed << "#{e/3600}h "
-          e %= 3600
-          elapsed << "% 2dm " % (e/60)
-          e %= 60
-          elapsed << "% 2dsec" % e
-        elsif e >= 60
-          elapsed << "% 2dm " % (e/60)
-          e %= 60
-          elapsed << "% 2dsec" % e
-        else
-          elapsed << "% 2dsec" % e
-        end
-      else
-        elapsed = ''
-      end
-      elapsed = "% 10s" % elapsed  # right aligned
-
+      elapsed = cmd_format_elapsed(start, job.end_at)
       rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
     }
 

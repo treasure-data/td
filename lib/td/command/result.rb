@@ -28,6 +28,9 @@ module Command
     rsets.each {|rset|
       rows << {:Name => rset.name}
     }
+    rows = rows.sort_by {|map|
+      map[:Name]
+    }
 
     puts cmd_render_table(rows, :fields => [:Name])
 
