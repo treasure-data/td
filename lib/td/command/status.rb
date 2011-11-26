@@ -29,7 +29,7 @@ module Command
     scheds = scheds.sort_by {|map|
       map[:Name]
     }
-    x1, y1 = show_render(0, 0, "[Schedules]", scheds, :fields => [:Name, :Cron, :Result, :Query])
+    x1, y1 = status_render(0, 0, "[Schedules]", scheds, :fields => [:Name, :Cron, :Result, :Query])
 
     j = client.jobs(0, 4)
     j.each {|job|
@@ -37,7 +37,7 @@ module Command
       elapsed = cmd_format_elapsed(start, job.end_at)
       jobs << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
     }
-    x2, y2 = show_render(0, 0, "[Jobs]", jobs, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
+    x2, y2 = status_render(0, 0, "[Jobs]", jobs, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
 
     dbs = client.databases
     dbs.map {|db|
@@ -45,7 +45,7 @@ module Command
         tables << {:Database => db.name, :Table => table.name, :Count => table.count.to_s}
       }
     }
-    x3, y3 = show_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count])
+    x3, y3 = status_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count])
 
     r = client.result_sets
     r.each {|rset|
@@ -54,16 +54,16 @@ module Command
     results = results.sort_by {|map|
       map[:Name]
     }
-    x4, y4 = show_render(x3+2, y3, "[Results]", results, :fields => [:Name])
+    x4, y4 = status_render(x3+2, y3, "[Results]", results, :fields => [:Name])
 
-    (y3-y4).times do
+    (y3-y4-1).times do
       print "\eD"
     end
     print "\eE"
   end
 
   private
-  def show_render(movex, movey, msg, *args)
+  def status_render(movex, movey, msg, *args)
     lines = cmd_render_table(*args).split("\n")
     lines.pop  # remove 'N rows in set' line
     lines.unshift(msg)
