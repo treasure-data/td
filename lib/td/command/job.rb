@@ -6,6 +6,7 @@ module Command
     page = 0
     skip = 0
     running = false
+    error = false
 
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
@@ -15,6 +16,9 @@ module Command
     }
     op.on('-R', '--running', 'show only running jobs', TrueClass) {|b|
       running = b
+    }
+    op.on('-E', '--error', 'show only error jobs', TrueClass) {|b|
+      error = b
     }
 
     max = op.cmd_parse
@@ -31,6 +35,7 @@ module Command
     rows = []
     jobs.each {|job|
       next if running && !job.running?
+      next if error && !job.error?
       start = job.start_at
       finish = job.end_at
       if start
