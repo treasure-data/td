@@ -1,0 +1,89 @@
+
+module TreasureData
+module Command
+
+  def status(op)
+    op.cmd_parse
+
+    client = get_client
+
+    # +----------------+
+    # |     scheds     |
+    # +----------------+
+    # +----------------+
+    # |      jobs      |
+    # +----------------+
+    # +------+ +-------+
+    # |tables| |results|
+    # +------+ +-------+
+
+    scheds = []
+    jobs = []
+    tables = []
+    results = []
+
+    s = client.schedules
+    s.each {|sched|
+      scheds << {:Name => sched.name, :Cron => sched.cron, :Result => sched.rset_name, :Query => sched.query}
+    }
+    scheds = scheds.sort_by {|map|
+      map[:Name]
+    }
+    x1, y1 = show_render(0, 0, "[Schedules]", scheds, :fields => [:Name, :Cron, :Result, :Query])
+
+    j = client.jobs(0, 4)
+    j.each {|job|
+      start = job.start_at
+      elapsed = cmd_format_elapsed(start, job.end_at)
+      jobs << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
+    }
+    x2, y2 = show_render(0, 0, "[Jobs]", jobs, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
+
+    dbs = client.databases
+    dbs.map {|db|
+      db.tables.each {|table|
+        tables << {:Database => db.name, :Table => table.name, :Count => table.count.to_s}
+      }
+    }
+    x3, y3 = show_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count])
+
+    r = client.result_sets
+    r.each {|rset|
+      results << {:Name => rset.name}
+    }
+    results = results.sort_by {|map|
+      map[:Name]
+    }
+    x4, y4 = show_render(x3+2, y3, "[Results]", results, :fields => [:Name])
+
+    (y3-y4).times do
+      print "\eD"
+    end
+    print "\eE"
+  end
+
+  private
+  def show_render(movex, movey, msg, *args)
+    lines = cmd_render_table(*args).split("\n")
+    lines.pop  # remove 'N rows in set' line
+    lines.unshift(msg)
+    #lines.unshift("")
+
+    print "\e[#{movey}A" if movey > 0
+
+    max_width = 0
+    height = 0
+    lines.each {|line|
+      print "\e[#{movex}C" if movex > 0
+      puts line
+      width = line.length
+      max_width = width if max_width < width
+      height += 1
+    }
+
+    return movex+max_width, height
+  end
+
+end
+end
+
