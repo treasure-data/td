@@ -5,12 +5,16 @@ module Command
   def job_list(op)
     page = 0
     skip = 0
+    running = false
 
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
     }
     op.on('-s', '--skip N', 'skip N jobs', Integer) {|i|
       skip = i
+    }
+    op.on('-R', '--running', 'show only running jobs', TrueClass) {|b|
+      running = b
     }
 
     max = op.cmd_parse
@@ -26,6 +30,7 @@ module Command
 
     rows = []
     jobs.each {|job|
+      next if running && !job.running?
       start = job.start_at
       finish = job.end_at
       if start
