@@ -46,6 +46,7 @@ Additional commands:
 
   sched          # create/delete/list schedules that run a query periodically
   schema         # create/delete/modify schemas of tables
+  status         # show scheds, jobs, tables and results
   apikey         # show/set API key
   server         # show status of the Treasure Data server
   help           # show help messages
