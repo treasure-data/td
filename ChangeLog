@@ -1,4 +1,15 @@
 
+== 2011-11-28 version 0.10.5
+
+* Added new feature: result
+* Added new feature: status
+* Refined usage message
+* Fixed argument length check
+* help subcommand shows commandline examples
+* table:tail subcommand reduced default max row number
+* job:list subcommand supports --running and --error options
+
+
 == 2011-11-11 version 0.10.4
 
 * Updated dependency: td-logger-0.3.7
