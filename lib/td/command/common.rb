@@ -53,20 +53,20 @@ module Command
       if e >= 3600
         elapsed << "#{e/3600}h "
         e %= 3600
-        elapsed << "% 2dm " % (e/60)
+        elapsed << "%2dm " % (e/60)
         e %= 60
-        elapsed << "% 2dsec" % e
+        elapsed << "%2dsec" % e
       elsif e >= 60
-        elapsed << "% 2dm " % (e/60)
+        elapsed << "%2dm " % (e/60)
         e %= 60
-        elapsed << "% 2dsec" % e
+        elapsed << "%2dsec" % e
       else
-        elapsed << "% 2dsec" % e
+        elapsed << "%2dsec" % e
       end
     else
       elapsed = ''
     end
-    elapsed = "% 10s" % elapsed  # right aligned
+    elapsed = "% 13s" % elapsed  # right aligned
   end
 
   def get_database(client, db_name)
