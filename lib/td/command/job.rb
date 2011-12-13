@@ -219,7 +219,8 @@ module Command
       rows << row.map {|v|
         if v.is_a?(String)
           # TODO encoding check
-          v.to_s.force_encoding('ASCII-8BIT')
+          s = v.to_s
+          s.force_encoding('ASCII-8BIT') if s.respond_to?(:force_encoding)
         else
           v.to_json
         end
