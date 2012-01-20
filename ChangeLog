@@ -1,4 +1,10 @@
 
+== 2012-01-19 version 0.10.7
+
+* Fixed job:show on ruby-1.8
+* Fixed command aliases on ruby-1.8
+
+
 == 2011-12-13 version 0.10.6
 
 * Fixed force_encoding error with Ruby 1.8
