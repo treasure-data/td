@@ -128,7 +128,7 @@ module Command
 
   private
   def wait_job(job)
-    $stderr.puts "running..."
+    $stderr.puts "queued..."
 
     cmdout_lines = 0
     stderr_lines = 0
