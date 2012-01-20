@@ -199,8 +199,8 @@ module List
         c = c.dup
 
         msg = %[Additional commands, type "#{File.basename($0)} help COMMAND" for more details:\n\n]
-        ops.each {|c|
-          msg << %[  #{c.usage}\n]
+        ops.each {|op|
+          msg << %[  #{op.usage}\n]
         }
         msg << %[\n]
         c.override_message = msg
