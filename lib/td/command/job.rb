@@ -221,6 +221,7 @@ module Command
           # TODO encoding check
           s = v.to_s
           s.force_encoding('ASCII-8BIT') if s.respond_to?(:force_encoding)
+          s
         else
           v.to_json
         end
