@@ -1,4 +1,10 @@
 
+== 2012-01-19 version 0.10.8
+
+* Updated td-client 0.8.6
+* query: shows 'queued...' instead of 'running...'
+
+
 == 2012-01-19 version 0.10.7
 
 * Fixed job:show on ruby-1.8
