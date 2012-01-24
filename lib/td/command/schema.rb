@@ -75,7 +75,7 @@ module Command
       type = type.to_s
 
       API.validate_column_name(name)
-      type = API.normalize_type_name(type)
+      #type = API.normalize_type_name(type)
 
       if schema.fields.find {|f| f.name == name }
         $stderr.puts "Column name '#{name}' is duplicated."
