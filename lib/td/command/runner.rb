@@ -100,6 +100,10 @@ EOF
     end
 
     require 'td/command/list'
+    if defined?(Encoding)
+      #Encoding.default_internal = 'UTF-8' if Encoding.respond_to?(:default_internal)
+      Encoding.default_external = 'UTF-8' if Encoding.respond_to?(:default_external)
+    end
 
     method = TreasureData::Command::List.get_method(cmd)
     unless method
