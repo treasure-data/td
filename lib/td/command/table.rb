@@ -134,7 +134,7 @@ module Command
           count = 10
         end
 	      Curses.close_screen
-      rescue
+      rescue Exception
         count = 5
       end
     end
