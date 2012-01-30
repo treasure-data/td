@@ -1,4 +1,10 @@
 
+== 2012-01-30 version 0.10.10
+
+* table:tail works without curses
+* set Encoding.default_external = 'UTF-8'
+
+
 == 2012-01-23 version 0.10.9
 
 * table:tail subcommand supports --from option
