@@ -1,4 +1,9 @@
 
+== 2012-02-02 version 0.10.12
+
+* Use td-client v0.8.8
+
+
 == 2012-02-02 version 0.10.11
 
 * Use SSL in the account subcommand
