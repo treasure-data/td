@@ -1,4 +1,9 @@
 
+== 2012-02-02 version 0.10.11
+
+* Use SSL in the account subcommand
+
+
 == 2012-01-30 version 0.10.10
 
 * table:tail works without curses
