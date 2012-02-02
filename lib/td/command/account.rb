@@ -67,7 +67,8 @@ module Command
       end
 
       begin
-        client = Client.authenticate(user_name, password)
+        # enalbe SSL for the authentication
+        client = Client.authenticate(user_name, password, :ssl=>true)
       rescue TreasureData::AuthError
         $stderr.puts "User name or password mismatched."
       end
