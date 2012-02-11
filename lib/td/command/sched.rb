@@ -27,6 +27,9 @@ module Command
     begin
       client.run_schedule(name, time, num)
     rescue NotFoundError
+      cmd_debug_error $!
+      $stderr.puts "Schedule '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
     end
 
     puts "Scheduled #{num} jobs."
@@ -41,13 +44,13 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Query => sched.query, :Next => sched.next_time }
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :Delay, :Result, :Query, :Next])
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Result, :Query], :max_width=>500)
   end
 
   def sched_show(op)

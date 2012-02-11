@@ -68,7 +68,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Schema])
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Schema], :max_width=>500)
 
     if rows.empty?
       if db_name
