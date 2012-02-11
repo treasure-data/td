@@ -2,39 +2,6 @@
 module TreasureData
 module Command
 
-  def sched_run(op)
-    num = 1
-
-    op.on('-n', '--num N', 'number of jobs to run', Integer) {|i|
-      num = i
-    }
-
-    name, time = op.cmd_parse
-
-    if time.to_i.to_s == time.to_s
-      # UNIX time
-      time = time.to_i
-    else
-      begin
-        time = Time.parse(time).to_i
-      rescue
-        $stderr.puts "invalid time format: #{time}"
-      end
-    end
-
-    client = get_client
-
-    begin
-      client.run_schedule(name, time, num)
-    rescue NotFoundError
-      cmd_debug_error $!
-      $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
-    end
-
-    puts "Scheduled #{num} jobs."
-  end
-
   def sched_list(op)
     op.cmd_parse
 
@@ -174,6 +141,39 @@ module Command
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Result])
+  end
+
+  def sched_run(op)
+    num = 1
+
+    op.on('-n', '--num N', 'number of jobs to run', Integer) {|i|
+      num = i
+    }
+
+    name, time = op.cmd_parse
+
+    if time.to_i.to_s == time.to_s
+      # UNIX time
+      time = time.to_i
+    else
+      begin
+        time = Time.parse(time).to_i
+      rescue
+        $stderr.puts "invalid time format: #{time}"
+      end
+    end
+
+    client = get_client
+
+    begin
+      client.run_schedule(name, time, num)
+    rescue NotFoundError
+      cmd_debug_error $!
+      $stderr.puts "Schedule '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+    end
+
+    puts "Scheduled #{num} jobs."
   end
 
 end

@@ -240,6 +240,7 @@ module List
   add_list 'sched:create', %w[name cron sql], 'Create a schedule', 'sched:create sched1 "0 * * * *" -d example_db "select count(*) from table1" -r rset1'
   add_list 'sched:delete', %w[name], 'Delete a schedule', 'sched:delete sched1'
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', 'sched sched1 --page 1'
+  add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', 'sched:run "2013-01-01 00:00:00" -n 6'
 
   add_list 'query', %w[sql], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"'
 
