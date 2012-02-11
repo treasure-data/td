@@ -11,24 +11,58 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Result => sched.rset_name, :Query => sched.query}
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Query => sched.query, :Next => sched.next_time }
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Result, :Query])
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :Delay, :Result, :Query, :Next])
+  end
+
+  def sched_show(op)
+    name, max = op.cmd_parse
+
+    client = get_client
+
+    scheds = client.schedules
+
+    s = scheds.find {|sched|
+      sched.name == name
+    }
+
+    unless s
+      $stderr.puts "Schedule '#{name}' does not exist."
+      exit 1
+    end
+
+    puts "Name         : #{s.name}"
+    puts "Cron         : #{s.cron}"
+    puts "Timezone     : #{s.timezone}"
+    puts "Delay        : #{s.delay}"
+    puts "Next         : #{s.next_time}"
+    puts "Result       : #{s.rset}"
+    puts "Database     : #{s.database}"
+    puts "Query        : #{s.query}"
   end
 
   def sched_create(op)
     db_name = nil
     result = nil
+    timezone = nil
+    delay = 0
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
     op.on('-r', '--result RESULT_TABLE', 'write result to the result table (use result:create command)') {|s|
       result = s
+    }
+    op.on('-t', '--timezone TZ', 'name of the timezone (like Asia/Tokyo)') {|s|
+      timezone = s
+    }
+    op.on('-D', '--delay SECONDS', 'delay time of the schedule', Integer) {|i|
+      delay = i
     }
 
     name, cron, sql = op.cmd_parse
@@ -44,7 +78,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result, :timezone=>timezone, :delay=>delay)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
