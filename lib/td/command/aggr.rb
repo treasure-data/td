@@ -11,10 +11,10 @@ module Command
 
     rows = []
     ass.each {|as|
-      rows << {:Name=>as.name, :Relation=>as.relation_key}
+      rows << {:Name=>as.name, :Relation=>as.relation_key, :Timezone=>as.timezone}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Relation])
+    puts cmd_render_table(rows, :fields => [:Name, :Relation, :Timezone])
 
     if rows.empty?
       $stderr.puts "There are no aggregation schemas."
@@ -71,12 +71,18 @@ module Command
   end
 
   def aggr_create(op)
+    timezone = nil
+
+    op.on('-t', '--timezone TZ', 'name of the timezone (like Asia/Tokyo)') {|s|
+      timezone = s
+    }
+
     name, relation_key = op.cmd_parse
 
     client = get_client
 
     begin
-      client.create_aggregation_schema(name, relation_key)
+      client.create_aggregation_schema(name, relation_key, {'timezone'=>timezone})
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Aggregation '#{name}' already exists."
