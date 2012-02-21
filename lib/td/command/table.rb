@@ -27,11 +27,36 @@ module Command
   end
 
   def table_delete(op)
+    force = false
+    op.on('-f', '--force', 'clear tables and delete the database', TrueClass) {|b|
+      force = true
+    }
+
     db_name, table_name = op.cmd_parse
 
     client = get_client
 
     begin
+      unless force
+        table = get_table(client, db_name, table_name)
+        $stderr.print "Do you really delete '#{table_name}' in '#{db_name}'? [y/N]: "
+        ok = nil
+        while line = $stdin.gets
+          line.strip!
+          if line =~ /^y(?:es)?$/i
+            ok = true
+            break
+          elsif line.empty? || line =~ /^n(?:o)?$/i
+            break
+          else
+            $stderr.print "Type 'Y' or 'N': "
+          end
+        end
+        unless ok
+          $stderr.puts "canceled."
+          exit 1
+        end
+      end
       client.delete_table(db_name, table_name)
     rescue NotFoundError
       cmd_debug_error $!
