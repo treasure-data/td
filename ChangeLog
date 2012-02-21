@@ -1,4 +1,9 @@
 
+== 2012-02-21 version 0.10.13
+
+* table:delete asks y/N before deleting a table
+
+
 == 2012-02-02 version 0.10.12
 
 * Use td-client v0.8.8
