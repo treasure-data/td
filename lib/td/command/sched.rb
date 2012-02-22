@@ -11,13 +11,13 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Result, :Query], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Result, :Database, :Query], :max_width=>500)
   end
 
   def sched_create(op)
