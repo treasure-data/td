@@ -20,32 +20,6 @@ module Command
     puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Result, :Query], :max_width=>500)
   end
 
-  def sched_show(op)
-    name, max = op.cmd_parse
-
-    client = get_client
-
-    scheds = client.schedules
-
-    s = scheds.find {|sched|
-      sched.name == name
-    }
-
-    unless s
-      $stderr.puts "Schedule '#{name}' does not exist."
-      exit 1
-    end
-
-    puts "Name         : #{s.name}"
-    puts "Cron         : #{s.cron}"
-    puts "Timezone     : #{s.timezone}"
-    puts "Delay        : #{s.delay}"
-    puts "Next         : #{s.next_time}"
-    puts "Result       : #{s.rset}"
-    puts "Database     : #{s.database}"
-    puts "Query        : #{s.query}"
-  end
-
   def sched_create(op)
     db_name = nil
     result = nil
@@ -133,6 +107,18 @@ module Command
       $stderr.puts "Schedule '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
       exit 1
+    end
+
+    scheds = client.schedules
+    if s = scheds.find {|s| s.name == name }
+      puts "Name         : #{s.name}"
+      puts "Cron         : #{s.cron}"
+      puts "Timezone     : #{s.timezone}"
+      puts "Delay        : #{s.delay} sec"
+      puts "Next         : #{s.next_time}"
+      puts "Result       : #{s.rset_name}"
+      puts "Database     : #{s.database}"
+      puts "Query        : #{s.query}"
     end
 
     rows = []
