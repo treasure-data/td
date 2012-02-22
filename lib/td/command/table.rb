@@ -28,7 +28,7 @@ module Command
 
   def table_delete(op)
     force = false
-    op.on('-f', '--force', 'clear tables and delete the database', TrueClass) {|b|
+    op.on('-f', '--force', 'never prompt', TrueClass) {|b|
       force = true
     }
 

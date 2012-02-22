@@ -59,7 +59,7 @@ module Command
       exit 1
     end
 
-    $stderr.puts "Schedule '#{name}' is created. It starts at #{first_time}."
+    $stderr.puts "Schedule '#{name}' is created. It starts at #{first_time.localtime}."
   end
 
   def sched_delete(op)
@@ -77,6 +77,62 @@ module Command
     end
 
     $stderr.puts "Schedule '#{name}' is deleted."
+  end
+
+  def sched_update(op)
+    cron = nil
+    sql = nil
+    db_name = nil
+    result = nil
+    timezone = nil
+    delay = nil
+
+    op.on('-s', '--schedule CRON', 'change the schedule') {|s|
+      cron = s
+    }
+    op.on('-q', '--query SQL', 'change the query') {|s|
+      sql = s
+    }
+    op.on('-d', '--database DB_NAME', 'change the database') {|s|
+      db_name = s
+    }
+    op.on('-r', '--result RESULT_TABLE', 'change the result table') {|s|
+      result = s
+    }
+    op.on('-t', '--timezone TZ', 'change the name of the timezone (like Asia/Tokyo)') {|s|
+      timezone = s
+    }
+    op.on('-D', '--delay SECONDS', 'change the delay time of the schedule', Integer) {|i|
+      delay = i
+    }
+
+    name = op.cmd_parse
+
+    params = {}
+    params['cron'] = cron if cron
+    params['query'] = sql if sql
+    params['database'] = db_name if db_name
+    params['result'] = result if result
+    params['timezone'] = timezone if timezone
+    params['delay'] = delay.to_s if delay
+
+    if params.empty?
+      $stderr.puts op.to_s
+      exit 1
+    end
+
+    client = get_client
+
+    begin
+      client.update_schedule(name, params)
+    rescue NotFoundError
+      cmd_debug_error $!
+      $stderr.puts "Schedule '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      exit 1
+    end
+
+    $stderr.puts "Schedule '#{name}' is updated."
   end
 
   def sched_history(op)
