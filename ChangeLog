@@ -1,4 +1,11 @@
 
+== 2012-02-22 version 0.10.14
+
+* Added sched:update and sched:run
+* sched:list shows 'Database'
+* sched:history shows information of the schedule
+
+
 == 2012-02-21 version 0.10.13
 
 * table:delete asks y/N before deleting a table
