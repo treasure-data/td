@@ -198,10 +198,12 @@ module Command
       # UNIX time
       time = time.to_i
     else
+      require 'time'
       begin
         time = Time.parse(time).to_i
       rescue
         $stderr.puts "invalid time format: #{time}"
+        exit 1
       end
     end
 
