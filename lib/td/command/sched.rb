@@ -196,11 +196,11 @@ module Command
 
     if time.to_i.to_s == time.to_s
       # UNIX time
-      time = time.to_i
+      t = Time.at(time.to_i)
     else
       require 'time'
       begin
-        time = Time.parse(time).to_i
+        t = Time.parse(time)
       rescue
         $stderr.puts "invalid time format: #{time}"
         exit 1
@@ -210,14 +210,14 @@ module Command
     client = get_client
 
     begin
-      client.run_schedule(name, time, num)
+      client.run_schedule(name, t.to_i, num)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
     end
 
-    puts "Scheduled #{num} jobs."
+    puts "Scheduled #{num} jobs from #{t}."
   end
 
 end
