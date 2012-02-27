@@ -1,4 +1,10 @@
 
+== 2012-02-27 version 0.10.15
+
+* Updated dependency: td-logger-0.3.8
+* sched:run: shows the scheduled time at the end of command
+
+
 == 2012-02-22 version 0.10.14
 
 * Added sched:update and sched:run
