@@ -1,4 +1,9 @@
 
+== 2012-02-27 version 0.10.16
+
+* apikey:show shows the apikey if it's already set by heroku-td or -k arguments
+
+
 == 2012-02-27 version 0.10.15
 
 * Updated dependency: td-logger-0.3.8
