@@ -3,6 +3,11 @@ module TreasureData
 module Command
 
   def apikey_show(op)
+    if Config.apikey
+      puts Config.apikey
+      return
+    end
+
     conf = nil
     begin
       conf = Config.read
