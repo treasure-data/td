@@ -1,4 +1,9 @@
 
+== 2012-03-01 version 0.10.17
+
+* Use td-client v0.8.11
+
+
 == 2012-02-27 version 0.10.16
 
 * apikey:show shows the apikey if it's already set by heroku-td or -k arguments
