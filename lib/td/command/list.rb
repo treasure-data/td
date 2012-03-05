@@ -220,6 +220,7 @@ module List
   add_list 'table:create', %w[db table], 'Create a table', 'table:create example_db table1'
   add_list 'table:delete', %w[db table], 'Delete a table', 'table:delete example_db table1'
   add_list 'table:import', %w[db table files_], 'Parse and import files to a table', 'table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json'
+  add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', 'table:export example_db table1 --s3-bucket mybucket'
   add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
 
   add_list 'result:info', %w[], 'Show information of the MySQL server', 'result:info'
