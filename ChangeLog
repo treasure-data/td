@@ -1,4 +1,10 @@
 
+== 2012-03-12 version 0.10.18
+
+* sched:run shows IDs of submitted jobs
+* Use td-client v0.8.12
+
+
 == 2012-03-01 version 0.10.17
 
 * Use td-client v0.8.11
