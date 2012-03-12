@@ -210,14 +210,20 @@ module Command
     client = get_client
 
     begin
-      client.run_schedule(name, t.to_i, num)
+      jobs = client.run_schedule(name, t.to_i, num)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
     end
 
-    puts "Scheduled #{num} jobs from #{t}."
+    rows = []
+    jobs.each_with_index {|job,i|
+      rows << {:JobID => job.job_id, :Time => job.scheduled_at ? job.scheduled_at.localtime : nil}
+    }
+
+    $stderr.puts "Scheduled #{num} jobs from #{t}."
+    puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500)
   end
 
 end
