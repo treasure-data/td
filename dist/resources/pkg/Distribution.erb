@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-script minSpecVersion="1.000000" authoringTool="org.ruby-lang.rake" authoringToolVersion="0.8.7">
+  <title>TreasureData Client</title>
+  <options customize="allow" allow-external-scripts="no"/>
+  <domains enable_localSystem="true"/>
+  <choices-outline>
+    <line choice="td-client"/>
+  </choices-outline>
+  <choice id="td-client" title="TreasureData Client">
+    <pkg-ref id="com.td.client"/>
+  </choice>
+  <pkg-ref id="com.td.client" installKBytes="<%= kbytes %>" version="<%= version %>" auth="Root">#td-client.pkg</pkg-ref>
+</installer-script>
