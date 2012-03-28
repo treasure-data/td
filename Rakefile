@@ -41,5 +41,20 @@ EOF
   }
 end
 
-task :default => [VERSION_FILE, :build]
+# workaround for >= 0 dependency
+task :rm_gemspec do
+  File.unlink "td.gemspec"
+end
+
+# workaround for >= 0 dependency
+task :mv_gemfile do
+  File.rename "Gemfile", "Gemfile.bak" rescue nil
+end
+
+# workaround for td >= 0 dependency
+task :revert_gemfile do
+  File.rename "Gemfile.bak", "Gemfile" rescue nil
+end
+
+task :default => [VERSION_FILE, :rm_gemspec, :mv_gemfile, :build, :revert_gemfile, :gemspec]
 
