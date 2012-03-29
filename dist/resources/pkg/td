@@ -1,5 +1,9 @@
 #!/usr/bin/ruby
 
+# avoid conflicts with rvm
+ENV.delete 'GEM_HOME'
+ENV.delete 'GEM_PATH'
+
 # attempt to load rubygems
 begin
   require "rubygems"
@@ -18,10 +22,6 @@ end
 
 # add self to libpath
 $:.unshift File.expand_path("../../lib", bin_file)
-
-# inject any code in ~/.heroku/client over top
-# require "heroku/updater"
-# Heroku::Updater.inject_libpath
 
 # start up the CLI
 require "td/command/runner"
