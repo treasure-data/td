@@ -227,7 +227,14 @@ module Command
         end
       }
     }
-    puts cmd_render_table(rows, :max_width=>10000)
+
+    opts = {}
+    opts[:max_width] = 10000
+    if job.hive_result_schema
+      opts[:change_fields] = job.hive_result_schema.map {|name,type| name }
+    end
+
+    puts cmd_render_table(rows, opts)
   end
 end
 end
