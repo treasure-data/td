@@ -132,8 +132,13 @@ end
 
 GEM_BLACKLIST = %w( bundler td )
 def assemble_gems(target_dir=Dir.pwd)
+  puts "installing gems locally: #{target_dir}/vendor/gems"
+  FileUtils.mkdir_p "#{target_dir}/vendor/gems"
+  %x{ bundle install --path "#{target_dir}/vendor/gems" }
+  raise "error running bundler (install)" unless $?.success?
+
   lines = %x{ bundle show }.strip.split("\n")
-  raise "error running bundler" unless $?.success?
+  raise "error running bundler (show)" unless $?.success?
 
   %x{ env BUNDLE_WITHOUT="development:test" bundle show }.split("\n").each do |line|
     if line =~ /^  \* (.*?) \((.*?)\)/
