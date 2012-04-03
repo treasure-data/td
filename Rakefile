@@ -18,7 +18,7 @@ begin
     gemspec.add_dependency "msgpack", "~> 0.4.4"
     gemspec.add_dependency "json", ">= 1.4.3"
     gemspec.add_dependency "hirb", ">= 0.4.5"
-    gemspec.add_dependency "td-client", "~> 0.8.12"
+    gemspec.add_dependency "td-client", "~> 0.8.13"
     gemspec.add_dependency "td-logger", "~> 0.3.8"
     gemspec.test_files = Dir["test/**/*.rt"]
     gemspec.files = Dir["lib/**/*", "ext/**/*", "test/**/*.rb", "test/**/*.rt"]
