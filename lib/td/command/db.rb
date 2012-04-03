@@ -31,9 +31,9 @@ module Command
 
     rows = []
     dbs.each {|db|
-      rows << {:Name => db.name}
+      rows << {:Name=>db.name, :Count=>db.count}
     }
-    puts cmd_render_table(rows, :fields => [:Name])
+    puts cmd_render_table(rows, :fields => [:Name, :Count])
 
     if dbs.empty?
       $stderr.puts "There are no databases."
