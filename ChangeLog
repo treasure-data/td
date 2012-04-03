@@ -1,4 +1,9 @@
 
+== 2012-04-03 version 0.10.20
+
+* db:list: show number of records
+
+
 == 2012-04-03 version 0.10.19
 
 * job:show: show result column names
