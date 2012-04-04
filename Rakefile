@@ -21,7 +21,7 @@ begin
     gemspec.add_dependency "td-client", "~> 0.8.14"
     gemspec.add_dependency "td-logger", "~> 0.3.8"
     gemspec.test_files = Dir["test/**/*.rt"]
-    gemspec.files = Dir["lib/**/*", "ext/**/*", "test/**/*.rb", "test/**/*.rt"]
+    gemspec.files = Dir["lib/**/*", "ext/**/*", "data/**/*", "test/**/*.rb", "test/**/*.rt"]
     gemspec.executables = ['td']
   end
   Jeweler::GemcutterTasks.new
