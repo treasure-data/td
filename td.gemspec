@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.20"
+  s.version = "0.10.21"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = "2012-04-03"
+  s.date = "2012-04-04"
   s.executables = ["td"]
   s.extra_rdoc_files = [
     "ChangeLog",
@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
     "lib/td/command/query.rb",
     "lib/td/command/result.rb",
     "lib/td/command/runner.rb",
+    "lib/td/command/sample.rb",
     "lib/td/command/sched.rb",
     "lib/td/command/schema.rb",
     "lib/td/command/server.rb",

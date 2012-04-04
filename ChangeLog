@@ -1,4 +1,10 @@
 
+== 2012-04-04 version 0.10.21
+
+* Added sample:apache subcommand
+* table:import --json and --msgpack use 'time' as the default value for --time-key option
+
+
 == 2012-04-03 version 0.10.20
 
 * db:list: show number of records
