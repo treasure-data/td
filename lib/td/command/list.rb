@@ -265,6 +265,8 @@ module List
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
+  add_list 'sample:apache', %w[path.json], 'Create a sample log file'
+
   add_list 'help:all', %w[], 'Show usage of all commands'
   add_list 'help', %w[command], 'Show usage of a command'
 
