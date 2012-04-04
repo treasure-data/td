@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.21"
+  s.version = "0.10.22"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
@@ -16,6 +16,8 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
+    "data/sample_apache.json",
+    "data/sample_apache_gen.rb",
     "lib/td.rb",
     "lib/td/command/account.rb",
     "lib/td/command/aggr.rb",

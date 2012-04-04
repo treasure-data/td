@@ -1,4 +1,9 @@
 
+== 2012-04-04 version 0.10.22
+
+* Added missing data/sample_apache.json file
+
+
 == 2012-04-04 version 0.10.21
 
 * Added sample:apache subcommand
