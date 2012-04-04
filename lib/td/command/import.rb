@@ -24,7 +24,7 @@ module Command
     op.banner << "  json\n"
 
     format = 'apache'
-    time_key = nil
+    time_key = 'time'
 
     op.on('--format FORMAT', "file format (default: #{format})") {|s|
       format = s
@@ -56,10 +56,10 @@ module Command
 
     case format
     when 'json', 'msgpack'
-      unless time_key
-        $stderr.puts "-t, --time-key COL_NAME (e.g. '-t created_at') parameter is required for #{format} format"
-        exit 1
-      end
+      #unless time_key
+      #  $stderr.puts "-t, --time-key COL_NAME (e.g. '-t created_at') parameter is required for #{format} format"
+      #  exit 1
+      #end
       if format == 'json'
         require 'json'
         require 'time'
