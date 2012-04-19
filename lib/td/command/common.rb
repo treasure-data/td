@@ -15,12 +15,17 @@ module Command
     @render_indent = ''
   end
 
-  def get_client
+  def get_client(opts={})
     apikey = Config.apikey
     unless apikey
       raise ConfigError, "Account is not configured."
     end
-    Client.new(apikey)
+    Client.new(apikey, opts)
+  end
+
+  def get_ssl_client(opts={})
+    opts[:ssl] = true
+    get_client(opts)
   end
 
   def cmd_render_table(rows, *opts)

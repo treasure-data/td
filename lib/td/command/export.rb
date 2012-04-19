@@ -47,6 +47,8 @@ module Command
 
     get_table(client, db_name, table_name)
 
+    client = get_ssl_client
+
     s3_opts = {}
     s3_opts['from'] = from.to_s if from
     s3_opts['to'] = to.to_s if to
