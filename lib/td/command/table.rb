@@ -239,6 +239,7 @@ module Command
   end
 
   require 'td/command/import'  # table:import
+  require 'td/command/export'  # table:export
   require 'td/command/job'  # wait_job
 end
 end
