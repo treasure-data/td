@@ -5,14 +5,21 @@ module Command
   def help(op)
     cmd = op.cmd_parse
 
-    usage = List.cmd_usage(cmd)
-    unless usage
-      $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
-      List.show_guess(cmd)
-      exit 1
-    end
+    c = List.get_option(cmd)
+    if c == nil
+       $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
+       List.show_guess(cmd)
+       exit 1
 
-    puts usage
+    elsif c.name != cmd && c.group == cmd
+      # group command
+      puts List.cmd_usage(cmd)
+      exit 1
+
+    else
+      method = List.get_method(cmd)
+      method.call(['--help'])
+    end
   end
 
   def help_all(op)

@@ -83,6 +83,10 @@ EOF
     #	$debug = b
     #}
 
+    op.on('-h', '--help', "show help") {
+      usage nil
+    }
+
     begin
       op.order!(argv)
       usage nil if argv.empty?

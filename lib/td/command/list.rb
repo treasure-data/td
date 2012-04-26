@@ -143,9 +143,10 @@ module List
 
   def self.cmd_usage(name)
     if c = COMMAND[name]
-      c.create_optparse([]).cmd_usage
+      c.create_optparse([]).to_s
+    else
+      nil
     end
-    nil
   end
 
   def self.get_method(name)
