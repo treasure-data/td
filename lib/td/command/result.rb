@@ -2,6 +2,24 @@
 module TreasureData
 module Command
 
+  def result_show(op)
+    name = op.cmd_parse
+
+    client = get_client
+
+    rs = client.results
+    r = rs.find {|r| name == r.name }
+
+    unless r
+      $stderr.puts "Result URL '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} result:create #{name} <URL>' to create the URL."
+      exit 1
+    end
+
+    puts "Name         : #{r.name}"
+    puts "URL          : #{r.url}"
+  end
+
   def result_list(op)
     op.cmd_parse
 

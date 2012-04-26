@@ -212,19 +212,20 @@ module List
   end
 
   add_list 'db:list', %w[], 'Show list of tables in a database', 'db:list', 'dbs'
-  add_list 'db:show', %w[db], 'Describe a information of a database', 'db example_db'
+  add_list 'db:show', %w[db], 'Describe information of a database', 'db example_db'
   add_list 'db:create', %w[db], 'Create a database', 'db:create example_db'
   add_list 'db:delete', %w[db], 'Delete a database', 'db:delete example_db'
 
   add_list 'table:list', %w[db?], 'Show list of tables', 'table:list', 'table:list example_db', 'tables'
-  add_list 'table:show', %w[db table], 'Describe a information of a table', 'table example_db table1'
+  add_list 'table:show', %w[db table], 'Describe information of a table', 'table example_db table1'
   add_list 'table:create', %w[db table], 'Create a table', 'table:create example_db table1'
   add_list 'table:delete', %w[db table], 'Delete a table', 'table:delete example_db table1'
   add_list 'table:import', %w[db table files_], 'Parse and import files to a table', 'table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json'
   add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', 'table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY'
   add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
 
-  add_list 'result:list', %w[], 'Show list of result tables', 'result:list', 'results'
+  add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
+  add_list 'result:show', %w[name], 'Describe information of a result URL', 'result mydb'
   add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create mydb mysql://my-server/mydb'
   add_list 'result:delete', %w[name], 'Delete a result URL', 'result:delete mydb'
 
@@ -282,7 +283,7 @@ module List
   add_alias 'table', 'table:show'
   add_alias 'tables', 'table:list'
 
-  add_alias 'result', 'help'  # dummy
+  add_alias 'result', 'result:show'
   add_alias 'results', 'result:list'
 
   add_alias 'schema', 'schema:show'
