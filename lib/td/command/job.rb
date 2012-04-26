@@ -38,7 +38,7 @@ module Command
       next if error && !job.error?
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
+      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
@@ -76,7 +76,7 @@ module Command
     puts "URL          : #{job.url}"
     puts "Status       : #{job.status}"
     puts "Query        : #{job.query}"
-    puts "Result table : #{job.rset_name}"
+    puts "Result table : #{job.result_url}"
 
     if wait && !job.finished?
       wait_job(job)

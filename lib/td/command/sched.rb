@@ -11,7 +11,7 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.rset_name, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
     }
     rows = rows.sort_by {|map|
       map[:Name]
@@ -22,21 +22,29 @@ module Command
 
   def sched_create(op)
     db_name = nil
-    result = nil
     timezone = nil
     delay = 0
+    result_url = nil
+    result_user = nil
+    result_ask_password = false
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
-    }
-    op.on('-r', '--result RESULT_TABLE', 'write result to the result table (use result:create command)') {|s|
-      result = s
     }
     op.on('-t', '--timezone TZ', 'name of the timezone (like Asia/Tokyo)') {|s|
       timezone = s
     }
     op.on('-D', '--delay SECONDS', 'delay time of the schedule', Integer) {|i|
       delay = i
+    }
+    op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)') {|s|
+      result_url = s
+    }
+    op.on('-u', '--user NAME', 'set user name for the result URL') {|s|
+      result_user = s
+    }
+    op.on('-p', '--password', 'ask password for the result URL') {|s|
+      result_ask_password = true
     }
 
     name, cron, sql = op.cmd_parse
@@ -46,13 +54,18 @@ module Command
       exit 1
     end
 
+    if result_url
+      require 'td/command/result'
+      result_url = build_result_url(result_url, result_user, result_ask_password)
+    end
+
     client = get_client
 
     # local existance check
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result, :timezone=>timezone, :delay=>delay)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
@@ -172,14 +185,14 @@ module Command
       puts "Timezone     : #{s.timezone}"
       puts "Delay        : #{s.delay} sec"
       puts "Next         : #{s.next_time}"
-      puts "Result       : #{s.rset_name}"
+      puts "Result       : #{s.result_url}"
       puts "Database     : #{s.database}"
       puts "Query        : #{s.query}"
     end
 
     rows = []
     history.each {|j|
-      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Result=>j.rset_name}
+      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Result=>j.result_url}
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Result])

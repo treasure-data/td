@@ -101,5 +101,29 @@ module Command
     table
   end
 
+  def ask_password(max=3, &block)
+    3.times do
+      begin
+        system "stty -echo"  # TODO termios
+        print "Password (typing will be hidden): "
+        password = STDIN.gets || ""
+        password = password[0..-2]  # strip \n
+      rescue Interrupt
+        $stderr.print "\ncanceled."
+        exit 1
+      ensure
+        system "stty echo"   # TODO termios
+        print "\n"
+      end
+
+      if password.empty?
+        $stderr.puts "canceled."
+        exit 0
+      end
+
+      yield password
+    end
+  end
+
 end
 end

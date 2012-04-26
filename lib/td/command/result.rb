@@ -2,59 +2,56 @@
 module TreasureData
 module Command
 
-  def result_info(op)
-    op.cmd_parse
-
-    client = get_client
-
-    info = client.result_set_info
-
-    puts "Type       : #{info.type}"
-    puts "Host       : #{info.host}"
-    puts "Port       : #{info.port}"
-    puts "User       : #{info.user}"
-    puts "Password   : #{info.password}"
-    puts "Database   : #{info.database}"
-  end
-
   def result_list(op)
     op.cmd_parse
 
     client = get_client
 
-    rsets = client.result_sets
+    rs = client.results
 
     rows = []
-    rsets.each {|rset|
-      rows << {:Name => rset.name}
+    rs.each {|r|
+      rows << {:Name => r.name, :URL => r.url}
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name])
+    puts cmd_render_table(rows, :fields => [:Name, :URL])
 
-    if rsets.empty?
-      $stderr.puts "There are result tables."
-      $stderr.puts "Use '#{$prog} result:create <name>' to create a result table."
+    if rs.empty?
+      $stderr.puts "There are no result URLs."
+      $stderr.puts "Use '#{$prog} result:create <name> <url>' to create a result URL."
     end
   end
 
   def result_create(op)
-    name = op.cmd_parse
+    result_user = nil
+    result_ask_password = false
+
+    op.on('-u', '--user NAME', 'set user name for authentication') {|s|
+      result_user = s
+    }
+    op.on('-p', '--password', 'ask password for authentication') {|s|
+      result_ask_password = true
+    }
+
+    name, url = op.cmd_parse
 
     API.validate_database_name(name)
 
     client = get_client
 
+    url = build_result_url(url, result_user, result_ask_password)
+
     begin
-      client.create_result_set(name)
+      client.create_result(name, url)
     rescue AlreadyExistsError
-      $stderr.puts "Result table '#{name}' already exists."
+      $stderr.puts "Result URL '#{name}' already exists."
       exit 1
     end
 
-    $stderr.puts "Result table '#{name}' is created."
+    $stderr.puts "Result URL '#{name}' is created."
   end
 
   def result_delete(op)
@@ -63,49 +60,49 @@ module Command
     client = get_client
 
     begin
-      client.delete_result_set(name)
+      client.delete_result(name)
     rescue NotFoundError
-      $stderr.puts "Result table '#{name}' does not exist."
+      $stderr.puts "Result URL '#{name}' does not exist."
       exit 1
     end
 
-    $stderr.puts "Result table '#{name}' is deleted."
+    $stderr.puts "Result URL '#{name}' is deleted."
   end
 
-  def result_connect(op)
-    mysql = 'mysql'
-
-    op.on('-e', '--execute MYSQL', 'mysql command') {|s|
-      mysql = s
-    }
-
-    sql = op.cmd_parse
-
-    client = get_client
-
-    info = client.result_set_info
-
-    cmd = [mysql, '-h', info.host, '-P', info.port.to_s, '-u', info.user, "--password=#{info.password}", info.database]
-
-    cmd_start = Time.now
-
-    if sql
-      IO.popen(cmd, "w") {|io|
-        io.write sql
-        io.close
-      }
-    else
-      STDERR.puts "> #{cmd.join(' ')}"
-      system(*cmd)
+  private
+  def build_result_url(url, user, ask_password)
+    if ask_password
+      begin
+        system "stty -echo"  # TODO termios
+        print "Password (typing will be hidden): "
+        password = STDIN.gets || ""
+        password = password[0..-2]  # strip \n
+      rescue Interrupt
+        $stderr.print "\ncanceled."
+        exit 1
+      ensure
+        system "stty echo"   # TODO termios
+        print "\n"
+      end
     end
 
-    cmd_alive = Time.now - cmd_start
-    if $?.to_i != 0 && cmd_alive < 1.0
-      STDERR.puts "Command died within 1 second with exit code #{$?.to_i}."
-      STDERR.puts "Please confirm mysql command is installed."
+    ups = nil
+    if user && password
+      require 'cgi'
+      ups = "#{CGI.escape(user)}:#{CGI.escape(password)}@"
+    elsif user
+      require 'cgi'
+      ups = "#{CGI.escape(user)}@"
+    elsif password
+      require 'cgi'
+      ups = ":#{CGI.escape(password)}@"
     end
+    if ups
+      url = url.sub(/\A([\w]+:(?:\/\/)?)/, "\\1#{ups}")
+    end
+
+    url
   end
-
 end
 end
 
