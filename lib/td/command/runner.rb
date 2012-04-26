@@ -37,10 +37,10 @@ EOF
 Basic commands:
 
   db             # create/delete/list databases
-  table          # create/delete/list/import/tail tables
+  table          # create/delete/list/import/export/tail tables
   query          # issue a query
   job            # show/kill/list jobs
-  result         # create/delete/list/connect/get MySQL result set
+  result         # create/delete/list result URLs
 
 Additional commands:
 
