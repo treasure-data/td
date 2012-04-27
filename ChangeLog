@@ -1,4 +1,12 @@
 
+== 2012-04-26 version 0.10.23
+
+* Added result:list, result:create and result:delete subcommands
+* query subcommand supports -r <result URL> option
+* sched:create subcommand supports -r <result URL> option
+* Added table:export subcommand
+
+
 == 2012-04-04 version 0.10.22
 
 * Added missing data/sample_apache.json file
