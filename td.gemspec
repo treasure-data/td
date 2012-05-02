@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sadayuki Furuhashi"]
-  s.date = "2012-04-27"
+  s.date = "2012-05-01"
   s.executables = ["td"]
   s.extra_rdoc_files = [
     "ChangeLog",
@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
     "lib/td/version.rb"
   ]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.12"
+  s.rubygems_version = "1.8.24"
   s.summary = "Treasure Data command line tool"
 
   if s.respond_to? :specification_version then
