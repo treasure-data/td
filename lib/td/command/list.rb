@@ -224,6 +224,16 @@ module List
   add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', 'table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY'
   add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
 
+  add_list 'bulk_import:list', %w[], 'List bulk import sessions', 'bulk_import:list'
+  add_list 'bulk_import:show', %w[name], 'Show bulk import sessions', 'bulk_import:show'
+  add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', 'bulk_import:create logs_201201 example_db event_logs'
+  add_list 'bulk_import:upload', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload logs_201201 01h data-201201-01.msgpack.gz'
+  add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'
+  add_list 'bulk_import:commit', %w[name], 'Start to commit a performed bulk import session', 'bulk_import:commit logs_201201'
+  add_list 'bulk_import:delete', %w[name], 'Delete a bulk import session', 'bulk_import:delete logs_201201'
+  add_list 'bulk_import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'bulk_import:freeze logs_201201'
+  add_list 'bulk_import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'bulk_import:unfreeze logs_201201'
+
   add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
   add_list 'result:show', %w[name], 'Describe information of a result URL', 'result mydb'
   add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create mydb mysql://my-server/mydb'
@@ -297,6 +307,9 @@ module List
   add_alias 'sched', 'sched:history'
   add_alias 'scheds', 'sched:list'
   add_alias 'schedules', 'sched:list'
+
+  add_alias 'bulk_import', 'bulk_import:show'
+  add_alias 'bulk_imports', 'bulk_import:list'
 
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
