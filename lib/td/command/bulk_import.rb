@@ -5,14 +5,16 @@ module Command
   def bulk_import_list(op)
     op.cmd_parse
 
+    client = get_client
+
     bis = client.bulk_imports
 
     rows = []
     bis.each {|bi|
-      bi << {:Name=>bi.name, :Table=>"#{bi.database}.#{bi.table}", :Status=>bi.status, :Frozen=>bi.upload_frozen?, :JobID=>bi.job_id, :"Valid Records"=>bi.valid_records, :"Error Records"=>bi.error_records}
+      rows << {:Name=>bi.name, :Table=>"#{bi.database}.#{bi.table}", :Status=>bi.status.to_s.capitalize, :Frozen=>bi.upload_frozen? ? 'frozen' : '', :JobID=>bi.job_id, :"Valid Parts"=>bi.valid_parts, :"Error Parts"=>bi.error_parts, :"Valid Records"=>bi.valid_records, :"Error Records"=>bi.error_records}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Records", :"Error Records"])
+    puts cmd_render_table(rows, :fields => [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"])
 
     if rows.empty?
       $stderr.puts "There are no bulk import sessions."
@@ -55,7 +57,6 @@ module Command
 
     bis = client.bulk_imports
     bi = bis.find {|bi| name == bi.name }
-
     unless bi
       $stderr.puts "Bulk import session '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} bulk_import:create <name> <db> <table>' to create a session."
@@ -65,7 +66,7 @@ module Command
     $stderr.puts "Name         : #{bi.name}"
     $stderr.puts "Database     : #{bi.database}"
     $stderr.puts "Table        : #{bi.table}"
-    $stderr.puts "Status       : #{bi.status}"
+    $stderr.puts "Status       : #{bi.status.to_s.capitalize}"
     $stderr.puts "Frozen       : #{bi.upload_frozen?}"
     $stderr.puts "JobID        : #{bi.job_id}"
     $stderr.puts "Valid Records: #{bi.valid_records}"
@@ -74,9 +75,9 @@ module Command
     $stderr.puts "Error Parts  : #{bi.error_parts}"
     $stderr.puts "Uploaded Parts :"
 
-    client.list_bulk_import_parts.each {|part|
-      puts part
-    }
+    list = client.list_bulk_import_parts(name)
+    require 'pp'
+    pp list
   end
 
   def bulk_import_upload(op)
@@ -92,19 +93,36 @@ module Command
   end
 
   def bulk_import_perform(op)
-    verbose = nil
     wait = false
+    force = false
 
-    op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
-      verbose = b
-    }
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-f', '--force', 'force start performing', TrueClass) {|b|
+      force = b
     }
 
     name = op.cmd_parse
 
     client = get_client
+
+    unless force
+      bis = client.bulk_imports
+      bi = bis.find {|bi| name == bi.name }
+      if bi
+        if bi.status == 'performing'
+          $stderr.puts "Bulk import session '#{name}' is already performing."
+          $stderr.puts "Add '-f' option to force start."
+          $stderr.puts "Use '#{$prog} job:kill #{bi.job_id}' to cancel the last trial."
+          exit 1
+        elsif bi.status == 'ready'
+          $stderr.puts "Bulk import session '#{name}' is already ready to commit."
+          $stderr.puts "Add '-f' option to force start."
+          exit 1
+        end
+      end
+    end
 
     job = client.perform_bulk_import(name)
 
@@ -112,10 +130,9 @@ module Command
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
 
     if wait
+      require 'td/command/job'  # wait_job
       wait_job(job)
     end
-
-    $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
   def bulk_import_commit(op)
@@ -143,7 +160,7 @@ module Command
 
     client = get_client
 
-    client.freeze_bulk_import(name)
+    client.unfreeze_bulk_import(name)
 
     $stderr.puts "Bulk import session '#{name}' is unfrozen."
   end

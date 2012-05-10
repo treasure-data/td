@@ -225,7 +225,7 @@ module List
   add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
 
   add_list 'bulk_import:list', %w[], 'List bulk import sessions', 'bulk_import:list'
-  add_list 'bulk_import:show', %w[name], 'Show bulk import sessions', 'bulk_import:show'
+  add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', 'bulk_import:show'
   add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', 'bulk_import:create logs_201201 example_db event_logs'
   add_list 'bulk_import:upload', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload logs_201201 01h data-201201-01.msgpack.gz'
   add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'
