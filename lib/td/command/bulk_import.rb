@@ -76,20 +76,31 @@ module Command
     $stderr.puts "Uploaded Parts :"
 
     list = client.list_bulk_import_parts(name)
-    require 'pp'
-    pp list
+    list.each {|name|
+      puts "  #{name}"
+    }
   end
 
-  def bulk_import_upload(op)
+  def bulk_import_upload_part(op)
     name, part_name, path = op.cmd_parse
 
     client = get_client
 
     File.open(path) {|is|
-      client.upload_bulk_import(name, part_name, is, is.size)
+      client.bulk_import_upload_part(name, part_name, is, is.size)
     }
 
     $stderr.puts "Part '#{part_name}' is uploaded."
+  end
+
+  def bulk_import_delete_part(op)
+    name, part_name = op.cmd_parse
+
+    client = get_client
+
+    client.bulk_import_delete_part(name, part_name)
+
+    $stderr.puts "Part '#{part_name}' is deleted."
   end
 
   def bulk_import_perform(op)
@@ -143,6 +154,30 @@ module Command
     job = client.commit_bulk_import(name)
 
     $stderr.puts "Bulk import session '#{name}' started to commit."
+  end
+
+  def bulk_import_error_records(op)
+    name = op.cmd_parse
+
+    client = get_client
+
+    bis = client.bulk_imports
+    bi = bis.find {|bi| name == bi.name }
+    unless bi
+      $stderr.puts "Bulk import session '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} bulk_import:create <name> <db> <table>' to create a session."
+      exit 1
+    end
+
+    if bi.status == "uploading" || bi.status == "performing"
+      $stderr.puts "Bulk import session '#{name}' is not performed."
+      $stderr.puts "Use '#{$prog} bulk_import:perform <name>' to run."
+      exit 1
+    end
+
+    client.bulk_import_error_records(name) {|r|
+      puts r.to_json
+    }
   end
 
   def bulk_import_freeze(op)
