@@ -1,4 +1,20 @@
 
+== 2012-05-10 version 0.10.24
+
+* Added bulk_import subcommands
+  * bulk_import:list
+  * bulk_import:show <name>
+  * bulk_import:create <name> <db> <table>
+  * bulk_import:upload_part <name> <id> <path.msgpack.gz>
+  * bulk_import:delete_part <name> <id>
+  * bulk_import:perform <name>
+  * bulk_import:error_records <name>
+  * bulk_import:commit <name>
+  * bulk_import:delete <name>
+  * bulk_import:freeze <name>
+  * bulk_import:unfreeze <name>
+
+
 == 2012-04-26 version 0.10.23
 
 * Added result:list, result:create and result:delete subcommands
