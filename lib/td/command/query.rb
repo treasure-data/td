@@ -57,7 +57,7 @@ module Command
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
-    $stderr.puts "See #{job.url} to see the progress."
+    #$stderr.puts "See #{job.url} to see the progress."
 
     if wait && !job.finished?
       wait_job(job)

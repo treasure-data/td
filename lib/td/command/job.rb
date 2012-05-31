@@ -73,7 +73,7 @@ module Command
     job = client.job(job_id)
 
     puts "JobID        : #{job.job_id}"
-    puts "URL          : #{job.url}"
+    #puts "URL          : #{job.url}"
     puts "Status       : #{job.status}"
     puts "Query        : #{job.query}"
     puts "Result table : #{job.result_url}"
