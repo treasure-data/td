@@ -1,4 +1,10 @@
 
+== 2012-05-31 version 0.10.25
+
+* Updated dependency: td-logger-0.3.12
+* query subcommand doesn't show progress url which is not implemented
+
+
 == 2012-05-10 version 0.10.24
 
 * Added bulk_import subcommands
