@@ -80,13 +80,13 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      if job.success?
+      if job.success? && job.type == :hive
         puts "Result       :"
         show_result(job, output, format)
       end
 
     else
-      if job.success?
+      if job.success? && job.type == :hive
         puts "Result       :"
         show_result(job, output, format)
       end
