@@ -5,8 +5,7 @@ module Command
   def job_list(op)
     page = 0
     skip = 0
-    running = false
-    error = false
+    status = nil
 
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
@@ -15,10 +14,13 @@ module Command
       skip = i
     }
     op.on('-R', '--running', 'show only running jobs', TrueClass) {|b|
-      running = b
+      status = 'running'
     }
-    op.on('-E', '--error', 'show only error jobs', TrueClass) {|b|
-      error = b
+    op.on('-S', '--success', 'show only succeeded jobs', TrueClass) {|b|
+      status = 'success'
+    }
+    op.on('-E', '--error', 'show only failed jobs', TrueClass) {|b|
+      status = 'error'
     }
 
     max = op.cmd_parse
@@ -30,12 +32,10 @@ module Command
     if page
       skip += max * page
     end
-    jobs = client.jobs(skip, skip+max-1)
+    jobs = client.jobs(skip, skip+max-1, status)
 
     rows = []
     jobs.each {|job|
-      next if running && !job.running?
-      next if error && !job.error?
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
       rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
