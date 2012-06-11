@@ -1,4 +1,9 @@
 
+== 2012-06-11 version 0.10.26
+
+* Updated job:list --running, --success and --error options to proceed them on the server
+
+
 == 2012-05-31 version 0.10.25
 
 * Updated dependency: td-logger-0.3.12
