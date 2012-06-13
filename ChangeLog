@@ -1,4 +1,9 @@
 
+== 2012-06-12 version 0.10.27
+
+* Consider binary/text modes for Windows
+
+
 == 2012-06-11 version 0.10.26
 
 * Updated job:list --running, --success and --error options to proceed them on the server
