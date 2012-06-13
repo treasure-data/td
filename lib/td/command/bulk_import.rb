@@ -86,7 +86,7 @@ module Command
 
     client = get_client
 
-    File.open(path) {|is|
+    File.open(path, "rb") {|is|
       client.bulk_import_upload_part(name, part_name, is, is.size)
     }
 

@@ -176,7 +176,7 @@ module Command
       }
 
     when 'msgpack'
-      File.open(output, "w") {|f|
+      File.open(output, "wb") {|f|
         f.write job.result_format('msgpack')
       }
 

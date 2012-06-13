@@ -107,6 +107,8 @@ module Command
     puts "importing #{path}..."
 
     out = Tempfile.new('td-import')
+    out.binmode if out.respond_to?(:binmode)
+
     writer = Zlib::GzipWriter.new(out)
 
     n = 0
