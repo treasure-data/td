@@ -2,6 +2,9 @@
 module TreasureData
 module Command
 
+  # TODO
+  JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR = 10
+
   def job_list(op)
     page = 0
     skip = 0
@@ -132,11 +135,19 @@ module Command
 
     cmdout_lines = 0
     stderr_lines = 0
+    max_error_counts = JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR
 
     until job.finished?
-      sleep 2
-
-      job.update_status!
+      begin
+        sleep 2
+        job.update_status!
+      rescue Timeout::Error, SystemCallError, EOFError, SocketError
+        if max_error_counts <= 0
+          raise
+        end
+        max_error_counts -= 1
+        retry
+      end
 
       cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
       stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
