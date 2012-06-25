@@ -41,10 +41,10 @@ module Command
     jobs.each {|job|
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
-      rows << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
+      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed,:Result,  :Type, :Query])
   end
 
   def job_show(op)
@@ -78,6 +78,7 @@ module Command
     puts "JobID        : #{job.job_id}"
     #puts "URL          : #{job.url}"
     puts "Status       : #{job.status}"
+    puts "Type         : #{job.type}"
     puts "Query        : #{job.query}"
     puts "Result table : #{job.result_url}"
 
