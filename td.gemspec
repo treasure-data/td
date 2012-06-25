@@ -5,11 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.28"
+  s.version = "0.10.29"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Sadayuki Furuhashi"]
-  s.date = "2012-06-21"
+  s.authors = ["Treasure Data, Inc."]
+  s.date = "2012-06-25"
+  s.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
+  s.email = "support@treasure-data.com"
   s.executables = ["td"]
   s.extra_rdoc_files = [
     "ChangeLog",
@@ -43,9 +45,10 @@ Gem::Specification.new do |s|
     "lib/td/distribution.rb",
     "lib/td/version.rb"
   ]
+  s.homepage = "http://treasure-data.com/"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.12"
-  s.summary = "Treasure Data command line tool"
+  s.summary = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

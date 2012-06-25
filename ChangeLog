@@ -1,4 +1,9 @@
 
+== 2012-06-25 version 0.10.29
+
+* job:list shows 'Type' field
+
+
 == 2012-06-21 version 0.10.28
 
 * query and job:show rescue network related errors and retry upto 10 times
