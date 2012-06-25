@@ -10,9 +10,11 @@ begin
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = "td"
     gemspec.summary = "Treasure Data command line tool"
-    gemspec.authors = ["Sadayuki Furuhashi"]
-    #gemspec.email = "frsyuki@users.sourceforge.jp"
-    #gemspec.homepage = "http://example.com/"
+    gemspec.authors = ["Treasure Data, Inc."]
+    gemspec.email   = "support@treasure-data.com"
+    gemspec.homepage = "http://treasure-data.com/"
+    gemspec.summary = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
+    gemspec.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
     gemspec.has_rdoc = false
     gemspec.require_paths = ["lib"]
     gemspec.add_dependency "msgpack", "~> 0.4.4"
