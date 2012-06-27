@@ -1,4 +1,9 @@
 
+== 2012-06-26 version 0.10.30
+
+* job:show with -o option doesn't read all data into memory
+
+
 == 2012-06-25 version 0.10.29
 
 * job:list shows 'Type' field

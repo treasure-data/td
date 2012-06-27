@@ -1,5 +1,5 @@
 module TreasureData
 
-VERSION = '0.10.29'
+VERSION = '0.10.30'
 
 end
