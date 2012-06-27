@@ -130,6 +130,7 @@ module Command
     from = nil
     to = nil
     count = nil
+    pretty = nil
 
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
       if s.to_i.to_s == s
@@ -149,6 +150,9 @@ module Command
     }
     op.on('-n', '--count N', 'number of logs to get', Integer) {|i|
       count = i
+    }
+    op.on('-P', '--pretty', 'pretty print', TrueClass) {|b|
+      pretty = b
     }
 
     if count == nil
@@ -175,9 +179,21 @@ module Command
     rows = table.tail(count, to, from)
 
     require 'json'
-    rows.each {|row|
-      puts row.to_json
-    }
+    if pretty
+      opts = {
+        :indent => ' '*2,
+        :object_nl => "\n",
+        :space => ' '
+      }
+      rows.each {|row|
+        puts row.to_json(opts)
+      }
+    else
+      rows.each {|row|
+        puts row.to_json
+      }
+    end
+
   end
 
   def table_export(op)
