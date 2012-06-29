@@ -10,6 +10,7 @@ module Command
     result_url = nil
     result_user = nil
     result_ask_password = false
+    priority = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -35,6 +36,12 @@ module Command
     op.on('-p', '--password', 'ask password for the result URL') {|s|
       result_ask_password = true
     }
+    op.on('-P', '--priority PRIORITY', 'set priority') {|s|
+      priority = job_priority_id_of(s)
+      unless priority
+        raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
+      end
+    }
 
     sql = op.cmd_parse
 
@@ -53,7 +60,7 @@ module Command
     # local existance check
     get_database(client, db_name)
 
-    job = client.query(db_name, sql, result_url)
+    job = client.query(db_name, sql, result_url, priority)
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
@@ -69,7 +76,7 @@ module Command
     end
   end
 
-  require 'td/command/job'  # wait_job
+  require 'td/command/job'  # wait_job, job_priority_id_of
 end
 end
 

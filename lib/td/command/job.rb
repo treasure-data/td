@@ -5,6 +5,27 @@ module Command
   # TODO
   JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR = 10
 
+  PRIORITY_FORMAT_MAP = {
+    -2 => 'VERY LOW',
+    -1 => 'LOW',
+    0 => 'NORMAL',
+    1 => 'HIGH',
+    2 => 'VERY HIGH',
+  }
+
+  PRIORITY_PARSE_MAP = {
+    /\Avery[ _\-]?low\z/i => -2,
+    /\A-2\z/ => -2,
+    /\Alow\z/i => -1,
+    /\A-1\z/ => -1,
+    /\Anorm(?:al)?\z/i => 0,
+    /\A[\-\+]?0\z/ => 0,
+    /\Ahigh\z/i => 1,
+    /\A[\+]?1\z/ => 1,
+    /\Avery[ _\-]?high\z/i => 2,
+    /\A[\+]?2\z/ => 2,
+  }
+
   def job_list(op)
     page = 0
     skip = 0
@@ -41,10 +62,11 @@ module Command
     jobs.each {|job|
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
-      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
+      priority = job_priority_name_of(job.priority)
+      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed,:Result,  :Type, :Query])
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Query])
   end
 
   def job_show(op)
@@ -79,8 +101,9 @@ module Command
     #puts "URL          : #{job.url}"
     puts "Status       : #{job.status}"
     puts "Type         : #{job.type}"
+    puts "Priority     : #{job_priority_name_of(job.priority)}"
+    puts "Result       : #{job.result_url}"
     puts "Query        : #{job.query}"
-    puts "Result table : #{job.result_url}"
 
     if wait && !job.finished?
       wait_job(job)
@@ -247,6 +270,17 @@ module Command
     end
 
     puts cmd_render_table(rows, opts)
+  end
+
+  def job_priority_name_of(id)
+    PRIORITY_FORMAT_MAP[id] || 'NORMAL'
+  end
+
+  def job_priority_id_of(name)
+    PRIORITY_PARSE_MAP.each_pair {|pattern,id|
+      return id if pattern.match(name)
+    }
+    return nil
   end
 end
 end

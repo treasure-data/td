@@ -3,6 +3,8 @@ module TreasureData
 module Command
 
   def sched_list(op)
+    require 'td/command/job'  # job_priority_name_of
+
     op.cmd_parse
 
     client = get_client
@@ -11,13 +13,13 @@ module Command
 
     rows = []
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Priority => job_priority_name_of(sched.priority), :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Result, :Database, :Query], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
   end
 
   def sched_create(op)
@@ -27,6 +29,7 @@ module Command
     result_url = nil
     result_user = nil
     result_ask_password = false
+    priority = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -45,6 +48,12 @@ module Command
     }
     op.on('-p', '--password', 'ask password for the result URL') {|s|
       result_ask_password = true
+    }
+    op.on('-P', '--priority PRIORITY', 'set priority') {|s|
+      priority = job_priority_id_of(s)
+      unless priority
+        raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
+      end
     }
 
     name, cron, sql = op.cmd_parse
@@ -65,7 +74,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
@@ -99,6 +108,7 @@ module Command
     result = nil
     timezone = nil
     delay = nil
+    priority = nil
 
     op.on('-s', '--schedule CRON', 'change the schedule') {|s|
       cron = s
@@ -118,6 +128,12 @@ module Command
     op.on('-D', '--delay SECONDS', 'change the delay time of the schedule', Integer) {|i|
       delay = i
     }
+    op.on('-P', '--priority PRIORITY', 'set priority') {|s|
+      priority = job_priority_id_of(s)
+      unless priority
+        raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
+      end
+    }
 
     name = op.cmd_parse
 
@@ -128,6 +144,7 @@ module Command
     params['result'] = result if result
     params['timezone'] = timezone if timezone
     params['delay'] = delay.to_s if delay
+    params['priority'] = priority.to_s if priority
 
     if params.empty?
       $stderr.puts op.to_s
@@ -149,6 +166,8 @@ module Command
   end
 
   def sched_history(op)
+    require 'td/command/job'  # job_priority_name_of
+
     page = 0
     skip = 0
 
@@ -186,16 +205,17 @@ module Command
       puts "Delay        : #{s.delay} sec"
       puts "Next         : #{s.next_time}"
       puts "Result       : #{s.result_url}"
+      puts "Priority     : #{job_priority_name_of(s.priority)}"
       puts "Database     : #{s.database}"
       puts "Query        : #{s.query}"
     end
 
     rows = []
     history.each {|j|
-      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Result=>j.result_url}
+      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Priority => job_priority_name_of(j.priority), :Result=>j.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Result])
+    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result])
   end
 
   def sched_run(op)
