@@ -223,6 +223,7 @@ module List
   add_list 'table:import', %w[db table files_], 'Parse and import files to a table', 'table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json'
   add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', 'table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY'
   add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
+  add_list 'table:partial_delete', %w[db table], 'Delete logs from the table within the specified time range', 'table:partial_delete example_db table1 --from 1341000000 --to 1341003600'
 
   add_list 'bulk_import:list', %w[], 'List bulk import sessions', 'bulk_import:list'
   add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', 'bulk_import:show'

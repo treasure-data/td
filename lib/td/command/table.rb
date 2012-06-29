@@ -134,7 +134,7 @@ module Command
 
     op.on('-t', '--to TIME', 'end time of logs to get') {|s|
       if s.to_i.to_s == s
-        to = s
+        to = s.to_i
       else
         require 'time'
         to = Time.parse(s).to_i
@@ -142,7 +142,7 @@ module Command
     }
     op.on('-f', '--from TIME', 'start time of logs to get') {|s|
       if s.to_i.to_s == s
-        from = s
+        from = s.to_i
       else
         require 'time'
         from = Time.parse(s).to_i
@@ -193,7 +193,6 @@ module Command
         puts row.to_json
       }
     end
-
   end
 
   def table_export(op)
@@ -252,6 +251,55 @@ module Command
       wait_job(job)
       puts "Status     : #{job.status}"
     end
+  end
+
+  def table_partial_delete(op)
+    from = nil
+    to = nil
+
+    op.on('-t', '--to TIME', 'end time of logs to delete') {|s|
+      if s.to_i.to_s == s
+        # UNIX time
+        to = s.to_i
+      else
+        require 'time'
+        to = Time.parse(s).to_i
+      end
+    }
+    op.on('-f', '--from TIME', 'start time of logs to delete') {|s|
+      if s.to_i.to_s == s
+        from = s.to_i
+      else
+        require 'time'
+        from = Time.parse(s).to_i
+      end
+    }
+
+    db_name, table_name = op.cmd_parse
+
+    unless from
+      $stderr.puts "-f, --from TIME option is required"
+      exit 1
+    end
+
+    unless to
+      $stderr.puts "-t, --to TIME option is required"
+      exit 1
+    end
+
+    if from % 3600 != 0 || to % 3600 != 0
+      $stderr.puts "time must be a multiple of 3600 (1 hour)"
+      exit 1
+    end
+
+    client = get_client
+
+    table = get_table(client, db_name, table_name)
+
+    job = client.partial_delete(db_name, table_name, to, from)
+
+    $stderr.puts "Partial delete job #{job.job_id} is queued."
+    $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
   end
 
   require 'td/command/import'  # table:import
