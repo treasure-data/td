@@ -1,4 +1,10 @@
 
+== 2012-07-03 version 0.10.32
+
+* Added table:partial_delete subcommand
+* query, sched:create and sched:update subcommands support -P, --priority option
+
+
 == 2012-06-27 version 0.10.31
 
 * table:tail supports -P option which enable pretty printing
