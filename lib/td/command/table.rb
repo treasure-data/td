@@ -256,6 +256,7 @@ module Command
   def table_partial_delete(op)
     from = nil
     to = nil
+    wait = false
 
     op.on('-t', '--to TIME', 'end time of logs to delete') {|s|
       if s.to_i.to_s == s
@@ -273,6 +274,9 @@ module Command
         require 'time'
         from = Time.parse(s).to_i
       end
+    }
+    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
+      wait = b
     }
 
     db_name, table_name = op.cmd_parse
@@ -300,6 +304,11 @@ module Command
 
     $stderr.puts "Partial delete job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
+
+    if wait && !job.finished?
+      wait_job(job)
+      puts "Status     : #{job.status}"
+    end
   end
 
   require 'td/command/import'  # table:import
