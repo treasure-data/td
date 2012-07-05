@@ -85,6 +85,7 @@ module Command
       if path == '-'
         $stdin
       elsif path =~ /\.gz$/
+        require 'td/compat_gzip_reader'
         Zlib::GzipReader.open(path)
       else
         File.open(path)
