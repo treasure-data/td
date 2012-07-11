@@ -20,7 +20,7 @@ file pkg("td-#{version}.exe") do |t|
 
     inno_dir = ENV["INNO_DIR"] || 'C:\\Program Files (x86)\\Inno Setup 5\\'
 
-    system "\"#{inno_dir}\\Compil32.exe\" /cc \"td.iss\""
+    system "\"#{inno_dir}Compil32.exe\" /cc \"td.iss\""
 
     raise "Inno Setup failed with code=#{$?}" if $?.to_i != 0
   end
