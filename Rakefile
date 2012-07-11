@@ -22,6 +22,8 @@ begin
     gemspec.add_dependency "hirb", ">= 0.4.5"
     gemspec.add_dependency "td-client", "~> 0.8.19"
     gemspec.add_dependency "td-logger", "~> 0.3.12"
+    gemspec.add_development_dependency "rake", "~> 0.9"
+    gemspec.add_development_dependency "jeweler", "~> 1.8"
     gemspec.test_files = Dir["test/**/*.rt"]
     gemspec.files = Dir["lib/**/*", "ext/**/*", "data/**/*", "test/**/*.rb", "test/**/*.rt"]
     gemspec.executables = ['td']
@@ -136,7 +138,8 @@ GEM_BLACKLIST = %w( bundler td )
 def assemble_gems(target_dir=Dir.pwd)
   puts "installing gems locally: #{target_dir}/vendor/gems"
   FileUtils.mkdir_p "#{target_dir}/vendor/gems"
-  %x{ bundle install --path "#{target_dir}/vendor/gems" }
+  #%x{ bundle install --path "#{target_dir}/vendor/gems" }
+  system %{ bundle install --path "./vendor/gems" }
   raise "error running bundler (install)" unless $?.success?
 
   lines = %x{ bundle show }.strip.split("\n")
