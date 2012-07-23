@@ -1,4 +1,9 @@
 
+== 2012-07-23 version 0.10.34
+
+* Fixed bulk_import with ruby-1.8
+
+
 == 2012-07-05 version 0.10.33
 
 * Improved compatibility with ruby-1.8.7 when table:import deals with msgpack.gz format
