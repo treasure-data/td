@@ -14,6 +14,7 @@ class Runner
 
   def run(argv=ARGV)
     require 'td/version'
+    require 'td/compat_core'
     require 'optparse'
 
     $prog = @prog_name || File.basename($0)
