@@ -1,4 +1,9 @@
 
+== 2012-07-23 version 0.10.35
+
+* Updated td-client-ruby v0.8.20
+
+
 == 2012-07-23 version 0.10.34
 
 * Fixed bulk_import with ruby-1.8
