@@ -24,7 +24,7 @@ module Command
 
     s = client.schedules
     s.each {|sched|
-      scheds << {:Name => sched.name, :Cron => sched.cron, :Result => sched.rset_name, :Query => sched.query}
+      scheds << {:Name => sched.name, :Cron => sched.cron, :Result => sched.result_url, :Query => sched.query}
     }
     scheds = scheds.sort_by {|map|
       map[:Name]
@@ -35,7 +35,7 @@ module Command
     j.each {|job|
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
-      jobs << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.rset_name}
+      jobs << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
     }
     x2, y2 = status_render(0, 0, "[Jobs]", jobs, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])
 
@@ -47,14 +47,14 @@ module Command
     }
     x3, y3 = status_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count])
 
-    r = client.result_sets
-    r.each {|rset|
-      results << {:Name => rset.name}
+    rs = client.results
+    rs.each {|r|
+      results << {:Name => r.name, :URL => r.url}
     }
     results = results.sort_by {|map|
       map[:Name]
     }
-    x4, y4 = status_render(x3+2, y3, "[Results]", results, :fields => [:Name])
+    x4, y4 = status_render(x3+2, y3, "[Results]", results, :fields => [:Name, :URL])
 
     (y3-y4-1).times do
       print "\eD"
