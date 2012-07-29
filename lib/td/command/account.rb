@@ -29,9 +29,10 @@ module Command
       end
     end
 
+    puts "Enter your Treasure Data credentials."
     unless user_name
       begin
-        print "User name: "
+        print "Email: "
         line = STDIN.gets || ""
         user_name = line.strip
       rescue Interrupt
