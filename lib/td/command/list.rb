@@ -266,6 +266,29 @@ module List
   add_list 'apikey:show', %w[], 'Show Treasure Data API key'
   add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
 
+  add_list 'user:list', %w[], 'Show list of users'
+  add_list 'user:show', %w[name], 'Show an user'
+  add_list 'user:create', %w[name], 'Create an user'
+  add_list 'user:delete', %w[name], 'Delete an user'
+  add_list 'user:apikey:list', %w[name], 'Show API keys'
+
+  add_list 'role:list', %w[], 'Show list of roles'
+  add_list 'role:show', %w[name], 'Show a role'
+  add_list 'role:create', %w[name], 'Create a role'
+  add_list 'role:delete', %w[name], 'Delete a role'
+  add_list 'role:grant', %w[name user], 'Grant role to an user'
+  add_list 'role:revoke', %w[name user], 'Revoke role from an user'
+
+  add_list 'org:list', %w[], 'Show list of organizations'
+  add_list 'org:show', %w[name], 'Show an organizations'
+  add_list 'org:create', %w[name], 'Create an organizations'
+  add_list 'org:delete', %w[name], 'Delete an organizations'
+
+  add_list 'acl:list', %w[], 'Show list of access controls'
+  add_list 'acl:grant', %w[subject action scope], 'Grant an access control'
+  add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
+  # TODO acl:test
+
   add_list 'aggr:list', %w[], 'Show list of aggregation schemas'
   add_list 'aggr:show', %w[name], 'Describe a aggregation schema'
   add_list 'aggr:create', %w[name relation_key], 'Create a aggregation schema'
@@ -317,6 +340,23 @@ module List
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
   add_alias 'kill', 'job:kill'
+
+  add_alias 'user', 'user:show'
+  add_alias 'users', 'user:list'
+  add_alias 'user:apikey', 'user:apikey:list'
+  add_alias 'user:apikeys', 'user:apikey:list'
+
+  add_alias 'role', 'role:show'
+  add_alias 'roles', 'role:list'
+
+  add_alias 'org', 'org:show'
+  add_alias 'orgs', 'org:list'
+  add_alias 'organization', 'org:create'
+  add_alias 'organization', 'org:delete'
+  add_alias 'organization', 'org:list'
+
+  add_alias 'acl', 'acl:list'
+  add_alias 'acls', 'acl:list'
 
   add_alias 'aggr', 'aggr:show'
   add_alias 'aggrs', 'aggr:list'
