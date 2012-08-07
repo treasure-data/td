@@ -1,3 +1,28 @@
+
+== 2012-08-06 version 0.10.37
+
+* Added access control
+  * acl:list
+  * acl:grant <subject> <action> <scope>
+  * acl:revoke <subject> <action> <scope>
+* Added multiuser features
+  * org:list
+  * org:show <name>
+  * org:create <name>
+  * org:delete <name>
+  * user:list
+  * user:show <name>
+  * user:create <name>
+  * user:delete <name>
+  * user:apikey:list <name>
+  * role:list
+  * role:show <name>
+  * role:create <name>
+  * role:delete <name>
+  * role:grant <name> <user>
+  * role:revoke <name> <user>
+
+
 == 2012-07-27 version 0.10.36
 
 * More friendly message for 'td account'

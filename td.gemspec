@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.36"
+  s.version = "0.10.37"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Treasure Data, Inc."]
-  s.date = "2012-07-28"
+  s.date = "2012-08-07"
   s.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
   s.email = "support@treasure-data.com"
   s.executables = ["td"]
@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
     "data/sample_apache_gen.rb",
     "lib/td.rb",
     "lib/td/command/account.rb",
+    "lib/td/command/acl.rb",
     "lib/td/command/aggr.rb",
     "lib/td/command/apikey.rb",
     "lib/td/command/bulk_import.rb",
@@ -32,8 +33,10 @@ Gem::Specification.new do |s|
     "lib/td/command/import.rb",
     "lib/td/command/job.rb",
     "lib/td/command/list.rb",
+    "lib/td/command/org.rb",
     "lib/td/command/query.rb",
     "lib/td/command/result.rb",
+    "lib/td/command/role.rb",
     "lib/td/command/runner.rb",
     "lib/td/command/sample.rb",
     "lib/td/command/sched.rb",
@@ -41,6 +44,7 @@ Gem::Specification.new do |s|
     "lib/td/command/server.rb",
     "lib/td/command/status.rb",
     "lib/td/command/table.rb",
+    "lib/td/command/user.rb",
     "lib/td/compat_core.rb",
     "lib/td/compat_gzip_reader.rb",
     "lib/td/config.rb",
@@ -49,7 +53,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://treasure-data.com/"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.21"
+  s.rubygems_version = "1.8.23"
   s.summary = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
 
   if s.respond_to? :specification_version then
@@ -59,7 +63,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_runtime_dependency(%q<json>, [">= 1.4.3"])
       s.add_runtime_dependency(%q<hirb>, [">= 0.4.5"])
-      s.add_runtime_dependency(%q<td-client>, ["~> 0.8.20"])
+      s.add_runtime_dependency(%q<td-client>, ["~> 0.8.21"])
       s.add_runtime_dependency(%q<td-logger>, ["~> 0.3.12"])
       s.add_development_dependency(%q<rake>, ["~> 0.9"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.8"])
@@ -67,7 +71,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
       s.add_dependency(%q<json>, [">= 1.4.3"])
       s.add_dependency(%q<hirb>, [">= 0.4.5"])
-      s.add_dependency(%q<td-client>, ["~> 0.8.20"])
+      s.add_dependency(%q<td-client>, ["~> 0.8.21"])
       s.add_dependency(%q<td-logger>, ["~> 0.3.12"])
       s.add_dependency(%q<rake>, ["~> 0.9"])
       s.add_dependency(%q<jeweler>, ["~> 1.8"])
@@ -76,7 +80,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<msgpack>, ["~> 0.4.4"])
     s.add_dependency(%q<json>, [">= 1.4.3"])
     s.add_dependency(%q<hirb>, [">= 0.4.5"])
-    s.add_dependency(%q<td-client>, ["~> 0.8.20"])
+    s.add_dependency(%q<td-client>, ["~> 0.8.21"])
     s.add_dependency(%q<td-logger>, ["~> 0.3.12"])
     s.add_dependency(%q<rake>, ["~> 0.9"])
     s.add_dependency(%q<jeweler>, ["~> 1.8"])
