@@ -12,14 +12,16 @@ module Command
     scheds = client.schedules
 
     rows = []
+    has_org = false
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Priority => job_priority_name_of(sched.priority), :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil }
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Priority => job_priority_name_of(sched.priority), :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil, :Organization => sched.org_name }
+      has_org = true if sched.org_name
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
+    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
   end
 
   def sched_create(op)
@@ -199,6 +201,7 @@ module Command
 
     scheds = client.schedules
     if s = scheds.find {|s| s.name == name }
+      puts "Organization : #{s.org_name}"
       puts "Name         : #{s.name}"
       puts "Cron         : #{s.cron}"
       puts "Timezone     : #{s.timezone}"

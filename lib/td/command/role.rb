@@ -15,8 +15,8 @@ module Command
       exit 1
     end
 
-    $stderr.puts "Name         : #{role.name}"
     $stderr.puts "Organization : #{role.org_name}"
+    $stderr.puts "Name         : #{role.name}"
     $stderr.puts "Users        : #{role.user_names.join(', ')}"
   end
 

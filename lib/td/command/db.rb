@@ -30,10 +30,12 @@ module Command
     dbs = client.databases
 
     rows = []
+    has_org = false
     dbs.each {|db|
-      rows << {:Name=>db.name, :Count=>db.count}
+      rows << {:Name=>db.name, :Count=>db.count, :Organization=>db.org_name}
+      has_org = true if db.org_name
     }
-    puts cmd_render_table(rows, :fields => [:Name, :Count])
+    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:Name, :Count])
 
     if dbs.empty?
       $stderr.puts "There are no databases."

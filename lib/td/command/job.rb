@@ -59,14 +59,16 @@ module Command
     jobs = client.jobs(skip, skip+max-1, status)
 
     rows = []
+    has_org = false
     jobs.each {|job|
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
       priority = job_priority_name_of(job.priority)
-      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url}
+      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url, :Organization => job.org_name}
+      has_org = true if job.org_name
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Query])
+    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Query])
   end
 
   def job_show(op)
@@ -97,6 +99,7 @@ module Command
 
     job = client.job(job_id)
 
+    puts "Organization : #{job.org_name}"
     puts "JobID        : #{job.job_id}"
     #puts "URL          : #{job.url}"
     puts "Status       : #{job.status}"
