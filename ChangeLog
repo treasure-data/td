@@ -1,4 +1,9 @@
 
+== 2012-08-06 version 0.10.38
+
+* *:list and *:show: subcommands show organization name if it's set
+
+
 == 2012-08-06 version 0.10.37
 
 * Added access control
