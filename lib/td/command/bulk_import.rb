@@ -203,6 +203,81 @@ module Command
     $stderr.puts "Bulk import session '#{name}' is unfrozen."
   end
 
+
+  PART_SPLIT_SIZE = 16*1024*1024
+
+  def bulk_import_prepare_part(op)
+    outdir = nil
+
+    require 'td/file_reader'
+    reader = FileReader.new
+    reader.init_optparse(op)
+
+    op.on('-o', '--output DIR', 'output directory') {|s|
+      outdir = s
+    }
+
+    *files = op.cmd_parse
+
+    unless outdir
+      $stderr.puts "-o, --output DIR option is required."
+      exit 1
+    end
+
+    require 'fileutils'
+    FileUtils.mkdir_p(outdir)
+
+    require 'json'
+    require 'msgpack'
+    require 'zlib'
+
+    error = Proc.new {|reason,data|
+      begin
+        STDERR.puts "#{reason}: #{data.to_json}"
+      rescue
+        STDERR.puts "#{reason}"
+      end
+    }
+
+    files.each {|ifname|
+      puts "Processing #{ifname}..."
+      record_num = 0
+
+      basename = File.basename(ifname).split('.').first
+      File.open(ifname) {|io|
+        of_index = 0
+        out = nil
+        zout = nil
+        begin
+          reader.parse(io, error) {|record|
+            if zout == nil
+              ofname = "#{basename}_#{of_index}.msgpack.gz"
+              puts "  #{ifname} -> #{ofname}"
+              out = File.open("#{outdir}/#{ofname}", 'wb')
+              zout = Zlib::GzipWriter.new(out)
+            end
+
+            zout.write(record.to_msgpack)
+            record_num += 1
+
+            if out.size > PART_SPLIT_SIZE
+              zout.close
+              of_index += 1
+              out = nil
+              zout = nil
+            end
+          }
+        ensure
+          if zout
+            zout.close
+            zout = nil
+          end
+        end
+        puts "  #{ifname}: #{record_num} entries."
+      }
+    }
+  end
+
 end
 end
 

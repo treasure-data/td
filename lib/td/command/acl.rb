@@ -35,7 +35,7 @@ module Command
 
     client.grant_access_control(subject, action, scope, grant_option)
 
-    $stderr.puts "Access control [#{subject} #{action} #{scope}] is created #{grant_option? ? 'with' : 'without'} grant option."
+    $stderr.puts "Access control [#{subject} #{action} #{scope}] is created #{grant_option ? 'with' : 'without'} grant option."
   end
 
   def acl_revoke(op)

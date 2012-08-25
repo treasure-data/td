@@ -228,6 +228,7 @@ module List
   add_list 'bulk_import:list', %w[], 'List bulk import sessions', 'bulk_import:list'
   add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', 'bulk_import:show'
   add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', 'bulk_import:create logs_201201 example_db event_logs'
+  add_list 'bulk_import:prepare_part', %w[files_], 'Convert files into part file format', 'bulk_import:prepare_part logs_201201 logs_201202'
   add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz'
   add_list 'bulk_import:delete_part', %w[name id], 'Delete a uploaded file from a bulk import session', 'bulk_import:delete_part logs_201201 01h'
   add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'
