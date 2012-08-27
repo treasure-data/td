@@ -1,4 +1,11 @@
 
+== 2012-08-07 version 0.10.40
+
+* Added bulk_import:delete_parts
+* Hide obsoleted bulk_import:upload_part and :delete_part subcommands
+* bulk_import:upload_parts supports --auto-perform option
+
+
 == 2012-08-07 version 0.10.39
 
 * Added bulk_import:prepare_parts and bulk_import:upload_parts subcommands
