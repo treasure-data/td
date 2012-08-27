@@ -35,9 +35,6 @@ module TreasureData
         @reader = reader
         @delimiter_expr = opts[:delimiter_expr]
         @null_expr = opts[:null_expr]
-        # TODO
-        #@escape_char = opts[:escape_char]
-        #@quote_char = opts[:quote_char]
       end
 
       def next
@@ -48,6 +45,21 @@ module TreasureData
         }
       end
     end
+
+    # TODO
+    #class QuotedDelimiterParsingReader
+    #  def initialize(io, error, opts)
+    #    require 'strscan'
+    #    @io = io
+    #    @error = error
+    #    @delimiter_expr = opts[:delimiter_expr]
+    #    @quote_char = opts[:quote_char]
+    #    @escape_char = opts[:escape_char]
+    #  end
+
+    #  def next
+    #  end
+    #end
 
     class JSONParser
       def initialize(reader, error, opts)
@@ -68,6 +80,7 @@ module TreasureData
       end
     end
 
+    # TODO
     #class ApacheParser
     #  REGEXP = /^([^ ]*) [^ ]* ([^ ]*) \[([^\]]*)\] "(\S+)(?: +([^ ]*) +\S*)?" ([^ ]*) ([^ ]*)(?: "([^\"]*)" "([^\"]*)")?$/
     #
@@ -119,7 +132,6 @@ module TreasureData
 
       def next
         array = @parser.next
-        # FIXME error handling
         Hash[@columns.zip(array)]
       end
     end
@@ -190,22 +202,22 @@ module TreasureData
     attr_accessor :parser_class
 
     def init_optparse(op)
-      op.on('-f', '--format NAME', "source file format") {|s|
+      op.on('-f', '--format NAME', "source file format [csv, tsv, msgpack, json]") {|s|
         set_format_template(s)
       }
-      op.on('-h', '--columns NAME,NAME,...', 'column names') {|s|
+      op.on('-h', '--columns NAME,NAME,...', 'column names (use --column-header instead if the first line has column names)') {|s|
         @opts[:column_names] = s.split(',')
       }
       op.on('-H', '--column-header', 'first line includes column names', TrueClass) {|b|
         @opts[:column_header] = b
       }
-      op.on('-d', '--delimiter REGEX', "delimiter between columns (default: #{@default_opts[:delimiter_expr].inspect[1..-2]}") {|s|
+      op.on('-d', '--delimiter REGEX', "delimiter between columns (default: #{@default_opts[:delimiter_expr].inspect[1..-2]})") {|s|
         @opts[:delimiter_expr] = Regexp.new(s)
       }
       #op.on('-D', '--line-delimiter REGEX', "delimiter between rows (default: #{@default_opts[:line_delimiter_expr].inspect[1..-2]})") {|s|
       #  @opts[:line_delimiter_expr] = Regexp.new(s)
       #}
-      op.on('-N', '--null REGEX', "null expression (default: #{@default_opts[:null_expr].inspect[1..-2]}") {|s|
+      op.on('-N', '--null REGEX', "null expression (default: #{@default_opts[:null_expr].inspect[1..-2]})") {|s|
         @opts[:null_expr] = Regexp.new(s)
       }
       # TODO
