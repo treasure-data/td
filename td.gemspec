@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.38"
+  s.version = "0.10.39"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Treasure Data, Inc."]
-  s.date = "2012-08-20"
+  s.date = "2012-08-27"
   s.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
   s.email = "support@treasure-data.com"
   s.executables = ["td"]
@@ -49,6 +49,7 @@ Gem::Specification.new do |s|
     "lib/td/compat_gzip_reader.rb",
     "lib/td/config.rb",
     "lib/td/distribution.rb",
+    "lib/td/file_reader.rb",
     "lib/td/version.rb"
   ]
   s.homepage = "http://treasure-data.com/"

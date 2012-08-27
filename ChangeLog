@@ -1,4 +1,9 @@
 
+== 2012-08-07 version 0.10.39
+
+* Added bulk_import:prepare_parts and bulk_import:upload_parts subcommands
+
+
 == 2012-08-06 version 0.10.38
 
 * *:list and *:show: subcommands show organization name if it's set
