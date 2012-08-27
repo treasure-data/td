@@ -84,6 +84,7 @@ module Command
     }
   end
 
+  # obsoleted
   def bulk_import_upload_part(op)
     retry_limit = 10
     retry_wait = 1
@@ -127,6 +128,7 @@ module Command
     $stderr.puts "done."
   end
 
+  # obsoleted
   def bulk_import_delete_part(op)
     name, part_name = op.cmd_parse
 
@@ -135,6 +137,19 @@ module Command
     client.bulk_import_delete_part(name, part_name)
 
     $stderr.puts "Part '#{part_name}' is deleted."
+  end
+
+  def bulk_import_delete_parts(op)
+    name, *part_names = op.cmd_parse
+
+    client = get_client
+
+    part_names.each {|name|
+      $stderr.puts "Deleting '#{part_name}'..."
+      client.bulk_import_delete_part(name, part_name)
+    }
+
+    $stderr.puts "done."
   end
 
   def bulk_import_perform(op)
@@ -172,7 +187,7 @@ module Command
     job = client.perform_bulk_import(name)
 
     $stderr.puts "Job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
 
     if wait
       require 'td/command/job'  # wait_job
@@ -237,7 +252,7 @@ module Command
 
   PART_SPLIT_SIZE = 16*1024*1024
 
-  def bulk_import_prepare_part(op)
+  def bulk_import_prepare_parts(op)
     outdir = nil
     split_size_kb = PART_SPLIT_SIZE / 1024  # kb
 
