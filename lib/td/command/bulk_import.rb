@@ -103,12 +103,16 @@ module Command
     retry_wait = 1
     suffix_count = 0
     part_prefix = ""
+    auto_perform = false
 
     op.on('-P', '--prefix NAME', 'add prefix to parts name') {|s|
       part_prefix = s
     }
     op.on('-s', '--use-suffix COUNT', 'use COUNT number of . (dots) in the source file name to the parts name', Integer) {|i|
       suffix_count = i
+    }
+    op.on('--auto-perform', 'perform bulk import job automatically', TrueClass) {|b|
+      auto_perform = b
     }
 
     name, *files = op.cmd_parse
@@ -126,6 +130,14 @@ module Command
     }
 
     $stderr.puts "done."
+
+    if auto_perform
+      client = get_client
+      job = client.perform_bulk_import(name)
+
+      $stderr.puts "Job #{job.job_id} is queued."
+      $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
+    end
   end
 
   # obsoleted
@@ -140,11 +152,19 @@ module Command
   end
 
   def bulk_import_delete_parts(op)
+    part_prefix = ""
+
+    op.on('-P', '--prefix NAME', 'add prefix to parts name') {|s|
+      part_prefix = s
+    }
+
     name, *part_names = op.cmd_parse
 
     client = get_client
 
-    part_names.each {|name|
+    part_names.each {|part_name|
+      part_name = part_prefix + part_name
+
       $stderr.puts "Deleting '#{part_name}'..."
       client.bulk_import_delete_part(name, part_name)
     }
