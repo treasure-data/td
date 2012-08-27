@@ -85,15 +85,46 @@ module Command
   end
 
   def bulk_import_upload_part(op)
+    retry_limit = 10
+    retry_wait = 1
+
     name, part_name, path = op.cmd_parse
 
-    client = get_client
-
-    File.open(path, "rb") {|is|
-      client.bulk_import_upload_part(name, part_name, is, is.size)
+    File.open(path, "rb") {|io|
+      bulk_import_upload_impl(name, part_name, io, io.size, retry_limit, retry_wait)
     }
 
     $stderr.puts "Part '#{part_name}' is uploaded."
+  end
+
+  def bulk_import_upload_parts(op)
+    retry_limit = 10
+    retry_wait = 1
+    suffix_count = 0
+    part_prefix = ""
+
+    op.on('-P', '--prefix NAME', 'add prefix to parts name') {|s|
+      part_prefix = s
+    }
+    op.on('-s', '--use-suffix COUNT', 'use COUNT number of . (dots) in the source file name to the parts name', Integer) {|i|
+      suffix_count = i
+    }
+
+    name, *files = op.cmd_parse
+
+    files.each {|ifname|
+      basename = File.basename(ifname)
+      part_name = part_prefix + basename.split('.')[0..suffix_count].join('.')
+
+      File.open(ifname, "rb") {|io|
+        size = io.size
+        $stderr.puts "Uploading '#{ifname}' -> '#{part_name}'... (#{size} bytes)"
+
+        bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
+      }
+    }
+
+    $stderr.puts "done."
   end
 
   def bulk_import_delete_part(op)
@@ -208,11 +239,15 @@ module Command
 
   def bulk_import_prepare_part(op)
     outdir = nil
+    split_size_kb = PART_SPLIT_SIZE / 1024  # kb
 
     require 'td/file_reader'
     reader = FileReader.new
     reader.init_optparse(op)
 
+    op.on('-s', '--split-size SIZE_IN_KB', "size of each parts (default: #{split_size_kb})", Integer) {|i|
+      split_size_kb = i
+    }
     op.on('-o', '--output DIR', 'output directory') {|s|
       outdir = s
     }
@@ -224,6 +259,8 @@ module Command
       exit 1
     end
 
+    split_size = split_size_kb * 1024
+
     require 'fileutils'
     FileUtils.mkdir_p(outdir)
 
@@ -233,14 +270,14 @@ module Command
 
     error = Proc.new {|reason,data|
       begin
-        STDERR.puts "#{reason}: #{data.to_json}"
+        $stderr.puts "#{reason}: #{data.to_json}"
       rescue
-        STDERR.puts "#{reason}"
+        $stderr.puts "#{reason}"
       end
     }
 
     files.each {|ifname|
-      puts "Processing #{ifname}..."
+      $stderr.puts "Processing #{ifname}..."
       record_num = 0
 
       basename = File.basename(ifname).split('.').first
@@ -252,15 +289,18 @@ module Command
           reader.parse(io, error) {|record|
             if zout == nil
               ofname = "#{basename}_#{of_index}.msgpack.gz"
-              puts "  #{ifname} -> #{ofname}"
+              $stderr.puts "  Preparing part \"#{basename}_#{of_index}\"..."
               out = File.open("#{outdir}/#{ofname}", 'wb')
               zout = Zlib::GzipWriter.new(out)
+
+              t = record['time']
+              $stderr.puts "  sample: #{Time.at(t).utc} #{record.to_json}"
             end
 
             zout.write(record.to_msgpack)
             record_num += 1
 
-            if out.size > PART_SPLIT_SIZE
+            if out.size > split_size
               zout.close
               of_index += 1
               out = nil
@@ -273,11 +313,26 @@ module Command
             zout = nil
           end
         end
-        puts "  #{ifname}: #{record_num} entries."
+        $stderr.puts "  #{ifname}: #{record_num} entries."
       }
     }
   end
 
+  private
+  def bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
+    begin
+      client = get_client
+      client.bulk_import_upload_part(name, part_name, io, size)
+    rescue
+      if retry_limit > 0
+        retry_limit -= 1
+        $stderr.puts "#{$!}; retrying '#{part_name}'..."
+        sleep retry_wait
+        retry
+      end
+      raise
+    end
+  end
 end
 end
 
