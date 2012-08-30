@@ -20,7 +20,7 @@ begin
     gemspec.add_dependency "msgpack", "~> 0.4.4"
     gemspec.add_dependency "json", ">= 1.4.3"
     gemspec.add_dependency "hirb", ">= 0.4.5"
-    gemspec.add_dependency "td-client", "~> 0.8.22"
+    gemspec.add_dependency "td-client", "~> 0.8.24"
     gemspec.add_dependency "td-logger", "~> 0.3.12"
     gemspec.add_development_dependency "rake", "~> 0.9"
     gemspec.add_development_dependency "jeweler", "~> 1.8"
