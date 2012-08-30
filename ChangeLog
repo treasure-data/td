@@ -1,4 +1,9 @@
 
+== 2012-08-30 version 0.10.41
+
+* Supports HTTP_PROXY environemnt variable to use a proxy server
+
+
 == 2012-08-07 version 0.10.40
 
 * Added bulk_import:delete_parts
