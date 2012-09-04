@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.41"
+  s.version = "0.10.42"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Treasure Data, Inc."]
-  s.date = "2012-08-30"
+  s.date = "2012-09-04"
   s.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
   s.email = "support@treasure-data.com"
   s.executables = ["td"]
