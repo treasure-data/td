@@ -186,7 +186,7 @@ module Command
     3.times do
       begin
         system "stty -echo"  # TODO termios
-        print "Password (typing will be hidden): "
+        print "New password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -204,7 +204,7 @@ module Command
 
       begin
         system "stty -echo"  # TODO termios
-        print "Retype password: "
+        print "Retype new password: "
         password2 = STDIN.gets || ""
         password2 = password2[0..-2]  # strip \n
       rescue Interrupt
