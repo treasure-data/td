@@ -1,4 +1,9 @@
 
+== 2012-09-04 version 0.10.43
+
+* Updated user:password:change subcomamnd
+
+
 == 2012-09-04 version 0.10.42
 
 * Added user:password:change subcomamnd
