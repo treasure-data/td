@@ -277,6 +277,7 @@ module List
   add_list 'user:create', %w[name], 'Create an user'
   add_list 'user:delete', %w[name], 'Delete an user'
   add_list 'user:apikey:list', %w[name], 'Show API keys'
+  add_list 'user:password:change', %w[name], 'Change password'
 
   add_list 'role:list', %w[], 'Show list of roles'
   add_list 'role:show', %w[name], 'Show a role'

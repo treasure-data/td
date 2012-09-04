@@ -178,9 +178,56 @@ module Command
     puts cmd_render_table(rows, :fields => [:Key])
   end
 
-  ## TODO user:password:change <name>
-  #def user_password_change(op)
-  #end
+  def user_password_change(op)
+    name = op.cmd_parse
+
+    password = nil
+
+    3.times do
+      begin
+        system "stty -echo"  # TODO termios
+        print "Password (typing will be hidden): "
+        password = STDIN.gets || ""
+        password = password[0..-2]  # strip \n
+      rescue Interrupt
+        $stderr.print "\ncanceled."
+        exit 1
+      ensure
+        system "stty echo"   # TODO termios
+        print "\n"
+      end
+
+      if password.empty?
+        $stderr.puts "canceled."
+        exit 0
+      end
+
+      begin
+        system "stty -echo"  # TODO termios
+        print "Retype password: "
+        password2 = STDIN.gets || ""
+        password2 = password2[0..-2]  # strip \n
+      rescue Interrupt
+        $stderr.print "\ncanceled."
+        exit 1
+      ensure
+        system "stty echo"   # TODO termios
+        print "\n"
+      end
+
+      if password == password2
+        break
+      end
+
+      puts "Doesn't match."
+    end
+
+    client = get_client(:ssl => true)
+
+    client.change_password(name, password)
+
+    $stderr.puts "Password of user '#{name}' changed."
+  end
 
 end
 end
