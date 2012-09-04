@@ -269,6 +269,7 @@ module List
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
 
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
+  add_list 'password:change', %w[], 'Change password'
   add_list 'apikey:show', %w[], 'Show Treasure Data API key'
   add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
 
