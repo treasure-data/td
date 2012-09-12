@@ -10,8 +10,8 @@ module TreasureData
         @u = MessagePack::Unpacker.new(@io)
       end
 
-      def next
-        @u.next
+      def forward
+        @u.forward
       end
     end
 
@@ -25,7 +25,7 @@ module TreasureData
         @error = error
       end
 
-      def next_row
+      def forward_row
         @io.readline($/).chomp
       end
     end
@@ -37,8 +37,8 @@ module TreasureData
         @null_expr = opts[:null_expr]
       end
 
-      def next
-        row = @reader.next_row
+      def forward
+        row = @reader.forward_row
         array = row.split(@delimiter_expr)
         array.map! {|x|
           @null_expr =~ x ? nil : x
@@ -57,7 +57,7 @@ module TreasureData
     #    @escape_char = opts[:escape_char]
     #  end
 
-    #  def next
+    #  def forward
     #  end
     #end
 
@@ -67,9 +67,9 @@ module TreasureData
         @error = error
       end
 
-      def next
+      def forward
         while true
-          line = @reader.next_row
+          line = @reader.forward_row
           begin
             return JSON.parse(line)
           rescue
@@ -88,9 +88,9 @@ module TreasureData
     #    @reader = reader
     #  end
     #
-    #  def next
+    #  def forward
     #    while true
-    #      m = REGEXP.match(@reader.next_row)
+    #      m = REGEXP.match(@reader.forward_row)
     #      if m
     #        h = {
     #          'host' => m[1],
@@ -114,8 +114,8 @@ module TreasureData
         @parser = parser
       end
 
-      def next
-        array = @parser.next
+      def forward
+        array = @parser.forward
         array.map! {|s|
           # nil.to_i == 0 != nil.to_s
           i = s.to_i
@@ -130,8 +130,8 @@ module TreasureData
         @columns = columns
       end
 
-      def next
-        array = @parser.next
+      def forward
+        array = @parser.forward
         Hash[@columns.zip(array)]
       end
     end
@@ -143,14 +143,14 @@ module TreasureData
         @error = error
         @time_column = opts[:time_column]
         unless @time_column
-          raise '-t, --time-column NAME option is required'
+          raise '--time-column or --time-value option is required'
         end
         @time_format = opts[:time_format]
       end
 
-      def next
+      def forward
         while true
-          row = @parser.next
+          row = @parser.forward
           tval = row[@time_column]
 
           unless tval
@@ -186,6 +186,23 @@ module TreasureData
       end
     end
 
+    class SetTimeParserFilter
+      def initialize(parser, error, opts)
+        @parser = parser
+        @error = error
+        @time_value = opts[:time_value]
+        unless @time_value
+          raise '--time-column or --time-value option is required'
+        end
+      end
+
+      def forward
+        row = @parser.forward
+        row['time'] = @time_value
+        row
+      end
+    end
+
     def initialize
       @format = "text"
       @default_opts = {
@@ -217,7 +234,7 @@ module TreasureData
       #op.on('-D', '--line-delimiter REGEX', "delimiter between rows (default: #{@default_opts[:line_delimiter_expr].inspect[1..-2]})") {|s|
       #  @opts[:line_delimiter_expr] = Regexp.new(s)
       #}
-      op.on('-N', '--null REGEX', "null expression (default: #{@default_opts[:null_expr].inspect[1..-2]})") {|s|
+      op.on('--null REGEX', "null expression for the automatic type conversion (default: #{@default_opts[:null_expr].inspect[1..-2]})") {|s|
         @opts[:null_expr] = Regexp.new(s)
       }
       # TODO
@@ -230,8 +247,15 @@ module TreasureData
       op.on('-S', '--all-string', 'disable automatic type conversion', TrueClass) {|b|
         @opts[:all_string] = b
       }
-      op.on('-t', '--time-column NAME', 'name of the time column (default: auto detect)') {|s|
+      op.on('-t', '--time-column NAME', 'name of the time column') {|s|
         @opts[:time_column] = s
+      }
+      op.on('-a', '--time-value TIME', 'value of the time column') {|s|
+        if s.to_i.to_s == s
+          @opts[:time_value] = s.to_i
+        else
+          @opts[:time_value] = Time.parse(s).to_i
+        end
       }
       op.on('-T', '--time-format FORMAT', 'strftime(3) format of the time column') {|s|
         @opts[:time_format] = s
@@ -275,7 +299,7 @@ module TreasureData
           reader = LineReader.new(io, error, opts)
           parser = DelimiterParser.new(reader, error, opts)
           if opts[:column_header]
-            column_names = parser.next
+            column_names = parser.forward
           elsif opts[:column_names]
             column_names = opts[:column_names]
           else
@@ -285,7 +309,11 @@ module TreasureData
             parser = AutoTypeConvertParserFilter.new(parser, error)
           end
           parser = HashBuilder.new(parser, error, column_names)
-          parser = TimeParserFilter.new(parser, error, opts)
+          if opts[:time_value]
+            parser = SetTimeParserFilter.new(parser, error, opts)
+          else
+            parser = TimeParserFilter.new(parser, error, opts)
+          end
         }
 
       #when 'apache'
@@ -295,28 +323,36 @@ module TreasureData
           reader = LineReader.new(io, error, opts)
           parser = JSONParser.new(reader, error, opts)
           if opts[:column_header]
-            column_names = parser.next
+            column_names = parser.forward
           elsif opts[:column_names]
             column_names = opts[:column_names]
           end
           if column_names
             parser = HashBuilder.new(parser, error, column_names)
           end
-          parser = TimeParserFilter.new(parser, error, opts)
+          if opts[:time_value]
+            parser = SetTimeParserFilter.new(parser, error, opts)
+          else
+            parser = TimeParserFilter.new(parser, error, opts)
+          end
         }
 
       when 'msgpack'
         Proc.new {|io,error|
           parser = MessagePackParsingReader.new(io, error, opts)
           if opts[:column_header]
-            column_names = parser.next
+            column_names = parser.forward
           elsif opts[:column_names]
             column_names = opts[:column_names]
           end
           if column_names
             parser = HashBuilder.new(parser, error, column_names)
           end
-          parser = TimeParserFilter.new(parser, error, opts)
+          if opts[:time_value]
+            parser = SetTimeParserFilter.new(parser, error, opts)
+          else
+            parser = TimeParserFilter.new(parser, error, opts)
+          end
         }
       end
     end
@@ -325,7 +361,7 @@ module TreasureData
       factory = compose_factory
       parser = factory.call(io, error)
       begin
-        while record = parser.next
+        while record = parser.forward
           block.call(record)
         end
       rescue EOFError
