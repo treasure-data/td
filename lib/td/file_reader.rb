@@ -34,15 +34,11 @@ module TreasureData
       def initialize(reader, error, opts)
         @reader = reader
         @delimiter_expr = opts[:delimiter_expr]
-        @null_expr = opts[:null_expr]
       end
 
       def forward
         row = @reader.forward_row
         array = row.split(@delimiter_expr)
-        array.map! {|x|
-          @null_expr =~ x ? nil : x
-        }
       end
     end
 
@@ -110,16 +106,29 @@ module TreasureData
     #end
 
     class AutoTypeConvertParserFilter
-      def initialize(parser, error)
+      def initialize(parser, error, opts)
         @parser = parser
+        @null_expr = opts[:null_expr]
+        @true_expr = opts[:true_expr]
+        @false_expr = opts[:false_expr]
       end
 
       def forward
         array = @parser.forward
         array.map! {|s|
-          # nil.to_i == 0 != nil.to_s
-          i = s.to_i
-          i.to_s == s ? i : s
+          if !s.is_a?(String)
+            s
+          elsif s =~ @null_expr
+            nil
+          elsif s =~ @true_expr
+            true
+          elsif s =~ @false_expr
+            false
+          else
+            # nil.to_i == 0 != nil.to_s
+            i = s.to_i
+            i.to_s == s ? i : s
+          end
         }
       end
     end
@@ -208,7 +217,9 @@ module TreasureData
       @default_opts = {
         :delimiter_expr => /\t|,/,
         #:line_delimiter_expr => /\r?\n/,
-        :null_expr => /\A(?:\\N|\-|)\z/,
+        :null_expr => /\A(?:null||\-|\\N)\z/i,
+        :true_expr => /\A(?:true)\z/i,
+        :false_expr => /\A(?:false)\z/i,
         #:quote_char => "\"",
       }
       @opts = {}
@@ -236,6 +247,12 @@ module TreasureData
       #}
       op.on('--null REGEX', "null expression for the automatic type conversion (default: #{@default_opts[:null_expr].inspect[1..-2]})") {|s|
         @opts[:null_expr] = Regexp.new(s)
+      }
+      op.on('--true REGEX', "true expression for the automatic type conversion (default: #{@default_opts[:true_expr].inspect[1..-2]})") {|s|
+        @opts[:true_expr] = Regexp.new(s)
+      }
+      op.on('--false REGEX', "false expression for the automatic type conversion (default: #{@default_opts[:false_expr].inspect[1..-2]})") {|s|
+        @opts[:false_expr] = Regexp.new(s)
       }
       # TODO
       #op.on('-E', '--escape CHAR', "escape character (default: no escape character)") {|s|
@@ -306,7 +323,7 @@ module TreasureData
             raise "--column-header or --columns option is required"
           end
           unless opts[:all_string]
-            parser = AutoTypeConvertParserFilter.new(parser, error)
+            parser = AutoTypeConvertParserFilter.new(parser, error, opts)
           end
           parser = HashBuilder.new(parser, error, column_names)
           if opts[:time_value]
