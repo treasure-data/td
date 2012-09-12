@@ -239,19 +239,19 @@ module TreasureData
       op.on('-H', '--column-header', 'first line includes column names', TrueClass) {|b|
         @opts[:column_header] = b
       }
-      op.on('-d', '--delimiter REGEX', "delimiter between columns (default: #{@default_opts[:delimiter_expr].inspect[1..-2]})") {|s|
+      op.on('-d', '--delimiter REGEX', "delimiter between columns (default: #{@default_opts[:delimiter_expr].to_s})") {|s|
         @opts[:delimiter_expr] = Regexp.new(s)
       }
       #op.on('-D', '--line-delimiter REGEX', "delimiter between rows (default: #{@default_opts[:line_delimiter_expr].inspect[1..-2]})") {|s|
       #  @opts[:line_delimiter_expr] = Regexp.new(s)
       #}
-      op.on('--null REGEX', "null expression for the automatic type conversion (default: #{@default_opts[:null_expr].inspect[1..-2]})") {|s|
+      op.on('--null REGEX', "null expression for the automatic type conversion (default: #{@default_opts[:null_expr].to_s})") {|s|
         @opts[:null_expr] = Regexp.new(s)
       }
-      op.on('--true REGEX', "true expression for the automatic type conversion (default: #{@default_opts[:true_expr].inspect[1..-2]})") {|s|
+      op.on('--true REGEX', "true expression for the automatic type conversion (default: #{@default_opts[:true_expr].to_s})") {|s|
         @opts[:true_expr] = Regexp.new(s)
       }
-      op.on('--false REGEX', "false expression for the automatic type conversion (default: #{@default_opts[:false_expr].inspect[1..-2]})") {|s|
+      op.on('--false REGEX', "false expression for the automatic type conversion (default: #{@default_opts[:false_expr].to_s})") {|s|
         @opts[:false_expr] = Regexp.new(s)
       }
       # TODO
