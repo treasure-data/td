@@ -267,15 +267,15 @@ module TreasureData
       op.on('-t', '--time-column NAME', 'name of the time column') {|s|
         @opts[:time_column] = s
       }
-      op.on('-a', '--time-value TIME', 'value of the time column') {|s|
+      op.on('-T', '--time-format FORMAT', 'strftime(3) format of the time column') {|s|
+        @opts[:time_format] = s
+      }
+      op.on('--time-value TIME', 'value of the time column') {|s|
         if s.to_i.to_s == s
           @opts[:time_value] = s.to_i
         else
           @opts[:time_value] = Time.parse(s).to_i
         end
-      }
-      op.on('-T', '--time-format FORMAT', 'strftime(3) format of the time column') {|s|
-        @opts[:time_format] = s
       }
       op.on('-e', '--encoding NAME', "text encoding") {|s|
         @opts[:encoding] = s
