@@ -214,6 +214,8 @@ module List
     }
   end
 
+  add_list 'plan:status', %w[], 'Show status of the account', 'plan:status', 'plan'
+
   add_list 'db:list', %w[], 'Show list of tables in a database', 'db:list', 'dbs'
   add_list 'db:show', %w[db], 'Describe information of a database', 'db example_db'
   add_list 'db:create', %w[db], 'Create a database', 'db:create example_db'
@@ -314,6 +316,8 @@ module List
   add_list 'help', %w[command], 'Show usage of a command'
 
   # aliases
+  add_alias 'plan', 'plan:status'
+
   add_alias 'db', 'db:show'
   add_alias 'dbs', 'db:list'
 
