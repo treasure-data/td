@@ -1,4 +1,10 @@
 
+== 2012-09-13 version 0.10.46
+
+* Added plan:status subcommand
+* Name length limit is changed from 32 characters to 256 characters
+
+
 == 2012-09-12 version 0.10.45
 
 * bulk_import:prepare_parts supports --true and --false type conversion options
