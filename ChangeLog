@@ -1,7 +1,7 @@
 
-== 2012-09-13 version 0.10.46
+== 2012-09-13 version 0.10.47
 
-* Added plan:status subcommand
+* Added account:usage subcommand
 * Name length limit is changed from 32 characters to 256 characters
 
 

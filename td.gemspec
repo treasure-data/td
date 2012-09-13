@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "td"
-  s.version = "0.10.46"
+  s.version = "0.10.47"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Treasure Data, Inc."]
@@ -35,7 +35,6 @@ Gem::Specification.new do |s|
     "lib/td/command/list.rb",
     "lib/td/command/org.rb",
     "lib/td/command/password.rb",
-    "lib/td/command/plan.rb",
     "lib/td/command/query.rb",
     "lib/td/command/result.rb",
     "lib/td/command/role.rb",
