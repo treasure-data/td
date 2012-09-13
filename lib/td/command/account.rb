@@ -88,6 +88,16 @@ module Command
     $stderr.puts "Use '#{$prog} db:create <db_name>' to create a database."
   end
 
+  def account_usage(op)
+    op.cmd_parse
+
+    client = get_client
+
+    a = client.account
+
+    $stderr.puts "Storage:  #{a.storage_size_string}"
+  end
+
 end
 end
 

@@ -214,8 +214,6 @@ module List
     }
   end
 
-  add_list 'plan:status', %w[], 'Show status of the account', 'plan:status', 'plan'
-
   add_list 'db:list', %w[], 'Show list of tables in a database', 'db:list', 'dbs'
   add_list 'db:show', %w[db], 'Describe information of a database', 'db example_db'
   add_list 'db:create', %w[db], 'Create a database', 'db:create example_db'
@@ -271,6 +269,7 @@ module List
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
 
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
+  add_list 'account:usage', %w[user_name?], 'Show resource usage information'
   add_list 'password:change', %w[], 'Change password'
   add_list 'apikey:show', %w[], 'Show Treasure Data API key'
   add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
@@ -316,8 +315,6 @@ module List
   add_list 'help', %w[command], 'Show usage of a command'
 
   # aliases
-  add_alias 'plan', 'plan:status'
-
   add_alias 'db', 'db:show'
   add_alias 'dbs', 'db:list'
 
