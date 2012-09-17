@@ -255,14 +255,14 @@ module Command
     job.result_each {|row|
       # TODO limit number of rows to show
       rows << row.map {|v|
+        # TODO encoding check
         if v.is_a?(String)
-          # TODO encoding check
           s = v.to_s
-          s.force_encoding('ASCII-8BIT') if s.respond_to?(:force_encoding)
-          s
         else
-          v.to_json
+          s = v.to_json
         end
+        s.force_encoding('UTF-8') if s.respond_to?(:force_encoding)
+        s
       }
     }
 
