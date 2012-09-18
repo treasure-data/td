@@ -260,7 +260,7 @@ module List
   add_list 'sched:delete', %w[name], 'Delete a schedule', 'sched:delete sched1'
   add_list 'sched:update', %w[name], 'Modify a schedule', 'sched:update sched1 -s "0 */2 * * *" -d my_db -t "Asia/Tokyo" -D 3600'
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', 'sched sched1 --page 1'
-  add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', 'sched:run "2013-01-01 00:00:00" -n 6'
+  add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', 'sched:run sched1 "2013-01-01 00:00:00" -n 6'
 
   add_list 'query', %w[sql], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"'
 

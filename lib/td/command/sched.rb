@@ -251,6 +251,7 @@ module Command
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      exit 1
     end
 
     rows = []

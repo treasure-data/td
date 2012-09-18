@@ -76,12 +76,16 @@ module Command
     wait = false
     output = nil
     format = 'tsv'
+    render_opts = {}
 
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
       verbose = b
     }
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-G', '--vertical', 'use vertical table to show results', TrueClass) {|b|
+      render_opts[:vertical] = b
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
@@ -112,13 +116,13 @@ module Command
       wait_job(job)
       if job.success? && job.type == :hive
         puts "Result       :"
-        show_result(job, output, format)
+        show_result(job, output, format, render_opts)
       end
 
     else
       if job.success? && job.type == :hive
         puts "Result       :"
-        show_result(job, output, format)
+        show_result(job, output, format, render_opts)
       end
 
       if verbose
@@ -186,12 +190,12 @@ module Command
     end
   end
 
-  def show_result(job, output, format)
+  def show_result(job, output, format, render_opts={})
     if output
       write_result(job, output, format)
       puts "written to #{output} in #{format} format"
     else
-      render_result(job)
+      render_result(job, render_opts)
     end
   end
 
@@ -249,7 +253,7 @@ module Command
     end
   end
 
-  def render_result(job)
+  def render_result(job, opts)
     require 'json'
     rows = []
     job.result_each {|row|
@@ -266,7 +270,6 @@ module Command
       }
     }
 
-    opts = {}
     opts[:max_width] = 10000
     if job.hive_result_schema
       opts[:change_fields] = job.hive_result_schema.map {|name,type| name }

@@ -7,6 +7,7 @@ module Command
     wait = false
     output = nil
     format = 'tsv'
+    render_opts = {}
     result_url = nil
     result_user = nil
     result_ask_password = false
@@ -17,6 +18,9 @@ module Command
     }
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
+    }
+    op.on('-G', '--vertical', 'use vertical table to show results', TrueClass) {|b|
+      render_opts[:vertical] = b
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
@@ -71,7 +75,7 @@ module Command
       puts "Status     : #{job.status}"
       if job.success?
         puts "Result     :"
-        show_result(job, output, format)
+        show_result(job, output, format, render_opts)
       end
     end
   end
