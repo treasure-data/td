@@ -5,12 +5,12 @@ task 'exe:build' => :build do
     # create ./installers/
     FileUtils.mkdir_p "installers"
     installer_path = download_resource('http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe')
-    FileUtils.mv installer_path, "installers/rubyinstaller.exe"
+    FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
     variables = {
       :version => version,
       :basename => "td-#{version}.exe",
-      :outdir => Dir.pwd,
+      :outdir => ".",
     }
 
     # create ./td/
@@ -20,14 +20,15 @@ task 'exe:build' => :build do
       install_resource 'exe/td.bat', 'bin/td.bat', 0755
     end
 
+    # create td.iss and run Inno Setup
     install_erb_resource 'exe/td.iss', 'td.iss', 0644, variables
 
     inno_dir = ENV["INNO_DIR"] || 'C:/Program Files (x86)/Inno Setup 5'
     inno_bin = ENV["INNO_BIN"] || "#{inno_dir}/Compil32.exe"
+    puts "INNO_BIN: #{inno_bin}"
 
     sh "\"#{inno_bin}\" /cc \"td.iss\""
-
-    raise "Inno Setup failed with code=#{$?}" if $?.to_i != 0
+    FileUtils.cp "td-#{version}.exe", project_root_path("pkg/td-#{version}.exe")
   end
 end
 
