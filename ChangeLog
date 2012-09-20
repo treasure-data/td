@@ -1,4 +1,9 @@
 
+== 2012-09-19 version 0.10.49
+
+* query and job:show subcommands support -G, --vertical option
+
+
 == 2012-09-17 version 0.10.48
 
 * Fixed an encoding problem with job:result command to display results
