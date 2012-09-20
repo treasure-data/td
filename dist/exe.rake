@@ -9,7 +9,7 @@ task 'exe:build' => :build do
 
     variables = {
       :version => version,
-      :basename => "td-#{version}.exe",
+      :basename => "td-#{version}",
       :outdir => ".",
     }
 
