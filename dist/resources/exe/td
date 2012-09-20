@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
+# avoid conflicts with rvm
+ENV.delete 'GEM_HOME'
+ENV.delete 'GEM_PATH'
+
 # resolve bin path, ignoring symlinks
 require "pathname"
 bin_file = Pathname.new(__FILE__).realpath

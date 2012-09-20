@@ -1,46 +1,46 @@
-require 'erb'
 
-file pkg("td-#{version}.pkg") => distribution_files("pkg") do |t|
-  tempdir do |dir|
-    mkchdir("td-client") do
-      assemble_distribution
-      assemble_gems
-      assemble resource("pkg/td"), "bin/td", 0755
+desc "build Mac OS X pkg package"
+task 'pkg:build' => :build do
+  create_build_dir('pkg') do |dir|
+    FileUtils.mkdir_p "bundle"
+    FileUtils.mkdir_p "bundle/Resources"
+    FileUtils.mkdir_p "bundle/td-client.pkg"
+    FileUtils.mkdir_p "bundle/td-client.pkg"
+
+    # create ./bundle/td-client.pkg/Payload
+    mkchdir('td-client.build') do
+      install_use_gems(Dir.pwd)
+      install_resource 'pkg/td', 'bin/td', 0755
+      sh "pax -wz -x cpio . > ../bundle/td-client.pkg/Payload"
     end
 
-    kbytes = %x{ du -ks td-client | cut -f 1 }
-    num_files = %x{ find td-client | wc -l }
+    # crete ./bundle/td-client.pkg/Bom
+    sh "mkbom -s td-client.build bundle/td-client.pkg/Bom"
 
-    mkdir_p "pkg"
-    mkdir_p "pkg/Resources"
-    mkdir_p "pkg/td-client.pkg"
+    # crete ./bundle/td-client.pkg/Scripts/
+    install_resource 'pkg/postinstall', 'bundle/td-client.pkg/Scripts/postinstall', 0755
 
-    dist = File.read(resource("pkg/Distribution.erb"))
-    dist = ERB.new(dist).result(binding)
-    File.open("pkg/Distribution", "w") { |f| f.puts dist }
+    variables = {
+      :version => version,
+      :kbytes => `du -ks td-client.build | cut -f 1`.strip.to_i,
+      :num_files => `find td-client.build | wc -l`,
+    }
 
-    dist = File.read(resource("pkg/PackageInfo.erb"))
-    dist = ERB.new(dist).result(binding)
-    File.open("pkg/td-client.pkg/PackageInfo", "w") { |f| f.puts dist }
+    # create ./bundle/td-client.pkg/PackageInfo
+    install_erb_resource('pkg/PackageInfo.erb', 'bundle/td-client.pkg/PackageInfo', 0644, variables)
 
-    mkdir_p "pkg/td-client.pkg/Scripts"
-    cp resource("pkg/postinstall"), "pkg/td-client.pkg/Scripts/postinstall"
-    chmod 0755, "pkg/td-client.pkg/Scripts/postinstall"
+    # create ./bundle/Distribution
+    install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
-    sh %{ mkbom -s td-client pkg/td-client.pkg/Bom }
-
-    Dir.chdir("td-client") do
-      sh %{ pax -wz -x cpio . > ../pkg/td-client.pkg/Payload }
-    end
-
-    sh %{ pkgutil --flatten pkg td-#{version}.pkg }
-
-    cp_r "td-#{version}.pkg", t.name
+    # create td-a.b.c.pkg
+    sh "pkgutil --flatten bundle td-#{version}.pkg"
+    FileUtils.cp "td-#{version}.pkg", project_root_path("pkg/td-#{version}.pkg")
   end
 end
 
-desc 'build pkg'
-task 'pkg:build' => pkg("td-#{version}.pkg")
+desc "clean Mac OS X pkg package"
+task "pkg:clean" do
+  FileUtils.rm_rf build_dir_path('pkg')
+  FileUtils.rm_rf project_root_path("pkg/td-#{version}.pkg")
+end
 
-desc 'clean pkg'
-task 'pkg:clean' => pkg("td-#{version}.pkg")

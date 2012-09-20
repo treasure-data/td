@@ -1,33 +1,39 @@
-require "erb"
 
-file pkg("td-#{version}.exe") do |t|
-  tempdir do |dir|
-    mkchdir("installers") do
-      # TODO http://rubyinstaller.org/
-      system "curl http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe -o rubyinstaller.exe"
-    end
+desc "build Windows exe package"
+task 'exe:build' => :build do
+  create_build_dir('exe') do |dir|
+    # create ./installers/
+    FileUtils.mkdir_p "installers"
+    installer_path = download_resource('http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe')
+    FileUtils.mv installer_path, "installers/rubyinstaller.exe"
 
+    variables = {
+      :version => version,
+      :basename => "td-#{version}.exe",
+      :outdir => Dir.pwd,
+    }
+
+    # create ./td/
     mkchdir("td") do
-      assemble_distribution
-      assemble_gems
-      assemble resource("exe/td"), "bin/td", 0755
-      assemble resource("exe/td.bat"), "bin/td.bat", 0755
+      install_use_gems(Dir.pwd)
+      install_resource 'exe/td', 'bin/td', 0755
+      install_resource 'exe/td.bat', 'bin/td.bat', 0755
     end
 
-    File.open("td.iss", "w") do |iss|
-      iss.write(ERB.new(File.read(resource("exe/td.iss"))).result(binding))
-    end
+    install_erb_resource 'exe/td.iss', 'td.iss', 0644, variables
 
-    inno_dir = ENV["INNO_DIR"] || 'C:\\Program Files (x86)\\Inno Setup 5\\'
+    inno_dir = ENV["INNO_DIR"] || 'C:/Program Files (x86)/Inno Setup 5'
+    inno_bin = ENV["INNO_BIN"] || "#{inno_dir}/Compil32.exe"
 
-    system "\"#{inno_dir}Compil32.exe\" /cc \"td.iss\""
+    sh "\"#{inno_bin}\" /cc \"td.iss\""
 
     raise "Inno Setup failed with code=#{$?}" if $?.to_i != 0
   end
 end
 
-desc 'build exe'
-task 'exe:build' => pkg("td-#{version}.exe")
+desc "clean Windows exe package"
+task "exe:clean" do
+  FileUtils.rm_rf build_dir_path('exe')
+  FileUtils.rm_rf project_root_path("exe/td-#{version}.exe")
+end
 
-desc 'clean exe'
-task 'exe:clean' => pkg("td-#{version}.exe")

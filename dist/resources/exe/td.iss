@@ -5,8 +5,8 @@ DefaultDirName={pf}\TreasureData
 DefaultGroupName=TreasureData
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=<%= File.basename(t.name, ".exe") %>
-OutputDir=<%= File.dirname(t.name) %>
+OutputBaseFilename=<%= basename %>
+OutputDir=<%= outdir %>
 ChangesEnvironment=yes
 UsePreviousSetupType=no
 AlwaysShowComponentsList=no

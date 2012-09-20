@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# -*- coding: utf-8 -*-
 
 # avoid conflicts with rvm
 ENV.delete 'GEM_HOME'
