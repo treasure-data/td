@@ -20,13 +20,18 @@ PROJECT_ROOT = File.expand_path(File.dirname(__FILE__))
 USE_GEMS = ["#{PROJECT_ROOT}/pkg/td-#{version}.gem"]
 
 def install_use_gems(target_dir)
-  # Use --install-dir instead of GEM_HOME env var
-  # because setting GEM_HOME and GEM_PATH could be
-  # overwritten by RVM.
-  install_dir = File.expand_path(target_dir)
+  unless ENV['GEM_HOME'].to_s.empty?
+    puts "**"
+    puts "** GEM_HOME is already set. Created package may be broken. **"
+    puts "** RVM could affect installation. Use rbenv instead. **"
+    puts "**"
+  end
+  env {
+    'GEM_HOME' => target_dir,
+    'GEM_PATH' => '',
+  }
   USE_GEMS.each {|gem|
-    system("gem install --install-dir '#{install_dir}' '#{gem}'")
-    raise "Command failed" unless $?.success?
+    system env, "gem install '#{gem}'"
   }
 end
 
