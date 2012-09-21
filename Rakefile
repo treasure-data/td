@@ -91,7 +91,11 @@ def download_resource(url)
     return path
   end
   FileUtils.mkdir_p File.dirname(path)
-  sh "curl '#{url}' -o '#{path}'"
+  begin
+    sh "curl '#{url}' -o '#{path}'"
+  rescue
+    sh "wget '#{url}' -O '#{path}'"
+  end
   path
 end
 

@@ -4,7 +4,7 @@ task 'exe:build' => :build do
   create_build_dir('exe') do |dir|
     # create ./installers/
     FileUtils.mkdir_p "installers"
-    installer_path = download_resource('http://heroku-toolbelt.s3.amazonaws.com/rubyinstaller.exe')
+    installer_path = download_resource('http://rubyforge.org/frs/download.php/76054/rubyinstaller-1.9.3-p194.exe')
     FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
     variables = {
