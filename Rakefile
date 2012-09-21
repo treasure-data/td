@@ -22,11 +22,13 @@ USE_GEMS = ["#{PROJECT_ROOT}/pkg/td-#{version}.gem"]
 def install_use_gems(target_dir)
   unless ENV['GEM_HOME'].to_s.empty?
     puts "**"
-    puts "** GEM_HOME is already set. Created package may be broken. **"
-    puts "** RVM could affect installation. Use rbenv instead. **"
+    puts "** WARNING"
+    puts "**"
+    puts "** GEM_HOME is already set. Created package may be broken."
+    puts "** RVM surely breaks the package. Use rbenv instead."
     puts "**"
   end
-  env {
+  env = {
     'GEM_HOME' => target_dir,
     'GEM_PATH' => '',
   }
