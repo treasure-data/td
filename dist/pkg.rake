@@ -9,7 +9,9 @@ task 'pkg:build' => :build do
 
     # create ./bundle/td-client.pkg/Payload
     mkchdir('td-client.build') do
-      install_use_gems(Dir.pwd)
+      mkchdir('gems') do
+        install_use_gems(Dir.pwd)
+      end
       install_resource 'pkg/td', 'bin/td', 0755
       sh "pax -wz -x cpio . > ../bundle/td-client.pkg/Payload"
     end

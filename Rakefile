@@ -20,12 +20,12 @@ PROJECT_ROOT = File.expand_path(File.dirname(__FILE__))
 USE_GEMS = ["#{PROJECT_ROOT}/pkg/td-#{version}.gem"]
 
 def install_use_gems(target_dir)
-  env = {
-    'GEM_HOME' => target_dir,
-    'GEM_PATH' => '',
-  }
+  # Use --install-dir instead of GEM_HOME env var
+  # because setting GEM_HOME and GEM_PATH could be
+  # overwritten by RVM.
+  install_dir = File.expand_path(target_dir)
   USE_GEMS.each {|gem|
-    system(env, "gem install #{gem}")
+    system("gem install --install-dir '#{install_dir}' '#{gem}'")
     raise "Command failed" unless $?.success?
   }
 end
@@ -73,14 +73,14 @@ def create_build_dir(type, &block)
     mkchdir(dir, &block)
     success = true
   ensure
-    FileUtils.rm_rf(dir) if success
+    #FileUtils.rm_rf(dir) if success
   end
 end
 
 def download_resource(url)
   fname = File.basename(url).gsub(/\?.*$/,'')
   path = project_root_path("build/cache/#{fname}")
-  if File.exists?(path) && Time.now - File.mtime < 24*60*60
+  if File.exists?(path) && Time.now - File.mtime(path) < 24*60*60
     return path
   end
   FileUtils.mkdir_p File.dirname(path)
