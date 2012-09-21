@@ -38,7 +38,7 @@ Root: HKCU; Subkey: "Environment"; ValueType: "expandsz"; ValueName: "HOME"; \
 [Run]
 Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{app}/ruby-1.9.3"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
-Filename: "{app}\td-cmd.bat"; Description: "Run command prompt"; Flags: postinstall
+; Filename: "{app}\td-cmd.bat"; Description: "Run command prompt"; Flags: postinstall
 
 [Code]
 
