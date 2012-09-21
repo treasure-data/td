@@ -21,7 +21,6 @@ Name: custom; Description: "Custom Installation"; flags: iscustom
 [Components]
 Name: "toolbelt"; Description: "Treasure Data Toolbelt"; Types: "client custom"
 Name: "toolbelt/client"; Description: "Treasure Data Client"; Types: "client custom"; Flags: fixed
-<%#Name: "toolbelt/foreman"; Description: "Foreman"; Types: "client custom"%>
 
 [Files]
 Source: "td\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
@@ -43,8 +42,6 @@ Root: HKCU; Subkey: "Environment"; ValueType: "expandsz"; ValueName: "HOME"; \
 [Run]
 Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocancel /noicons /dir=""{pf}/ruby-1.9.3"""; \
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
-<%#Filename: "{pf}\ruby-1.9.3\bin\gem.bat"; Parameters: "install foreman --no-rdoc --no-ri"; %>
-<%#  Flags: runhidden shellexec waituntilterminated; StatusMsg: "Installing Foreman"; Components: "toolbelt/foreman"%>
 Filename: "{app}\td-cmd.bat"; Description: "Run command prompt"; Flags: postinstall
 
 [Code]
