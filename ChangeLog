@@ -1,4 +1,11 @@
 
+== 2012-09-20 version 0.10.50
+
+* Changed packaging method from Jeweler to Bundler
+* Updated packaging scripts for Windows
+* Updated packaging scripts for Mac OS X
+
+
 == 2012-09-19 version 0.10.49
 
 * query and job:show subcommands support -G, --vertical option
