@@ -30,12 +30,8 @@ Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}"; Components: "toolbelt/
 Name: "{group}\Treasure Data command prompt"; Filename: "{app}\td-cmd.bat"
 
 [Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "TreasureDataPath"; \
-  ValueData: "{app}"
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "Path"; \
   ValueData: "{olddata};{app}\bin"; Check: NeedsAddPath(ExpandConstant('{app}\bin'))
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "Path"; \
-  ValueData: "{olddata};{pf}\ruby-1.9.3\bin"; Check: NeedsAddPath(ExpandConstant('{pf}\ruby-1.9.3\bin'))
 Root: HKCU; Subkey: "Environment"; ValueType: "expandsz"; ValueName: "HOME"; \
   ValueData: "%USERPROFILE%"; Flags: createvalueifdoesntexist
 
