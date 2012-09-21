@@ -1,8 +1,8 @@
 [Setup]
-AppName=TreasureData
+AppName=Treasure Data
 AppVersion=<%= version %>
-DefaultDirName={pf}\TreasureData
-DefaultGroupName=TreasureData
+DefaultDirName={pf}\Treasure Data
+DefaultGroupName=Treasure Data
 Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename=<%= basename %>
@@ -19,13 +19,16 @@ Name: client; Description: "Full Installation";
 Name: custom; Description: "Custom Installation"; flags: iscustom
 
 [Components]
-Name: "toolbelt"; Description: "TreasureData Toolbelt"; Types: "client custom"
-Name: "toolbelt/client"; Description: "TreasureData Client"; Types: "client custom"; Flags: fixed
+Name: "toolbelt"; Description: "Treasure Data Toolbelt"; Types: "client custom"
+Name: "toolbelt/client"; Description: "Treasure Data Client"; Types: "client custom"; Flags: fixed
 <%#Name: "toolbelt/foreman"; Description: "Foreman"; Types: "client custom"%>
 
 [Files]
 Source: "td\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
 Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"
+
+[Icons]
+Name: "{group}\Treasure Data command prompt"; Filename: "{app}\td-cmd.bat"
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: "expandsz"; ValueName: "TreasureDataPath"; \
@@ -42,6 +45,7 @@ Filename: "{tmp}\rubyinstaller.exe"; Parameters: "/verysilent /noreboot /nocance
   Flags: shellexec waituntilterminated; StatusMsg: "Installing Ruby"; Components: "toolbelt/client"
 <%#Filename: "{pf}\ruby-1.9.3\bin\gem.bat"; Parameters: "install foreman --no-rdoc --no-ri"; %>
 <%#  Flags: runhidden shellexec waituntilterminated; StatusMsg: "Installing Foreman"; Components: "toolbelt/foreman"%>
+Filename: "{app}\td-cmd.bat"; Description: "Run command prompt"; Flags: postinstall
 
 [Code]
 

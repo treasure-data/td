@@ -29,6 +29,22 @@ You need to authorize the account, before executing any other commands.
     > td database:create mydb             # create a database
     > td table:create mydb www_access     # create a table
 
+= Packaging
+
+== Mac OS X
+
+    $ gem install bundler
+    $ rake pkg:build
+
+== Windows
+
+First of all, install cygwin.
+Then install gcc and ruby packages using cygwin installer.
+
+    $ gem install bundler
+    $ rake exe:build
+
+
 = Copyright
 
 Copyright:: Copyright (c) 2011 Treasure Data Inc.

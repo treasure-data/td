@@ -20,6 +20,7 @@ task 'exe:build' => :build do
       end
       install_resource 'exe/td', 'bin/td', 0755
       install_resource 'exe/td.bat', 'bin/td.bat', 0755
+      install_resource 'exe/td-cmd.bat', 'td-cmd.bat', 0755
     end
 
     # create td.iss and run Inno Setup

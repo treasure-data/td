@@ -33,7 +33,7 @@ def install_use_gems(target_dir)
     'GEM_PATH' => '',
   }
   USE_GEMS.each {|gem|
-    system env, "gem install '#{gem}'"
+    system env, "gem install '#{gem}' --no-rdoc --no-ri"
   }
 end
 
