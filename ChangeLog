@@ -1,4 +1,10 @@
 
+== 2012-09-21 version 0.10.51
+
+* job:list and job:show show database name
+* Widened display table size of job:list
+
+
 == 2012-09-20 version 0.10.50
 
 * Changed packaging method from Jeweler to Bundler
