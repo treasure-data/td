@@ -64,11 +64,11 @@ module Command
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
       priority = job_priority_name_of(job.priority)
-      rows << {:JobID => job.job_id, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url, :Organization => job.org_name}
+      rows << {:JobID => job.job_id, :Database => job.db_name, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url, :Organization => job.org_name}
       has_org = true if job.org_name
     }
 
-    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Query])
+    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query], :max_width => 140)
   end
 
   def job_show(op)
@@ -110,6 +110,7 @@ module Command
     puts "Type         : #{job.type}"
     puts "Priority     : #{job_priority_name_of(job.priority)}"
     puts "Result       : #{job.result_url}"
+    puts "Database     : #{job.db_name}"
     puts "Query        : #{job.query}"
 
     if wait && !job.finished?
