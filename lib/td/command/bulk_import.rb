@@ -104,6 +104,7 @@ module Command
     suffix_count = 0
     part_prefix = ""
     auto_perform = false
+    parallel = 2
 
     op.on('-P', '--prefix NAME', 'add prefix to parts name') {|s|
       part_prefix = s
@@ -114,20 +115,53 @@ module Command
     op.on('--auto-perform', 'perform bulk import job automatically', TrueClass) {|b|
       auto_perform = b
     }
+    op.on('--parallel NUM', 'perform uploading in parallel (default: 2; max 8)', Integer) {|i|
+      parallel = i
+    }
 
     name, *files = op.cmd_parse
 
-    files.each {|ifname|
-      basename = File.basename(ifname)
-      part_name = part_prefix + basename.split('.')[0..suffix_count].join('.')
+    parallel = 1 if parallel <= 1
+    parallel = 8 if parallel >= 8
 
-      File.open(ifname, "rb") {|io|
-        size = io.size
-        $stderr.puts "Uploading '#{ifname}' -> '#{part_name}'... (#{size} bytes)"
+    threads = (1..parallel).map {|i|
+      Thread.new do
+        errors = []
+        until files.empty?
+          ifname = files.shift
+          basename = File.basename(ifname)
+          begin
+            part_name = part_prefix + basename.split('.')[0..suffix_count].join('.')
 
-        bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
-      }
+            File.open(ifname, "rb") {|io|
+              size = io.size
+              $stderr.write "Uploading '#{ifname}' -> '#{part_name}'... (#{size} bytes)\n"
+
+              bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
+            }
+          rescue
+            errors << [ifname, $!]
+          end
+        end
+        errors
+      end
     }
+
+    errors = []
+    threads.each {|t|
+      errors.concat t.value
+    }
+
+    unless errors.empty?
+      $stderr.puts "failed to upload #{errors.size} files."
+      errors.each {|(ifname,ex)|
+        $stderr.puts "  #{ifname}: #{ex}"
+        ex.backtrace.each {|bt|
+          $stderr.puts "      #{ifname}: #{ex}"
+        }
+      }
+      exit 1
+    end
 
     $stderr.puts "done."
 
@@ -311,6 +345,7 @@ module Command
       end
     }
 
+    # TODO multi process
     files.each {|ifname|
       $stderr.puts "Processing #{ifname}..."
       record_num = 0
@@ -361,7 +396,7 @@ module Command
     rescue
       if retry_limit > 0
         retry_limit -= 1
-        $stderr.puts "#{$!}; retrying '#{part_name}'..."
+        $stderr.write "#{$!}; retrying '#{part_name}'...\n"
         sleep retry_wait
         retry
       end
