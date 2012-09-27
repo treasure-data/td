@@ -1,4 +1,10 @@
 
+== 2012-09-26 version 0.10.52
+
+* bulk_import:upload_parts subcommand supports --parallel option to upload
+  files in parallel (default=2, max=8)
+
+
 == 2012-09-21 version 0.10.51
 
 * job:list and job:show show database name
