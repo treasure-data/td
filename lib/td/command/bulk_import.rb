@@ -321,7 +321,7 @@ module Command
       outdir = s
     }
 
-    *files = op.cmd_parse
+    files = op.cmd_parse
 
     unless outdir
       $stderr.puts "-o, --output DIR option is required."
@@ -350,7 +350,7 @@ module Command
       $stderr.puts "Processing #{ifname}..."
       record_num = 0
 
-      basename = File.basename(ifname).split('.').first
+      basename = File.basename(ifname).sub(/\.(?:csv|tsv|json|msgpack)(?:\.gz)?$/i,'').split('.').join('_')
       File.open(ifname) {|io|
         of_index = 0
         out = nil
