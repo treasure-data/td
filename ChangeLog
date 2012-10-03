@@ -1,4 +1,11 @@
 
+== 2012-10-02 version 0.10.53
+
+* bulk_import:prepare_parts works with Ruby 1.8
+* bulk_import:prepare_parts supports 'msgpack' format
+* bulk_import:prepare_parts supports gzip decompression
+
+
 == 2012-09-26 version 0.10.52
 
 * bulk_import:upload_parts subcommand supports --parallel option to upload
