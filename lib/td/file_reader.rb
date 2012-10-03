@@ -11,7 +11,7 @@ module TreasureData
       end
 
       def forward
-        @u.forward
+        @u.each {|r| break r }
       end
     end
 

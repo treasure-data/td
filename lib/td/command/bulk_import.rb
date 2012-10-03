@@ -323,6 +323,9 @@ module Command
 
     files = op.cmd_parse
 
+    # TODO ruby 1.9
+    files = [files] unless files.is_a?(Array)
+
     unless outdir
       $stderr.puts "-o, --output DIR option is required."
       exit 1
