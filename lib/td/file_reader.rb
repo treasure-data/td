@@ -1,6 +1,28 @@
 
 module TreasureData
   class FileReader
+    require 'zlib'
+
+    class DecompressIOFilter
+      def self.filter(io, error, opts)
+        case opts[:compress]
+        when 'gzip'
+          return Zlib::GzipReader.new(io)
+        when 'plain'
+          return io
+        when nil
+          data = io.read(2)
+          io.rewind
+          if data.unpack('CC') == [0x1f, 0x8b]
+            return Zlib::GzipReader.new(io)
+          else
+            return io
+          end
+        else
+          raise "unknown compression type #{opts[:compress]}"
+        end
+      end
+    end
 
     class MessagePackParsingReader
       def initialize(io, error, opts)
@@ -313,6 +335,7 @@ module TreasureData
       case @format
       when 'text'
         Proc.new {|io,error|
+          io = DecompressIOFilter.filter(io, error, opts)
           reader = LineReader.new(io, error, opts)
           parser = DelimiterParser.new(reader, error, opts)
           if opts[:column_header]
@@ -337,6 +360,7 @@ module TreasureData
 
       when 'json'
         Proc.new {|io,error|
+          io = DecompressIOFilter.filter(io, error, opts)
           reader = LineReader.new(io, error, opts)
           parser = JSONParser.new(reader, error, opts)
           if opts[:column_header]
@@ -356,6 +380,7 @@ module TreasureData
 
       when 'msgpack'
         Proc.new {|io,error|
+          io = DecompressIOFilter.filter(io, error, opts)
           parser = MessagePackParsingReader.new(io, error, opts)
           if opts[:column_header]
             column_names = parser.forward
