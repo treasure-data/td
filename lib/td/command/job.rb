@@ -260,13 +260,17 @@ module Command
     job.result_each {|row|
       # TODO limit number of rows to show
       rows << row.map {|v|
-        # TODO encoding check
         if v.is_a?(String)
           s = v.to_s
         else
           s = v.to_json
         end
-        s.force_encoding('UTF-8') if s.respond_to?(:force_encoding)
+        # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
+        #   a) to make sure the string doesn't include invalid byte sequence
+        #   b) to display multi-byte characters as it is
+        #   c) encoding from UTF-8 to UTF-8 doesn't check/replace invalid chars
+        #   d) UTF-16LE was slightly faster than UTF-16BE, UTF-32LE or UTF-32BE
+        s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode('UTF-8') if s.respond_to?(:encode)
         s
       }
     }
