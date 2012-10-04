@@ -1,4 +1,10 @@
 
+== 2012-10-04 version 0.10.54
+
+* check invalid byte sequence in UTF-8 string before rendering results on
+console
+
+
 == 2012-10-02 version 0.10.53
 
 * bulk_import:prepare_parts works with Ruby 1.8
