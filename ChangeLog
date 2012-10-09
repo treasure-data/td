@@ -1,8 +1,14 @@
 
+== 2012-10-09 version 0.10.55
+
+* Added table:swap subcommand
+* user:create supports -G option to create an organization at the same time
+
+
 == 2012-10-04 version 0.10.54
 
-* check invalid byte sequence in UTF-8 string before rendering results on
-console
+* job:result checks invalid byte sequence in UTF-8 string before rendering
+results on console
 
 
 == 2012-10-02 version 0.10.53
