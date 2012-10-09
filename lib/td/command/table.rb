@@ -109,6 +109,19 @@ module Command
     end
   end
 
+  def table_swap(op)
+    db_name, table_name1, table_name2 = op.cmd_parse
+
+    client = get_client
+
+    table1 = get_table(client, db_name, table_name1)
+    table2 = get_table(client, db_name, table_name2)
+
+    client.swap_table(db_name, table_name1, table_name2)
+
+    $stderr.puts "'#{db_name}.#{table_name1}' and '#{db_name}.#{table_name2}' are swapped."
+  end
+
   def table_show(op)
     db_name, table_name = op.cmd_parse
 

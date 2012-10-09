@@ -270,7 +270,7 @@ module Command
         #   b) to display multi-byte characters as it is
         #   c) encoding from UTF-8 to UTF-8 doesn't check/replace invalid chars
         #   d) UTF-16LE was slightly faster than UTF-16BE, UTF-32LE or UTF-32BE
-        s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode('UTF-8') if s.respond_to?(:encode)
+        s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode!('UTF-8') if s.respond_to?(:encode)
         s
       }
     }
