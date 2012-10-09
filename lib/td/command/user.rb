@@ -45,9 +45,14 @@ module Command
     org = nil
     email = nil
     random_password = false
+    create_org = nil
 
     op.on('-g', '--org ORGANIZATION', "create the user under this organization") {|s|
       org = s
+    }
+
+    op.on('-G', "create the user under the a new organization", TrueClass) {|b|
+      create_org = b
     }
 
     op.on('-e', '--email EMAIL', "Use this email address to identify the user") {|s|
@@ -123,21 +128,38 @@ module Command
 
     client = get_client(:ssl => true)
 
-    client.add_user(name, org)
+    if create_org
+      org ||= name
+      client.create_organization(org)
+    end
 
     ok = false
     begin
-      client.change_email(name, email)
-      client.change_password(name, password)
-      client.add_apikey(name)
-      ok = true
+      client.add_user(name, org)
+
+      begin
+        client.change_email(name, email)
+        client.change_password(name, password)
+        client.add_apikey(name)
+        ok = true
+
+      ensure
+        if !ok
+          client.remove_user(name)
+        end
+      end
+
     ensure
-      unless ok
-        client.remove_user(name)
+      if create_org && !ok
+        client.delete_organization(org)
       end
     end
 
-    $stderr.puts "User '#{name}' is created."
+    if create_org
+      $stderr.puts "Organization '#{org}' and user '#{name}' are created."
+    else
+      $stderr.puts "User '#{name}' is created."
+    end
     $stderr.puts "Use '#{$prog} user:apikeys #{name}' to show the API key."
   end
 
