@@ -1,4 +1,10 @@
 
+== 2012-10-11 version 0.10.56
+
+* Updated td-client v0.8.33 which supports deflate and gzip compressed data
+transfer
+
+
 == 2012-10-09 version 0.10.55
 
 * Added table:swap subcommand
