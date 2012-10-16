@@ -29,6 +29,7 @@ def install_use_gems(target_dir)
     puts "** RVM surely breaks the package. Use rbenv instead."
     puts "**"
   end
+  # system(env, cmd) doesn't work with ruby 1.8
   ENV['GEM_HOME'] = target_dir
   ENV['GEM_PATH'] = ''
   USE_GEMS.each {|gem|
@@ -51,7 +52,10 @@ def install_erb_resource(resource_name, target_path, mode, variables)
   erb_raw = File.read resource_path(resource_name)
 
   ctx = Object.new
-  variables.each_pair {|k,v| ctx.define_singleton_method(k) { v } }
+  variables.each_pair {|k,v|
+    # ctx.define_singleton_method(k) { v } doesn't work with ruby 1.8
+    (class<<ctx;self;end).send(:define_method, k) { v }
+  }
   data = ERB.new(erb_raw).result(ctx.instance_eval("binding"))
 
   File.open(target_path, "w") do |f|
