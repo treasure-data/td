@@ -29,12 +29,10 @@ def install_use_gems(target_dir)
     puts "** RVM surely breaks the package. Use rbenv instead."
     puts "**"
   end
-  env = {
-    'GEM_HOME' => target_dir,
-    'GEM_PATH' => '',
-  }
+  ENV['GEM_HOME'] = target_dir
+  ENV['GEM_PATH'] = ''
   USE_GEMS.each {|gem|
-    system env, "gem install '#{gem}' --no-rdoc --no-ri"
+    system "gem install '#{gem}' --no-rdoc --no-ri"
   }
 end
 
