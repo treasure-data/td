@@ -24,7 +24,7 @@ def install_use_gems(target_dir)
     puts "**"
     puts "** WARNING"
     puts "**"
-    puts "** GEM_HOME is already set. Created package may be broken."
+    puts "** GEM_HOME is already set. Created package might be broken."
     puts "** RVM surely breaks the package. Use rbenv instead."
     puts "**"
   end

@@ -33,7 +33,10 @@ You need to authorize the account, before executing any other commands.
 
 == Mac OS X
 
-    $ gem install bundler
+Disable RVM and enable system ruby (/usr/bin/ruby) first.
+And then run following commands:
+
+    $ sudo gem install bundler
     $ rake pkg:build
 
 == Windows
