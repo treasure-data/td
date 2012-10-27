@@ -54,6 +54,10 @@ module Command
       exit 1
     end
 
+    if sql == '-'
+      sql = STDIN.read
+    end
+
     if result_url
       require 'td/command/result'
       result_url = build_result_url(result_url, result_user, result_ask_password)
