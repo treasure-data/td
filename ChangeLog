@@ -1,4 +1,10 @@
 
+== 2012-10-30 version 0.10.57
+
+* job:show and query subcommands support --format 'msgpack.gz' option
+* query subcommand reads SQL from STDIN if the first argument is '-'
+
+
 == 2012-10-11 version 0.10.56
 
 * Updated td-client v0.8.33 which supports deflate and gzip compressed data
