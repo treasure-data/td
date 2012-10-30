@@ -91,8 +91,8 @@ module Command
       output = s
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
-      unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
-        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack"
+      unless ['tsv', 'csv', 'json', 'msgpack', 'msgpack.gz'].include?(s)
+        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack, msgpack.gz"
       end
       format = s
     }
@@ -221,6 +221,11 @@ module Command
     when 'msgpack'
       File.open(output, "wb") {|f|
         job.result_format('msgpack', f)
+      }
+
+    when 'msgpack.gz'
+      File.open(output, "wb") {|f|
+        job.result_format('msgpack.gz', f)
       }
 
     when 'csv'
