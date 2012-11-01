@@ -42,10 +42,10 @@ module Command
     dbs = client.databases
     dbs.map {|db|
       db.tables.each {|table|
-        tables << {:Database => db.name, :Table => table.name, :Count => table.count.to_s}
+        tables << {:Database => db.name, :Table => table.name, :Count => table.count.to_s, :Size => table.estimated_storage_size_string}
       }
     }
-    x3, y3 = status_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count])
+    x3, y3 = status_render(0, 0, "[Tables]", tables, :fields => [:Database, :Table, :Count, :Size])
 
     rs = client.results
     rs.each {|r|

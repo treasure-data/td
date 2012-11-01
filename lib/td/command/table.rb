@@ -86,14 +86,14 @@ module Command
         pschema = table.schema.fields.map {|f|
           "#{f.name}:#{f.type}"
         }.join(', ')
-        rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s, :Schema=>pschema.to_s}
+        rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s, :Size => table.estimated_storage_size_string, :Schema => pschema}
       }
     }
     rows = rows.sort_by {|map|
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Schema], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, :Schema], :max_width=>500)
 
     if rows.empty?
       if db_name
