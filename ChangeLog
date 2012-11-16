@@ -1,6 +1,14 @@
+== 2012-11-16 version 0.10.59
+
+* td-client v0.8.35
+* td-logger v0.3.16
+* remove json gem from dependency
+
+
 == 2012-11-02 version 0.10.58
 
 * status and table:list display each table size
+
 
 == 2012-10-30 version 0.10.57
 

@@ -17,9 +17,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_dependency "msgpack", "~> 0.4.4"
-  gem.add_dependency "json", ">= 1.4.3"
   gem.add_dependency "hirb", ">= 0.4.5"
-  gem.add_dependency "td-client", "~> 0.8.33"
-  gem.add_dependency "td-logger", "~> 0.3.12"
+  gem.add_dependency "td-client", "~> 0.8.35"
+  gem.add_dependency "td-logger", "~> 0.3.16"
   gem.add_development_dependency "rake", "~> 0.9"
 end
