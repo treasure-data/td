@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "msgpack", "~> 0.4.4"
   gem.add_dependency "hirb", ">= 0.4.5"
-  gem.add_dependency "td-client", "~> 0.8.35"
+  gem.add_dependency "td-client", "~> 0.8.37"
   gem.add_dependency "td-logger", "~> 0.3.16"
   gem.add_development_dependency "rake", "~> 0.9"
 end
