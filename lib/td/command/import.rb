@@ -25,6 +25,7 @@ module Command
 
     format = 'apache'
     time_key = 'time'
+    auto_create = false
 
     op.on('--format FORMAT', "file format (default: #{format})") {|s|
       format = s
@@ -50,9 +51,30 @@ module Command
       time_key = s
     }
 
+    op.on('--auto-create-table', "Create table and database if doesn't exist", TrueClass) { |b|
+      auto_create = b
+    }
+
     db_name, table_name, *paths = op.cmd_parse
 
     client = get_client
+
+    if auto_create
+      # Merge with db_create and table_create after refactoring
+      API.validate_database_name(db_name)
+      begin
+        client.create_database(db_name)
+        $stderr.puts "Database '#{db_name}' is created."
+      rescue AlreadyExistsError
+      end
+
+      API.validate_table_name(table_name)
+      begin
+        client.create_log_table(db_name, table_name)
+        $stderr.puts "Table '#{db_name}.#{table_name}' is created."
+      rescue AlreadyExistsError
+      end
+    end
 
     case format
     when 'json', 'msgpack'
