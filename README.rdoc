@@ -52,7 +52,7 @@ Then run following commands on MinGW Shell:
     $ mingw-get install msys-vim
     $ mingw-get install msys-wget
     $ gem install bundler
-    $ rake exe:build
+    $ bundle exec rake exe:build
 
 
 = Copyright
