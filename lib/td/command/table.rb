@@ -69,6 +69,13 @@ module Command
   end
 
   def table_list(op)
+    require 'parallel'
+
+    num_threads = 4
+    op.on('-n', '--num_threads VAL', 'number of threads to get list in parallel') { |i|
+      num_threads = Integer(i)
+    }
+
     db_name = op.cmd_parse
 
     client = get_client
@@ -81,7 +88,7 @@ module Command
     end
 
     rows = []
-    dbs.each {|db|
+    ::Parallel.each(dbs, :in_threads => num_threads) {|db|
       db.tables.each {|table|
         pschema = table.schema.fields.map {|f|
           "#{f.name}:#{f.type}"
