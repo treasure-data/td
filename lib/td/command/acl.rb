@@ -45,7 +45,7 @@ module Command
 
     client.revoke_access_control(subject, action, scope)
 
-    $stderr.puts "Access control [#{subject} #{action} #{scope}] is created."
+    $stderr.puts "Access control [#{subject} #{action} #{scope}] is removed."
   end
 
   # TODO acl_test
