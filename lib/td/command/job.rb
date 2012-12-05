@@ -30,8 +30,7 @@ module Command
     page = 0
     skip = 0
     status = nil
-    slow = false
-    slow_threshold_sec = 3600
+    slower_than = nil
 
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
@@ -48,11 +47,8 @@ module Command
     op.on('-E', '--error', 'show only failed jobs', TrueClass) {|b|
       status = 'error'
     }
-    op.on('--slow', 'show slow query', TrueClass) { |b|
-      slow = true
-    }
-    op.on('--slow-threshold-sec N', 'threshold of elapsed time(seconds)', Integer) { |i|
-      slow_threshold_sec = i
+    op.on('--slow [SECONDS]', 'show slow queries (default threshold: 3600 seconds)', Integer) { |i|
+      slower_than = i || 3600
     }
 
     max = op.cmd_parse
@@ -66,11 +62,8 @@ module Command
     end
 
     conditions = nil
-    if slow
-      conditions = { 
-        :slow => true,
-        :slow_threshold_sec => slow_threshold_sec
-      }
+    if slower_than
+      conditions = {:slower_than => slower_than}
     end
 
     jobs = client.jobs(skip, skip+max-1, status, conditions)
