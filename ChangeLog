@@ -1,3 +1,8 @@
+== 2012-12-05 version 0.10.62
+
+* Add --slow option to job:list subcommand.
+
+
 == 2012-11-19 version 0.10.61
 
 * Add --auto-create-table option to table:import subcommand. issue #9
