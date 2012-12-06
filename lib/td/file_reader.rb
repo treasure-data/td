@@ -48,7 +48,10 @@ module TreasureData
       end
 
       def forward_row
-        @io.readline($/).chomp
+        line = @io.readline($/)
+        line.force_encoding('ASCII-8BIT') if line.respond_to?(:force_encoding)
+        line.chomp!
+        line
       end
     end
 
