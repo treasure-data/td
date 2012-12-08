@@ -41,6 +41,7 @@ Basic commands:
   table          # create/delete/list/import/export/tail tables
   query          # issue a query
   job            # show/kill/list jobs
+  bulk_import    # manage bulk import sessions
   result         # create/delete/list result URLs
 
 Additional commands:
