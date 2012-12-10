@@ -1,3 +1,9 @@
+== 2012-12-10 version 0.10.64
+
+* td-client v0.8.39
+* Add 'bulk_import' to "Basic commands" list
+
+
 == 2012-12-05 version 0.10.63
 
 * bulk_import:prepare_parts handles binary data which is invalid in UTF-8
