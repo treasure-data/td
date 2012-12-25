@@ -22,16 +22,24 @@ describe FileReader::LineReader do
   end
 
   it 'initialize' do
-    ee = io.external_encoding
+    if io.respond_to?(:external_encoding)
+      ee = io.external_encoding
+    end
     FileReader::LineReader.new(io, error, {})
-    io.external_encoding.should == ee
+    if io.respond_to?(:external_encoding)
+      io.external_encoding.should == ee
+    end
   end
 
   it 'initialize with specifid encoding' do
-    ee = io.external_encoding
+    if io.respond_to?(:external_encoding)
+      ee = io.external_encoding
+    end
     FileReader::LineReader.new(io, error, {:encoding => 'utf-8'})
-    io.external_encoding.should_not == ee
-    io.external_encoding.should == Encoding.find('utf-8')
+    if io.respond_to?(:external_encoding)
+      io.external_encoding.should_not == ee
+      io.external_encoding.should == Encoding.find('utf-8')
+    end
   end
 
   context 'after initialization' do
@@ -102,6 +110,8 @@ describe FileReader::LineReader do
                 line.should == JSON.parse(lines[i])
                 i += 2
               end
+            rescue RSpec::Expectations::ExpectationNotMetError => e
+              fail
             rescue
               io.eof?.should be_true
             end
