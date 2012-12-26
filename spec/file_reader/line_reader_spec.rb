@@ -120,35 +120,35 @@ describe FileReader::LineReader do
       end
     end
 
-    describe FileReader::DelimiterParser do
-      [/,/, /\t/].each { |format|
+    [',', "\t"].each { |pattern|
+      describe FileReader::DelimiterParser do
         let :lines do
           [
-            ['hoge', '12345', Time.now.to_s].join(format.source),
-            ['foo',  '34567', Time.now.to_s].join(format.source),
-            ['piyo', '56789', Time.now.to_s].join(format.source),
+            ['hoge', '12345', Time.now.to_s].join(pattern),
+            ['foo',  '34567', Time.now.to_s].join(pattern),
+            ['piyo', '56789', Time.now.to_s].join(pattern),
           ]
         end
 
-        it "initialize with LineReader and #{format.source} delimiter" do
-          parser = FileReader::DelimiterParser.new(reader, error, {:delimiter_expr => format})
+        it "initialize with LineReader and #{pattern} delimiter" do
+          parser = FileReader::DelimiterParser.new(reader, error, {:delimiter_expr => Regexp.new(pattern)})
           parser.should_not be_nil
         end
 
         context 'after initialization' do
           let :parser do
-            FileReader::DelimiterParser.new(reader, error, {:delimiter_expr => format})
+            FileReader::DelimiterParser.new(reader, error, {:delimiter_expr => Regexp.new(pattern)})
           end
 
           it 'forward returns one line' do
-            parser.forward.should == lines[0].split(format)
+            parser.forward.should == lines[0].split(pattern)
           end
-          
+
           it 'feeds all lines' do
             begin
               i = 0
               while line = parser.forward
-                line.should == lines[i].split(format)
+                line.should == lines[i].split(pattern)
                 i += 1
               end
             rescue
@@ -156,7 +156,7 @@ describe FileReader::LineReader do
             end
           end
         end
-      }
-    end
+      end
+    }
   end
 end

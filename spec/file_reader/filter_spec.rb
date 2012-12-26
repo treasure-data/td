@@ -73,7 +73,7 @@ describe 'FileReader filters' do
     end
 
     let :built_dataset do
-      # [{"str" => "hoge", "num" => "12345", "bool" => "true" , "null" =>"null", "time" => "2012-12-26 05:14:09 +0900"}, ...]
+      # [{"str" => "hoge", "num" => "12345", "bool" => "true" , "null" =>"null", "log_at" => "2012-12-26 05:14:09 +0900"}, ...]
       dataset.map { |data| Hash[columns.zip(data.map(&:to_s))]}
     end
 
