@@ -1,6 +1,16 @@
 
 module TreasureData
+  # json and msgpack format supports array types with columns
+  #
+  # - when --column-header option
+  # ["a", "b", "c"] # first line is header
+  # ["v", 10, true] # array types, e.g. generate {"a" => "v", "b" => 10, "c" => true}
+  # ...
+  # - when --columns a,b,c
+  # ["v", 10, true] # array types
+  # ...
   class FileReader
+    require 'time'
     require 'zlib'
 
     class DecompressIOFilter
@@ -172,7 +182,6 @@ module TreasureData
 
     class TimeParserFilter
       def initialize(parser, error, opts)
-        require 'time'
         @parser = parser
         @error = error
         @time_column = opts[:time_column]

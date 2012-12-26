@@ -164,8 +164,6 @@ describe FileReader do
     end
 
     context 'value of the time column option' do
-      require 'time'
-
       {'int' => lambda { |t| t.to_i.to_s }, 'formatted' => lambda { |t| t.to_s }}.each_pair { |value_type, converter|
         it "--time-value option with #{value_type}" do
           time = Time.now
