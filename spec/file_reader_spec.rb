@@ -209,12 +209,22 @@ describe FileReader do
   end
 
   describe 'parse' do
-    let :dataset do
+    let :dataset_header do
+      ['name', 'num', 'created_at', 'flag']
+    end
+
+    let :dataset_values do
       [
-        {'name' => 'k', 'num' => 12345, 'created_at' => Time.now.to_s, 'flag' => true},
-        {'name' => 's', 'num' => 34567, 'created_at' => Time.now.to_s, 'flag' => false},
-        {'name' => 'n', 'num' => 56789, 'created_at' => Time.now.to_s, 'flag' => true},
+        ['k', 12345, Time.now.to_s, true],
+        ['s', 34567, Time.now.to_s, false],
+        ['n', 56789, Time.now.to_s, true],
       ]
+    end
+
+    let :dataset do
+      dataset_values.map { |data|
+        Hash[dataset_header.zip(data)]
+      }
     end
 
     def parse_opt(argv, &block)
@@ -247,6 +257,28 @@ describe FileReader do
       end
     end
 
+    shared_examples_for 'parse --columns / --column-header cases' do |format|
+      converter = "to_#{format}".to_sym
+
+      context 'array format' do
+        let :lines do
+          dataset_values.map { |data| data.__send__(converter) }
+        end
+
+        context 'with --column-columns' do
+          it_should_behave_like 'parse --time-value / --time-column cases', format, %W(-h name,num,created_at,flag)
+        end
+
+        context 'with --column-header' do
+          let :lines do
+            [dataset_header.__send__(converter)] + dataset_values.map { |data| data.__send__(converter) }
+          end
+
+          it_should_behave_like 'parse --time-value / --time-column cases', format, %W(-H)
+        end
+      end
+    end
+
     context 'json' do
       require 'json'
 
@@ -259,6 +291,7 @@ describe FileReader do
       end
 
       it_should_behave_like 'parse --time-value / --time-column cases', 'json'
+      it_should_behave_like 'parse --columns / --column-header cases', 'json'
     end
 
     context 'msgpack' do
@@ -273,12 +306,13 @@ describe FileReader do
       end
 
       it_should_behave_like 'parse --time-value / --time-column cases', 'msgpack'
+      it_should_behave_like 'parse --columns / --column-header cases', 'msgpack'
     end
 
     [['csv', ','], ['tsv', "\t"]].each { |text_type, pattern|
       context 'text' do
         let :lines do
-          dataset.map(&:values).map { |data| data.map(&:to_s).join(pattern) }
+          dataset_values.map { |data| data.map(&:to_s).join(pattern) }
         end
 
         let :io do
@@ -299,8 +333,7 @@ describe FileReader do
 
         context 'with --column-header' do
           let :lines do
-            header = [dataset.first.keys.join(pattern)]
-            header + dataset.map(&:values).map { |data| data.map(&:to_s).join(pattern) }
+            [dataset_header.join(pattern)] + dataset_values.map { |data| data.map(&:to_s).join(pattern) }
           end
 
           it_should_behave_like 'parse --time-value / --time-column cases', text_type, %W(-H)
