@@ -36,6 +36,18 @@ describe FileReader do
       reader.opts.should include(:delimiter_expr => /\t/)
     end
 
+    it 'can set apache' do
+      reader.set_format_template('apache')
+      reader.instance_variable_get(:@format).should == 'apache'
+      reader.opts.should include(:time_column => 'time')
+    end
+
+    it 'can set syslog' do
+      reader.set_format_template('syslog')
+      reader.instance_variable_get(:@format).should == 'syslog'
+      reader.opts.should include(:time_column => 'time')
+    end
+
     it 'can set msgpack' do
       reader.set_format_template('msgpack')
       reader.instance_variable_get(:@format).should == 'msgpack'
@@ -63,7 +75,7 @@ describe FileReader do
 
     context '-f option' do
       ['-f', '--format'].each { |opt|
-        ['csv', 'tsv', 'msgpack', 'json'].each { |format|
+        ['csv', 'tsv', 'apache', 'syslog', 'msgpack', 'json'].each { |format|
           it "#{opt} option with #{format}" do
             reader.should_receive(:set_format_template).with(format)
             parse_opt([opt, format]) { }
@@ -225,6 +237,10 @@ describe FileReader do
       }
     end
 
+    let :time_column do
+      'created_at'
+    end
+
     def parse_opt(argv, &block)
       op = OptionParser.new
       reader.init_optparse(op)
@@ -244,11 +260,13 @@ describe FileReader do
         }
       end
 
-      it 'parse #{format} with --time-column' do
-        parse_opt(%W(-f #{format} --time-column created_at) + (args || [])) {
+      it "parse #{format} with --time-column" do
+        parse_opt(%W(-f #{format} --time-column #{time_column}) + (args || [])) {
           i = 0
           reader.parse(io, error) { |record|
-            record.should == dataset[i].merge('time' => Time.parse(record['created_at']).to_i)
+            time = record[time_column]
+            time = Time.parse(time).to_i if time.is_a?(String)
+            record.should == dataset[i].merge('time' => time)
             i += 1
           }
         }
@@ -277,15 +295,15 @@ describe FileReader do
       end
     end
 
+    let :io do
+      StringIO.new(lines.join("\n"))
+    end
+
     context 'json' do
       require 'json'
 
       let :lines do
         dataset.map(&:to_json)
-      end
-
-      let :io do
-        StringIO.new(lines.join("\n"))
       end
 
       it_should_behave_like 'parse --time-value / --time-column cases', 'json'
@@ -313,10 +331,6 @@ describe FileReader do
           dataset_values.map { |data| data.map(&:to_s).join(pattern) }
         end
 
-        let :io do
-          StringIO.new(lines.join("\n"))         
-        end
-
         it "raises an exception without --column-header or --columns in #{pattern}" do
           parse_opt(%W(-f #{text_type})) {
             expect {
@@ -338,6 +352,49 @@ describe FileReader do
         end
 
         # TODO: Add all_string
+      end
+    }
+
+    {
+      'apache' => [
+        [
+          '58.83.188.60 - - [23/Oct/2011:08:15:46 -0700] "HEAD / HTTP/1.0" 200 277 "-" "-"',
+          '127.0.0.1 - - [23/Oct/2011:08:20:01 -0700] "GET / HTTP/1.0" 200 492 "-" "Wget/1.12 (linux-gnu)"',
+          '68.64.37.100 - - [24/Oct/2011:01:48:54 -0700] "GET /phpMyAdmin/scripts/setup.php HTTP/1.1" 404 480 "-" "ZmEu"'
+        ],
+        [
+          {"host" => "58.83.188.60", "user" => nil, "time" => 1319382946, "method" => "HEAD", "path" => "/", "code" => 200, "size" => 277, "referer" => nil, "agent" => nil},
+          {"host" => "127.0.0.1", "user" => nil, "time" => 1319383201, "method" => "GET", "path" => "/", "code" => 200, "size" => 492, "referer" => nil, "agent" => "Wget/1.12 (linux-gnu)"},
+          {"host" => "68.64.37.100", "user" => nil, "time" => 1319446134, "method" => "GET", "path" => "/phpMyAdmin/scripts/setup.php", "code" => 404, "size" => 480, "referer" => nil, "agent" => "ZmEu"},
+        ]
+      ],
+      'syslog' => [
+        [
+          'Dec 20 12:41:44 localhost kernel: [4843680.692840] e1000e: eth2 NIC Link is Down',
+          'Dec 20 12:41:44 localhost kernel: [4843680.734466] br0: port 1(eth2) entering disabled state',
+          'Dec 22 10:42:41 localhost kernel[10000]: [5009052.220155] zsh[25578]: segfault at 7fe849460260 ip 00007fe8474fd74d sp 00007fffe3bdf0e0 error 4 in libc-2.11.1.so[7fe847486000+17a000]',
+        ],
+        [
+          {"pid" => nil, "time" => 1355974904, "host" => "localhost", "ident" => "kernel", "message" => "[4843680.692840] e1000e: eth2 NIC Link is Down"},
+          {"pid" => nil, "time" => 1355974904, "host" => "localhost", "ident" => "kernel", "message" => "[4843680.734466] br0: port 1(eth2) entering disabled state"},
+          {"pid" => 10000, "time" => 1356140561, "host" => "localhost", "ident" => "kernel", "message" => "[5009052.220155] zsh[25578]: segfault at 7fe849460260 ip 00007fe8474fd74d sp 00007fffe3bdf0e0 error 4 in libc-2.11.1.so[7fe847486000+17a000]"},
+        ]
+      ]
+    }.each_pair { |format, (input, output)|
+      context format do
+        let :lines do
+          input
+        end
+
+        let :dataset do
+          output
+        end
+
+        let :time_column do
+          'time'
+        end
+
+        it_should_behave_like 'parse --time-value / --time-column cases', format
       end
     }
   end

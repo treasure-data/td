@@ -151,8 +151,98 @@ describe FileReader::LineReader do
                 line.should == lines[i].split(pattern)
                 i += 1
               end
+            rescue RSpec::Expectations::ExpectationNotMetError => e
+              fail
             rescue
               io.eof?.should be_true
+            end
+          end
+        end
+      end
+    }
+
+    {
+      FileReader::ApacheParser => [
+        [
+          '58.83.188.60 - - [23/Oct/2011:08:15:46 -0700] "HEAD / HTTP/1.0" 200 277 "-" "-"',
+          '127.0.0.1 - - [23/Oct/2011:08:20:01 -0700] "GET / HTTP/1.0" 200 492 "-" "Wget/1.12 (linux-gnu)"',
+          '68.64.37.100 - - [24/Oct/2011:01:48:54 -0700] "GET /phpMyAdmin/scripts/setup.php HTTP/1.1" 404 480 "-" "ZmEu"'
+        ],
+        [
+          ["58.83.188.60", "-", "23/Oct/2011:08:15:46 -0700", "HEAD", "/", "200", "277", "-", "-"],
+          ["127.0.0.1", "-", "23/Oct/2011:08:20:01 -0700", "GET", "/", "200", "492", "-", "Wget/1.12 (linux-gnu)"],
+          ["68.64.37.100", "-", "24/Oct/2011:01:48:54 -0700", "GET", "/phpMyAdmin/scripts/setup.php", "404", "480", "-", "ZmEu"],
+        ]
+      ],
+      FileReader::SyslogParser => [
+        [
+          'Dec 20 12:41:44 localhost kernel: [4843680.692840] e1000e: eth2 NIC Link is Down',
+          'Dec 20 12:41:44 localhost kernel: [4843680.734466] br0: port 1(eth2) entering disabled state',
+          'Dec 22 10:42:41 localhost kernel: [5009052.220155] zsh[25578]: segfault at 7fe849460260 ip 00007fe8474fd74d sp 00007fffe3bdf0e0 error 4 in libc-2.11.1.so[7fe847486000+17a000]',
+        ],
+        [
+          ["Dec 20 12:41:44", "localhost", "kernel", nil, "[4843680.692840] e1000e: eth2 NIC Link is Down"],
+          ["Dec 20 12:41:44", "localhost", "kernel", nil, "[4843680.734466] br0: port 1(eth2) entering disabled state"],
+          ["Dec 22 10:42:41", "localhost", "kernel", nil, "[5009052.220155] zsh[25578]: segfault at 7fe849460260 ip 00007fe8474fd74d sp 00007fffe3bdf0e0 error 4 in libc-2.11.1.so[7fe847486000+17a000]"],
+        ]
+      ]
+    }.each_pair { |parser_class, (input, output)|
+      describe parser_class do
+        let :lines do
+          input
+        end
+
+        it "initialize with LineReader" do
+          parser = parser_class.new(reader, error, {})
+          parser.should_not be_nil
+        end
+
+        context 'after initialization' do
+          let :parser do
+            parser_class.new(reader, error, {})
+          end
+
+          it 'forward returns one line' do
+            parser.forward.should == output[0]
+          end
+
+          it 'feeds all lines' do
+            begin
+              i = 0
+              while line = parser.forward
+                line.should == output[i]
+                i += 1
+              end
+            rescue RSpec::Expectations::ExpectationNotMetError => e
+              fail
+            rescue
+              io.eof?.should be_true
+            end
+          end
+
+          context 'with broken line' do
+            let :lines do
+              broken = input.dup
+              broken[1] = "Raw text sometimes is broken!"
+              broken
+            end
+
+            let :error_pattern do
+              /^invalid #{parser.instance_variable_get(:@format)} format/
+            end
+
+            it 'feeds all lines' do
+              begin
+                i = 0
+                while line = parser.forward
+                  line.should == output[i]
+                  i += 2
+                end
+              rescue RSpec::Expectations::ExpectationNotMetError => e
+                fail
+              rescue
+                io.eof?.should be_true
+              end
             end
           end
         end

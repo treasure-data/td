@@ -111,34 +111,62 @@ module TreasureData
       end
     end
 
-    # TODO
-    #class ApacheParser
-    #  REGEXP = /^([^ ]*) [^ ]* ([^ ]*) \[([^\]]*)\] "(\S+)(?: +([^ ]*) +\S*)?" ([^ ]*) ([^ ]*)(?: "([^\"]*)" "([^\"]*)")?$/
-    #
-    #  def initialize(reader, error, opts)
-    #    @reader = reader
-    #  end
-    #
-    #  def forward
-    #    while true
-    #      m = REGEXP.match(@reader.forward_row)
-    #      if m
-    #        h = {
-    #          'host' => m[1],
-    #          'user' => m[2],
-    #          'time' => m[3],
-    #          'method' => m[4],
-    #          'path' => m[5],
-    #          'code' => m[6],
-    #          'size' => m[7].to_i,
-    #          'referer' => m[8],
-    #          'agent' => m[9],
-    #        }
-    #        return h
-    #      end
-    #    end
-    #  end
-    #end
+    # TODO: Support user defined format like in_tail
+    module RegexpParserMixin
+      def initialize(reader, error, opts)
+        @reader = reader
+        @error = error
+      end
+
+      def forward
+        while true
+          line = @reader.forward_row
+          begin
+            m = @regexp.match(line)
+            unless m
+              @error.call("invalid #{@format} format", line)
+              next
+            end
+
+            return m.captures
+          rescue
+            @error.call("skipped: #{$!}", line)
+            next
+          end
+        end
+      end      
+    end
+
+    class ApacheParser
+      # 1.8 don't have named capture, so need column names.
+      COLUMNS = ['host', 'user', 'time', 'method', 'path', 'code', 'size', 'referer', 'agent']
+      TIME_FORMAT = "%d/%b/%Y:%H:%M:%S %z"
+
+      include RegexpParserMixin
+
+      def initialize(reader, error, opts)
+        super
+
+        # e.g. 127.0.0.1 - - [23/Oct/2011:08:20:01 -0700] "GET / HTTP/1.0" 200 492 "-" "Wget/1.12 (linux-gnu)"
+        @format = 'apache'
+        @regexp = /^([^ ]*) [^ ]* ([^ ]*) \[([^\]]*)\] "(\S+)(?: +([^ ]*) +\S*)?" ([^ ]*) ([^ ]*)(?: "([^\"]*)" "([^\"]*)")?$/
+      end
+    end
+
+    class SyslogParser
+      COLUMNS = ['time', 'host', 'ident', 'pid', 'message']
+      TIME_FORMAT = "%b %d %H:%M:%S"
+
+      include RegexpParserMixin
+
+      def initialize(reader, error, opts)
+        super
+
+        # e.g. Dec 20 12:41:44 localhost kernel:10000 [4843680.692840] e1000e: eth2 NIC Link is Down
+        @format = 'syslog'
+        @regexp = /^([^ ]* [^ ]* [^ ]*) ([^ ]*) ([a-zA-Z0-9_\/\.\-]*)(?:\[([0-9]+)\])?[^\:]*\: *(.*)$/
+      end
+    end
 
     class AutoTypeConvertParserFilter
       def initialize(parser, error, opts)
@@ -327,12 +355,17 @@ module TreasureData
       when 'tsv'
         @format = 'text'
         @opts[:delimiter_expr] = /\t/
-      #when 'apache'
-      #  @format = 'apache'
-      #  @opts[:column_names] = ['host', 'user', 'time', 'method', 'path', 'code', 'size', 'referer', 'agent']
-      #  @opts[:null_expr] = /\A(?:\-|)\z/
-      #  @opts[:time_column] = 'time'
-      #  @opts[:time_format] = '%d/%b/%Y:%H:%M:%S %z'
+      when 'apache'
+        @format = name
+        @opts[:column_names] = ApacheParser::COLUMNS
+        @opts[:null_expr] = /\A(?:\-|)\z/
+        @opts[:time_column] = 'time'
+        @opts[:time_format] = ApacheParser::TIME_FORMAT
+      when 'syslog'
+        @format = name
+        @opts[:column_names] = SyslogParser::COLUMNS
+        @opts[:time_column] = 'time'
+        @opts[:time_format] = SyslogParser::TIME_FORMAT
       when 'msgpack'
         @format = 'msgpack'
       when 'json'
@@ -368,7 +401,30 @@ module TreasureData
           end
         }
 
-      #when 'apache'
+      when 'apache', 'syslog'
+        Proc.new {|io,error|
+          io = DecompressIOFilter.filter(io, error, opts)
+          reader = LineReader.new(io, error, opts)
+          parser = if @format == 'apache'
+                     ApacheParser.new(reader, error, opts)
+                   else
+                     SyslogParser.new(reader, error, opts)
+                   end
+          if opts[:column_names]
+            column_names = opts[:column_names]
+          else
+            raise "--columns option is required"
+          end
+          unless opts[:all_string]
+            parser = AutoTypeConvertParserFilter.new(parser, error, opts)
+          end
+          parser = HashBuilder.new(parser, error, column_names)
+          if opts[:time_value]
+            parser = SetTimeParserFilter.new(parser, error, opts)
+          else
+            parser = TimeParserFilter.new(parser, error, opts)
+          end
+        }
 
       when 'json'
         Proc.new {|io,error|
