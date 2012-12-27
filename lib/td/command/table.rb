@@ -81,14 +81,14 @@ module Command
     client = get_client
 
     if db_name
-      db = get_database(client, db_name)
-      dbs = [db]
+      database = get_database(client, db_name)
+      databases = [database]
     else
-      dbs = client.databases
+      databases = client.databases
     end
 
     rows = []
-    ::Parallel.each(dbs, :in_threads => num_threads) {|db|
+    ::Parallel.each(databases, :in_threads => num_threads) {|db|
       db.tables.each {|table|
         pschema = table.schema.fields.map {|f|
           "#{f.name}:#{f.type}"
