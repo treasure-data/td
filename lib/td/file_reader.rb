@@ -10,7 +10,8 @@ module TreasureData
   # ["v", 10, true] # array types
   # ...
   class FileReader
-    require 'time'
+    require 'date' # DateTime#strptime
+    require 'time' # Time#strptime, Time#parse
     require 'zlib'
 
     class DecompressIOFilter
@@ -94,6 +95,8 @@ module TreasureData
 
     class JSONParser
       def initialize(reader, error, opts)
+        require 'json'
+
         @reader = reader
         @error = error
       end
@@ -116,26 +119,25 @@ module TreasureData
       def initialize(reader, error, opts)
         @reader = reader
         @error = error
+        @index = 0
       end
 
       def forward
         while true
+          @index += 1
           line = @reader.forward_row
-          begin
-            m = @regexp.match(line)
-            unless m
-              @error.call("invalid #{@format} format", line)
-              next
-            end
-
-            return m.captures
-          rescue
-            @error.call("skipped: #{$!}", line)
+          m = @regexp.match(line)
+          unless m
+            @error.call("invalid #{@format} format: line number = #{@index}", line)
             next
           end
+
+          return m.captures
         end
       end      
     end
+
+    # ApacheParser and SyslogParser is a port of old table:import's parsers
 
     class ApacheParser
       # 1.8 don't have named capture, so need column names.
@@ -154,6 +156,10 @@ module TreasureData
     end
 
     class SyslogParser
+      # This parser doesn't consider nil value.
+      # But td platform removes the key, which has nil value, in data import.
+      # So this is not critical in table:import.
+
       COLUMNS = ['time', 'host', 'ident', 'pid', 'message']
       TIME_FORMAT = "%b %d %H:%M:%S"
 
