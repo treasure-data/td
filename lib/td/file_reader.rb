@@ -95,8 +95,7 @@ module TreasureData
 
     class JSONParser
       def initialize(reader, error, opts)
-        require 'json'
-
+        require 'json'  # TODO yajl?
         @reader = reader
         @error = error
       end

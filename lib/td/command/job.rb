@@ -213,7 +213,7 @@ module Command
   def write_result(job, output, format)
     case format
     when 'json'
-      require 'json'
+      require 'yajl'
       first = true
       File.open(output, "w") {|f|
         f.write "["
@@ -223,7 +223,7 @@ module Command
           else
             f.write ","
           end
-          f.write row.to_json
+          f.write Yajl.dump(row)
         }
         f.write "]"
       }
@@ -239,16 +239,16 @@ module Command
       }
 
     when 'csv'
-      require 'json'
+      require 'yajl'
       require 'csv'
       CSV.open(output, "w") {|writer|
         job.result_each {|row|
-          writer << row.map {|col| col.is_a?(String) ? col.to_s : col.to_json }
+          writer << row.map {|col| col.is_a?(String) ? col.to_s : Yajl.dump(col) }
         }
       }
 
     when 'tsv'
-      require 'json'
+      require 'yajl'
       File.open(output, "w") {|f|
         job.result_each {|row|
           first = true
@@ -258,7 +258,7 @@ module Command
             else
               f.write "\t"
             end
-            f.write col.is_a?(String) ? col.to_s : col.to_json
+            f.write col.is_a?(String) ? col.to_s : Yajl.dump(col)
           }
           f.write "\n"
         }
@@ -270,7 +270,7 @@ module Command
   end
 
   def render_result(job, opts)
-    require 'json'
+    require 'yajl'
     rows = []
     job.result_each {|row|
       # TODO limit number of rows to show
@@ -278,7 +278,7 @@ module Command
         if v.is_a?(String)
           s = v.to_s
         else
-          s = v.to_json
+          s = Yajl.dump(v)
         end
         # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
         #   a) to make sure the string doesn't include invalid byte sequence
