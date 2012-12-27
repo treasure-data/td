@@ -51,6 +51,7 @@ describe FileReader::LineReader do
       reader.forward_row.should == lines[0]
     end
 
+    # TODO: integrate with following shared_examples_for
     it 'feeds all lines' do
       begin
         i = 0
@@ -58,8 +59,28 @@ describe FileReader::LineReader do
           line.should == lines[i]
           i += 1
         end
+      rescue RSpec::Expectations::ExpectationNotMetError => e
+        fail
       rescue
         io.eof?.should be_true
+      end
+    end
+
+    shared_examples_for 'parser iterates all' do |step|
+      step = step || 1
+
+      it 'feeds all' do
+        begin
+          i = 0
+          while line = parser.forward
+            line.should == get_expected.call(i)
+            i += step
+          end
+        rescue RSpec::Expectations::ExpectationNotMetError => e
+          fail
+        rescue
+          io.eof?.should be_true
+        end
       end
     end
 
@@ -78,17 +99,11 @@ describe FileReader::LineReader do
           parser.forward.should == JSON.parse(lines[0])
         end
 
-        it 'feeds all lines' do
-          begin
-            i = 0
-            while line = parser.forward
-              line.should == JSON.parse(lines[i])
-              i += 1
-            end
-          rescue
-            io.eof?.should be_true
-          end
+        let :get_expected do
+          lambda { |i| JSON.parse(lines[i]) }
         end
+
+        it_should_behave_like 'parser iterates all'
 
         context 'with broken line' do
           let :lines do
@@ -103,19 +118,7 @@ describe FileReader::LineReader do
             /^invalid json format/
           end
 
-          it 'feeds all lines' do
-            begin
-              i = 0
-              while line = parser.forward
-                line.should == JSON.parse(lines[i])
-                i += 2
-              end
-            rescue RSpec::Expectations::ExpectationNotMetError => e
-              fail
-            rescue
-              io.eof?.should be_true
-            end
-          end
+          it_should_behave_like 'parser iterates all', 2
         end
       end
     end
@@ -144,19 +147,11 @@ describe FileReader::LineReader do
             parser.forward.should == lines[0].split(pattern)
           end
 
-          it 'feeds all lines' do
-            begin
-              i = 0
-              while line = parser.forward
-                line.should == lines[i].split(pattern)
-                i += 1
-              end
-            rescue RSpec::Expectations::ExpectationNotMetError => e
-              fail
-            rescue
-              io.eof?.should be_true
-            end
+          let :get_expected do
+            lambda { |i| lines[i].split(pattern) }
           end
+
+          it_should_behave_like 'parser iterates all'
         end
       end
     }
@@ -206,19 +201,11 @@ describe FileReader::LineReader do
             parser.forward.should == output[0]
           end
 
-          it 'feeds all lines' do
-            begin
-              i = 0
-              while line = parser.forward
-                line.should == output[i]
-                i += 1
-              end
-            rescue RSpec::Expectations::ExpectationNotMetError => e
-              fail
-            rescue
-              io.eof?.should be_true
-            end
+          let :get_expected do
+            lambda { |i| output[i] }
           end
+
+          it_should_behave_like 'parser iterates all'
 
           context 'with broken line' do
             let :lines do
@@ -231,19 +218,7 @@ describe FileReader::LineReader do
               /^invalid #{parser.instance_variable_get(:@format)} format/
             end
 
-            it 'feeds all lines' do
-              begin
-                i = 0
-                while line = parser.forward
-                  line.should == output[i]
-                  i += 2
-                end
-              rescue RSpec::Expectations::ExpectationNotMetError => e
-                fail
-              rescue
-                io.eof?.should be_true
-              end
-            end
+            it_should_behave_like 'parser iterates all', 2
           end
         end
       end

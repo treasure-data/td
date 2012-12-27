@@ -43,6 +43,8 @@ describe FileReader::MessagePackParsingReader do
           line.should == dataset[i]
           i += 1
         end
+      rescue RSpec::Expectations::ExpectationNotMetError => e
+        fail
       rescue
         io.eof?.should be_true
       end
