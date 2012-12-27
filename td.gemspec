@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_dependency "msgpack", "~> 0.4.4"
+  gem.add_dependency "yajl-ruby", "~> 1.1.0"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 0.5.19"
   gem.add_dependency "td-client", "~> 0.8.39"

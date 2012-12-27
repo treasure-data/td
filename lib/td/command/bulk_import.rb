@@ -278,8 +278,9 @@ module Command
       exit 1
     end
 
+    require 'yajl'
     client.bulk_import_error_records(name) {|r|
-      puts r.to_json
+      puts Yajl.dump(r)
     }
   end
 
@@ -336,13 +337,13 @@ module Command
     require 'fileutils'
     FileUtils.mkdir_p(outdir)
 
-    require 'json'
+    require 'yajl'
     require 'msgpack'
     require 'zlib'
 
     error = Proc.new {|reason,data|
       begin
-        $stderr.puts "#{reason}: #{data.to_json}"
+        $stderr.puts "#{reason}: #{Yajl.dump(data)}"
       rescue
         $stderr.puts "#{reason}"
       end
@@ -367,7 +368,7 @@ module Command
               zout = Zlib::GzipWriter.new(out)
 
               t = record['time']
-              $stderr.puts "  sample: #{Time.at(t).utc} #{record.to_json}"
+              $stderr.puts "  sample: #{Time.at(t).utc} #{Yajl.dump(record)}"
             end
 
             zout.write(record.to_msgpack)
