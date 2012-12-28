@@ -78,20 +78,37 @@ module TreasureData
       end
     end
 
-    # TODO
-    #class QuotedDelimiterParsingReader
-    #  def initialize(io, error, opts)
-    #    require 'strscan'
-    #    @io = io
-    #    @error = error
-    #    @delimiter_expr = opts[:delimiter_expr]
-    #    @quote_char = opts[:quote_char]
-    #    @escape_char = opts[:escape_char]
-    #  end
+    # TODO: encoding handling
+    class SeparatedValueParsingReader
+      def initialize(io, error, opts)
+        if encoding = opts[:encoding]
+          io.set_encoding(encoding, :invalid => :replace, :undef => :replace) if io.respond_to?(:set_encoding)
+        end
 
-    #  def forward
-    #  end
-    #end
+        # csv module is pure Ruby implementation.
+        # So this may cause slow performance in large dataset.
+        csv_opts = {
+          :col_sep => opts[:delimiter_expr],
+          :row_sep => $/,
+          :skip_blanks => true
+        }
+        csv_opts[:quote_char] = opts[:quote_char] if opts[:quote_char]
+        begin
+          require 'fastercsv'
+          @io = FasterCSV.new(io, csv_opts)
+        rescue LoadError => e
+          require 'csv'
+          @io = CSV.new(io, csv_opts)
+        end
+        #@io = io
+        @error = error
+        # @escape_char = opts[:escape_char]
+      end
+
+      def forward
+        @io.readline
+      end
+    end
 
     class JSONParser
       def initialize(reader, error, opts)
