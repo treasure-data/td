@@ -206,8 +206,8 @@ module Command
           record = {}
 
           cap = m.captures
-          @names.each_with_index {|name,i|
-            if value = cap[i]
+          @names.each_with_index {|name,cap_i|
+            if value = cap[cap_i]
               if name == "time"
                 value = parse_time(value).to_i
               end
@@ -275,7 +275,7 @@ module Command
 
   class MessagePackParser
     def initialize(time_key)
-      require 'json'
+      require 'msgpack'
       @time_key = time_key
     end
 
