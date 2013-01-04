@@ -76,12 +76,28 @@ module Command
       end
     end
 
-    require 'td/file_reader'
-    reader = FileReader.new
-    reader.set_format_template(format)
-    reader.opts[:time_column] = time_key
-    reader.opts[:all_string] = true # old behavior doesn't convert
-    reader.opts[:compress] = 'plain' # See following paths.map routine
+    case format
+    when 'json', 'msgpack'
+      #unless time_key
+      #  $stderr.puts "-t, --time-key COL_NAME (e.g. '-t created_at') parameter is required for #{format} format"
+      #  exit 1
+      #end
+      if format == 'json'
+        require 'json'
+        require 'time'
+        parser = JsonParser.new(time_key)
+      else
+        parser = MessagePackParser.new(time_key)
+      end
+
+    else
+      regexp, names, time_format = IMPORT_TEMPLATES[format]
+      if !regexp || !names || !time_format
+        $stderr.puts "Unknown format '#{format}'"
+        exit 1
+      end
+      parser = TextParser.new(names, regexp, time_format)
+    end
 
     get_table(client, db_name, table_name)
 
@@ -103,22 +119,14 @@ module Command
     #require 'thread'
 
     files.zip(paths).each {|file,path|
-      import_log_file(file, path, client, db_name, table_name, reader)
+      import_log_file(file, path, client, db_name, table_name, parser)
     }
 
     puts "done."
   end
 
   private
-  def import_log_file(file, path, client, db_name, table_name, reader)
-    error = Proc.new { |reason, data|
-      begin
-        $stderr.puts "  skipped: #{reason}: #{data.dump}"
-      rescue
-        $stderr.puts "  skipped: #{reason}"
-      end
-    }
-
+  def import_log_file(file, path, client, db_name, table_name, parser)
     puts "importing #{path}..."
 
     out = Tempfile.new('td-import')
@@ -128,7 +136,7 @@ module Command
 
     n = 0
     x = 0
-    reader.parse(file, error) { |record|
+    parser.call(file, path) {|record|
       writer.write record.to_msgpack
 
       n += 1
@@ -172,6 +180,135 @@ module Command
   ensure
     out.close rescue nil
     writer.close rescue nil
+  end
+
+  require 'date'  # DateTime#strptime
+  require 'time'  # Time#strptime, Time#parse
+
+  class TextParser
+    def initialize(names, regexp, time_format)
+      @names = names
+      @regexp = regexp
+      @time_format = time_format
+    end
+
+    def call(file, path, &block)
+      i = 0
+      file.each_line {|line|
+        i += 1
+        begin
+          line.rstrip!
+          m = @regexp.match(line)
+          unless m
+            raise "invalid log format at #{path}:#{i}"
+          end
+
+          record = {}
+
+          cap = m.captures
+          @names.each_with_index {|name,i|
+            if value = cap[i]
+              if name == "time"
+                value = parse_time(value).to_i
+              end
+              record[name] = value
+            end
+          }
+
+          block.call(record)
+
+        rescue
+          $stderr.puts "  skipped: #{$!}: #{line.dump}"
+        end
+      }
+    end
+
+    if Time.respond_to?(:strptime)
+      def parse_time(value)
+        Time.strptime(value, @time_format)
+      end
+    else
+      def parse_time(value)
+        Time.parse(DateTime.strptime(value, @time_format).to_s)
+      end
+    end
+  end
+
+  class JsonParser
+    def initialize(time_key)
+      require 'json'
+      @time_key = time_key
+    end
+
+    def call(file, path, &block)
+      i = 0
+      file.each_line {|line|
+        i += 1
+        begin
+          record = JSON.parse(line)
+
+          unless record.is_a?(Hash)
+            raise "record must be a Hash"
+          end
+
+          time = record[@time_key]
+          unless time
+            raise "record doesn't have '#{@time_key}' column"
+          end
+
+          case time
+          when Integer
+            # do nothing
+          else
+            time = Time.parse(time.to_s).to_i
+          end
+          record['time'] = time
+
+          block.call(record)
+
+        rescue
+          $stderr.puts "  skipped: #{$!}: #{line.dump}"
+        end
+      }
+    end
+  end
+
+  class MessagePackParser
+    def initialize(time_key)
+      require 'json'
+      @time_key = time_key
+    end
+
+    def call(file, path, &block)
+      i = 0
+      MessagePack::Unpacker.new(file).each {|record|
+        i += 1
+        begin
+          unless record.is_a?(Hash)
+            raise "record must be a Hash"
+          end
+
+          time = record[@time_key]
+          unless time
+            raise "record doesn't have '#{@time_key}' column"
+          end
+
+          case time
+          when Integer
+            # do nothing
+          else
+            time = Time.parse(time.to_s).to_i
+          end
+          record['time'] = time
+
+          block.call(record)
+
+        rescue
+          $stderr.puts "  skipped: #{$!}: #{record.to_json}"
+        end
+      }
+    rescue EOFError
+    end
   end
 end
 end

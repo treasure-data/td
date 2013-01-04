@@ -10,8 +10,7 @@ module TreasureData
   # ["v", 10, true] # array types
   # ...
   class FileReader
-    require 'date' # DateTime#strptime
-    require 'time' # Time#strptime, Time#parse
+    require 'time'
     require 'zlib'
 
     class DecompressIOFilter
@@ -100,7 +99,6 @@ module TreasureData
           require 'csv'
           @io = CSV.new(io, csv_opts)
         end
-        #@io = io
         @error = error
         # @escape_char = opts[:escape_char]
       end
@@ -135,20 +133,23 @@ module TreasureData
       def initialize(reader, error, opts)
         @reader = reader
         @error = error
-        @index = 0
       end
 
       def forward
         while true
-          @index += 1
           line = @reader.forward_row
-          m = @regexp.match(line)
-          unless m
-            @error.call("invalid #{@format} format: line number = #{@index}", line)
+          begin
+            m = @regexp.match(line)
+            unless m
+              @error.call("invalid #{@format} format", line)
+              next
+            end
+
+            return m.captures
+          rescue
+            @error.call("skipped: #{$!}", line)
             next
           end
-
-          return m.captures
         end
       end      
     end
