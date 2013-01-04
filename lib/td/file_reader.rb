@@ -300,6 +300,7 @@ module TreasureData
         if s.to_i.to_s == s
           @opts[:time_value] = s.to_i
         else
+          require 'time'
           @opts[:time_value] = Time.parse(s).to_i
         end
       }
