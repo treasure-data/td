@@ -12,6 +12,7 @@ module Command
     result_user = nil
     result_ask_password = false
     priority = nil
+    retry_limit = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -46,6 +47,9 @@ module Command
         raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
       end
     }
+    op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
+      retry_limit = i
+    }
 
     sql = op.cmd_parse
 
@@ -68,7 +72,7 @@ module Command
     # local existance check
     get_database(client, db_name)
 
-    job = client.query(db_name, sql, result_url, priority)
+    job = client.query(db_name, sql, result_url, priority, retry_limit)
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."

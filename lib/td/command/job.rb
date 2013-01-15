@@ -119,6 +119,7 @@ module Command
     puts "Status       : #{job.status}"
     puts "Type         : #{job.type}"
     puts "Priority     : #{job_priority_name_of(job.priority)}"
+    puts "Retry limit  : #{job.retry_limit}"
     puts "Result       : #{job.result_url}"
     puts "Database     : #{job.db_name}"
     puts "Query        : #{job.query}"

@@ -32,6 +32,7 @@ module Command
     result_user = nil
     result_ask_password = false
     priority = nil
+    retry_limit = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -57,6 +58,9 @@ module Command
         raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
       end
     }
+    op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
+      retry_limit = i
+    }
 
     name, cron, sql = op.cmd_parse
 
@@ -76,7 +80,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
@@ -111,6 +115,7 @@ module Command
     timezone = nil
     delay = nil
     priority = nil
+    retry_limit = nil
 
     op.on('-s', '--schedule CRON', 'change the schedule') {|s|
       cron = s
@@ -136,6 +141,10 @@ module Command
         raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
       end
     }
+    op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
+      retry_limit = i
+    }
+
 
     name = op.cmd_parse
 
@@ -147,6 +156,7 @@ module Command
     params['timezone'] = timezone if timezone
     params['delay'] = delay.to_s if delay
     params['priority'] = priority.to_s if priority
+    params['retry_limit'] = retry_limit.to_s if retry_limit
 
     if params.empty?
       $stderr.puts op.to_s
@@ -209,6 +219,7 @@ module Command
       puts "Next         : #{s.next_time}"
       puts "Result       : #{s.result_url}"
       puts "Priority     : #{job_priority_name_of(s.priority)}"
+      puts "Retry limit  : #{s.retry_limit}"
       puts "Database     : #{s.database}"
       puts "Query        : #{s.query}"
     end
