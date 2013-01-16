@@ -1,3 +1,10 @@
+
+== 2013-01-16 version 0.10.66
+
+* td-client v0.8.42
+* query, sched:create, sched:update subcommands support -R, --retry option
+
+
 == 2012-12-27 version 0.10.65
 
 * td-client v0.8.40
