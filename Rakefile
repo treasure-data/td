@@ -13,6 +13,10 @@ def version
   TreasureData::VERSION
 end
 
+task "jar" do
+  system('./build/update-td.sh')
+end
+
 def project_root_path(path)
   "#{PROJECT_ROOT}/#{path}"
 end
