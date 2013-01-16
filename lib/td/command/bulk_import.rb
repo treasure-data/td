@@ -480,7 +480,6 @@ module Command
     app_args << files
 
     command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
-    puts "#{command}"
 
     begin
       exec(command)
