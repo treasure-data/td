@@ -452,10 +452,10 @@ module Command
     jvm_opts = []
     jvm_opts << "-Xmx1024m" # TODO
 
-    # find java/*.jar and td-command.jar
+    # find java/*.jar and td.jar
     base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
     libjars = Dir.glob("#{base_path}/java/**/*.jar")
-    found = libjars.find { |path| File.basename(path) =~ /^td-command/ }
+    found = libjars.find { |path| File.basename(path) =~ /^td-/ }
     td_command_jar = libjars.delete(found)
 
     # make application options
