@@ -25,13 +25,21 @@ module Command
   end
 
   def bulk_import_create(op)
+    org = nil
+
+    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
+      org = s
+    }
+
     name, db_name, table_name = op.cmd_parse
 
     client = get_client
 
     table = get_table(client, db_name, table_name)
 
-    client.create_bulk_import(name, db_name, table_name)
+    opts = {}
+    opts['organization'] = org if org
+    client.create_bulk_import(name, db_name, table_name, opts)
 
     $stderr.puts "Bulk import session '#{name}' is created."
   end

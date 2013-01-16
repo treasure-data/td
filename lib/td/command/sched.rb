@@ -25,6 +25,7 @@ module Command
   end
 
   def sched_create(op)
+    org = nil
     db_name = nil
     timezone = nil
     delay = 0
@@ -34,6 +35,9 @@ module Command
     priority = nil
     retry_limit = nil
 
+    op.on('-g', '--org ORGANIZATION', "create the schedule under this organization") {|s|
+      org = s
+    }
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
@@ -80,7 +84,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :organization=>org)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."

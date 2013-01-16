@@ -3,6 +3,7 @@ module TreasureData
 module Command
 
   def query(op)
+    org = nil
     db_name = nil
     wait = false
     output = nil
@@ -14,6 +15,9 @@ module Command
     priority = nil
     retry_limit = nil
 
+    op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
+      org = s
+    }
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
@@ -72,7 +76,9 @@ module Command
     # local existance check
     get_database(client, db_name)
 
-    job = client.query(db_name, sql, result_url, priority, retry_limit)
+    opts = {}
+    opts['organization'] = org if org
+    job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."

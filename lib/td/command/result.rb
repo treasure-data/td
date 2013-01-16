@@ -47,9 +47,13 @@ module Command
   end
 
   def result_create(op)
+    org = nil
     result_user = nil
     result_ask_password = false
 
+    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
+      org = s
+    }
     op.on('-u', '--user NAME', 'set user name for authentication') {|s|
       result_user = s
     }
@@ -65,8 +69,10 @@ module Command
 
     url = build_result_url(url, result_user, result_ask_password)
 
+    opts = {}
+    opts['organization'] = org if org
     begin
-      client.create_result(name, url)
+      client.create_result(name, url, opts)
     rescue AlreadyExistsError
       $stderr.puts "Result URL '#{name}' already exists."
       exit 1

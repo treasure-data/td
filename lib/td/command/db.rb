@@ -44,14 +44,22 @@ module Command
   end
 
   def db_create(op)
+    org = nil
+
+    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
+      org = s
+    }
+
     db_name = op.cmd_parse
 
     API.validate_database_name(db_name)
 
     client = get_client
 
+    opts = {}
+    opts['organization'] = org if org
     begin
-      client.create_database(db_name)
+      client.create_database(db_name, opts)
     rescue AlreadyExistsError
       $stderr.puts "Database '#{db_name}' already exists."
       exit 1
