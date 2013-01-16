@@ -1,0 +1,4 @@
+.bundle
+build/td-java
+vendor/*
+*~

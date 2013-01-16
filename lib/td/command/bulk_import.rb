@@ -392,6 +392,102 @@ module Command
     }
   end
 
+  def bulk_import_prepare_parts2(op)
+    format = 'csv'
+    columns = nil
+    column_types = nil
+    has_header = nil
+    time_column = 'time'
+    time_value = nil
+    split_size_kb = PART_SPLIT_SIZE / 1024  # kb
+    outdir = nil
+
+    op.on('-f', '--format NAME', 'source file format [csv]') {|s|
+      format = s
+    }
+    op.on('-h', '--columns NAME,NAME,...', 'column names (use --column-header instead if the first line has column names)') {|s|
+      columns = s
+    }
+    op.on('--column-types TYPE,TYPE,...', 'column types [string, int, long]') {|s|
+      column_types = s
+    }
+    op.on('-H', '--column-header', 'first line includes column names', TrueClass) {|b|
+      has_header = b
+    }
+    op.on('-t', '--time-column NAME', 'name of the time column') {|s|
+      time_column = s
+    }
+    op.on('--time-value TIME', 'long value of the time column') {|s|
+      if s.to_i.to_s == s
+        time_value = s.to_i
+      else
+        require 'time'
+        time_value = Time.parse(s).to_i
+      end
+    }
+    op.on('-s', '--split-size SIZE_IN_KB', "size of each parts (default: #{split_size_kb})", Integer) {|i|
+      split_size_kb = i
+    }
+    op.on('-o', '--output DIR', 'output directory') {|s|
+      outdir = s
+    }
+
+    files = op.cmd_parse
+    files = [files] unless files.is_a?(Array) # TODO ruby 1.9
+
+    # options validation
+    unless column_types
+      $stderr.puts "--column-types TYPE,TYPE,... option is required."
+      exit 1
+    end
+    unless outdir
+      $stderr.puts "-o, --output DIR option is required."
+      exit 1
+    end
+
+    # java command
+    javacmd = 'java'
+
+    # make jvm options
+    jvm_opts = []
+    jvm_opts << "-Xmx1024m" # TODO
+
+    # find java/*.jar and td.jar
+    base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
+    libjars = Dir.glob("#{base_path}/java/**/*.jar")
+    found = libjars.find { |path| File.basename(path) =~ /^td-/ }
+    td_command_jar = libjars.delete(found)
+
+    # make application options
+    app_opts = []
+    app_opts << "-cp .:#{td_command_jar}"
+
+    # make system properties
+    sysprops = []
+    sysprops << "-Dtd.bulk_import.prepare_parts.format=#{format}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{columns}" if columns
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{column_types}" if column_types
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{has_header}" if has_header
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-column=#{time_column}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{time_value.to_s}" if time_value
+    sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{split_size_kb}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{outdir}"
+
+    # make application arguments
+    app_args = []
+    app_args << 'com.treasure_data.tools.BulkImportTool'
+    app_args << 'prepare_parts'
+    app_args << files
+
+    command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
+
+    begin
+      exec(command)
+    rescue
+      exit 1
+    end
+  end
+
   private
   def bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
     begin
