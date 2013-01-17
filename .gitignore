@@ -1,4 +1,5 @@
 .bundle
 build/td-java
+Gemfile.lock
 vendor/*
 *~
