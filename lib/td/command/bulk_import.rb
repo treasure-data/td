@@ -460,7 +460,7 @@ module Command
 
     # make application options
     app_opts = []
-    app_opts << "-cp .,#{td_command_jar}"
+    app_opts << "-cp #{td_command_jar}"
 
     # make system properties
     sysprops = []
