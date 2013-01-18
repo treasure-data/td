@@ -1,4 +1,9 @@
 
+== 2013-01-18 version 0.10.67
+
+* Added bulk_import:prepare_parts2 subcommand which is faster and more reliable
+
+
 == 2013-01-16 version 0.10.66
 
 * td-client v0.8.42
