@@ -38,7 +38,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:Name, :URL])
+    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :URL]))
 
     if rs.empty?
       $stderr.puts "There are no result URLs."

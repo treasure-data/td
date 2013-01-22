@@ -21,7 +21,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
+    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query]), :max_width=>500)
   end
 
   def sched_create(op)

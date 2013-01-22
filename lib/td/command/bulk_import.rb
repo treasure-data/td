@@ -16,7 +16,7 @@ module Command
       has_org = true if bi.org_name
     }
 
-    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"], :max_width=>200)
+    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"]), :max_width=>200)
 
     if rows.empty?
       $stderr.puts "There are no bulk import sessions."
