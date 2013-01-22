@@ -46,13 +46,15 @@ Install following binary packages:
   * MinGW with MSYS Basic System and using mingw-get-inst
   * Git for Windows, with Windows Command Prompt support
   * Ruby 1.9.2 using RubyInstaller for Windows, with PATH update
+  * Inno Setup 5
 
 Then run following commands on MinGW Shell:
 
     $ mingw-get install msys-vim
     $ mingw-get install msys-wget
     $ gem install bundler
-    $ bundle exec rake exe:build
+    $ bundle install  # don't use "--path" option
+    $ rake exe:build  # don't use "bundle exec"
 
 
 = Copyright
