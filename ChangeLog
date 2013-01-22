@@ -1,4 +1,9 @@
 
+== 2013-01-22 version 0.10.68
+
+* Fixed cmdline argument handling problems of bulk_import:prepare_parts2 subcommand
+
+
 == 2013-01-18 version 0.10.67
 
 * Added bulk_import:prepare_parts2 subcommand which is faster and more reliable
