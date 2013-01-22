@@ -487,13 +487,10 @@ module Command
     app_args << 'prepare_parts'
     app_args << files
 
+    # TODO consider parameters including spaces; don't use join(' ')
     command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
 
-    begin
-      exec(command)
-    rescue
-      exit 1
-    end
+    exec command
   end
 
   private
