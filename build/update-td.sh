@@ -21,7 +21,7 @@ fi
 revname="$(git show --pretty=format:'%H %ad' | head -n 1)"
 
 mvn package -Dmaven.test.skip=true || exit 1
-cp target/td-0.1.1-SNAPSHOT.jar ../../java/td-0.1.1-SNAPSHOT.jar
+cp target/td-0.1.1.jar ../../java/td-0.1.1.jar
 
 if [ -n "$chrev" ];then
     git checkout master
@@ -33,5 +33,5 @@ echo "$revname" > java/td_java.version
 
 echo ""
 echo "git commit ./java -m \"updated td-java $revname\""
-git commit ./java/td-0.1.1-SNAPSHOT.jar ./java/td_java.version -m "updated td-java $revname" || exit 1
+git commit ./java/td-0.1.1.jar ./java/td_java.version -m "updated td-java $revname" || exit 1
 
