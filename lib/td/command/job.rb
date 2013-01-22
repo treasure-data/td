@@ -78,7 +78,7 @@ module Command
       has_org = true if job.org_name
     }
 
-    puts cmd_render_table(rows, :fields => (has_org ? [:Organization] : [])+[:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query], :max_width => 140)
+    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query]), :max_width => 140)
   end
 
   def job_show(op)

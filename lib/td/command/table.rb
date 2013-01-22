@@ -275,10 +275,14 @@ module Command
   end
 
   def table_partial_delete(op)
+    org = nil
     from = nil
     to = nil
     wait = false
 
+    op.on('-g', '--org ORGANIZATION', "delete data partially under this organization") {|s|
+      org = s
+    }
     op.on('-t', '--to TIME', 'end time of logs to delete') {|s|
       if s.to_i.to_s == s
         # UNIX time
@@ -321,7 +325,9 @@ module Command
 
     table = get_table(client, db_name, table_name)
 
-    job = client.partial_delete(db_name, table_name, to, from)
+    opts = {}
+    opts['organization'] = org if org
+    job = client.partial_delete(db_name, table_name, to, from, opts)
 
     $stderr.puts "Partial delete job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."

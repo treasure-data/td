@@ -3,6 +3,7 @@ module TreasureData
 module Command
 
   def table_export(op)
+    org = nil
     from = nil
     to = nil
     s3_bucket = nil
@@ -10,6 +11,9 @@ module Command
     aws_secret_access_key = nil
     file_format = "json.gz"
 
+    op.on('-g', '--org ORGANIZATION', "export the data under this organization") {|s|
+      org = s
+    }
     op.on('-f', '--from TIME', 'export data which is newer than or same with the TIME') {|s|
       from = export_parse_time(s)
     }
@@ -50,6 +54,7 @@ module Command
     client = get_ssl_client
 
     s3_opts = {}
+    s3_opts['organization'] = org if org
     s3_opts['from'] = from.to_s if from
     s3_opts['to'] = to.to_s if to
     s3_opts['file_format'] = file_format

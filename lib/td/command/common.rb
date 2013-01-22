@@ -33,6 +33,14 @@ module Command
     Hirb::Helpers::Table.render(rows, *opts)
   end
 
+  def gen_table_fields(has_org, fields)
+    if has_org
+      fields.unshift(:Organization)
+    else
+      fields
+    end
+  end
+
   #def cmd_render_tree(nodes, *opts)
   #  require 'hirb'
   #  Hirb::Helpers::Tree.render(nodes, *opts)
