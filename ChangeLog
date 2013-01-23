@@ -1,3 +1,9 @@
+== 2013-01-23 version 0.10.69
+
+* Fixed the undefined local variable problem of table:list when no databases
+* Add --org option to some subcommands
+* td-client v0.8.43
+
 
 == 2013-01-22 version 0.10.68
 
