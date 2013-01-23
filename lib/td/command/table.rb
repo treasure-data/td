@@ -107,7 +107,7 @@ module Command
       if db_name
         $stderr.puts "Database '#{db_name}' has no tables."
         $stderr.puts "Use '#{$prog} table:create <db> <table>' to create a table."
-      elsif dbs.empty?
+      elsif databases.empty?
         $stderr.puts "There are no databases."
         $stderr.puts "Use '#{$prog} db:create <db>' to create a database."
       else
