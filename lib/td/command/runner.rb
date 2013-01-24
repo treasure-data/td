@@ -29,7 +29,7 @@ EOF
 
     op.summary_indent = "  "
 
-    (class<<self;self;end).module_eval do
+    (class << self;self;end).module_eval do
       define_method(:usage) do |errmsg|
         require 'td/command/list'
         puts op.to_s
