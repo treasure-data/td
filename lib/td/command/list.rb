@@ -106,7 +106,7 @@ module List
       op.summary_indent = "  "
 
       if msg = @override_message
-        (class<<op;self;end).module_eval do
+        (class << op;self;end).module_eval do
           define_method(:to_s) { msg }
         end
       end
@@ -267,6 +267,7 @@ module List
   add_list 'query', %w[sql], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"'
 
   add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job 1461'
+  add_list 'job:status', %w[job_id], 'Show status progress of a job', 'job:status 1461'
   add_list 'job:list', %w[max?], 'Show list of jobs', 'jobs', 'jobs --page 1'
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
 

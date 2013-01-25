@@ -154,6 +154,13 @@ module Command
     $stderr.puts "Use '-v' option to show detailed messages." unless verbose
   end
 
+  def job_status(op)
+    job_id = op.cmd_parse
+    client = get_client
+
+    puts client.job_status(job_id)
+  end
+
   def job_kill(op)
     job_id = op.cmd_parse
 
