@@ -33,7 +33,7 @@ You need to authorize the account, before executing any other commands.
 
 == Mac OS X
 
-Disable RVM and enable system ruby (/usr/bin/ruby) first.
+Disable RVM or rbenv and use system ruby (/usr/bin/ruby).
 And then run following commands:
 
     $ sudo gem install bundler
