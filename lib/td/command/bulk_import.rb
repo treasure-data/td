@@ -162,12 +162,20 @@ module Command
 
     unless errors.empty?
       $stderr.puts "failed to upload #{errors.size} files."
+      $stderr.puts "backtraces:"
       errors.each {|(ifname,ex)|
         $stderr.puts "  #{ifname}: #{ex}"
         ex.backtrace.each {|bt|
-          $stderr.puts "      #{ifname}: #{ex}"
+          $stderr.puts "      #{ifname}: #{bt}"
         }
       }
+      $stderr.puts "files:"
+      ifnames = errors.map {|(ifname,ex)| ifname }
+      ifnames.each {|ifname|
+        $stderr.puts "  #{ifname}"
+      }
+      $stderr.puts "You can retry uploading by following command:"
+      $stderr.puts "td bulk_import:upload_parts #{name} #{ifnames.map {|ifname| "'#{ifname}'" }.join(' ')}"
       exit 1
     end
 
@@ -495,14 +503,16 @@ module Command
 
   private
   def bulk_import_upload_impl(name, part_name, io, size, retry_limit, retry_wait)
+    retry_count = 0
     begin
       client = get_client
       client.bulk_import_upload_part(name, part_name, io, size)
     rescue
-      if retry_limit > 0
-        retry_limit -= 1
+      if retry_limit >= retry_count
+        retry_count += 1
         $stderr.write "#{$!}; retrying '#{part_name}'...\n"
-        sleep retry_wait
+        w = (retry_count ** 1.5) * retry_wait
+        sleep w
         retry
       end
       raise
