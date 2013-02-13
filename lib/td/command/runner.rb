@@ -51,6 +51,7 @@ Additional commands:
   status         # show scheds, jobs, tables and results
   apikey         # show/set API key
   server         # show status of the Treasure Data server
+  sample         # create a sample log file
   help           # show help messages
 
 Type 'td help COMMAND' for more information on a specific command.

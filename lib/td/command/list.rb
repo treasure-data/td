@@ -375,6 +375,7 @@ module List
 
   add_alias 'apikey', 'apikey:show'
   add_alias 'server', 'server:status'
+  add_alias 'sample', 'sample:apache'
 
   add_alias 's', 'status'
 
