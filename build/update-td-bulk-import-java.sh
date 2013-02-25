@@ -19,9 +19,10 @@ if [ -n "$chrev" ];then
 fi
 
 revname="$(git show --pretty=format:'%H %ad' | head -n 1)"
+vername="0.1.2-SNAPSHOT"
 
 mvn package -Dmaven.test.skip=true || exit 1
-cp target/td-bulk-import-0.1.1.jar ../../java/td-bulk-import-0.1.1.jar
+cp target/td-bulk-import-${vername}.jar ../../java/td-bulk-import-${vername}.jar
 
 if [ -n "$chrev" ];then
     git checkout master
@@ -33,5 +34,5 @@ echo "$revname" > java/td-bulk-import-java.version
 
 echo ""
 echo "git commit ./java -m \"updated td-bulk-import-java $revname\""
-git commit ./java/td-bulk-import-0.1.1.jar ./java/td-bulk-import-java.version -m "updated td-bulk-import-java $revname" || exit 1
+git commit ./java/td-bulk-import-${vername}.jar ./java/td-bulk-import-java.version -m "updated td-bulk-import-java $revname" || exit 1
 
