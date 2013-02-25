@@ -236,6 +236,7 @@ module List
   add_list 'bulk_import:prepare_parts2', %w[files_], 'Convert files into part file format', 'bulk_import:prepare_parts2 logs/*.csv --format csv --columns time,uid,price,count --column-types long,string,long,int --time-column "time" -o parts/'
   add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz'
   add_list 'bulk_import:upload_parts', %w[name files_], 'Upload or re-upload files into a bulk import session', 'bulk_import:upload_parts parts/* --parallel 4'
+  add_list 'bulk_import:upload_parts2', %w[name files_], 'Upload or re-upload files into a bulk import session', 'bulk_import:upload_parts parts/* --parallel 4'
   add_list 'bulk_import:delete_part', %w[name id], 'Delete a uploaded file from a bulk import session', 'bulk_import:delete_part logs_201201 01h'
   add_list 'bulk_import:delete_parts', %w[name ids_], 'Delete uploaded files from a bulk import session', 'bulk_import:delete_parts logs_201201 01h 02h 03h'
   add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'

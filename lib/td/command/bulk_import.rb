@@ -408,7 +408,105 @@ module Command
     }
   end
 
+  def bulk_import_upload_parts2(op)
+    upload_opts = upload_parts2_config(op)
+    prepare_opts = prepare_parts2_config(op)
+
+    # java command
+    javacmd = 'java'
+
+    # make jvm options
+    jvm_opts = []
+    jvm_opts << "-Xmx1024m" # TODO
+
+    # find java/*.jar and td.jar
+    base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
+    libjars = Dir.glob("#{base_path}/java/**/*.jar")
+    found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
+    td_command_jar = libjars.delete(found)
+
+    # make application options
+    app_opts = []
+    app_opts << "-cp \"#{td_command_jar}\""
+
+    # make system properties
+    sysprops = []
+    sysprops.concat(upload_parts2_sysprops(opts))
+    sysprops.concat(prepare_parts2_sysprops(opts))
+
+    # make application arguments
+    app_args << 'com.treasure_data.tools.BulkImportTool'
+    app_args << 'upload_parts'
+    app_args << files
+
+    command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
+
+    exec command
+  end
+
   def bulk_import_prepare_parts2(op)
+    opts = prepare_parts2_config(op)
+
+    # java command
+    javacmd = 'java'
+
+    # make jvm options
+    jvm_opts = []
+    jvm_opts << "-Xmx1024m" # TODO
+
+    # find java/*.jar and td.jar
+    base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
+    libjars = Dir.glob("#{base_path}/java/**/*.jar")
+    found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
+    td_command_jar = libjars.delete(found)
+
+    # make application options
+    app_opts = []
+    app_opts << "-cp \"#{td_command_jar}\""
+
+    # make system properties
+    sysprops = []
+    sysprops.concat(prepare_parts2_sysprops(opts))
+
+    # make application arguments
+    app_args = []
+    app_args << 'com.treasure_data.tools.BulkImportTool'
+    app_args << 'prepare_parts'
+    app_args << files
+
+    # TODO consider parameters including spaces; don't use join(' ')
+    command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
+
+    exec command
+  end
+
+  private
+  def prepare_parts2_sysprops(opts)
+    sysprops = []
+    sysprops << "-Dtd.bulk_import.prepare_parts.format=#{opts[0]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{opts[1]}" if opts[1]
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{opts[2]}" if opts[2]
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{opts[3]}" if opts[3]
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-column=#{opts[4]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{opts[5].to_s}" if opts[5]
+    sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{opts[6]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{opts[7]}"
+    sysprops
+  end
+
+  private
+  def upload_parts2_sysprops(opts)
+    sysprops = []
+    sysprops << "td.bulk_import.upload_parts.parallel=#{opts[0]}"
+    sysprops << "td.bulk_import.upload_parts.auto-perform=#{opts[1]}"
+    sysprops << "td.bulk_import.upload_parts.auto-commit=#{opts[2]}"
+    sysprops << "td.bulk_import.upload_parts.retrycount=10"
+    sysprops << "td.bulk_import.upload_parts.waitsec=1"
+    sysprops
+  end
+
+  private
+  def prepare_parts2_config(op)
     format = 'csv'
     columns = nil
     column_types = nil
@@ -461,44 +559,26 @@ module Command
       exit 1
     end
 
-    # java command
-    javacmd = 'java'
+    return [ format, columns, column_types, has_header, time_column, time_value, split_size_kb, outdir ]
+  end
 
-    # make jvm options
-    jvm_opts = []
-    jvm_opts << "-Xmx1024m" # TODO
+  private
+  def upload_parts2_config(op)
+    auto_perform = true
+    auto_commit = false
+    paraallel = 2
 
-    # find java/*.jar and td.jar
-    base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
-    libjars = Dir.glob("#{base_path}/java/**/*.jar")
-    found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
-    td_command_jar = libjars.delete(found)
+    op.on('--auto-perform', 'perform bulk import job automatically', TrueClass) {|b|
+      auto_perform = b
+    }
+    op.on('--auto-commit', 'perform bulk import job automatically', FalseClass) {|b|
+      auto_perform = b
+    }
+    op.on('--parallel NUM', 'perform uploading in parallel (default: 2; max 8)', Integer) {|i|
+      parallel = i
+    }
 
-    # make application options
-    app_opts = []
-    app_opts << "-cp \"#{td_command_jar}\""
-
-    # make system properties
-    sysprops = []
-    sysprops << "-Dtd.bulk_import.prepare_parts.format=#{format}"
-    sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{columns}" if columns
-    sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{column_types}" if column_types
-    sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{has_header}" if has_header
-    sysprops << "-Dtd.bulk_import.prepare_parts.time-column=#{time_column}"
-    sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{time_value.to_s}" if time_value
-    sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{split_size_kb}"
-    sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{outdir}"
-
-    # make application arguments
-    app_args = []
-    app_args << 'com.treasure_data.tools.BulkImportTool'
-    app_args << 'prepare_parts'
-    app_args << files
-
-    # TODO consider parameters including spaces; don't use join(' ')
-    command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
-
-    exec command
+    return [ auto_perform, auto_commit, parallel ]
   end
 
   private
