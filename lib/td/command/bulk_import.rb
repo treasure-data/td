@@ -471,7 +471,7 @@ module Command
     # find java/*.jar and td.jar
     base_path = File.expand_path('../../..', File.dirname(__FILE__)) # TODO
     libjars = Dir.glob("#{base_path}/java/**/*.jar")
-    found = libjars.find { |path| File.basename(path) =~ /^td-/ }
+    found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
     td_command_jar = libjars.delete(found)
 
     # make application options

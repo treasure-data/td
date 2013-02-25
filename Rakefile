@@ -14,7 +14,7 @@ def version
 end
 
 task "jar" do
-  system('./build/update-td.sh')
+  system('./build/update-td-bulk-import-java.sh')
 end
 
 def project_root_path(path)
