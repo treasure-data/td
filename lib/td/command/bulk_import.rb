@@ -409,8 +409,7 @@ module Command
   end
 
   def bulk_import_upload_parts2(op)
-    upload_opts = upload_parts2_config(op)
-    prepare_opts = prepare_parts2_config(op)
+    opts = upload_parts2_config(op)
 
     # java command
     javacmd = 'java'
@@ -432,12 +431,12 @@ module Command
     # make system properties
     sysprops = []
     sysprops.concat(upload_parts2_sysprops(opts))
-    sysprops.concat(prepare_parts2_sysprops(opts))
 
     # make application arguments
+    app_args = []
     app_args << 'com.treasure_data.tools.BulkImportTool'
     app_args << 'upload_parts'
-    app_args << files
+    app_args << opts[11]
 
     command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
 
@@ -472,7 +471,7 @@ module Command
     app_args = []
     app_args << 'com.treasure_data.tools.BulkImportTool'
     app_args << 'prepare_parts'
-    app_args << files
+    app_args << opts[8]
 
     # TODO consider parameters including spaces; don't use join(' ')
     command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
@@ -496,12 +495,22 @@ module Command
 
   private
   def upload_parts2_sysprops(opts)
+    puts "parallel -> #{opts[8]}"
     sysprops = []
-    sysprops << "td.bulk_import.upload_parts.parallel=#{opts[0]}"
-    sysprops << "td.bulk_import.upload_parts.auto-perform=#{opts[1]}"
-    sysprops << "td.bulk_import.upload_parts.auto-commit=#{opts[2]}"
-    sysprops << "td.bulk_import.upload_parts.retrycount=10"
-    sysprops << "td.bulk_import.upload_parts.waitsec=1"
+    sysprops << "-Dtd.bulk_import.prepare_parts.format=#{opts[0]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{opts[1]}" if opts[1]
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{opts[2]}" if opts[2]
+    sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{opts[3]}" if opts[3]
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-column=#{opts[4]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{opts[5].to_s}" if opts[5]
+    sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{opts[6]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{opts[7]}"
+    sysprops << "-Dtd.bulk_import.upload_parts.auto-perform=#{opts[8]}"
+    sysprops << "-Dtd.bulk_import.upload_parts.auto-commit=#{opts[9]}"
+    sysprops << "-Dtd.bulk_import.upload_parts.parallel=#{opts[10]}"
+    sysprops << "-Dtd.bulk_import.upload_parts.retrycount=10"
+    sysprops << "-Dtd.bulk_import.upload_parts.waitsec=1"
+    sysprops << "-Dtd.api.key=#{get_client.apikey}"
     sysprops
   end
 
@@ -550,24 +559,62 @@ module Command
     files = [files] unless files.is_a?(Array) # TODO ruby 1.9
 
     # options validation
-    unless column_types
-      $stderr.puts "--column-types TYPE,TYPE,... option is required."
-      exit 1
-    end
+    #unless column_types
+    #  $stderr.puts "--column-types TYPE,TYPE,... option is required."
+    #  exit 1
+    #end
     unless outdir
       $stderr.puts "-o, --output DIR option is required."
       exit 1
     end
 
-    return [ format, columns, column_types, has_header, time_column, time_value, split_size_kb, outdir ]
+    return [ format, columns, column_types, has_header, time_column, time_value, split_size_kb, outdir, files ]
   end
 
   private
   def upload_parts2_config(op)
+    format = 'csv'
+    columns = nil
+    column_types = nil
+    has_header = nil
+    time_column = 'time'
+    time_value = nil
+    split_size_kb = PART_SPLIT_SIZE / 1024  # kb
+    outdir = nil
+
     auto_perform = true
     auto_commit = false
-    paraallel = 2
+    parallel = 2
 
+    op.on('-f', '--format NAME', 'source file format [csv]') {|s|
+      format = s
+    }
+    op.on('-h', '--columns NAME,NAME,...', 'column names (use --column-header instead if the first line has column names)') {|s|
+      columns = s
+    }
+    op.on('--column-types TYPE,TYPE,...', 'column types [string, int, long]') {|s|
+      column_types = s
+    }
+    op.on('-H', '--column-header', 'first line includes column names', TrueClass) {|b|
+      has_header = b
+    }
+    op.on('-t', '--time-column NAME', 'name of the time column') {|s|
+      time_column = s
+    }
+    op.on('--time-value TIME', 'long value of the time column') {|s|
+      if s.to_i.to_s == s
+        time_value = s.to_i
+      else
+        require 'time'
+        time_value = Time.parse(s).to_i
+      end
+    }
+    op.on('-s', '--split-size SIZE_IN_KB', "size of each parts (default: #{split_size_kb})", Integer) {|i|
+      split_size_kb = i
+    }
+    op.on('-o', '--output DIR', 'output directory') {|s|
+      outdir = s
+    }
     op.on('--auto-perform', 'perform bulk import job automatically', TrueClass) {|b|
       auto_perform = b
     }
@@ -578,7 +625,20 @@ module Command
       parallel = i
     }
 
-    return [ auto_perform, auto_commit, parallel ]
+    files = op.cmd_parse
+    files = [files] unless files.is_a?(Array) # TODO ruby 1.9
+
+    # options validation
+    #unless column_types
+    #  $stderr.puts "--column-types TYPE,TYPE,... option is required."
+    #  exit 1
+    #end
+    unless outdir
+      $stderr.puts "-o, --output DIR option is required."
+      exit 1
+    end
+
+    return [ format, columns, column_types, has_header, time_column, time_value, split_size_kb, outdir, auto_perform, auto_commit, parallel, files ]
   end
 
   private
