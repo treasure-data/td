@@ -14,6 +14,7 @@ module Command
     result_ask_password = false
     priority = nil
     retry_limit = nil
+    query = nil
 
     op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
       org = s
@@ -54,6 +55,9 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
+    op.on('-q', '--query PATH', 'use file instead of inline query') {|s|
+      query = File.open(s) { |f| f.read.strip }
+    }
 
     sql = op.cmd_parse
 
@@ -64,6 +68,13 @@ module Command
 
     if sql == '-'
       sql = STDIN.read
+    elsif sql.nil?
+      sql = query
+    end
+
+    unless sql
+      $stderr.puts "<sql> argument or -q,--query PATH option is required."
+      exit 1
     end
 
     if result_url
