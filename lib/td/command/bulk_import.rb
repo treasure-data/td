@@ -436,7 +436,7 @@ module Command
     app_args = []
     app_args << 'com.treasure_data.tools.BulkImportTool'
     app_args << 'upload_parts'
-    app_args << opts[11]
+    app_args << opts[21]
 
     # TODO consider parameters including spaces; don't use join(' ')
     command = "#{javacmd} #{jvm_opts.join(' ')} #{app_opts.join(' ')} #{sysprops.join(' ')} #{app_args.join(' ')}"
@@ -491,14 +491,14 @@ module Command
     sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{opts[5].to_s}" if opts[5]
     sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{opts[6]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{opts[7]}"
-    sysprops << "-Dtd.bulk_import.prepare_parts.error-record-output=#{opts[8]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.error-record-output=#{opts[8]}" if opts[8]
     sysprops << "-Dtd.bulk_import.prepare_parts.dry-run=#{opts[9]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.delimiter=#{opts[10]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.newline=#{opts[11]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{opts[12]}" if opts[3]
     sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{opts[13]}" if opts[1]
     sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{opts[14]}" if opts[2]
-    sysprops << "-Dtd.bulk_import.prepare_parts.type-conversion-error=#{opts[15]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.type-conversion-error=#{opts[15]}" if opts[15]
     sysprops << "-Dtd.bulk_import.prepare_parts.exclude-columns=#{opts[16]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.only-columns=#{opts[17]}"
     sysprops
@@ -515,14 +515,14 @@ module Command
     sysprops << "-Dtd.bulk_import.prepare_parts.time-value=#{opts[5].to_s}" if opts[5]
     sysprops << "-Dtd.bulk_import.prepare_parts.output-dir=#{opts[6]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.split-size=#{opts[7]}"
-    sysprops << "-Dtd.bulk_import.prepare_parts.error-record-output=#{opts[8]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.error-record-output=#{opts[8]}" if opts[8]
     sysprops << "-Dtd.bulk_import.prepare_parts.dry-run=#{opts[9]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.delimiter=#{opts[10]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.newline=#{opts[11]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.column-header=#{opts[12]}" if opts[3]
     sysprops << "-Dtd.bulk_import.prepare_parts.columns=#{opts[13]}" if opts[1]
     sysprops << "-Dtd.bulk_import.prepare_parts.column-types=#{opts[14]}" if opts[2]
-    sysprops << "-Dtd.bulk_import.prepare_parts.type-conversion-error=#{opts[15]}"
+    sysprops << "-Dtd.bulk_import.prepare_parts.type-conversion-error=#{opts[15]}" if opts[15]
     sysprops << "-Dtd.bulk_import.prepare_parts.exclude-columns=#{opts[16]}"
     sysprops << "-Dtd.bulk_import.prepare_parts.only-columns=#{opts[17]}"
 
@@ -548,7 +548,7 @@ module Command
     error_record_output = nil
     dry_run = false
 
-    delimiter = nil
+    delimiter = ','
     newline = 'CRLF'
     column_header = nil
     columns = nil
@@ -631,26 +631,6 @@ module Command
       exit 1
     end
 
-    format = 'csv'
-    compress = 'none'
-    encoding = 'utf-8'
-    time_column = 'time'
-    time_format = nil
-    time_value = nil
-    outdir = nil
-    split_size_kb = PART_SPLIT_SIZE / 1024  # kb
-    error_record_output = nil
-    dry_run = false
-
-    delimiter = nil
-    newline = 'CRLF'
-    column_header = nil
-    columns = nil
-    column_types = nil
-    type_conversion_error = 'skip'
-    exclude_columns = nil
-    only_columns = nil
-
     return [ format, compress, encoding,
              time_column, time_format, time_value,
              outdir,  split_size_kb, error_record_output, dry_run,
@@ -671,7 +651,7 @@ module Command
     error_record_output = nil
     dry_run = false
 
-    delimiter = nil
+    delimiter = ','
     newline = 'CRLF'
     column_header = nil
     columns = nil
@@ -680,7 +660,7 @@ module Command
     exclude_columns = nil
     only_columns = nil
 
-    auto_perform = true
+    auto_perform = false
     auto_commit = false
     parallel = 2
 
@@ -748,10 +728,10 @@ module Command
     op.on('--auto-perform', 'perform bulk import job automatically', TrueClass) {|b|
       auto_perform = b
     }
-    op.on('--auto-commit', 'perform bulk import job automatically', FalseClass) {|b|
-      auto_perform = b
+    op.on('--auto-commit', 'commit bulk import job automatically', FalseClass) {|b|
+      auto_commit = b
     }
-    op.on('--parallel NUM', 'perform uploading in parallel (default: 2; max 8)', Integer) {|i|
+    op.on('--parallel NUM', 'upload in parallel (default: 2; max 8)', Integer) {|i|
       parallel = i
     }
 
