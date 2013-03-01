@@ -1,5 +1,5 @@
 .bundle
-build/td-java
+build/td-bulk-import-java
 Gemfile.lock
 vendor/*
 *~
