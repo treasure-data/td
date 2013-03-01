@@ -1,3 +1,9 @@
+== 2013-02-27 version 0.10.72
+
+* Add -q(--query) option to query subcommand
+* Hide password input on Windows
+* 'td help sample' is now available
+
 == 2013-02-05 version 0.10.71
 
 * bulk_import:upload_parts: improved retry algorithm to use exponential wait time

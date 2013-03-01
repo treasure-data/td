@@ -265,7 +265,8 @@ module List
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', 'sched sched1 --page 1'
   add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', 'sched:run sched1 "2013-01-01 00:00:00" -n 6'
 
-  add_list 'query', %w[sql], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"'
+  add_list 'query', %w[sql?], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"',
+                                               'query -d example_db -w -r rset1 -q query.txt'
 
   add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job 1461'
   add_list 'job:status', %w[job_id], 'Show status progress of a job', 'job:status 1461'

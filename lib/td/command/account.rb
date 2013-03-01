@@ -1,3 +1,4 @@
+require 'td/helpers'
 
 module TreasureData
 module Command
@@ -50,10 +51,8 @@ module Command
 
     3.times do
       begin
-        system "stty -echo"  # TODO termios
         print "Password (typing will be hidden): "
-        password = STDIN.gets || ""
-        password = password[0..-2]  # strip \n
+        password = get_password
       rescue Interrupt
         $stderr.print "\ncanceled."
         exit 1
@@ -98,6 +97,38 @@ module Command
     $stderr.puts "Storage:  #{a.storage_size_string}"
   end
 
+  private
+
+  if Helpers.on_windows?
+    require 'Win32API'
+
+    def get_char
+      Win32API.new('msvcrt', '_getch', [], 'L').Call
+    rescue Exception
+      Win32API.new('crtdll', '_getch', [], 'L').Call
+    end
+
+    def get_password
+      password = ''
+
+      while c = get_char
+        break if c == 13 || c == 10 # CR or NL
+        if c == 127 || c == 8  # 128: backspace, 8: delete
+          password.slice!(-1, 1)
+        else
+          password << c.chr
+        end
+      end
+
+      password
+    end
+  else
+    def get_password
+      system "stty -echo"  # TODO termios
+      password = STDIN.gets || ""
+      password[0..-2]  # strip \n
+    end
+  end
 end
 end
 
