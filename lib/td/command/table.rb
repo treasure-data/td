@@ -87,8 +87,13 @@ module Command
     require 'parallel'
 
     num_threads = 4
+    show_size_in_bytes = false
+
     op.on('-n', '--num_threads VAL', 'number of threads to get list in parallel') { |i|
       num_threads = Integer(i)
+    }
+    op.on('--show-bytes', 'show estimated table size in bytes') {
+      show_size_in_bytes = true
     }
 
     db_name = op.cmd_parse
@@ -108,8 +113,12 @@ module Command
         pschema = table.schema.fields.map {|f|
           "#{f.name}:#{f.type}"
         }.join(', ')
-        rows << {:Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s,
-          :Size => table.estimated_storage_size_string, 'Last import' => table.last_import ? table.last_import.localtime : nil, :Schema => pschema}
+        rows << {
+          :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s.gsub(/(?<=\d)(?=(?:\d{3})+(?!\d))/, ','),
+          :Size => show_size_in_bytes ? table.estimated_storage_size.to_s.gsub(/(?<=\d)(?=(?:\d{3})+(?!\d))/, ',') : table.estimated_storage_size_string,
+          'Last import' => table.last_import ? table.last_import.localtime : nil,
+          :Schema => pschema
+        }
       }
     }
     rows = rows.sort_by {|map|
