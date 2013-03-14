@@ -15,7 +15,7 @@ module Command
     priority = nil
     retry_limit = nil
     query = nil
-    modulo_sampling = nil
+    sampling_all = nil
 
     op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
       org = s
@@ -59,8 +59,8 @@ module Command
     op.on('-q', '--query PATH', 'use file instead of inline query') {|s|
       query = File.open(s) { |f| f.read.strip }
     }
-    op.on('--modulo-sampling DENOMINATOR', 'modulo sampling', Integer) {|i|
-      modulo_sampling = i
+    op.on('--sampling DENOMINATOR', 'modulo sampling', Integer) {|i|
+      sampling_all = i
     }
 
     sql = op.cmd_parse
@@ -93,7 +93,7 @@ module Command
 
     opts = {}
     opts['organization'] = org if org
-    opts['sampling'] = modulo_sampling if modulo_sampling
+    opts['sampling_all'] = sampling_all if sampling_all
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stderr.puts "Job #{job.job_id} is queued."
