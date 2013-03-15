@@ -37,7 +37,7 @@ def install_use_gems(target_dir)
   ENV['GEM_HOME'] = target_dir
   ENV['GEM_PATH'] = ''
   USE_GEMS.each {|gem|
-    system "gem install '#{gem}' --no-rdoc --no-ri" || exit 1
+    system "gem install '#{gem}' --no-rdoc --no-ri" || (exit 1)
   }
 end
 
