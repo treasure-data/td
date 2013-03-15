@@ -59,7 +59,7 @@ module Command
     op.on('-q', '--query PATH', 'use file instead of inline query') {|s|
       query = File.open(s) { |f| f.read.strip }
     }
-    op.on('--sampling DENOMINATOR', 'modulo sampling', Integer) {|i|
+    op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
       sampling_all = i
     }
 
