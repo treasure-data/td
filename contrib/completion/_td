@@ -1,0 +1,274 @@
+#compdef td
+
+# (( $+functions[_td] )) ||
+function _td()
+{
+typeset -A opt_args
+local context state line args
+
+local -a subcommands
+subcommands=(
+    "account":"Setup a Treasure Data account"
+    "account\:usage":"Show resource usage information"
+
+    "apikey\:show":"Show Treasure Data API key"
+    "apikey\:set":"Set Treasure Data API key"
+
+    "bulk_import\:list":"List bulk import sessions"
+    "bulk_import\:show":"Show list of uploaded parts"
+    "bulk_import\:create":"Create a new bulk import session to the the table"
+    "bulk_import\:prepare_parts":"Convert files into part file format"
+    #"bulk_import\:prepare_parts2":"Convert files into part file format"
+    "bulk_import\:upload_part":"Upload or re-upload a file into a bulk import session"
+    "bulk_import\:upload_parts":"Upload or re-upload files into a bulk import session"
+    #"bulk_import\:upload_parts2":"Upload or re-upload files into a bulk import session"
+    "bulk_import\:delete_part":"Delete a uploaded file from a bulk import session"
+    "bulk_import\:delete_parts":"Delete uploaded files from a bulk import session"
+    "bulk_import\:perform":"Start to validate and convert uploaded files"
+    "bulk_import\:error_records":"Show records which did not pass validations"
+    "bulk_import\:commit":"Start to commit a performed bulk import session"
+    "bulk_import\:delete":"Delete a bulk import session"
+    "bulk_import\:freeze":"Reject succeeding uploadings to a bulk import session"
+    "bulk_import\:unfreeze":"Unfreeze a frozen bulk import session"
+
+    "db\:list":"Show list of tables in a database"
+    "db\:show":"Describe information of a database"
+    "db\:create":"Create a database"
+    "db\:delete":"Delete a database"
+
+    "help\:all":"Show usage of all commands"
+    "help":"Show usage of a command"
+
+    "job\:show":"Show status and result of a job"
+    "job\:status":"Show status progress of a job"
+    "job\:list":"Show list of jobs"
+    "job\:kill":"Kill or cancel a job"
+
+    "password\:change":"Change password"
+
+    "query":"issue a query"
+
+    "result\:list":"Show list of result URLs"
+    "result\:show":"Describe information of a result URL"
+    "result\:create":"Create a result URL"
+    "result\:delete":"Delete a result URL"
+
+    "sample\:apache":"Create a sample log file"
+
+    "sched\:list":"Show list of schedules"
+    "sched\:create":"Create a schedule"
+    "sched\:delete":"Delete a schedule"
+    "sched\:update":"Modify a schedule"
+    "sched\:history":"Show history of scheduled queries"
+    "sched\:run":"Run scheduled queries for the specified time"
+
+    "server\:status":"Show status of the Treasure Data server"
+
+    "schema\:show":"Show schema of a table"
+    "schema\:set":"Set new schema on a table"
+    "schema\:add":"Add new columns to a table"
+    "schema\:remove":"Remove columns from a table"
+
+    "status":"Show scheds, jobs, tables and results"
+
+    "table\:list":"Show list of tables"
+    "table\:show":"Describe information of a table"
+    "table\:create":"Create a table"
+    "table\:delete":"Delete a table"
+    "table\:import":"Parse and import files to a table"
+    "table\:export":"Dump logs in a table to the specified storage"
+    "table\:swap":"Swap names of two tables"
+    "table\:tail":"Get recently imported logs"
+    "table\:partial_delete":"Delete logs from the table within the specified time range"
+
+    # TODO: Add ACL related commands
+)
+
+_arguments -C -S \
+    '(--config -c)'{--config,-c}'[path to config file ('~/.td/td.conf')]:PATH:' \
+    '(--apikey -k)'{--apikey,-k}'[use this API key instead of reading the config file]:APIKEY:' \
+    '(--verbose -v)'{--verbose,-v}'[verbose mode]' \
+    '(--help -h)'{--help,-h}'[show help]' \
+    '--version[show td client version]' \
+    '*:: :->subcommand' && ret=0
+
+if (( CURRENT == 1 )); then
+    _describe -t subcommands "td subcommands" subcommands
+    return
+fi
+
+local -a _subcommand_args
+case "$words[1]" in
+    account)
+        _subcommand_args=(
+            '(-f|--force)'{-f,--force}'[overwrite current account setting]' \
+                )
+        ;;
+    apikey:set)
+        _subcommand_args=(
+            '(-f|--force)'{-f,--force}'[overwrite current account setting]' \
+                )
+        ;;
+    bulk_import:create)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[create the bukl import session  under this organization]' \
+                )
+        ;;
+    bulk_import:upload_parts)
+        _subcommand_args=(
+            '(-P|--prefix)'{-g,--org}'[add prefix to parts name]' \
+            '(-s|--use-suffix)'{-s,--use-suffix}'[use COUNT number of . (dots) in the source file name to the parts name]' \
+            '(--auto-perform)'{--auto-perform}'[perform bulk import job automatically]' \
+            '(--parallel)'{--parallel}'[perform uploading in parallel (default: 2; max 8)]' \
+                )
+        ;;
+    bulk_import:perform)
+        _subcommand_args=(
+            '(-w|--wait)'{-w,--wait}'[wait for finishing the job]' \
+            '(-f|--force)'{-f,--force}'[force start performing]' \
+                )
+        ;;
+    bulk_import:prepare_parts)
+        _subcommand_args=(
+            '(-s|--split-size)'{-s,--split-size}'[size of each parts]' \
+            '(-o|--output)'{-o,--output}'[output directory]' \
+                )
+        ;;
+    db:create)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[create the database under this organization]' \
+                )
+        ;;
+    db:delete)
+        _subcommand_args=(
+            '(-f|--force)'{-f,--force}'[clear tables and delete the database]' \
+                )
+        ;;
+    job:list)
+        _subcommand_args=(
+            '(-p|--page)'{-p,--page}'[skip N pages]' \
+            '(-s|--skip)'{-s,--skip}'[skip N jobs]' \
+            '(-R|--running)'{-R,--running}'[show only running jobs]' \
+            '(-S|--success)'{-R,--running}'[show only succeeded jobs]' \
+            '(-E|--error)'{-E,--error}'[show only failed jobs]' \
+            '(--show)'{--show}'[show slow queries (default threshold: 3600 seconds)]' \
+                )
+        ;;
+    job:show)
+        _subcommand_args=(
+            '(-v|--verbose)'{-v,--verbose}'[show logs]' \
+            '(-w|--wait)'{-w,--wait}'[wait for finishing the job]' \
+            '(-G|--vertical)'{-G,--vertical}'[use vertical table to show results]' \
+            '(-o|--output)'{-o,--output}'[write result to the file]' \
+            '(-f|--format)'{-f,--format}'[format of the result to write to the file (tsv, csv, json or msgpack)]'
+                )
+        ;;
+    query)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[issue the query under this organization]' \
+            '(-d|--database)'{-d,--database}'[use the database (required)]' \
+            '(-w|--wait)'{-w,--wait}'[wait for finishing the job]' \
+            '(-G|--vertical)'{-G,--vertical}'[use vertical table to show results]' \
+            '(-o|--output)'{-o,--output}'[write result to the file]' \
+            '(-f|--format)'{-f,--format}'[format of the result to write to the file (tsv, csv, json or msgpack)]'
+            '(-r|--result)'{-r,--result}'[write result to the URL (see also result:create subcommand)]' \
+            '(-u|--user)'{-u,--user}'[set user name for the result URL]' \
+            '(-p|--password)'{-p,--password}'[ask password for the result URL]' \
+            '(-P|--priority)'{-P,--priority}'[set priority]' \
+            '(-R|--retry)'{-R,--retry}'[automatic retrying count]' \
+            '(-q|--query)'{-q,--query}'[use file instead of inline query]' \
+            '(--sampling)'{--sampling}'[enable random sampling to reduce records 1/DENOMINATOR]' \
+                )
+        ;;
+    result:create)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[create the result under this organization]' \
+            '(-u|--user)'{-u,--user}'[set user name for authentication]' \
+            '(-p|--password)'{-p,--password}'[ask password for authentication]' \
+                )
+        ;;
+    sched:create)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[create the schedule under this organization]' \
+            '(-d|--database)'{-d,--database}'[use the database (required)]' \
+            '(-t|--timezone)'{-t,--timezone}'[name of the timezone (like Asia/Tokyo)]' \
+            '(-D|--delay)'{-D,--delay}'[delay time of the schedule]' \
+            '(-o|--output)'{-o,--output}'[write result to the file]' \
+            '(-r|--result)'{-r,--result}'[write result to the URL (see also result:create subcommand)]' \
+            '(-u|--user)'{-u,--user}'[set user name for the result URL]' \
+            '(-p|--password)'{-p,--password}'[ask password for the result URL]' \
+            '(-P|--priority)'{-P,--priority}'[set priority]' \
+            '(-R|--retry)'{-R,--retry}'[automatic retrying count]' \
+                )
+        ;;
+    sched:update)
+        _subcommand_args=(
+            '(-s|-schedule)'{-s,--schedule}'[change the schedule]' \
+            '(-q|--query)'{-q,--query}'[change the query]' \
+            '(-d|--database)'{-d,--database}'[change the database]' \
+            '(-r|--result)'{-r,--result}'[change the result table]' \
+            '(-t|--timezone)'{-t,--timezone}'[change the name of the timezone]' \
+            '(-D|--delay)'{-D,--delay}'[change the delay time of the schedule]' \
+            '(-P|--priority)'{-P,--priority}'[set priority]' \
+            '(-R|--retry)'{-R,--retry}'[automatic retrying count]' \
+                )
+        ;;
+    sched:histroy)
+        _subcommand_args=(
+            '(-p|--page)'{-p,--page}'[skip N pages]' \
+            '(-s|--skip)'{-s,--skip}'[skip N jobs]' \
+                )
+        ;;
+    sched:run)
+        _subcommand_args=(
+            '(-n|--num)'{-n,--num}'[number of jobs to run]' \
+                )
+        ;;
+    table:delete)
+        _subcommand_args=(
+            '(-f|--force)'{-f,--force}'[never prompt]' \
+                )
+        ;;
+    table:list)
+        _subcommand_args=(
+            '(-n|--num_threads)'{-num,--num_threads}'[number of threads to get list in parallel]' \
+            '(--show-bytes)'{--show-bytes}'[show estimated table in bytes]' \
+                )
+        ;;
+    table:tail)
+        _subcommand_args=(
+            '(-t|--to)'{-t,--to}'[end time of logs to get]' \
+            '(-f|--from)'{-f,--from}'[start time of logs to get]' \
+            '(-c|--count)'{-c,--count}'[number of logs to get]' \
+            '(-P|--pretty)'{-P,--pretty}'[pretty print]' \
+                )
+        ;;
+    table:import)
+        _subcommand_args=(
+            '(--format)'{--format}'[file format (default: apache)]' \
+            '(--apache)'{--apache}'[same as --format apache; apache common log format]' \
+            '(--syslog)'{--syslog}'[same as --format syslog; syslog]' \
+            '(--msgpack)'{--msgpack}'[same as --format msgpack; msgpack stream format]' \
+            '(--json)'{--json}'[same as --format json; LF-separated json format]' \
+            '(-t|--time-key)'{-t,--time-key}'[time key name for json and msgpack format (e.g. created_at)]' \
+            '(--auto-create-table)'{--auto-create-table}"[create table and database if doesn't exist]" \
+                )
+        ;;
+    table:export)
+        _subcommand_args=(
+            '(-g|--org)'{-g,--org}'[export the data under this organization]' \
+            '(-t|--to)'{-t,--to}'[export data which is older than the TIME]' \
+            '(-f|--from)'{-f,--from}'[export data which is newer than or same with the TIME]' \
+            '(-b|--bucket)'{-b,--bucket}'[name of the destination S3 bucket (required)]' \
+            '(-k|--aws-key-id)'{-k,--aws-key-id}'[AWS access key id to export data (required)]' \
+            '(-s|--aws-secret-key)'{-s,--aws-secret-key}'[AWS secret key to export data (required)]' \
+                )
+        ;;
+esac
+
+_arguments \
+  $_subcommand_args \
+  && return 0
+}
+
+_td

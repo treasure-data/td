@@ -51,7 +51,7 @@ module Command
     result_user = nil
     result_ask_password = false
 
-    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
+    op.on('-g', '--org ORGANIZATION', "create the result under this organization") {|s|
       org = s
     }
     op.on('-u', '--user NAME', 'set user name for authentication') {|s|

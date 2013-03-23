@@ -27,7 +27,7 @@ module Command
   def bulk_import_create(op)
     org = nil
 
-    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
+    op.on('-g', '--org ORGANIZATION', "create the bulk import session under this organization") {|s|
       org = s
     }
 
