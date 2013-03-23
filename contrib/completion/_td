@@ -111,15 +111,15 @@ case "$words[1]" in
         ;;
     bulk_import:create)
         _subcommand_args=(
-            '(-g|--org)'{-g,--org}'[create the bukl import session  under this organization]' \
+            '(-g|--org)'{-g,--org}'[create the bukl import session under this organization]' \
                 )
         ;;
     bulk_import:upload_parts)
         _subcommand_args=(
-            '(-P|--prefix)'{-g,--org}'[add prefix to parts name]' \
+            '(-P|--prefix)'{-P,--prefix}'[add prefix to parts name]' \
             '(-s|--use-suffix)'{-s,--use-suffix}'[use COUNT number of . (dots) in the source file name to the parts name]' \
-            '(--auto-perform)'{--auto-perform}'[perform bulk import job automatically]' \
-            '(--parallel)'{--parallel}'[perform uploading in parallel (default: 2; max 8)]' \
+            '--auto-perform[perform bulk import job automatically]' \
+            '--parallel[perform uploading in parallel (default: 2; max 8)]' \
                 )
         ;;
     bulk_import:perform)
@@ -149,9 +149,9 @@ case "$words[1]" in
             '(-p|--page)'{-p,--page}'[skip N pages]' \
             '(-s|--skip)'{-s,--skip}'[skip N jobs]' \
             '(-R|--running)'{-R,--running}'[show only running jobs]' \
-            '(-S|--success)'{-R,--running}'[show only succeeded jobs]' \
+            '(-S|--success)'{-S,--success}'[show only succeeded jobs]' \
             '(-E|--error)'{-E,--error}'[show only failed jobs]' \
-            '(--show)'{--show}'[show slow queries (default threshold: 3600 seconds)]' \
+            '--show[show slow queries (default threshold: 3600 seconds)]' \
                 )
         ;;
     job:show)
@@ -177,7 +177,7 @@ case "$words[1]" in
             '(-P|--priority)'{-P,--priority}'[set priority]' \
             '(-R|--retry)'{-R,--retry}'[automatic retrying count]' \
             '(-q|--query)'{-q,--query}'[use file instead of inline query]' \
-            '(--sampling)'{--sampling}'[enable random sampling to reduce records 1/DENOMINATOR]' \
+            '--sampling[enable random sampling to reduce records 1/DENOMINATOR]' \
                 )
         ;;
     result:create)
@@ -203,7 +203,7 @@ case "$words[1]" in
         ;;
     sched:update)
         _subcommand_args=(
-            '(-s|-schedule)'{-s,--schedule}'[change the schedule]' \
+            '(-s|--schedule)'{-s,--schedule}'[change the schedule]' \
             '(-q|--query)'{-q,--query}'[change the query]' \
             '(-d|--database)'{-d,--database}'[change the database]' \
             '(-r|--result)'{-r,--result}'[change the result table]' \
@@ -232,7 +232,7 @@ case "$words[1]" in
     table:list)
         _subcommand_args=(
             '(-n|--num_threads)'{-num,--num_threads}'[number of threads to get list in parallel]' \
-            '(--show-bytes)'{--show-bytes}'[show estimated table in bytes]' \
+            '--show-bytes[show estimated table in bytes]' \
                 )
         ;;
     table:tail)
@@ -245,13 +245,13 @@ case "$words[1]" in
         ;;
     table:import)
         _subcommand_args=(
-            '(--format)'{--format}'[file format (default: apache)]' \
-            '(--apache)'{--apache}'[same as --format apache; apache common log format]' \
-            '(--syslog)'{--syslog}'[same as --format syslog; syslog]' \
-            '(--msgpack)'{--msgpack}'[same as --format msgpack; msgpack stream format]' \
-            '(--json)'{--json}'[same as --format json; LF-separated json format]' \
+            '--format[file format (default: apache)]' \
+            '--apache[same as --format apache; apache common log format]' \
+            '--syslog[same as --format syslog; syslog]' \
+            '--msgpack[same as --format msgpack; msgpack stream format]' \
+            '--json[same as --format json; LF-separated json format]' \
             '(-t|--time-key)'{-t,--time-key}'[time key name for json and msgpack format (e.g. created_at)]' \
-            '(--auto-create-table)'{--auto-create-table}"[create table and database if doesn't exist]" \
+            "--auto-create-table[create table and database if doesn't exist]" \
                 )
         ;;
     table:export)
