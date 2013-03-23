@@ -1,14 +1,13 @@
 # bash completion for td commands
 
-have td &&
 _td()
 {
-    local cur prev words cword list
-    _get_comp_words_by_ref cur prev words cword
     COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
-    list="`td help:all | awk '{print $1}' | grep '^[a-z]' | xargs`"
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev="${COMP_WORDS[COMP_CWORD - 1]}"
+    local list="`td help:all | awk '{print $1}' | grep '^[a-z]' | xargs`"
 
-    # echo "cur=$cur, prev=$prev, words=$words, cword=$cword"
+    # echo "cur=$cur, prev=$prev"
 
     if [[ "$prev" == "td" ]]; then
         if [[ "$cur" == "" ]]; then
