@@ -303,6 +303,11 @@ module List
   add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
   # TODO acl:test
 
+  add_list 'ip_limit:list', %w[], 'Show list of all IP range limitations'
+  add_list 'ip_limit:show', %w[org], "Show list of org's IP range limitations"
+  add_list 'ip_limit:set', %w[org ip_range_], 'Set an IP range limitation'
+  add_list 'ip_limit:delete', %w[org], 'Delete an IP range limitation'
+
   add_list 'aggr:list', %w[], 'Show list of aggregation schemas'
   add_list 'aggr:show', %w[name], 'Describe a aggregation schema'
   add_list 'aggr:create', %w[name relation_key], 'Create a aggregation schema'
@@ -371,6 +376,8 @@ module List
 
   add_alias 'acl', 'acl:list'
   add_alias 'acls', 'acl:list'
+
+  add_alias 'ip_limits', 'ip_limit:list'
 
   add_alias 'aggr', 'aggr:show'
   add_alias 'aggrs', 'aggr:list'
