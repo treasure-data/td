@@ -16,6 +16,9 @@ module Command
   end
 
   def get_client(opts={})
+    unless opts.has_key?(:ssl)
+      opts[:ssl] = Config.secure
+    end
     apikey = Config.apikey
     unless apikey
       raise ConfigError, "Account is not configured."

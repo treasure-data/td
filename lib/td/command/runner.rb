@@ -8,9 +8,10 @@ class Runner
     @config_path = nil
     @apikey = nil
     @prog_name = nil
+    @secure = true
   end
 
-  attr_accessor :apikey, :config_path, :prog_name
+  attr_accessor :apikey, :config_path, :prog_name, :secure
 
   def run(argv=ARGV)
     require 'td/version'
@@ -67,6 +68,7 @@ EOF
 
     config_path = @config_path
     apikey = @apikey
+    insecure = nil
     $verbose = false
     #$debug = false
 
@@ -76,6 +78,10 @@ EOF
 
     op.on('-k', '--apikey KEY', "use this API key instead of reading the config file") {|s|
       apikey = s
+    }
+
+    op.on('--insecure', "Insecure access: disable SSL") { |b|
+      insecure = true
     }
 
     op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
@@ -101,6 +107,9 @@ EOF
       end
       if apikey
         TreasureData::Config.apikey = apikey
+      end
+      if insecure
+        TreasureData::Config.secure = false
       end
     rescue
       usage $!.to_s

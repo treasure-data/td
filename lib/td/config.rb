@@ -91,6 +91,7 @@ class Config
   @@path = ENV['TREASURE_DATA_CONFIG_PATH'] || ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
   @@apikey = ENV['TREASURE_DATA_API_KEY'] || ENV['TD_API_KEY']
   @@apikey = nil if @@apikey == ""
+  @@secure = true
 
   def self.path
     @@path
@@ -106,6 +107,14 @@ class Config
 
   def self.apikey=(apikey)
     @@apikey = apikey
+  end
+
+  def self.secure
+    @@secure
+  end
+
+  def self.secure=(secure)
+    @@secure = secure
   end
 end
 
