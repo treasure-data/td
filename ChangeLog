@@ -1,3 +1,15 @@
+== 2013-03-29 version 0.10.74
+
+* Include zsh and bash completion
+* Use SSL by default
+* Add --insecure option to disable SSL
+* Add IP limitation features:
+  * ip_limit:set <org> <ip_range...>
+  * ip_limit:delete <org>
+  * ip_limit:list
+  * ip_limit:show <org>
+* td-client v0.8.46
+
 == 2013-03-15 version 0.10.73
 
 * Add --sampling option to query subcommand
