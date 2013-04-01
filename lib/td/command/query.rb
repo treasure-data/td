@@ -16,6 +16,7 @@ module Command
     retry_limit = nil
     query = nil
     sampling_all = nil
+    type = nil
 
     op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
       org = s
@@ -63,7 +64,7 @@ module Command
       sampling_all = i
     }
     op.on('-t', '--type TYPE', 'set query type (hive or pig)') {|s|
-      type = s
+      type = s.to_sym
     }
 
     sql = op.cmd_parse
