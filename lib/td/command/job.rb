@@ -126,13 +126,13 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      if job.success? && job.type == :hive
+      if job.success? && [:hive, :pig].include?(job.type)
         puts "Result       :"
         show_result(job, output, format, render_opts)
       end
 
     else
-      if job.success? && job.type == :hive
+      if job.success? && [:hive, :pig].include?(job.type)
         puts "Result       :"
         show_result(job, output, format, render_opts)
       end

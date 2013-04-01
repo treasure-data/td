@@ -62,6 +62,9 @@ module Command
     op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
       sampling_all = i
     }
+    op.on('-t', '--type TYPE', 'set query type (hive or pig)') {|s|
+      type = s
+    }
 
     sql = op.cmd_parse
 
@@ -94,6 +97,7 @@ module Command
     opts = {}
     opts['organization'] = org if org
     opts['sampling_all'] = sampling_all if sampling_all
+    opts['type'] = type if type
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stderr.puts "Job #{job.job_id} is queued."
