@@ -9,7 +9,7 @@ task 'pkg:build' => :build do
 
     # create ./bundle/td-client.pkg/Payload
     mkchdir('td-client.build') do
-      mkchdir('gems') do
+      mkchdir('vendor/gems') do
         install_use_gems(Dir.pwd)
       end
       install_resource 'pkg/td', 'bin/td', 0755

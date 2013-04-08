@@ -16,7 +16,7 @@ require "pathname"
 here = File.dirname(Pathname.new(__FILE__).realpath)
 
 # add locally installed gems to libpath
-gem_dir = File.expand_path("../gems", here)
+gem_dir = File.expand_path("../vendor/gems", here)
 Dir["#{gem_dir}/**/lib"].each do |libdir|
   $:.unshift libdir
 end

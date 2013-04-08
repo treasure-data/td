@@ -39,6 +39,10 @@ def install_use_gems(target_dir)
   USE_GEMS.each {|gem|
     system "gem install '#{gem}' --no-rdoc --no-ri" || (exit 1)
   }
+  FileUtils.mv Dir.glob("#{target_dir}/gems/*"), target_dir
+  %W(bin cache doc gems specifications).each { |dir|
+    FileUtils.remove_dir("#{target_dir}/#{dir}", true)
+  }
 end
 
 def resource_path(path)

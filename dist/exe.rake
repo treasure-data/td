@@ -15,7 +15,7 @@ task 'exe:build' => :build do
 
     # create ./td/
     mkchdir("td") do
-      mkchdir('gems') do
+      mkchdir('vendor/gems') do
         install_use_gems(Dir.pwd)
       end
       install_resource 'exe/td', 'bin/td', 0755
