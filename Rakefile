@@ -33,11 +33,20 @@ def install_use_gems(target_dir)
     puts "** RVM surely breaks the package. Use rbenv instead."
     puts "**"
   end
+
+  require 'rubygems/gem_runner'
+
   # system(env, cmd) doesn't work with ruby 1.8
   ENV['GEM_HOME'] = target_dir
   ENV['GEM_PATH'] = ''
   USE_GEMS.each {|gem|
-    system "gem install '#{gem}' --no-rdoc --no-ri" || (exit 1)
+    begin
+      Gem::GemRunner.new.run ["install", gem, "--no-rdoc", "--no-ri"]
+    rescue Gem::SystemExitException => e
+      unless e.exit_code.zero?
+        raise e
+      end
+    end
   }
   FileUtils.mv Dir.glob("#{target_dir}/gems/*"), target_dir
   %W(bin cache doc gems specifications).each { |dir|
