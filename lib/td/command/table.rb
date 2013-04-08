@@ -1,3 +1,4 @@
+require 'td/helpers'
 
 module TreasureData
 module Command
@@ -114,8 +115,8 @@ module Command
           "#{f.name}:#{f.type}"
         }.join(', ')
         rows << {
-          :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => table.count.to_s.gsub(/(?<=\d)(?=(?:\d{3})+(?!\d))/, ','),
-          :Size => show_size_in_bytes ? table.estimated_storage_size.to_s.gsub(/(?<=\d)(?=(?:\d{3})+(?!\d))/, ',') : table.estimated_storage_size_string,
+          :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
+          :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
           'Last import' => table.last_import ? table.last_import.localtime : nil,
           :Schema => pschema
         }

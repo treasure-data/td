@@ -23,6 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "td-client", "~> 0.8.46"
   gem.add_dependency "td-logger", "~> 0.3.16"
   gem.add_development_dependency "rake", "~> 0.9"
-  gem.add_development_dependency "rspec", "~> 2.10.0"
+  gem.add_development_dependency "rspec", "~> 2.11.0"
   gem.add_development_dependency "simplecov", "~> 0.5.4"
 end
