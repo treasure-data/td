@@ -119,6 +119,17 @@ def download_resource(url)
   path
 end
 
+def zip_files(zip_name, target_dir)
+  require 'zip/zip'
+
+  Zip::ZipFile.open(zip_name, Zip::ZipFile::CREATE) do |zip|
+    Dir["#{target_dir}/**/*"].each do |file|
+      zipped_path = file[target_dir.length + 1..-1]
+      zip.add(file, zipped_path) { true }
+    end
+  end
+end
+
 Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
   import rake
 end
