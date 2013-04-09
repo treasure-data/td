@@ -1,3 +1,9 @@
+== 2013-04-09 version 0.10.75
+
+* Fix unparsed regexp pattern in Ruby 1.8
+* Move gems directory into under vendor directory
+
+
 == 2013-03-29 version 0.10.74
 
 * Include zsh and bash completion
