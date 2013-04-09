@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/local/td/ruby/bin/ruby
 # -*- coding: utf-8 -*-
 
 # avoid conflicts with rvm

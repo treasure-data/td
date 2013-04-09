@@ -33,11 +33,11 @@ You need to authorize the account, before executing any other commands.
 
 == Mac OS X
 
-Disable RVM or rbenv and use system ruby (/usr/bin/ruby).
+Disable RVM or rbenv and use ruby.pkg's ruby (/usr/local/td/ruby/bin/ruby).
 And then run following commands:
 
-    $ sudo gem install bundler
-    $ rake pkg:build
+    $ /usr/local/td/ruby/bin/gem install bundler
+    $ /usr/local/td/ruby/bin/rake pkg:build
 
 == Windows
 

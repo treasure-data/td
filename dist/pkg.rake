@@ -34,6 +34,9 @@ task 'pkg:build' => :build do
     # create ./bundle/Distribution
     install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
+    sh "pkgutil --expand #{project_root_path('dist/resources/pkg/ruby-1.9.3-p194.pkg')} ruby"
+    mv "ruby/ruby-1.9.3-p194.pkg", "bundle/ruby.pkg"
+
     # create td-a.b.c.pkg
     sh "pkgutil --flatten bundle td-#{version}.pkg"
     FileUtils.cp "td-#{version}.pkg", project_root_path("pkg/td-#{version}.pkg")
