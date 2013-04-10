@@ -60,7 +60,7 @@ module Command
     op.on('-q', '--query PATH', 'use file instead of inline query') {|s|
       query = File.open(s) { |f| f.read.strip }
     }
-    op.on('-t', '--type TYPE', 'set query type (hive or pig)') {|s|
+    op.on('-T', '--type TYPE', 'set query type (hive or pig)') {|s|
       type = s.to_sym
     }
     op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
