@@ -34,6 +34,7 @@ module Command
     result_ask_password = false
     priority = nil
     retry_limit = nil
+    type = nil
 
     op.on('-g', '--org ORGANIZATION', "create the schedule under this organization") {|s|
       org = s
@@ -65,6 +66,9 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
+    op.on('-T', '--type TYPE', 'set query type (hive or pig)') {|s|
+      type = s
+    }
 
     name, cron, sql = op.cmd_parse
 
@@ -84,7 +88,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :organization=>org)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :organization=>org, :type=>type)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
@@ -120,6 +124,7 @@ module Command
     delay = nil
     priority = nil
     retry_limit = nil
+    type = nil
 
     op.on('-s', '--schedule CRON', 'change the schedule') {|s|
       cron = s
@@ -148,6 +153,9 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
+    op.on('-T', '--type TYPE', 'set query type (hive or pig)') {|s|
+      type = s
+    }
 
 
     name = op.cmd_parse
@@ -161,6 +169,7 @@ module Command
     params['delay'] = delay.to_s if delay
     params['priority'] = priority.to_s if priority
     params['retry_limit'] = retry_limit.to_s if retry_limit
+    params['type'] = type.to_s if type
 
     if params.empty?
       $stderr.puts op.to_s
