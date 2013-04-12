@@ -185,13 +185,8 @@ module Command
       client = get_client
       job = client.perform_bulk_import(name)
 
-      if job
-        $stderr.puts "Job #{job.job_id} is queued."
-        $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
-      else
-        $stderr.puts "No parts are uploaded."
-        $stderr.puts "Bulk import session '#{name}' is ready to commit but will not import anything"
-      end
+      $stderr.puts "Job #{job.job_id} is queued."
+      $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
     end
   end
 
@@ -261,17 +256,12 @@ module Command
 
     job = client.perform_bulk_import(name)
 
-    if job
-      $stderr.puts "Job #{job.job_id} is queued."
-      $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
-      if wait
-        require 'td/command/job'  # wait_job
-        wait_job(job)
-      end
+    $stderr.puts "Job #{job.job_id} is queued."
+    $stderr.puts "Use '#{$prog} job:show [-w] #{job.job_id}' to show the status."
 
-    else
-      $stderr.puts "No parts are uploaded."
-      $stderr.puts "Bulk import session '#{name}' is ready to commit but will not import anything"
+    if wait
+      require 'td/command/job'  # wait_job
+      wait_job(job)
     end
   end
 
