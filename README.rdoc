@@ -36,7 +36,7 @@ You need to authorize the account, before executing any other commands.
 Disable RVM or rbenv and use ruby.pkg's ruby (/usr/local/td/ruby/bin/ruby).
 And then run following commands:
 
-    $ /usr/local/td/ruby/bin/gem install bundler
+    $ /usr/local/td/ruby/bin/gem install bundler rubyzip
     $ /usr/local/td/ruby/bin/rake pkg:build
 
 == Windows
@@ -52,7 +52,7 @@ Then run following commands on MinGW Shell:
 
     $ mingw-get install msys-vim
     $ mingw-get install msys-wget
-    $ gem install bundler
+    $ gem install bundler rubyzip
     $ bundle install  # don't use "--path" option
     $ rake exe:build  # don't use "bundle exec"
 

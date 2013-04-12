@@ -1,0 +1,211 @@
+# -*- coding: utf-8 -*-
+require "fileutils"
+require "td/helpers"
+require "zip/zip"
+
+module TreasureData
+  # This architecture is based on Heroku command
+  module Updater
+    def self.error(message)
+      raise RuntimeError.new(message)
+    end
+
+    def self.updating_lock_path
+      File.join(TreasureData::Helpers.home_directory, ".td", "updating")
+    end
+
+    def self.installed_client_path
+      File.expand_path("../../..", __FILE__)
+    end
+
+    def self.updated_client_path
+      File.join(TreasureData::Helpers.home_directory, ".td", "updated")
+    end
+
+    def self.latest_local_version
+      installed_version = client_version_from_path(installed_client_path)
+      updated_version = client_version_from_path(updated_client_path)
+      if compare_versions(updated_version, installed_version) > 0
+        updated_version
+      else
+        installed_version
+      end
+    end
+
+    def self.get_client_version_file(path)
+      td_gems = Dir[File.join(path, "vendor/gems/td-*")]
+      td_gems.each { |td_gem|
+        if td_gem =~ /#{"#{path}\/vendor\/gems\/td-\\d*.\\d*.\\d*"}/
+          return File.join(td_gem, "/lib/td/version.rb")
+        end
+      }
+
+      nil
+    end
+
+    def self.client_version_from_path(path)
+      if version_file = get_client_version_file(path)
+        File.read(version_file).match(/VERSION = '([^']+)'/)[1]
+      else
+        '0.0.0'
+      end
+    end
+
+    def self.disable(message = nil)
+      @disable = message if message
+      @disable
+    end
+
+    def self.wait_for_lock(path, wait_for = 5, check_every = 0.5)
+      start = Time.now.to_i
+      while File.exists?(path)
+        sleep check_every
+        if (Time.now.to_i - start) > wait_for
+          TreasureData::Helpers.error "Unable to acquire update lock"
+        end
+      end
+      begin
+        FileUtils.touch(path)
+        ret = yield
+      ensure
+        FileUtils.rm_f(path)
+      end
+      ret
+    end
+
+    def self.autoupdate?
+      true
+    end
+
+    def self.package_category
+      case 
+      when TreasureData::Helpers.on_windows?
+        'exe'
+      when TreasureData::Helpers.on_mac?
+        'pkg'
+      else
+        TreasureData::Helpers.error("No supported environment")
+      end
+    end
+
+    def self.fetch(uri)
+      require 'net/http'
+
+      # open-uri can't treat 'http -> https' redirection and
+      # Net::HTTP.get_response can't get HTTPS endpoint.
+      # So we use following code to avoid above issues.
+      u = URI(uri)
+      response = if u.scheme == 'https'
+                   http = Net::HTTP.new(u.host, u.port)        
+                   http.use_ssl = true
+                   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+                   http.request(Net::HTTP::Get.new(u.path))
+                 else
+                   Net::HTTP.get_response(u)
+                 end
+
+      case response
+      when Net::HTTPSuccess then response.body
+      when Net::HTTPRedirection then fetch(response['Location'])
+      else
+        response.error!
+      end
+    end
+
+    def self.version_endpoint
+      "http://toolbelt.treasure-data.com/version.#{package_category}"
+    end
+
+    def self.update_package_endpoint
+      "http://toolbelt.treasure-data.com/td-update-#{package_category}.zip"
+    end
+
+    def self.update(autoupdate = false)
+      wait_for_lock(updating_lock_path, 5) do
+        require "td"
+        require 'open-uri'
+        require "tmpdir"
+        require "zip/zip"
+
+        latest_version = fetch(version_endpoint) { |f| f.read.chomp }
+
+        if compare_versions(latest_version, latest_local_version) > 0
+          Dir.mktmpdir do |download_dir|
+            File.open("#{download_dir}/td-update.zip", "wb") do |file|
+              file.print fetch(update_package_endpoint) { |f| f.read.chomp }
+            end
+
+            Zip::ZipFile.open("#{download_dir}/td-update.zip") do |zip|
+              zip.each do |entry|
+                target = File.join(download_dir, entry.to_s)
+                FileUtils.mkdir_p(File.dirname(target))
+                zip.extract(entry, target) { true }
+              end
+            end
+
+            FileUtils.rm "#{download_dir}/td-update.zip"
+
+            old_version = latest_local_version
+            new_version = client_version_from_path(download_dir)
+
+            if compare_versions(new_version, old_version) < 0 && !autoupdate
+              TreasureData::Helpers.error("Installed version (#{old_version}) is newer than the latest available update (#{new_version})")
+            end
+
+            FileUtils.rm_rf updated_client_path
+            FileUtils.mkdir_p File.dirname(updated_client_path)
+            FileUtils.cp_r(download_dir, updated_client_path)
+
+            new_version
+          end
+        else
+          false # already up to date
+        end
+      end
+    ensure
+      FileUtils.rm_f(updating_lock_path)
+    end
+
+    def self.compare_versions(first_version, second_version)
+      first_version.split('.').map { |part| Integer(part) rescue part } <=> second_version.split('.').map { |part| Integer(part) rescue part }
+    end
+
+    def self.inject_libpath
+      old_version = client_version_from_path(installed_client_path)
+      new_version = client_version_from_path(updated_client_path)
+
+      if compare_versions(new_version, old_version) > 0
+        vendored_gems = Dir[File.join(updated_client_path, "vendor", "gems", "*")]
+        vendored_gems.each do |vendored_gem|
+          $:.unshift File.join(vendored_gem, "lib")
+        end
+        load('td/updater.rb') # reload updated updater
+      end
+
+      background_update!
+    end
+
+    def self.last_autoupdate_path
+      File.join(TreasureData::Helpers.home_directory, ".td", "autoupdate.last")
+    end
+
+    def self.background_update!
+      if File.exists?(last_autoupdate_path)
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60 * 60 * 24 # every 1 day
+      end
+      log_path = File.join(TreasureData::Helpers.home_directory, '.td', 'autoupdate.log')
+      FileUtils.mkdir_p File.dirname(log_path)
+      td_binary = File.expand_path($0)
+      pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
+        fork do
+          exec("\"#{td_binary}\" update &> #{log_path} 2>&1")
+        end
+      else
+        spawn("\"#{td_binary}\" update", {:err => log_path, :out => log_path})
+      end
+      Process.detach(pid)
+      FileUtils.mkdir_p File.dirname(last_autoupdate_path)
+      FileUtils.touch last_autoupdate_path
+    end
+  end
+end

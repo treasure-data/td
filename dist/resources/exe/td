@@ -21,6 +21,10 @@ Dir["#{gem_dir}/**/lib"].each do |libdir|
   $:.unshift libdir
 end
 
+# inject any code in ~/.td/updated/vendor/gems over top
+require 'td/updater'
+TreasureData::Updater.inject_libpath
+
 # start up the CLI
 require 'td/command/runner'
 TreasureData::Command::Runner.new.run ARGV

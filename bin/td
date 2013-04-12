@@ -5,6 +5,13 @@ gem 'td-client'
 here = File.dirname(__FILE__)
 $LOAD_PATH << File.expand_path(File.join(here, '..', 'lib'))
 
+require 'td/updater'
+TreasureData::Updater.disable(<<EOS
+`td update` is only available from Treasure Data Toolbelt.
+Download and install from http://toolbelt.treasure-data.com
+EOS
+)
+
 require 'td/command/runner'
 TreasureData::Command::Runner.new.run ARGV
 
