@@ -10,7 +10,7 @@ module Command
     end
 
     $stderr.puts <<EOS
-Updating started at #{Time.now.to_i}
+Updating started at #{Time.now}
 from #{TreasureData::VERSION}
 EOS
     if new_version = TreasureData::Updater.update
@@ -18,7 +18,7 @@ EOS
     else
       $stderr.puts "nothing to update"
     end
-    $stderr.puts "ended at #{Time.now.to_i}"
+    $stderr.puts "ended at #{Time.now}"
   end
 
 end

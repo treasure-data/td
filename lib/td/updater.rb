@@ -218,7 +218,6 @@ module TreasureData
           exec("#{Shellwords.escape(td_binary)} update &> #{Shellwords.escape(log_path)} 2>&1")
         end
       else
-        #spawn("\"#{Shellwords.escape(td_binary)}\" update", {:err => log_path, :out => log_path})
         spawn(td_binary, 'update', {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
