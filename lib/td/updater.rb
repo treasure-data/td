@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 require "fileutils"
-require "td/helpers"
+require "shellwords"
 require "zip/zip"
 
 module TreasureData
@@ -11,8 +11,21 @@ module TreasureData
       raise RuntimeError.new(message)
     end
 
+    # copied from TreasureData::Helpers to avoid load issue.
+    def self.home_directory
+      on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
+    end
+
+    def self.on_windows?
+      RUBY_PLATFORM =~ /mswin32|mingw32/
+    end
+
+    def self.on_mac?
+      RUBY_PLATFORM =~ /-darwin\d/
+    end
+
     def self.updating_lock_path
-      File.join(TreasureData::Helpers.home_directory, ".td", "updating")
+      File.join(home_directory, ".td", "updating")
     end
 
     def self.installed_client_path
@@ -20,7 +33,7 @@ module TreasureData
     end
 
     def self.updated_client_path
-      File.join(TreasureData::Helpers.home_directory, ".td", "updated")
+      File.join(home_directory, ".td", "updated")
     end
 
     def self.latest_local_version
@@ -52,8 +65,15 @@ module TreasureData
       end
     end
 
-    def self.disable(message = nil)
-      @disable = message if message
+    def self.disable(message)
+      @disable = message
+    end
+
+    def self.disable?
+      !@disable.nil?
+    end
+
+    def self.disable_message
       @disable
     end
 
@@ -76,9 +96,9 @@ module TreasureData
 
     def self.package_category
       case 
-      when TreasureData::Helpers.on_windows?
+      when on_windows?
         'exe'
-      when TreasureData::Helpers.on_mac?
+      when on_mac?
         'pkg'
       else
         raise_error "Non supported environment"
@@ -124,12 +144,12 @@ module TreasureData
         require "tmpdir"
         require "zip/zip"
 
-        latest_version = fetch(version_endpoint) { |f| f.read.chomp }
+        latest_version = fetch(version_endpoint)
 
         if compare_versions(latest_version, latest_local_version) > 0
           Dir.mktmpdir do |download_dir|
             File.open("#{download_dir}/td-update.zip", "wb") do |file|
-              file.print fetch(update_package_endpoint) { |f| f.read.chomp }
+              file.print fetch(update_package_endpoint)
             end
 
             Zip::ZipFile.open("#{download_dir}/td-update.zip") do |zip|
@@ -183,22 +203,23 @@ module TreasureData
     end
 
     def self.last_autoupdate_path
-      File.join(TreasureData::Helpers.home_directory, ".td", "autoupdate.last")
+      File.join(home_directory, ".td", "autoupdate.last")
     end
 
     def self.background_update!
       if File.exists?(last_autoupdate_path)
         return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60 * 60 * 1 # every 1 hours
       end
-      log_path = File.join(TreasureData::Helpers.home_directory, '.td', 'autoupdate.log')
+      log_path = File.join(home_directory, '.td', 'autoupdate.log')
       FileUtils.mkdir_p File.dirname(log_path)
       td_binary = File.expand_path($0)
       pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
         fork do
-          exec("\"#{td_binary}\" update &> #{log_path} 2>&1")
+          exec("#{Shellwords.escape(td_binary)} update &> #{Shellwords.escape(log_path)} 2>&1")
         end
       else
-        spawn("\"#{td_binary}\" update", {:err => log_path, :out => log_path})
+        #spawn("\"#{Shellwords.escape(td_binary)}\" update", {:err => log_path, :out => log_path})
+        spawn(td_binary, 'update', {:err => log_path, :out => log_path})
       end
       Process.detach(pid)
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
