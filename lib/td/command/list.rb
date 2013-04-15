@@ -324,7 +324,7 @@ module List
   add_list 'help:all', %w[], 'Show usage of all commands'
   add_list 'help', %w[command], 'Show usage of a command'
 
-  add_list 'update', %w[], 'Update td and related library for TreasureData toolbelt'
+  add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
   # aliases
   add_alias 'db', 'db:show'

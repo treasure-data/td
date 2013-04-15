@@ -6,7 +6,8 @@ require "zip/zip"
 module TreasureData
   # This architecture is based on Heroku command
   module Updater
-    def self.error(message)
+    def self.raise_error(message)
+      # TODO: Replace better Exception class
       raise RuntimeError.new(message)
     end
 
@@ -61,7 +62,7 @@ module TreasureData
       while File.exists?(path)
         sleep check_every
         if (Time.now.to_i - start) > wait_for
-          TreasureData::Helpers.error "Unable to acquire update lock"
+          raise_error "Unable to acquire update lock"
         end
       end
       begin
@@ -73,10 +74,6 @@ module TreasureData
       ret
     end
 
-    def self.autoupdate?
-      true
-    end
-
     def self.package_category
       case 
       when TreasureData::Helpers.on_windows?
@@ -84,7 +81,7 @@ module TreasureData
       when TreasureData::Helpers.on_mac?
         'pkg'
       else
-        TreasureData::Helpers.error("No supported environment")
+        raise_error "Non supported environment"
       end
     end
 
@@ -92,7 +89,7 @@ module TreasureData
       require 'net/http'
 
       # open-uri can't treat 'http -> https' redirection and
-      # Net::HTTP.get_response can't get HTTPS endpoint.
+      # Net::HTTP.get_response can't get response from HTTPS endpoint.
       # So we use following code to avoid above issues.
       u = URI(uri)
       response = if u.scheme == 'https'
@@ -149,7 +146,7 @@ module TreasureData
             new_version = client_version_from_path(download_dir)
 
             if compare_versions(new_version, old_version) < 0 && !autoupdate
-              TreasureData::Helpers.error("Installed version (#{old_version}) is newer than the latest available update (#{new_version})")
+              raise_error "Installed version (#{old_version}) is newer than the latest available update (#{new_version})"
             end
 
             FileUtils.rm_rf updated_client_path
@@ -191,7 +188,7 @@ module TreasureData
 
     def self.background_update!
       if File.exists?(last_autoupdate_path)
-        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60 * 60 * 24 # every 1 day
+        return if (Time.now.to_i - File.mtime(last_autoupdate_path).to_i) < 60 * 60 * 1 # every 1 hours
       end
       log_path = File.join(TreasureData::Helpers.home_directory, '.td', 'autoupdate.log')
       FileUtils.mkdir_p File.dirname(log_path)
