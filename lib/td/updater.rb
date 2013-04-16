@@ -107,6 +107,7 @@ module TreasureData
 
     def self.fetch(uri)
       require 'net/http'
+      require 'openssl'
 
       # open-uri can't treat 'http -> https' redirection and
       # Net::HTTP.get_response can't get response from HTTPS endpoint.

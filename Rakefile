@@ -50,7 +50,8 @@ def install_use_gems(target_dir)
     end
   }
   FileUtils.mv Dir.glob("#{target_dir}/gems/*"), target_dir
-  %W(bin cache doc gems specifications).each { |dir|
+  FileUtils.rm_f Dir.glob("#{target_dir}/*.gem")
+  %W(bin cache doc gems specifications build_info).each { |dir|
     FileUtils.remove_dir("#{target_dir}/#{dir}", true)
   }
 end
