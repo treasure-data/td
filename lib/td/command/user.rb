@@ -135,11 +135,9 @@ module Command
 
     ok = false
     begin
-      client.add_user(name, org)
+      client.add_user(name, org, email, password)
 
       begin
-        client.change_email(name, email)
-        client.change_password(name, password)
         client.add_apikey(name)
         ok = true
 
