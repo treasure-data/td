@@ -219,7 +219,8 @@ module TreasureData
           exec("#{Shellwords.escape(td_binary)} update &> #{Shellwords.escape(log_path)} 2>&1")
         end
       else
-        spawn(td_binary, 'update', {:err => log_path, :out => log_path})
+        log_file = File.open(log_path, "w")
+        spawn(td_binary, 'update', :err => log_file, :out => log_file)
       end
       Process.detach(pid)
       FileUtils.mkdir_p File.dirname(last_autoupdate_path)
