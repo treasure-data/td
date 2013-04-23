@@ -1,3 +1,11 @@
+== 2013-04-22 version 0.10.76
+
+* Add auto update feature for td-toolbelt
+* Add -T to specify query type
+* Include Ruby binary for Mac TD toolbelt
+* td-client v0.8.48
+
+
 == 2013-04-09 version 0.10.75
 
 * Fix unparsed regexp pattern in Ruby 1.8
