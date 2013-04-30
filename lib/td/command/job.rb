@@ -251,7 +251,7 @@ module Command
       require 'csv'
       CSV.open(output, "w") {|writer|
         job.result_each {|row|
-          writer << row.map {|col| col.is_a?(String) ? col.to_s : Yajl.dump(col) }
+          writer << row.map {|col| dump_column(col) }
         }
       }
 
@@ -266,7 +266,7 @@ module Command
             else
               f.write "\t"
             end
-            f.write col.is_a?(String) ? col.to_s : Yajl.dump(col)
+            f.write dump_column(col)
           }
           f.write "\n"
         }
@@ -283,18 +283,7 @@ module Command
     job.result_each {|row|
       # TODO limit number of rows to show
       rows << row.map {|v|
-        if v.is_a?(String)
-          s = v.to_s
-        else
-          s = Yajl.dump(v)
-        end
-        # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
-        #   a) to make sure the string doesn't include invalid byte sequence
-        #   b) to display multi-byte characters as it is
-        #   c) encoding from UTF-8 to UTF-8 doesn't check/replace invalid chars
-        #   d) UTF-16LE was slightly faster than UTF-16BE, UTF-32LE or UTF-32BE
-        s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode!('UTF-8') if s.respond_to?(:encode)
-        s
+        dump_column(v)
       }
     }
 
@@ -304,6 +293,19 @@ module Command
     end
 
     puts cmd_render_table(rows, opts)
+  end
+
+  def dump_column(v)
+    require 'yajl'
+
+    s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
+    # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
+    #   a) to make sure the string doesn't include invalid byte sequence
+    #   b) to display multi-byte characters as it is
+    #   c) encoding from UTF-8 to UTF-8 doesn't check/replace invalid chars
+    #   d) UTF-16LE was slightly faster than UTF-16BE, UTF-32LE or UTF-32BE
+    s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode!('UTF-8') if s.respond_to?(:encode)
+    s
   end
 
   def job_priority_name_of(id)
