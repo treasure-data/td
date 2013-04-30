@@ -29,7 +29,7 @@ module TreasureData
     end
 
     def self.installed_client_path
-      File.expand_path("../../..", __FILE__)
+      File.expand_path("../../../../../..", __FILE__)
     end
 
     def self.updated_client_path
@@ -49,7 +49,7 @@ module TreasureData
     def self.get_client_version_file(path)
       td_gems = Dir[File.join(path, "vendor/gems/td-*")]
       td_gems.each { |td_gem|
-        if td_gem =~ /#{"#{path}\/vendor\/gems\/td-\\d*.\\d*.\\d*"}/
+        if td_gem =~ /#{"#{Regexp.escape(path)}\/vendor\/gems\/td-\\d*.\\d*.\\d*"}/
           return File.join(td_gem, "/lib/td/version.rb")
         end
       }
