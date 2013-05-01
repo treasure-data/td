@@ -1,3 +1,4 @@
+require 'td/version'
 
 module TreasureData
 
@@ -23,6 +24,7 @@ module Command
     unless apikey
       raise ConfigError, "Account is not configured."
     end
+    opts[:user_agent] = "TD: #{TreasureData::VERSION}"
     Client.new(apikey, opts)
   end
 
