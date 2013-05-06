@@ -1,3 +1,11 @@
+== 2013-05-06 version 0.10.77
+
+* Fix 'invalid byte sequence in UTF-8' at job result writing to CSV
+* Fix installed version check mechanizm of auto updater
+* Remove using curses to detect terminal height for Windows unexpected behaviour
+* Set User-Agent header
+
+
 == 2013-04-22 version 0.10.76
 
 * Add auto update feature for td-toolbelt
