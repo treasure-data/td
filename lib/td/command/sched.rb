@@ -33,6 +33,7 @@ module Command
     result_user = nil
     result_ask_password = false
     priority = nil
+    query = nil
     retry_limit = nil
     type = nil
 
@@ -63,6 +64,9 @@ module Command
         raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
       end
     }
+    op.on('-q', '--query PATH', 'use file instead of inline query') {|s|
+      query = File.open(s) { |f| f.read.strip }
+    }
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
@@ -74,6 +78,17 @@ module Command
 
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
+      exit 1
+    end
+
+    if sql == '-'
+      sql = STDIN.read
+    elsif sql.nil?
+      sql = query
+    end
+
+    unless sql
+      $stderr.puts "<sql> argument or -q,--query PATH option is required."
       exit 1
     end
 
