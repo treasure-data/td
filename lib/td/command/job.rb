@@ -87,6 +87,7 @@ module Command
     output = nil
     format = 'tsv'
     render_opts = {}
+    exclude = false
 
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
       verbose = b
@@ -105,6 +106,9 @@ module Command
         raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack, msgpack.gz"
       end
       format = s
+    }
+    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
+      exclude = b
     }
 
     job_id = op.cmd_parse
@@ -126,13 +130,13 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      if job.success? && [:hive, :pig].include?(job.type)
+      if job.success? && [:hive, :pig].include?(job.type) && !exclude
         puts "Result       :"
         show_result(job, output, format, render_opts)
       end
 
     else
-      if job.success? && [:hive, :pig].include?(job.type)
+      if job.success? && [:hive, :pig].include?(job.type) && !exclude
         puts "Result       :"
         show_result(job, output, format, render_opts)
       end
