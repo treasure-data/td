@@ -1,3 +1,12 @@
+== 2013-05-27 version 0.10.78
+
+* Add -q(--query) option to sched:create command
+* Add -x option to job:show, exlude result from automatically being downloaded
+* Update parallel gem dependency to 0.6.1 or later
+* user:add now requires email and password
+* td-client v0.8.50
+
+
 == 2013-05-06 version 0.10.77
 
 * Fix 'invalid byte sequence in UTF-8' at job result writing to CSV
