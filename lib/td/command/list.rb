@@ -127,7 +127,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^ip_limit/, /^role/, /^org/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, *examples)
