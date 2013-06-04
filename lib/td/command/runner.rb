@@ -96,6 +96,11 @@ EOF
       usage nil
     }
 
+    op.on('--version', "show version") {
+      puts op.version
+      exit
+    }
+
     begin
       op.order!(argv)
       usage nil if argv.empty?
