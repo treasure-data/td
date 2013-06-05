@@ -50,7 +50,7 @@ module TreasureData
     class LineReader
       def initialize(io, error, opts)
         if encoding = opts[:encoding]
-          io.set_encoding(encoding) if io.respond_to?(:set_encoding)
+          io.set_encoding(encoding, 'UTF-8') if io.respond_to?(:set_encoding)
         end
         #@delimiter = opts[:line_delimiter_expr] || /\r?\n/
         @io = io
