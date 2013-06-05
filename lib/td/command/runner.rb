@@ -138,13 +138,23 @@ EOF
     rescue TreasureData::ConfigError
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
-    rescue
+    rescue => e
       $stderr.puts "error #{$!.class}: backtrace:"
       $!.backtrace.each {|b|
         $stderr.puts "  #{b}"
       }
       puts ""
       puts $!
+
+      require 'socket'
+      if e.is_a?(::SocketError)
+        $stderr.puts <<EOS
+
+Network dependent error occurred.
+If you want to use td command through a proxy,
+please set HTTP_PROXY environment variable (e.g. export HTTP_PROXY="host:port")
+EOS
+      end
     end
   end
 end
