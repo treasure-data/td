@@ -133,22 +133,10 @@ module Command
       client.create_organization(org)
     end
 
-    ok = false
     begin
       client.add_user(name, org, email, password)
-
-      begin
-        client.add_apikey(name)
-        ok = true
-
-      ensure
-        if !ok
-          client.remove_user(name)
-        end
-      end
-
     ensure
-      if create_org && !ok
+      if create_org
         client.delete_organization(org)
       end
     end
