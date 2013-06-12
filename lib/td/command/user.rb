@@ -163,13 +163,39 @@ module Command
   #def user_email_change(op)
   #end
 
-  ## TODO user:apikey:add <name>
-  #def user_apikey_add(op)
-  #end
+  def user_apikey_add(op)
+    name = op.cmd_parse
 
-  ## TODO user:apikey:remove <name> <apikey>
-  #def user_apikey_remove(op)
-  #end
+    client = get_client
+
+    begin
+      client.add_apikey(name)
+    rescue TreasureData::NotFoundError
+      $stderr.puts "User '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} users' to show users."
+      exit 1
+    end
+
+    $stderr.puts "Added an API key to user '#{name}'."
+    $stderr.puts "Use '#{$prog} user:apikeys #{name}' to show the API key"
+  end
+
+  def user_apikey_remove(op)
+    name, key = op.cmd_parse
+
+    client = get_client
+
+    begin
+      client.remove_apikey(name, key)
+    rescue TreasureData::NotFoundError
+      $stderr.puts "User '#{name}' or API key '#{key}' does not exist."
+      $stderr.puts "Use '#{$prog} users' to show users."
+      $stderr.puts "Use '#{$prog} user:apikeys '#{key}' to show API keys"
+      exit 1
+    end
+
+    $stderr.puts "Removed an an API key from user '#{name}'."
+  end
 
   def user_apikey_list(op)
     name = op.cmd_parse
