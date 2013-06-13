@@ -1,3 +1,12 @@
+== 2013-06-13 version 0.10.79
+
+* -h option shows --version option
+* Show more messages when network related error occurred
+* Fix bulk import encoding issue when -e option is specified
+* Add user:apikey:add subcommand
+* Add user:apikey:remove subcommand
+
+
 == 2013-05-27 version 0.10.78
 
 * Add -q(--query) option to sched:create command
