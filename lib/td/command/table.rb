@@ -110,17 +110,25 @@ module Command
 
     rows = []
     ::Parallel.each(databases, :in_threads => num_threads) {|db|
-      db.tables.each {|table|
-        pschema = table.schema.fields.map {|f|
-          "#{f.name}:#{f.type}"
-        }.join(', ')
-        rows << {
-          :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
-          :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
-          'Last import' => table.last_import ? table.last_import.localtime : nil,
-          :Schema => pschema
+      begin
+        db.tables.each {|table|
+          pschema = table.schema.fields.map {|f|
+            "#{f.name}:#{f.type}"
+          }.join(', ')
+          rows << {
+            :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
+            :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
+            'Last import' => table.last_import ? table.last_import.localtime : nil,
+            :Schema => pschema
+          }
         }
-      }
+      rescue APIError => e
+        # ignores permission error because db:list shows all databases
+        # even if the user can't access to tables in the database
+        unless e.to_s =~ /not authorized/
+          raise e
+        end
+      end
     }
     rows = rows.sort_by {|map|
       [map[:Database], map[:Type].size, map[:Table]]
