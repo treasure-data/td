@@ -16,12 +16,12 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = ['lib']
 
-  gem.add_dependency "msgpack", "~> 0.4.4"
+  gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.6.0"]
   gem.add_dependency "yajl-ruby", "~> 1.1.0"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 0.6.1"
-  gem.add_dependency "td-client", "~> 0.8.50"
-  gem.add_dependency "td-logger", "~> 0.3.16"
+  gem.add_dependency "td-client", "~> 0.8.51"
+  gem.add_dependency "td-logger", "~> 0.3.21"
   gem.add_dependency "rubyzip", "~> 0.9.9"
   gem.add_development_dependency "rake", "~> 0.9"
   gem.add_development_dependency "rspec", "~> 2.11.0"
