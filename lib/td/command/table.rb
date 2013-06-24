@@ -119,6 +119,7 @@ module Command
             :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
             :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
             'Last import' => table.last_import ? table.last_import.localtime : nil,
+            'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,
             :Schema => pschema
           }
         }
@@ -134,7 +135,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', :Schema], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500)
 
     if rows.empty?
       if db_name
