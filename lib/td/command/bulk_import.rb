@@ -434,7 +434,7 @@ module Command
 
     # make application arguments
     app_args = []
-    app_args << 'com.treasure_data.tools.BulkImportTool'
+    app_args << 'com.treasure_data.bulk_import.Main'
     app_args << 'upload_parts'
     app_args << opts[21]
 
@@ -470,7 +470,7 @@ module Command
 
     # make application arguments
     app_args = []
-    app_args << 'com.treasure_data.tools.BulkImportTool'
+    app_args << 'com.treasure_data.bulk_import.Main'
     app_args << 'prepare_parts'
     app_args << opts[18]
 
