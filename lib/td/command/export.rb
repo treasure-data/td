@@ -29,6 +29,9 @@ module Command
     op.on('-s', '--aws-secret-key SECRET_KEY', 'AWS secret access key to export data (required)') {|s|
       aws_secret_access_key = s
     }
+    op.on('-F', '--file-format FILE_FORMAT', 'file format for exported data, either json.gz (default) or line-json.gz') { |s| 
+      file_format = s if s == 'line-json.gz'
+    }
 
     db_name, table_name = op.cmd_parse
 
