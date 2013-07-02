@@ -17,6 +17,7 @@ module Command
     query = nil
     sampling_all = nil
     type = nil
+    exclude = false
 
     op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
       org = s
@@ -66,6 +67,9 @@ module Command
     op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
       sampling_all = i
     }
+    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
+      exclude = b
+    }
 
     sql = op.cmd_parse
 
@@ -108,7 +112,7 @@ module Command
     if wait && !job.finished?
       wait_job(job)
       puts "Status     : #{job.status}"
-      if job.success?
+      if job.success? && !exclude
         puts "Result     :"
         show_result(job, output, format, render_opts)
       end
