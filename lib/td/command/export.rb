@@ -1,6 +1,7 @@
 
 module TreasureData
 module Command
+  SUPPORTED_FORMATS = %W[json.gz line-json.gz]
 
   def table_export(op)
     org = nil
@@ -9,7 +10,7 @@ module Command
     s3_bucket = nil
     aws_access_key_id = nil
     aws_secret_access_key = nil
-    file_format = "json.gz"
+    file_format = nil
 
     op.on('-g', '--org ORGANIZATION', "export the data under this organization") {|s|
       org = s
@@ -30,7 +31,8 @@ module Command
       aws_secret_access_key = s
     }
     op.on('-F', '--file-format FILE_FORMAT', 'file format for exported data, either json.gz (default) or line-json.gz') { |s| 
-      file_format = s if s == 'line-json.gz'
+      raise ArgumentError, "#{s} is not a supported file format" unless SUPPORTED_FORMATS.include?(s)
+      file_format = s
     }
 
     db_name, table_name = op.cmd_parse
