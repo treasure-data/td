@@ -1,3 +1,10 @@
+== 2013-07-03 version 0.10.83
+
+* Add -x option to query, exlude result from automatically being downloaded
+* Update td-bulk-import-java to 0.2.0-snapshot
+* Add line-json.gz format to bulk_export
+
+
 == 2013-06-24 version 0.10.82
 
 * table:list shows 'last log timestamp' column
