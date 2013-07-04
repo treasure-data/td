@@ -136,8 +136,15 @@ module Command
 
     n = 0
     x = 0
+    has_bignum = false
     parser.call(file, path) {|record|
-      writer.write record.to_msgpack
+      entry = begin
+                record.to_msgpack
+              rescue RangeError
+                has_bignum = true
+                normalized_msgpack(record)
+              end
+      writer.write entry
 
       n += 1
       x += 1
@@ -176,7 +183,7 @@ module Command
     end
 
     puts "  imported #{n} entries from #{path}."
-
+    $stderr.puts normalized_message if has_bignum
   ensure
     out.close rescue nil
     writer.close rescue nil

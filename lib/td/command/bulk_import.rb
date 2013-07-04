@@ -320,7 +320,6 @@ module Command
     $stderr.puts "Bulk import session '#{name}' is unfrozen."
   end
 
-
   PART_SPLIT_SIZE = 16*1024*1024
 
   def bulk_import_prepare_parts(op)
@@ -364,6 +363,7 @@ module Command
         $stderr.puts "#{reason}"
       end
     }
+    has_bignum = false
 
     # TODO multi process
     files.each {|ifname|
@@ -387,7 +387,13 @@ module Command
               $stderr.puts "  sample: #{Time.at(t).utc} #{Yajl.dump(record)}"
             end
 
-            zout.write(record.to_msgpack)
+            entry = begin
+                      record.to_msgpack
+                    rescue RangeError
+                      has_bignum = true
+                      normalized_msgpack(record)
+                    end
+            zout.write(entry)
             record_num += 1
 
             if out.size > split_size
@@ -406,6 +412,8 @@ module Command
         $stderr.puts "  #{ifname}: #{record_num} entries."
       }
     }
+
+    $stderr.puts normalized_message if has_bignum
   end
 
   def bulk_import_upload_parts2(op)
