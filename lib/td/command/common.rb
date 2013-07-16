@@ -46,6 +46,24 @@ module Command
     end
   end
 
+  def normalized_msgpack(record)
+    record.keys.each { |k|
+      v = record[k]
+      if v.kind_of?(Bignum)
+        record[k] = v.to_s
+      end
+    }
+    record.to_msgpack
+  end
+
+  def normalized_message
+    <<EOS
+Your event has large number larger than 2^64.
+These numbers are converted into string type.
+So you should use cast operator, e.g. cast(v['key'] as decimal), in your query.
+EOS
+  end
+
   #def cmd_render_tree(nodes, *opts)
   #  require 'hirb'
   #  Hirb::Helpers::Tree.render(nodes, *opts)
