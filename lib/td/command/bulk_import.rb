@@ -129,6 +129,13 @@ module Command
 
     name, *files = op.cmd_parse
 
+    # validate the session
+    bi = get_client.bulk_imports.find {|bi| name == bi.name }
+    unless bi
+      $stderr.puts "Bulk import session '#{name}' does not exist. Please check the first argument of the command."
+      exit 1
+    end
+
     parallel = 1 if parallel <= 1
     parallel = 8 if parallel >= 8
 
