@@ -398,7 +398,7 @@ module Command
                       record.to_msgpack
                     rescue RangeError
                       has_bignum = true
-                      normalized_msgpack(record)
+                      TreasureData::API.normalized_msgpack(record)
                     end
             zout.write(entry)
             record_num += 1

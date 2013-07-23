@@ -46,16 +46,6 @@ module Command
     end
   end
 
-  def normalized_msgpack(record)
-    record.keys.each { |k|
-      v = record[k]
-      if v.kind_of?(Bignum)
-        record[k] = v.to_s
-      end
-    }
-    record.to_msgpack
-  end
-
   def normalized_message
     <<EOS
 Your event has large number larger than 2^64.
