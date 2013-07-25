@@ -1,3 +1,11 @@
+== 2013-07-25 version 0.10.84
+
+* bulk_import now checks first argument is correct session name
+* Convert bignum into string type. Please use cast in your query.
+* Improve error message of export -F option
+* td-client v0.8.53
+
+
 == 2013-07-03 version 0.10.83
 
 * Add -x option to query, exlude result from automatically being downloaded
