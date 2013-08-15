@@ -19,10 +19,13 @@ if [ -n "$chrev" ];then
 fi
 
 revname="$(git show --pretty=format:'%H %ad' | head -n 1)"
-vername="0.2.0-SNAPSHOT"
+vername="0.2.1-SNAPSHOT"
 
 mvn package -Dmaven.test.skip=true || exit 1
+echo "copy td-bulk-import-${vername}.jar"
 cp target/td-bulk-import-${vername}.jar ../../java/td-bulk-import-${vername}.jar
+echo "copy logging.properties"
+cp src/test/resources/java/logging.properties ../../java/logging.properties
 
 if [ -n "$chrev" ];then
     git checkout master
