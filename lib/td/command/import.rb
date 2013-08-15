@@ -357,8 +357,6 @@ module Command
     # TODO consider parameters including spaces; don't use join(' ')
     cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
 
-    puts cmd
-
     exec cmd
   end
 
