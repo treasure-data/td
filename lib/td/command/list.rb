@@ -246,6 +246,9 @@ module List
   add_list 'bulk_import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'bulk_import:freeze logs_201201'
   add_list 'bulk_import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'bulk_import:unfreeze logs_201201'
 
+  add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
+  add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
+
   add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
   add_list 'result:show', %w[name], 'Describe information of a result URL', 'result mydb'
   add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create mydb mysql://my-server/mydb'
