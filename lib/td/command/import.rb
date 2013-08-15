@@ -318,7 +318,7 @@ module Command
     end
   end
 
-  PART_SPLIT_SIZE = 16*1024*1024
+  BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
@@ -337,7 +337,8 @@ module Command
 
   private
   def import_generic(subcmd)
-    puts "import:prepare and import:upload commands require Java version 1.6 or later."
+    puts "It requires Java version 1.6 or later. If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+    puts ""
 
     # configure jvm options
     jvm_opts = [ JAVA_HEAP_MAX_SIZE ]
@@ -362,11 +363,10 @@ module Command
 
   private
   def find_td_bulk_import_jar
-    base_path = File.expand_path('../../..', File.dirname(__FILE__))
-    libjars = Dir.glob("#{base_path}/java/**/*.jar")
+    libjars = Dir.glob("#{BASE_PATH}/java/**/*.jar")
     found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
     if found.nil?
-      $stderr.puts "You should build td-bulk-import first. Please type 'mvn package -Dmaven.test.skip=true'"
+      $stderr.puts "td-bulk-import.jar is not found."
       exit
     end
     td_bulk_import_jar = libjars.delete(found)
@@ -404,8 +404,7 @@ module Command
 
   private
   def find_logging_conf_file
-    base_path = File.expand_path('../../..', File.dirname(__FILE__))
-    libjars = Dir.glob("#{base_path}/java/**/*.properties")
+    libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
     found = libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
     return nil if found.nil?
     logging_conf_file = libjars.delete(found)
