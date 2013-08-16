@@ -47,6 +47,7 @@ module Command
 
     # TODO consider parameters including spaces; don't use join(' ')
     cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
+    puts cmd
     exec cmd
   end
 
@@ -63,21 +64,14 @@ module Command
   end
 
   private
-  def set_sysprops()
+  def set_sysprops
     sysprops = []
 
-    # set http_proxy
-    http_proxy = ENV['HTTP_PROXY']
-    if http_proxy
-      if http_proxy =~ /\Ahttp:\/\/(.*)\z/
-        http_proxy = $~[1]
-      end
-      proxy_host, proxy_port = http_proxy.split(':', 2)
-      proxy_port = (proxy_port ? proxy_port.to_i : 80)
+    # set apiserver
+    set_sysprops_endpoint(sysprops)
 
-      sysprops << "-Dhttp.proxyHost=#{proxy_host}"
-      sysprops << "-Dhttp.proxyPort=#{proxy_port}"
-    end
+    # set http_proxy
+    set_sysprops_http_proxy(sysprops)
 
     # set configuration file for logging
     conf_file = find_logging_conf_file
@@ -89,6 +83,55 @@ module Command
     sysprops << "-Dtd.api.key=#{TreasureData::Config.apikey}"
 
     sysprops
+  end
+
+  private
+  def set_sysprops_endpoint(sysprops)
+    endpoint = ENV['TD_API_SERVER']
+    if endpoint
+      require 'uri'
+
+      uri = URI.parse(endpoint)
+
+      case uri.scheme
+      when 'http', 'https'
+        host = uri.host
+        port = uri.port
+        ssl = uri.scheme == 'https'
+
+        port = 80 if port == 443 and ssl
+      else
+        if uri.port
+          # invalid URI
+          raise "Invalid endpoint: #{endpoint}"
+        end
+
+        # generic URI
+        host, port = endpoint.split(':', 2)
+        port = port.to_i
+        # TODO support ssl
+        port = 80 if port == 0
+        ssl = false
+      end
+
+      sysprops << "-Dtd.api.server.host=#{host}"
+      sysprops << "-Dtd.api.server.port=#{port}"
+    end
+  end
+
+  private
+  def set_sysprops_http_proxy(sysprops)
+    http_proxy = ENV['HTTP_PROXY']
+    if http_proxy
+      if http_proxy =~ /\Ahttp:\/\/(.*)\z/
+        http_proxy = $~[1]
+      end
+      proxy_host, proxy_port = http_proxy.split(':', 2)
+      proxy_port = (proxy_port ? proxy_port.to_i : 80)
+
+      sysprops << "-Dhttp.proxyHost=#{proxy_host}"
+      sysprops << "-Dhttp.proxyPort=#{proxy_port}"
+    end
   end
 
   private
