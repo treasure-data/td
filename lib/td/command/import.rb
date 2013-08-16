@@ -21,8 +21,10 @@ module Command
 
   private
   def import_generic(subcmd)
-    puts "It requires Java version 1.6 or later. If Java is not installed yet, please use 'bulk_import' commands instead of this command."
-    puts ""
+    puts "Require Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+
+    # show help
+    show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
 
     # configure jvm options
     jvm_opts = [ JAVA_HEAP_MAX_SIZE ]
@@ -37,11 +39,14 @@ module Command
     java_args = []
     java_args << JAVA_MAIN_CLASS
     java_args << subcmd
-    java_args << ARGV
+    if show_help
+      java_args << "--help"
+    else
+      java_args << ARGV
+    end
 
     # TODO consider parameters including spaces; don't use join(' ')
     cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
-
     exec cmd
   end
 
