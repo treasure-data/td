@@ -5,6 +5,7 @@ module Command
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
+  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
 
@@ -21,7 +22,8 @@ module Command
 
   private
   def import_generic(subcmd)
-    puts "Require Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+    # has java runtime
+    check_java
 
     # show help
     show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
@@ -47,8 +49,28 @@ module Command
 
     # TODO consider parameters including spaces; don't use join(' ')
     cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
-    puts cmd
     exec cmd
+  end
+
+  private
+  def check_java
+    pid = do_fork(JAVA_COMMAND_CHECK)
+    pid, stat = Process.waitpid2(pid)
+
+    if stat.exitstatus != 0
+      $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+      exit 1
+    end
+  end
+
+  def do_fork(cmd)
+    Process.fork do
+      begin
+        Process.exec(*cmd)
+      ensure
+        exit! 127
+      end
+    end
   end
 
   private
