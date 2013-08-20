@@ -246,8 +246,17 @@ module List
   add_list 'bulk_import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'bulk_import:freeze logs_201201'
   add_list 'bulk_import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'bulk_import:unfreeze logs_201201'
 
+  add_list 'import:list', %w[], 'List bulk import sessions', 'import:list'
+  add_list 'import:show', %w[name], 'Show list of uploaded parts', 'import:show'
+  add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', 'import:create logs_201201 example_db event_logs'
   add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
   add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
+  add_list 'import:perform', %w[name], 'Start to validate and convert uploaded files', 'import:perform logs_201201'
+  add_list 'import:error_records', %w[name], 'Show records which did not pass validations', 'import:error_records logs_201201'
+  add_list 'import:commit', %w[name], 'Start to commit a performed bulk import session', 'import:commit logs_201201'
+  add_list 'import:delete', %w[name], 'Delete a bulk import session', 'import:delete logs_201201'
+  add_list 'import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'import:freeze logs_201201'
+  add_list 'import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'import:unfreeze logs_201201'
 
   add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
   add_list 'result:show', %w[name], 'Describe information of a result URL', 'result mydb'
