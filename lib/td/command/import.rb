@@ -12,12 +12,57 @@ module Command
   APP_OPTION_PREPARE = "prepare"
   APP_OPTION_UPLOAD = "upload"
 
+  def import_list(op)
+    require 'td/command/bulk_import'
+    bulk_import_list(op)
+  end
+
+  def import_show(op)
+    require 'td/command/bulk_import'
+    bulk_import_show(op)
+  end
+
+  def import_create(op)
+    require 'td/command/bulk_import'
+    bulk_import_create(op)
+  end
+
   def import_prepare(op)
     import_generic(APP_OPTION_PREPARE)
   end
 
   def import_upload(op)
     import_generic(APP_OPTION_UPLOAD)
+  end
+
+  def import_perform(op)
+    require 'td/command/bulk_import'
+    bulk_import_perform(op)
+  end
+
+  def import_error_records(op)
+    require 'td/command/bulk_import'
+    bulk_import_error_records(op)
+  end
+
+  def import_commit(op)
+    require 'td/command/bulk_import'
+    bulk_import_commit(op)
+  end
+
+  def import_delete(op)
+    require 'td/command/bulk_import'
+    bulk_import_delete(op)
+  end
+
+  def import_freeze(op)
+    require 'td/command/bulk_import'
+    bulk_import_freeze(op)
+  end
+
+  def import_unfreeze(op)
+    require 'td/command/bulk_import'
+    bulk_importunfreeze(op)
   end
 
   private
