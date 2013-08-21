@@ -357,6 +357,22 @@ module Command
     end
   end
 
+  def table_expire(op)
+    db_name, table_name, expire_days = op.cmd_parse
+
+    expire_days = expire_days.to_i
+    if expire_days <= 0
+      $stderr.puts "Table expiration days must be greater than 0."
+      return
+    end
+
+    client = get_client
+    client.update_expire(db_name, table_name, expire_days)
+
+    $stderr.puts "Table set to expire data older than #{expire_days} days."
+  end
+  
+
   IMPORT_TEMPLATES = {
     'apache' => [
                   /^([^ ]*) [^ ]* ([^ ]*) \[([^\]]*)\] "(\S+)(?: +([^ ]*) +\S*)?" ([^ ]*) ([^ ]*)(?: "([^\"]*)" "([^\"]*)")?$/,
