@@ -25,6 +25,8 @@ module Command
   end
 
   def sched_create(op)
+    require 'td/command/job'  # job_priority_id_of
+
     org = nil
     db_name = nil
     timezone = nil
@@ -131,6 +133,8 @@ module Command
   end
 
   def sched_update(op)
+    require 'td/command/job'  # job_priority_id_of
+
     cron = nil
     sql = nil
     db_name = nil
