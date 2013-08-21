@@ -19,7 +19,7 @@ if [ -n "$chrev" ];then
 fi
 
 revname="$(git show --pretty=format:'%H %ad' | head -n 1)"
-vername="0.2.1-SNAPSHOT"
+vername="0.2.1"
 
 mvn package -Dmaven.test.skip=true || exit 1
 echo "copy td-bulk-import-${vername}.jar"
