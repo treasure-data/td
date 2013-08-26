@@ -250,6 +250,7 @@ module List
   add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', 'import:create logs_201201 example_db event_logs'
   add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
   add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
+  add_list 'import:auto', %w[name files_], 'Upload files and automatically perform and commit the data', 'import:auto parts/* --parallel 4'
   add_list 'import:perform', %w[name], 'Start to validate and convert uploaded files', 'import:perform logs_201201'
   add_list 'import:error_records', %w[name], 'Show records which did not pass validations', 'import:error_records logs_201201'
   add_list 'import:commit', %w[name], 'Start to commit a performed bulk import session', 'import:commit logs_201201'

@@ -35,6 +35,10 @@ module Command
     import_generic(APP_OPTION_UPLOAD)
   end
 
+  def import_auto(op)
+    import_generic(APP_OPTION_UPLOAD, true)
+  end
+
   def import_perform(op)
     require 'td/command/bulk_import'
     bulk_import_perform(op)
@@ -66,7 +70,7 @@ module Command
   end
 
   private
-  def import_generic(subcmd)
+  def import_generic(subcmd, auto=false)
     # has java runtime
     check_java
 
@@ -90,6 +94,10 @@ module Command
       java_args << "--help"
     else
       java_args << ARGV
+    end
+    if auto
+      java_args << "--auto-perform"
+      java_args << "--auto-commit"
     end
 
     # TODO consider parameters including spaces; don't use join(' ')
