@@ -373,6 +373,8 @@ module List
   add_alias 'bulk_import', 'bulk_import:show'
   add_alias 'bulk_imports', 'bulk_import:list'
 
+  add_alias 'import', 'import:show'
+
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'
   add_alias 'kill', 'job:kill'
@@ -425,7 +427,6 @@ module List
   add_guess 'show-job',         'job:show'
   add_guess 'show-jobs',        'job:list'
   add_guess 'server-status',    'server:status'
-  add_alias 'import',           'import:upload'
 
   finishup
 end
