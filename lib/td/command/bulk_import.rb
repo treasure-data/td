@@ -197,6 +197,10 @@ module Command
     end
   end
 
+  def bulk_import_upload_parts2(op)
+    puts "This command is moved to 'td import:upload' since 0.10.85."
+  end
+
   # obsoleted
   def bulk_import_delete_part(op)
     name, part_name = op.cmd_parse
@@ -421,6 +425,10 @@ module Command
     }
 
     $stderr.puts normalized_message if has_bignum
+  end
+
+  def bulk_import_prepare_parts2(op)
+    puts "This command is moved to 'td import:prepare' since 0.10.85."
   end
 
   private
