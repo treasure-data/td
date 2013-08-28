@@ -99,22 +99,11 @@ module Command
 
   private
   def check_java
-    pid = do_fork(JAVA_COMMAND_CHECK)
-    pid, stat = Process.waitpid2(pid)
+    system(JAVA_COMMAND_CHECK)
 
-    if stat.exitstatus != 0
+    unless $?.success?
       $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
       exit 1
-    end
-  end
-
-  def do_fork(cmd)
-    Process.fork do
-      begin
-        Process.exec(*cmd)
-      ensure
-        exit! 127
-      end
     end
   end
 
