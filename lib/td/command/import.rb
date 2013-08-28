@@ -7,7 +7,7 @@ module Command
   JAVA_COMMAND = "java"
   JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version >/dev/null 2>&1"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
-  JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
+  JVM_OPTS = ["-Xmx1024m"] # TODO
 
   APP_OPTION_PREPARE = "prepare"
   APP_OPTION_UPLOAD = "upload"
@@ -73,28 +73,20 @@ module Command
     # show help
     show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
 
-    # configure jvm options
-    jvm_opts = [ JAVA_HEAP_MAX_SIZE ]
-
-    # configure java options
-    java_opts = [ "-cp \"#{find_td_bulk_import_jar}\"" ]
-
-    # configure system properties
-    sysprops = set_sysprops()
-
     # configure java command-line arguments
     java_args = []
+    java_args.concat build_sysprops
+    java_args.concat ["-cp", find_td_bulk_import_jar]
     java_args << JAVA_MAIN_CLASS
     java_args << subcmd
     if show_help
       java_args << "--help"
     else
-      java_args << ARGV
+      java_args.concat ARGV
     end
 
-    # TODO consider parameters including spaces; don't use join(' ')
-    cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
-    exec cmd
+    cmd = [JAVA_COMMAND] + JVM_OPTS + java_args
+    system(*cmd)
   end
 
   private
@@ -119,7 +111,7 @@ module Command
   end
 
   private
-  def set_sysprops
+  def build_sysprops
     sysprops = []
 
     # set apiserver
@@ -129,7 +121,7 @@ module Command
     set_sysprops_http_proxy(sysprops)
 
     # set configuration file for logging
-    conf_file = find_logging_conf_file
+    conf_file = try_find_logging_conf_file
     if conf_file
       sysprops << "-Djava.util.logging.config.file=#{conf_file}"
     end
@@ -190,7 +182,7 @@ module Command
   end
 
   private
-  def find_logging_conf_file
+  def try_find_logging_conf_file
     libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
     libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
   end
