@@ -5,7 +5,7 @@ module Command
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
-  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version 2>&1 >/dev/null"
+  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version >/dev/null 2>&1"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
 
@@ -77,7 +77,7 @@ module Command
     jvm_opts = [ JAVA_HEAP_MAX_SIZE ]
 
     # configure java options
-    java_opts = [ "-cp \"#{find_td_bulk_import_jar()}\"" ]
+    java_opts = [ "-cp \"#{find_td_bulk_import_jar}\"" ]
 
     # configure system properties
     sysprops = set_sysprops()
@@ -113,10 +113,9 @@ module Command
     found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
     if found.nil?
       $stderr.puts "td-bulk-import.jar is not found."
-      exit
+      exit 1
     end
-    td_bulk_import_jar = libjars.delete(found)
-    td_bulk_import_jar
+    found
   end
 
   private
@@ -193,10 +192,7 @@ module Command
   private
   def find_logging_conf_file
     libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
-    found = libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
-    return nil if found.nil?
-    logging_conf_file = libjars.delete(found)
-    logging_conf_file
+    libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
   end
 
 end
