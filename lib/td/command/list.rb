@@ -371,6 +371,9 @@ module List
   add_alias 'scheds', 'sched:list'
   add_alias 'schedules', 'sched:list'
 
+  add_alias 'import',           'import:show'
+  add_alias 'imports',          'import:list'
+
   add_alias 'bulk_import', 'bulk_import:show'
   add_alias 'bulk_imports', 'bulk_import:list'
 
@@ -426,7 +429,6 @@ module List
   add_guess 'show-job',         'job:show'
   add_guess 'show-jobs',        'job:list'
   add_guess 'server-status',    'server:status'
-  add_alias 'import',           'import:show'
 
   finishup
 end
