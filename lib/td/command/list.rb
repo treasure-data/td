@@ -426,7 +426,7 @@ module List
   add_guess 'show-job',         'job:show'
   add_guess 'show-jobs',        'job:list'
   add_guess 'server-status',    'server:status'
-  add_alias 'import',           'import:upload'
+  add_alias 'import',           'import:show'
 
   finishup
 end
