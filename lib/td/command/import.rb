@@ -5,7 +5,7 @@ module Command
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
-  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version"
+  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version 2>&1 >/dev/null"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
 
