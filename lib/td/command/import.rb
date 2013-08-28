@@ -9,9 +9,6 @@ module Command
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JVM_OPTS = ["-Xmx1024m"] # TODO
 
-  APP_OPTION_PREPARE = "prepare"
-  APP_OPTION_UPLOAD = "upload"
-
   def import_list(op)
     require 'td/command/bulk_import'
     bulk_import_list(op)
@@ -25,14 +22,6 @@ module Command
   def import_create(op)
     require 'td/command/bulk_import'
     bulk_import_create(op)
-  end
-
-  def import_prepare(op)
-    import_generic(APP_OPTION_PREPARE)
-  end
-
-  def import_upload(op)
-    import_generic(APP_OPTION_UPLOAD)
   end
 
   def import_perform(op)
@@ -65,12 +54,20 @@ module Command
     bulk_importunfreeze(op)
   end
 
+  def import_prepare(op)
+    import_by_java("prepare")
+  end
+
+  def import_upload(op)
+    import_by_java("upload")
+  end
+
   private
-  def import_generic(subcmd)
-    # has java runtime
+  def import_by_java(subcmd)
+    # requires java runtime installed
     check_java
 
-    # show help
+    # show help?
     show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
 
     # configure java command-line arguments
@@ -94,7 +91,8 @@ module Command
     system(JAVA_COMMAND_CHECK)
 
     unless $?.success?
-      $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+      $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later)."
+      $stderr.puts "Alternatively, you can use 'bulk_import' commands instead which is much slower."
       exit 1
     end
   end
