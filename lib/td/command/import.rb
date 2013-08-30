@@ -98,6 +98,7 @@ module Command
     if auto
       java_args << "--auto-perform"
       java_args << "--auto-commit"
+      java_args << "--auto-delete"
     end
 
     # TODO consider parameters including spaces; don't use join(' ')
