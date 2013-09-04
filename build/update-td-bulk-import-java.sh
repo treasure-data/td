@@ -23,7 +23,7 @@ vername="0.2.1"
 
 mvn package -Dmaven.test.skip=true || exit 1
 echo "copy td-bulk-import-${vername}.jar"
-cp target/td-bulk-import-${vername}.jar ../../java/td-bulk-import-${vername}.jar
+cp target/td-bulk-import-${vername}.jar ../../java/td-bulk-import.jar
 echo "copy logging.properties"
 cp src/test/resources/java/logging.properties ../../java/logging.properties
 
