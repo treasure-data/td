@@ -1,3 +1,9 @@
+== 2013-09-05 version 0.10.87
+
+* Add auto-delete option to import:auto subcommand
+* Update td-bulk-import.jar to 0.2.2
+
+
 == 2013-08-26 version 0.10.86
 
 * Improve bulk_import and import command explanation
