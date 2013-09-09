@@ -9,9 +9,6 @@ module Command
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
 
-  APP_OPTION_PREPARE = "prepare"
-  APP_OPTION_UPLOAD = "upload"
-
   def import_list(op)
     require 'td/command/bulk_import'
     bulk_import_list(op)
@@ -27,16 +24,21 @@ module Command
     bulk_import_create(op)
   end
 
+  def import_java_version(op)
+    vfile = find_version_file[0]
+    puts "td-bulk-import-java #{File.open(vfile, 'r').read}"
+  end
+
   def import_prepare(op)
-    import_generic(APP_OPTION_PREPARE)
+    import_by_java('prepare')
   end
 
   def import_upload(op)
-    import_generic(APP_OPTION_UPLOAD)
+    import_by_java('upload')
   end
 
   def import_auto(op)
-    import_generic(APP_OPTION_UPLOAD, true)
+    import_by_java('auto')
   end
 
   def import_perform(op)
@@ -70,7 +72,7 @@ module Command
   end
 
   private
-  def import_generic(subcmd, auto=false)
+  def import_by_java(subcmd)
     # has java runtime
     check_java
 
@@ -94,11 +96,6 @@ module Command
       java_args << "--help"
     else
       java_args << ARGV
-    end
-    if auto
-      java_args << "--auto-perform"
-      java_args << "--auto-commit"
-      java_args << "--auto-delete"
     end
 
     # TODO consider parameters including spaces; don't use join(' ')
@@ -217,6 +214,12 @@ module Command
     return nil if found.nil?
     logging_conf_file = libjars.delete(found)
     logging_conf_file
+  end
+
+  private
+  def find_version_file
+    vfile = Dir.glob("#{BASE_PATH}/java/**/VERSION")
+    vfile
   end
 
 end

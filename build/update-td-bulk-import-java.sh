@@ -26,6 +26,9 @@ echo "copy td-bulk-import-${vername}.jar"
 cp target/td-bulk-import-${vername}.jar ../../java/td-bulk-import.jar
 echo "copy logging.properties"
 cp src/test/resources/java/logging.properties ../../java/logging.properties
+echo "create VERSION file"
+echo "${vername}" > VERSION
+mv VERSION ../../java/VERSION
 
 if [ -n "$chrev" ];then
     git checkout master
