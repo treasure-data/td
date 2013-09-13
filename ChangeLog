@@ -1,3 +1,10 @@
+== 2013-09-13 version 0.10.88
+
+* Update td-client-ruby to 0.8.55
+* Update td-bulk-import.jar to 0.2.4
+* Add import:java_version subcommand to show bundled td-bulk-import-java version
+
+
 == 2013-09-05 version 0.10.87
 
 * Add auto-delete option to import:auto subcommand
