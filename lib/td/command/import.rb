@@ -5,9 +5,9 @@ module Command
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
-  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version"
+  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version >/dev/null 2>&1"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
-  JAVA_HEAP_MAX_SIZE = "-Xmx1024m" # TODO
+  JVM_OPTS = ["-Xmx1024m"] # TODO
 
   def import_list(op)
     require 'td/command/bulk_import'
@@ -73,54 +73,36 @@ module Command
 
   private
   def import_by_java(subcmd)
-    # has java runtime
+    # check java runtime exists or not
     check_java
 
-    # show help
+    # show help?
     show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
-
-    # configure jvm options
-    jvm_opts = [ JAVA_HEAP_MAX_SIZE ]
-
-    # configure java options
-    java_opts = [ "-cp \"#{find_td_bulk_import_jar()}\"" ]
-
-    # configure system properties
-    sysprops = set_sysprops()
 
     # configure java command-line arguments
     java_args = []
+    java_args.concat build_sysprops
+    java_args.concat ["-cp", find_td_bulk_import_jar]
     java_args << JAVA_MAIN_CLASS
     java_args << subcmd
     if show_help
       java_args << "--help"
     else
-      java_args << ARGV
+      java_args.concat ARGV
     end
 
-    # TODO consider parameters including spaces; don't use join(' ')
-    cmd = "#{JAVA_COMMAND} #{jvm_opts.join(' ')} #{java_opts.join(' ')} #{sysprops.join(' ')} #{java_args.join(' ')}"
-    exec cmd
+    cmd = [JAVA_COMMAND] + JVM_OPTS + java_args
+    system(*cmd)
   end
 
   private
   def check_java
-    pid = do_fork(JAVA_COMMAND_CHECK)
-    pid, stat = Process.waitpid2(pid)
+    system(JAVA_COMMAND_CHECK)
 
-    if stat.exitstatus != 0
-      $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later). If Java is not installed yet, please use 'bulk_import' commands instead of this command."
+    unless $?.success?
+      $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later)."
+      $stderr.puts "Alternatively, you can use 'bulk_import' commands instead which is much slower."
       exit 1
-    end
-  end
-
-  def do_fork(cmd)
-    Process.fork do
-      begin
-        Process.exec(*cmd)
-      ensure
-        exit! 127
-      end
     end
   end
 
@@ -130,14 +112,13 @@ module Command
     found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
     if found.nil?
       $stderr.puts "td-bulk-import.jar is not found."
-      exit
+      exit 1
     end
-    td_bulk_import_jar = libjars.delete(found)
-    td_bulk_import_jar
+    found
   end
 
   private
-  def set_sysprops
+  def build_sysprops
     sysprops = []
 
     # set apiserver
@@ -147,7 +128,7 @@ module Command
     set_sysprops_http_proxy(sysprops)
 
     # set configuration file for logging
-    conf_file = find_logging_conf_file
+    conf_file = try_find_logging_conf_file
     if conf_file
       sysprops << "-Djava.util.logging.config.file=#{conf_file}"
     end
@@ -208,12 +189,9 @@ module Command
   end
 
   private
-  def find_logging_conf_file
+  def try_find_logging_conf_file
     libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
-    found = libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
-    return nil if found.nil?
-    logging_conf_file = libjars.delete(found)
-    logging_conf_file
+    libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
   end
 
   private
