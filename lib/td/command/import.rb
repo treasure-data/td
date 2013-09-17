@@ -24,6 +24,23 @@ module Command
     bulk_import_create(op)
   end
 
+  def import_java_version(op)
+    vfile = find_version_file[0]
+    puts "td-bulk-import-java #{File.open(vfile, 'r').read}"
+  end
+
+  def import_prepare(op)
+    import_by_java('prepare')
+  end
+
+  def import_upload(op)
+    import_by_java('upload')
+  end
+
+  def import_auto(op)
+    import_by_java('auto')
+  end
+
   def import_perform(op)
     require 'td/command/bulk_import'
     bulk_import_perform(op)
@@ -54,17 +71,9 @@ module Command
     bulk_importunfreeze(op)
   end
 
-  def import_prepare(op)
-    import_by_java("prepare")
-  end
-
-  def import_upload(op)
-    import_by_java("upload")
-  end
-
   private
   def import_by_java(subcmd)
-    # requires java runtime installed
+    # check java runtime exists or not
     check_java
 
     # show help?
@@ -183,6 +192,12 @@ module Command
   def try_find_logging_conf_file
     libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
     libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
+  end
+
+  private
+  def find_version_file
+    vfile = Dir.glob("#{BASE_PATH}/java/**/VERSION")
+    vfile
   end
 
 end

@@ -234,10 +234,8 @@ module List
   add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', 'bulk_import:show'
   add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', 'bulk_import:create logs_201201 example_db event_logs'
   add_list 'bulk_import:prepare_parts', %w[files_], 'Convert files into part file format', 'bulk_import:prepare_parts logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
-  add_list 'bulk_import:prepare_parts2', %w[files_], 'Convert files into part file format', 'bulk_import:prepare_parts2 logs/*.csv --format csv --columns time,uid,price,count --column-types long,string,long,int --time-column "time" -o parts/'
   add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz'
   add_list 'bulk_import:upload_parts', %w[name files_], 'Upload or re-upload files into a bulk import session', 'bulk_import:upload_parts parts/* --parallel 4'
-  add_list 'bulk_import:upload_parts2', %w[name files_], 'Upload or re-upload files into a bulk import session', 'bulk_import:upload_parts parts/* --parallel 4'
   add_list 'bulk_import:delete_part', %w[name id], 'Delete a uploaded file from a bulk import session', 'bulk_import:delete_part logs_201201 01h'
   add_list 'bulk_import:delete_parts', %w[name ids_], 'Delete uploaded files from a bulk import session', 'bulk_import:delete_parts logs_201201 01h 02h 03h'
   add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'
@@ -250,8 +248,10 @@ module List
   add_list 'import:list', %w[], 'List bulk import sessions', 'import:list'
   add_list 'import:show', %w[name], 'Show list of uploaded parts', 'import:show'
   add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', 'import:create logs_201201 example_db event_logs'
+  add_list 'import:java_version', %w[], 'Show version', 'import:java_version'
   add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
   add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
+  add_list 'import:auto', %w[name files_], 'Upload files and automatically perform and commit the data', 'import:auto parts/* --parallel 4'
   add_list 'import:perform', %w[name], 'Start to validate and convert uploaded files', 'import:perform logs_201201'
   add_list 'import:error_records', %w[name], 'Show records which did not pass validations', 'import:error_records logs_201201'
   add_list 'import:commit', %w[name], 'Start to commit a performed bulk import session', 'import:commit logs_201201'
@@ -376,6 +376,8 @@ module List
 
   add_alias 'bulk_import', 'bulk_import:show'
   add_alias 'bulk_imports', 'bulk_import:list'
+
+  add_alias 'import', 'import:show'
 
   add_alias 'job', 'job:show'
   add_alias 'jobs', 'job:list'

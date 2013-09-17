@@ -1,3 +1,30 @@
+== 2013-09-13 version 0.10.88
+
+* Update td-client-ruby to 0.8.55
+* Update td-bulk-import.jar to 0.2.4
+* Add import:java_version subcommand to show bundled td-bulk-import-java version
+
+
+== 2013-09-05 version 0.10.87
+
+* Add auto-delete option to import:auto subcommand
+* Update td-bulk-import.jar to 0.2.2
+
+
+== 2013-08-26 version 0.10.86
+
+* Improve bulk_import and import command explanation
+* Add import:auto subcommand
+
+
+== 2013-08-23 version 0.10.85
+
+* Fix 'undefined method job_priority_id_of' error
+* Add table:expire_days subcommand
+* Update bulk-import-java to 0.2.1
+* Add import command to support new bulk import
+
+
 == 2013-07-25 version 0.10.84
 
 * bulk_import now checks first argument is correct session name

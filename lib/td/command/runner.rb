@@ -42,7 +42,8 @@ Basic commands:
   table          # create/delete/list/import/export/tail tables
   query          # issue a query
   job            # show/kill/list jobs
-  bulk_import    # manage bulk import sessions
+  import         # manage bulk import sessions (Java based fast processing)
+  bulk_import    # manage bulk import sessions (Old Ruby-based implementation)
   result         # create/delete/list result URLs
 
 Additional commands:
