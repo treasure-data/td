@@ -1,3 +1,9 @@
+== 2013-09-25 version 0.10.89
+
+* Update td-bulk-import.jar to 0.2.5
+* import command now support nested json format,
+
+
 == 2013-09-13 version 0.10.88
 
 * Update td-client-ruby to 0.8.55
