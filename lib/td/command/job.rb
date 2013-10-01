@@ -26,6 +26,8 @@ module Command
     /\A[\+]?2\z/ => 2,
   }
 
+  is_tty = true
+
   def job_list(op)
     page = 0
     skip = 0
@@ -88,6 +90,7 @@ module Command
     format = 'tsv'
     render_opts = {}
     exclude = false
+    @is_tty = STDOUT.tty?
 
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
       verbose = b
@@ -117,40 +120,40 @@ module Command
 
     job = client.job(job_id)
 
-    puts "Organization : #{job.org_name}"
-    puts "JobID        : #{job.job_id}"
+    puts_when_tty "Organization : #{job.org_name}"
+    puts_when_tty "JobID        : #{job.job_id}"
     #puts "URL          : #{job.url}"
-    puts "Status       : #{job.status}"
-    puts "Type         : #{job.type}"
-    puts "Priority     : #{job_priority_name_of(job.priority)}"
-    puts "Retry limit  : #{job.retry_limit}"
-    puts "Result       : #{job.result_url}"
-    puts "Database     : #{job.db_name}"
-    puts "Query        : #{job.query}"
+    puts_when_tty "Status       : #{job.status}"
+    puts_when_tty "Type         : #{job.type}"
+    puts_when_tty "Priority     : #{job_priority_name_of(job.priority)}"
+    puts_when_tty "Retry limit  : #{job.retry_limit}"
+    puts_when_tty "Result       : #{job.result_url}"
+    puts_when_tty "Database     : #{job.db_name}"
+    puts_when_tty "Query        : #{job.query}"
 
     if wait && !job.finished?
       wait_job(job)
       if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
+        puts_when_tty "Result       :"
         show_result(job, output, format, render_opts)
       end
 
     else
       if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
+        puts_when_tty "Result       :"
         show_result(job, output, format, render_opts)
       end
 
       if verbose
-        puts ""
-        puts "cmdout:"
+        puts_when_tty ""
+        puts_when_tty "cmdout:"
         job.debug['cmdout'].to_s.split("\n").each {|line|
-          puts "  "+line
+          puts_when_tty "  "+line
         }
-        puts ""
-        puts "stderr:"
+        puts_when_tty ""
+        puts_when_tty "stderr:"
         job.debug['stderr'].to_s.split("\n").each {|line|
-          puts "  "+line
+          puts_when_tty "  "+line
         }
       end
     end
@@ -214,7 +217,9 @@ module Command
   end
 
   def show_result(job, output, format, render_opts={})
-    if output
+    if !@is_tty
+      write_result(job, "/dev/stdout", format)
+    elsif output
       write_result(job, output, format)
       puts "written to #{output} in #{format} format"
     else
@@ -321,6 +326,12 @@ module Command
       return id if pattern.match(name)
     }
     return nil
+  end
+
+  def puts_when_tty(message)
+    if @is_tty
+      puts message
+    end
   end
 end
 end
