@@ -1,5 +1,6 @@
 == 2013-10-02 version 0.10.90
 
+* Fix table:import permission error with sub user
 * Fix import:prepare command. NullPointerException occurred when value of 'time' column was null.
 * Fix import:prepare command. 'time' column parser was not  thread-safe.
 * Improve import:prepare command. Users can use %L in 'time-format' as milliseconds representation.
