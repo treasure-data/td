@@ -1,7 +1,15 @@
+== 2013-10-02 version 0.10.90
+
+* Fix import:prepare command. NullPointerException occurred when value of 'time' column was null.
+* Fix import:prepare command. 'time' column parser was not  thread-safe.
+* Improve import:prepare command. Users can use %L in 'time-format' as milliseconds representation.
+* Improve help message of import:auto command
+
+
 == 2013-09-25 version 0.10.89
 
 * Update td-bulk-import.jar to 0.2.5
-* import command now support nested json format,
+* import command now support nested json format
 
 
 == 2013-09-13 version 0.10.88
