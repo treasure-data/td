@@ -5,7 +5,6 @@ module Command
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
 
   JAVA_COMMAND = "java"
-  JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version >/dev/null 2>&1"
   JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
   JVM_OPTS = ["-Xmx1024m"] # TODO
 
@@ -97,7 +96,13 @@ module Command
 
   private
   def check_java
-    system(JAVA_COMMAND_CHECK)
+    if RbConfig::CONFIG["target_os"].downcase =~ /mswin(?!ce)|mingw|cygwin|bccwin/ # windows
+      cmd = "#{JAVA_COMMAND} -version > NUL 2>&1"
+    else # others
+      cmd = "#{JAVA_COMMAND} -version > /dev/null 2>&1"
+    end
+
+    system(cmd)
 
     unless $?.success?
       $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later)."
