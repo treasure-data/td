@@ -6,7 +6,7 @@ module Command
 
   JAVA_COMMAND = "java"
   JAVA_COMMAND_CHECK = "#{JAVA_COMMAND} -version >/dev/null 2>&1"
-  JAVA_MAIN_CLASS = "com.treasure_data.bulk_import.BulkImportMain"
+  JAVA_MAIN_CLASS = "com.treasure_data.td_import.BulkImportCommand"
   JVM_OPTS = ["-Xmx1024m"] # TODO
 
   def import_list(op)
@@ -26,7 +26,7 @@ module Command
 
   def import_java_version(op)
     vfile = find_version_file[0]
-    puts "td-bulk-import-java #{File.open(vfile, 'r').read}"
+    puts "td-import-java #{File.open(vfile, 'r').read}"
   end
 
   def import_prepare(op)
@@ -82,7 +82,7 @@ module Command
     # configure java command-line arguments
     java_args = []
     java_args.concat build_sysprops
-    java_args.concat ["-cp", find_td_bulk_import_jar]
+    java_args.concat ["-cp", find_td_import_jar]
     java_args << JAVA_MAIN_CLASS
     java_args << subcmd
     if show_help
@@ -107,11 +107,11 @@ module Command
   end
 
   private
-  def find_td_bulk_import_jar
+  def find_td_import_jar
     libjars = Dir.glob("#{BASE_PATH}/java/**/*.jar")
-    found = libjars.find { |path| File.basename(path) =~ /^td-bulk-import/ }
+    found = libjars.find { |path| File.basename(path) =~ /^td-import/ }
     if found.nil?
-      $stderr.puts "td-bulk-import.jar is not found."
+      $stderr.puts "td-import.jar is not found."
       exit 1
     end
     found
