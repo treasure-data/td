@@ -25,6 +25,10 @@ module Command
       raise ConfigError, "Account is not configured."
     end
     opts[:user_agent] = "TD: #{TreasureData::VERSION}"
+    if h = ENV['TD_API_HEADERS']
+      pairs = h.split("\n")
+      opts[:headers] = Hash[pairs.map {|pair| pair.split('=', 2) }]
+    end
     Client.new(apikey, opts)
   end
 
