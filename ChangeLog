@@ -1,5 +1,10 @@
 == 2013-10-04 version 0.10.91
 
+* Improves import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long unix timestamp.
+
+
+== 2013-10-04 version 0.10.91
+
 * Fix import command doesn't work on Windows
 
 
