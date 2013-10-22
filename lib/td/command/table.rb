@@ -430,27 +430,6 @@ module Command
 
     client = get_client
 
-    if auto_create
-      # Merge with db_create and table_create after refactoring
-      API.validate_database_name(db_name)
-      begin
-        client.database(db_name)
-      rescue NotFoundError
-        begin
-          client.create_database(db_name)
-          $stderr.puts "Database '#{db_name}' is created."
-        rescue AlreadyExistsError
-        end
-      end
-
-      API.validate_table_name(table_name)
-      begin
-        client.create_log_table(db_name, table_name)
-        $stderr.puts "Table '#{db_name}.#{table_name}' is created."
-      rescue AlreadyExistsError
-      end
-    end
-
     case format
     when 'json', 'msgpack'
       #unless time_key
@@ -474,7 +453,7 @@ module Command
       parser = TextParser.new(names, regexp, time_format)
     end
 
-    get_table(client, db_name, table_name)
+    check_table_or_create(client, db_name, table_name, auto_create)
 
     require 'zlib'
 
@@ -501,6 +480,36 @@ module Command
   end
 
   private
+
+  def create_empty_gz_data
+    io = StringIO.new
+    Zlib::GzipWriter.new(io).close
+    io.string
+  end
+
+  def check_table_or_create(client, database, table, auto_create)
+    io = StringIO.new(create_empty_gz_data)
+    begin
+      client.import(database, table, "msgpack.gz", io, io.size)
+    rescue TreasureData::NotFoundError
+      if auto_create
+        begin
+          API.validate_table_name(table)
+          client.create_log_table(database, table)
+          $stderr.puts "Table '#{database}.#{table}' is created."
+        rescue TreasureData::NotFoundError
+          API.validate_database_name(database)
+          client.create_database(database)
+          $stderr.puts "Database '#{database}' is created."
+          client.create_log_table(database, table)
+          $stderr.puts "Table '#{database}.#{table}' is created."
+        end
+      else
+        raise "Table #{database}.#{table} does not exist on Treasure Data. Use 'td table:create #{database} #{table}' to create it."
+      end
+    end
+  end
+
   def import_log_file(file, path, client, db_name, table_name, parser)
     puts "importing #{path}..."
 
