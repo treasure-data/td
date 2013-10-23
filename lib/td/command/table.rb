@@ -13,6 +13,28 @@ module Command
   ]
 
   def table_create(op)
+    type = nil
+    primary_key = nil
+    primary_key_type = nil
+
+    op.on('-T', '--type TYPE', 'set table type (log or item)') {|s|
+      type = s.to_sym
+    }
+    op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type]') {|s|
+      unless /\A[\w]+:(string|int)\z/ =~ s
+        $stderr.puts "--primary-key PRIMARY_KEY_AND_TYPE is required, and should be in the format [primary key]:[primary key type]"
+        exit 1
+      end
+
+      args = s.split(':')
+      if args.length != 2
+        # this really shouldn't happen with the above regex
+        exit 1
+      end
+      primary_key = args[0]
+      primary_key_type = args[1]
+    }
+
     db_name, table_name = op.cmd_parse
 
     #API.validate_database_name(db_name)
@@ -24,10 +46,19 @@ module Command
       $stderr.puts "  For a list of all reserved keywords, see our FAQ: http://docs.treasure-data.com/articles/faq"
     end
 
+    if type == :item && (primary_key.nil? || primary_key_type.nil?)
+      $stderr.puts "for TYPE 'item', the primary-key is required"
+      exit 1
+    end
+
     client = get_client
 
     begin
-      client.create_log_table(db_name, table_name)
+      if type == :item
+        client.create_item_table(db_name, table_name, primary_key, primary_key_type)
+      else
+        client.create_log_table(db_name, table_name)
+      end
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
