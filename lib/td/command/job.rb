@@ -88,6 +88,7 @@ module Command
     format = 'tsv'
     render_opts = {}
     exclude = false
+    batch   = false
 
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
       verbose = b
@@ -109,6 +110,9 @@ module Command
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
+    }
+    op.on('-B', '--batch', 'print results using tab as the column separator, with each row on a new line.', TrueClass) {|b|
+      batch = b
     }
 
     job_id = op.cmd_parse
@@ -132,13 +136,13 @@ module Command
       wait_job(job)
       if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
         puts "Result       :"
-        show_result(job, output, format, render_opts)
+        show_result(job, output, format, render_opts, batch)
       end
 
     else
       if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
         puts "Result       :"
-        show_result(job, output, format, render_opts)
+        show_result(job, output, format, render_opts, batch)
       end
 
       if verbose
@@ -213,8 +217,23 @@ module Command
     end
   end
 
-  def show_result(job, output, format, render_opts={})
-    if output
+  def show_result(job, output, format, render_opts={}, batch = nil)
+    if batch
+      print "\n"
+      job.result_each {|row|
+        first = true
+        row.each {|col|
+          if first
+            first = false
+          else
+            print "\t"
+          end
+          print dump_column(col)
+        }
+        print "\n"
+      }
+      print "\n"
+    elsif output
       write_result(job, output, format)
       puts "written to #{output} in #{format} format"
     else

@@ -18,6 +18,7 @@ module Command
     sampling_all = nil
     type = nil
     exclude = false
+    batch = false
 
     op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
       org = s
@@ -70,6 +71,9 @@ module Command
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
     }
+    op.on('-B', '--batch', 'print results using tab as the column separator, with each row on a new line.', TrueClass) {|b|
+      batch = b
+    }
 
     sql = op.cmd_parse
 
@@ -114,7 +118,7 @@ module Command
       puts "Status     : #{job.status}"
       if job.success? && !exclude
         puts "Result     :"
-        show_result(job, output, format, render_opts)
+        show_result(job, output, format, render_opts, batch)
       end
     end
   end
