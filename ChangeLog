@@ -1,6 +1,8 @@
 == 2013-10-04 version 0.10.92
 
 * Improves import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long unix timestamp.
+* Improves import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
+* Improves import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss Z' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
 * Adds 'regex' to source file format option of import:prepare command.
 
 
