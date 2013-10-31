@@ -125,7 +125,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}sched:list' to show list of the schedules."
       exit 1
     end
 
@@ -202,7 +202,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}sched:list' to show list of the schedules."
       exit 1
     end
 
@@ -237,7 +237,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}sched:list' to show list of the schedules."
       exit 1
     end
 
@@ -293,7 +293,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} sched:list' to show list of the schedules."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}sched:list' to show list of the schedules."
       exit 1
     end
 

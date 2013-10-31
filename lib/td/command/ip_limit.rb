@@ -15,7 +15,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no IP range limitations."
-      $stderr.puts "Use '#{$prog} ip_limit:set <organization> <ip_range>' to create IP range limitation."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}ip_limit:set <organization> <ip_range>' to create IP range limitation."
     end
   end
 

@@ -31,7 +31,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
-      $stderr.puts "Use '#{$prog} db:create #{db_name}' to create the database."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}db:create #{db_name}' to create the database."
       exit 1
     rescue AlreadyExistsError
       cmd_debug_error $!
@@ -77,7 +77,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Table '#{db_name}.#{table_name}' does not exist."
-      $stderr.puts "Use '#{$prog} table:list #{db_name}' to show list of the tables."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}table:list #{db_name}' to show list of the tables."
       exit 1
     end
 
@@ -140,13 +140,13 @@ module Command
     if rows.empty?
       if db_name
         $stderr.puts "Database '#{db_name}' has no tables."
-        $stderr.puts "Use '#{$prog} table:create <db> <table>' to create a table."
+        $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}table:create <db> <table>' to create a table."
       elsif databases.empty?
         $stderr.puts "There are no databases."
-        $stderr.puts "Use '#{$prog} db:create <db>' to create a database."
+        $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}db:create <db>' to create a database."
       else
         $stderr.puts "There are no tables."
-        $stderr.puts "Use '#{$prog} table:create <db> <table>' to create a table."
+        $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}table:create <db> <table>' to create a table."
       end
     end
   end
@@ -258,7 +258,7 @@ module Command
     #    from = Time.parse(s).to_i
     #  end
     #}
-    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
+    op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
       wait = b
     }
     op.on('--s3-bucket NAME', 'name of the s3 bucket to output') {|s|
@@ -285,7 +285,7 @@ module Command
     job = table.export('s3', opts)
 
     $stderr.puts "Export job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:show #{job.job_id}' to show the status."
 
     if wait && !job.finished?
       wait_job(job)
@@ -349,7 +349,7 @@ module Command
     job = client.partial_delete(db_name, table_name, to, from, opts)
 
     $stderr.puts "Partial delete job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} job:show #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:show #{job.job_id}' to show the status."
 
     if wait && !job.finished?
       wait_job(job)
@@ -434,13 +434,9 @@ module Command
       # Merge with db_create and table_create after refactoring
       API.validate_database_name(db_name)
       begin
-        client.database(db_name)
-      rescue NotFoundError
-        begin
-          client.create_database(db_name)
-          $stderr.puts "Database '#{db_name}' is created."
-        rescue AlreadyExistsError
-        end
+        client.create_database(db_name)
+        $stderr.puts "Database '#{db_name}' is created."
+      rescue AlreadyExistsError
       end
 
       API.validate_table_name(table_name)

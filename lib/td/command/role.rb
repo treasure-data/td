@@ -11,7 +11,7 @@ module Command
     role = roles.find {|role| name == role.name }
     unless role
       $stderr.puts "Role '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} role:create <name>' to create a role."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}role:create <name>' to create a role."
       exit 1
     end
 
@@ -36,7 +36,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no roles."
-      $stderr.puts "Use '#{$prog} org:create <name>' to create a role."
+      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}org:create <name>' to create a role."
     end
   end
 

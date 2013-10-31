@@ -25,7 +25,7 @@ module Command
 
     $stderr.puts "Create #{fname} with #{i} records whose time is"
     $stderr.puts "from #{Time.at(last_time)} to #{Time.at(t)}."
-    $stderr.puts "Use '#{$prog} table:import <db> <table> --json #{fname}' to import this file."
+    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}table:import <db> <table> --json #{fname}' to import this file."
   end
 
 end

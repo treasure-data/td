@@ -84,7 +84,7 @@ module Command
     conf["account.apikey"] = client.apikey
     conf.save
 
-    $stderr.puts "Use '#{$prog} db:create <db_name>' to create a database."
+    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}db:create <db_name>' to create a database."
   end
 
   def account_usage(op)
