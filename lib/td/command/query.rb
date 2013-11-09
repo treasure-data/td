@@ -106,7 +106,7 @@ module Command
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stderr.puts "Job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:show #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show #{job.job_id}' to show the status."
     #$stderr.puts "See #{job.url} to see the progress."
 
     if wait && !job.finished?

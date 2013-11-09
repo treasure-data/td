@@ -39,7 +39,7 @@ module Command
 
     if dbs.empty?
       $stderr.puts "There are no databases."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}db:create <db_name>' to create a database."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "db:create <db_name>' to create a database."
     end
   end
 
@@ -66,7 +66,7 @@ module Command
     end
 
     $stderr.puts "Database '#{db_name}' is created."
-    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}table:create #{db_name} <table_name>' to create a table."
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "table:create #{db_name} <table_name>' to create a table."
   end
 
   def db_delete(op)

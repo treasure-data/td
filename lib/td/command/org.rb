@@ -11,7 +11,7 @@ module Command
     org = orgs.find {|org| name == org.name }
     unless org
       $stderr.puts "Organization '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}org:create <name>' to create an organization."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "org:create <name>' to create an organization."
       exit 1
     end
 
@@ -34,7 +34,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no organizations."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}org:create <name>' to create an organization."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "org:create <name>' to create an organization."
     end
   end
 

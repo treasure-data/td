@@ -18,7 +18,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no access controls."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}acl:grant <subject> <action> <scope>' to grant permissions."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "acl:grant <subject> <action> <scope>' to grant permissions."
     end
   end
 

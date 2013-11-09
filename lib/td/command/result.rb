@@ -12,7 +12,7 @@ module Command
 
     unless r
       $stderr.puts "Result URL '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}result:create #{name} <URL>' to create the URL."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "result:create #{name} <URL>' to create the URL."
       exit 1
     end
 
@@ -42,7 +42,7 @@ module Command
 
     if rs.empty?
       $stderr.puts "There are no result URLs."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}result:create <name> <url>' to create a result URL."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "result:create <name> <url>' to create a result URL."
     end
   end
 

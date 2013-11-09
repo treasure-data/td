@@ -20,7 +20,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no bulk import sessions."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}bulk_import:create <name> <db> <table>' to create a session."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "bulk_import:create <name> <db> <table>' to create a session."
     end
   end
 
@@ -69,7 +69,7 @@ module Command
     bi = bis.find {|bi| name == bi.name }
     unless bi
       $stderr.puts "Bulk import session '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}bulk_import:create <name> <db> <table>' to create a session."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "bulk_import:create <name> <db> <table>' to create a session."
       exit 1
     end
 
@@ -193,7 +193,7 @@ module Command
       job = client.perform_bulk_import(name)
 
       $stderr.puts "Job #{job.job_id} is queued."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:show [-w] #{job.job_id}' to show the status."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show [-w] #{job.job_id}' to show the status."
     end
   end
 
@@ -255,7 +255,7 @@ module Command
         if bi.status == 'performing'
           $stderr.puts "Bulk import session '#{name}' is already performing."
           $stderr.puts "Add '-f' option to force start."
-          $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:kill #{bi.job_id}' to cancel the last trial."
+          $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:kill #{bi.job_id}' to cancel the last trial."
           exit 1
         elsif bi.status == 'ready'
           $stderr.puts "Bulk import session '#{name}' is already ready to commit."
@@ -268,7 +268,7 @@ module Command
     job = client.perform_bulk_import(name)
 
     $stderr.puts "Job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}job:show [-w] #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show [-w] #{job.job_id}' to show the status."
 
     if wait
       require 'td/command/job'  # wait_job
@@ -295,13 +295,13 @@ module Command
     bi = bis.find {|bi| name == bi.name }
     unless bi
       $stderr.puts "Bulk import session '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}bulk_import:create <name> <db> <table>' to create a session."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "bulk_import:create <name> <db> <table>' to create a session."
       exit 1
     end
 
     if bi.status == "uploading" || bi.status == "performing"
       $stderr.puts "Bulk import session '#{name}' is not performed."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}bulk_import:perform <name>' to run."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "bulk_import:perform <name>' to run."
       exit 1
     end
 

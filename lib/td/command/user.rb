@@ -11,7 +11,7 @@ module Command
     user = users.find {|user| name == user.name }
     unless user
       $stderr.puts "User '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}user:create <name>' to create an user."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:create <name>' to create an user."
       exit 1
     end
 
@@ -37,7 +37,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no users."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}user:create <name>' to create an users."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:create <name>' to create an users."
     end
   end
 
@@ -146,7 +146,7 @@ module Command
     else
       $stderr.puts "User '#{name}' is created."
     end
-    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}user:apikeys #{name}' to show the API key."
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:apikeys #{name}' to show the API key."
   end
 
   def user_delete(op)
@@ -172,12 +172,12 @@ module Command
       client.add_apikey(name)
     rescue TreasureData::NotFoundError
       $stderr.puts "User '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}users' to show users."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "users' to show users."
       exit 1
     end
 
     $stderr.puts "Added an API key to user '#{name}'."
-    $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}user:apikeys #{name}' to show the API key"
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:apikeys #{name}' to show the API key"
   end
 
   def user_apikey_remove(op)
@@ -189,8 +189,8 @@ module Command
       client.remove_apikey(name, key)
     rescue TreasureData::NotFoundError
       $stderr.puts "User '#{name}' or API key '#{key}' does not exist."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}users' to show users."
-      $stderr.puts "Use '#{$prog} #{Config.cl_apikey_string}user:apikeys '#{key}' to show API keys"
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "users' to show users."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:apikeys '#{key}' to show API keys"
       exit 1
     end
 
