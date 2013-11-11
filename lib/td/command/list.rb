@@ -127,7 +127,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^ip_limit/, /^role/, /^org/, /^acl/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^ip_limit/, /^role/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, *examples)
@@ -309,11 +309,6 @@ module List
   add_list 'role:grant', %w[name user], 'Grant role to an user'
   add_list 'role:revoke', %w[name user], 'Revoke role from an user'
 
-  add_list 'org:list', %w[], 'Show list of organizations'
-  add_list 'org:show', %w[name], 'Show an organizations'
-  add_list 'org:create', %w[name], 'Create an organizations'
-  add_list 'org:delete', %w[name], 'Delete an organizations'
-
   add_list 'acl:list', %w[], 'Show list of access controls'
   add_list 'acl:grant', %w[subject action scope], 'Grant an access control'
   add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
@@ -390,12 +385,6 @@ module List
 
   add_alias 'role', 'role:show'
   add_alias 'roles', 'role:list'
-
-  add_alias 'org', 'org:show'
-  add_alias 'orgs', 'org:list'
-  add_alias 'organization', 'org:create'
-  add_alias 'organization', 'org:delete'
-  add_alias 'organization', 'org:list'
 
   add_alias 'acl', 'acl:list'
   add_alias 'acls', 'acl:list'

@@ -16,9 +16,8 @@ module Command
       exit 1
     end
 
-    puts "Organization : #{r.org_name}"
-    puts "Name         : #{r.name}"
-    puts "URL          : #{r.url}"
+    puts "Name : #{r.name}"
+    puts "URL  : #{r.url}"
   end
 
   def result_list(op)
@@ -29,16 +28,14 @@ module Command
     rs = client.results
 
     rows = []
-    has_org = false
     rs.each {|r|
-      rows << {:Name => r.name, :URL => r.url, :Organization => r.org_name}
-      has_org = true if r.org_name
+      rows << {:Name => r.name, :URL => r.url}
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :URL]))
+    puts cmd_render_table(rows, :fields => [:Name, :URL])
 
     if rs.empty?
       $stderr.puts "There are no result URLs."
@@ -47,13 +44,9 @@ module Command
   end
 
   def result_create(op)
-    org = nil
     result_user = nil
     result_ask_password = false
 
-    op.on('-g', '--org ORGANIZATION', "create the result under this organization") {|s|
-      org = s
-    }
     op.on('-u', '--user NAME', 'set user name for authentication') {|s|
       result_user = s
     }
@@ -70,7 +63,6 @@ module Command
     url = build_result_url(url, result_user, result_ask_password)
 
     opts = {}
-    opts['organization'] = org if org
     begin
       client.create_result(name, url, opts)
     rescue AlreadyExistsError

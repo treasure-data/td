@@ -42,14 +42,6 @@ module Command
     Hirb::Helpers::Table.render(rows, *opts)
   end
 
-  def gen_table_fields(has_org, fields)
-    if has_org
-      fields.unshift(:Organization)
-    else
-      fields
-    end
-  end
-
   def normalized_message
     <<EOS
 Your event has large number larger than 2^64.

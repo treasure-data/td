@@ -12,22 +12,19 @@ module Command
     scheds = client.schedules
 
     rows = []
-    has_org = false
     scheds.each {|sched|
-      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Priority => job_priority_name_of(sched.priority), :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil, :Organization => sched.org_name }
-      has_org = true if sched.org_name
+      rows << {:Name => sched.name, :Cron => sched.cron, :Timezone => sched.timezone, :Delay => sched.delay, :Priority => job_priority_name_of(sched.priority), :Result => sched.result_url, :Database => sched.database, :Query => sched.query, :"Next schedule" => sched.next_time ? sched.next_time.localtime : nil}
     }
     rows = rows.sort_by {|map|
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query]), :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
   end
 
   def sched_create(op)
     require 'td/command/job'  # job_priority_id_of
 
-    org = nil
     db_name = nil
     timezone = nil
     delay = 0
@@ -39,9 +36,6 @@ module Command
     retry_limit = nil
     type = nil
 
-    op.on('-g', '--org ORGANIZATION', "create the schedule under this organization") {|s|
-      org = s
-    }
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
@@ -105,7 +99,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :organization=>org, :type=>type)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :type=>type)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
@@ -243,17 +237,16 @@ module Command
 
     scheds = client.schedules
     if s = scheds.find {|s| s.name == name }
-      puts "Organization : #{s.org_name}"
-      puts "Name         : #{s.name}"
-      puts "Cron         : #{s.cron}"
-      puts "Timezone     : #{s.timezone}"
-      puts "Delay        : #{s.delay} sec"
-      puts "Next         : #{s.next_time}"
-      puts "Result       : #{s.result_url}"
-      puts "Priority     : #{job_priority_name_of(s.priority)}"
-      puts "Retry limit  : #{s.retry_limit}"
-      puts "Database     : #{s.database}"
-      puts "Query        : #{s.query}"
+      puts "Name        : #{s.name}"
+      puts "Cron        : #{s.cron}"
+      puts "Timezone    : #{s.timezone}"
+      puts "Delay       : #{s.delay} sec"
+      puts "Next        : #{s.next_time}"
+      puts "Result      : #{s.result_url}"
+      puts "Priority    : #{job_priority_name_of(s.priority)}"
+      puts "Retry limit : #{s.retry_limit}"
+      puts "Database    : #{s.database}"
+      puts "Query       : #{s.query}"
     end
 
     rows = []
