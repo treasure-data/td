@@ -282,7 +282,7 @@ module List
   add_list 'query', %w[sql?], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"',
                                                'query -d example_db -w -r rset1 -q query.txt'
 
-  add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job 1461'
+  add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job:show 1461'
   add_list 'job:status', %w[job_id], 'Show status progress of a job', 'job:status 1461'
   add_list 'job:list', %w[max?], 'Show list of jobs', 'jobs', 'jobs --page 1'
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
