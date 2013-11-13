@@ -4,7 +4,6 @@ module Command
 
   def result_show(op)
     name = op.cmd_parse
-∑
     client = get_client
 
     rs = client.results
