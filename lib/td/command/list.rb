@@ -127,7 +127,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^ip_limit/, /^role/, /^acl/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, *examples)
@@ -302,22 +302,10 @@ module List
   add_list 'user:apikey:remove', %w[name apikey], 'Remove an API key from an user'
   add_list 'user:password:change', %w[name], 'Change password'
 
-  add_list 'role:list', %w[], 'Show list of roles'
-  add_list 'role:show', %w[name], 'Show a role'
-  add_list 'role:create', %w[name], 'Create a role'
-  add_list 'role:delete', %w[name], 'Delete a role'
-  add_list 'role:grant', %w[name user], 'Grant role to an user'
-  add_list 'role:revoke', %w[name user], 'Revoke role from an user'
-
   add_list 'acl:list', %w[], 'Show list of access controls'
   add_list 'acl:grant', %w[subject action scope], 'Grant an access control'
   add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
   # TODO acl:test
-
-  add_list 'ip_limit:list', %w[], 'Show list of all IP range limitations'
-  add_list 'ip_limit:show', %w[org], "Show list of org's IP range limitations"
-  add_list 'ip_limit:set', %w[org ip_range_], 'Set an IP range limitation'
-  add_list 'ip_limit:delete', %w[org], 'Delete an IP range limitation'
 
   add_list 'aggr:list', %w[], 'Show list of aggregation schemas'
   add_list 'aggr:show', %w[name], 'Describe a aggregation schema'
@@ -383,13 +371,8 @@ module List
   add_alias 'user:apikey', 'user:apikey:list'
   add_alias 'user:apikeys', 'user:apikey:list'
 
-  add_alias 'role', 'role:show'
-  add_alias 'roles', 'role:list'
-
   add_alias 'acl', 'acl:list'
   add_alias 'acls', 'acl:list'
-
-  add_alias 'ip_limits', 'ip_limit:list'
 
   add_alias 'aggr', 'aggr:show'
   add_alias 'aggrs', 'aggr:list'

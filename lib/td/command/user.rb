@@ -17,7 +17,6 @@ module Command
 
     $stderr.puts "Name  : #{user.name}"
     $stderr.puts "Email : #{user.email}"
-    $stderr.puts "Roles : #{user.role_names.join(', ')}"
   end
 
   def user_list(op)
@@ -29,10 +28,10 @@ module Command
 
     rows = []
     users.each {|user|
-      rows << {:Name => user.name, :Email => user.email, :Roles => user.role_names.join(',')}
+      rows << {:Name => user.name, :Email => user.email}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Email, :Roles])
+    puts cmd_render_table(rows, :fields => [:Name, :Email])
 
     if rows.empty?
       $stderr.puts "There are no users."
