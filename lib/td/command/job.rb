@@ -127,15 +127,22 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
-        show_result(job, output, format, render_opts)
+      if [:hive, :pig, :impala].include?(job.type) && !exclude
+        puts "Result      :"
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::APIError => e
+          # Got 404 because result not found.
+        end
       end
 
     else
-      if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
-        show_result(job, output, format, render_opts)
+      if [:hive, :pig, :impala].include?(job.type) && !exclude
+        puts "Result      :"
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::APIError => e
+        end
       end
 
       if verbose
