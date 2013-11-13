@@ -18,6 +18,9 @@ module Command
     primary_key_type = nil
 
     op.on('-T', '--type TYPE', 'set table type (log or item)') {|s|
+      unless ['item', 'log'].include?(s)
+        raise "Unknown table type #{s.dump}. Supported types: log and item"
+      end
       type = s.to_sym
     }
     op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type]') {|s|
