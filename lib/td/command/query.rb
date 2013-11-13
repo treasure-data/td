@@ -109,7 +109,10 @@ module Command
       puts "Status     : #{job.status}"
       if job.success? && !exclude
         puts "Result     :"
-        show_result(job, output, format, render_opts)
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::APIError => e
+        end
       end
     end
   end
