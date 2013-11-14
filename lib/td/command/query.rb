@@ -111,7 +111,7 @@ module Command
         puts "Result     :"
         begin
           show_result(job, output, format, render_opts)
-        rescue TreasureData::APIError => e
+        rescue TreasureData::NotFoundError => e
         end
       end
     end
