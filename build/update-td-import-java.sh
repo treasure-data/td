@@ -19,11 +19,11 @@ if [ -n "$chrev" ];then
 fi
 
 revname="$(git show --pretty=format:'%H %ad' | head -n 1)"
-vername="0.3.1-SNAPSHOT"
+vername="0.4.1-SNAPSHOT"
 
 mvn package -Dmaven.test.skip=true || exit 1
 echo "copy td-import-${vername}.jar"
-cp target/td-import-${vername}.jar ../../java/td-import.jar
+cp target/td-import-${vername}-jar-with-dependencies.jar ../../java/td-import.jar
 echo "copy logging.properties"
 cp src/test/resources/java/logging.properties ../../java/logging.properties
 echo "create VERSION file"
