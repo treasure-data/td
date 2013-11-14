@@ -3,7 +3,6 @@ module TreasureData
 module Command
 
   def query(op)
-    org = nil
     db_name = nil
     wait = false
     output = nil
@@ -19,9 +18,6 @@ module Command
     type = nil
     exclude = false
 
-    op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
-      org = s
-    }
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
@@ -100,7 +96,6 @@ module Command
     get_database(client, db_name)
 
     opts = {}
-    opts['organization'] = org if org
     opts['sampling_all'] = sampling_all if sampling_all
     opts['type'] = type if type
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
