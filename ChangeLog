@@ -1,3 +1,8 @@
+== 2013-11-14 version 0.10.94
+
+* Update td-client-ruby to 0.8.56
+
+
 == 2013-11-14 version 0.10.93
 
 * Improve import:prepare command. 'all-string' option is added.
