@@ -4,6 +4,10 @@
 * Fix import:prepare command. NumberFormatException often occurs. (When sample method in CSVFileReader class is executed. SimpleDateFormat objects are used in non synchronized block.)
 * Fix import:prepare command. There are incompatibility with bulk_import command regarding 'NULL' string.
 * Fix import:prepare command. NullPointerException occurs when unknown column type is specified as 'column-types' option.
+* Support item type in table:create
+* Remove organization, role and ip_limit subcommands
+* Enable query result download even if job status is error
+
 
 == 2013-11-05 version 0.10.92
 
