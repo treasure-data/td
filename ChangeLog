@@ -1,3 +1,8 @@
+== 2013-XX-XX version 0.10.95
+
+* Fix import:prepare command. It cannot parse time-format options that includes ',' charactor.
+
+
 == 2013-11-14 version 0.10.94
 
 * Update td-client-ruby to 0.8.56
