@@ -1,6 +1,7 @@
 == 2013-XX-XX version 0.10.95
 
 * Fix import:prepare command. It cannot parse time-format options that includes ',' charactor.
+* Fix import:upload command. It cannot re-upload data by the problem of retry mechanism.
 
 
 == 2013-11-14 version 0.10.94
