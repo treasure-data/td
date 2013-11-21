@@ -3,6 +3,8 @@ module TreasureData
 module Command
 
   def db_show(op)
+    set_render_format_option(op)
+
     db_name = op.cmd_parse
 
     client = get_client
@@ -20,10 +22,12 @@ module Command
       [map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema])
+    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema], :render_format => op.render_format)
   end
 
   def db_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -33,7 +37,7 @@ module Command
     dbs.each {|db|
       rows << {:Name=>db.name, :Count=>db.count}
     }
-    puts cmd_render_table(rows, :fields => [:Name, :Count])
+    puts cmd_render_table(rows, :fields => [:Name, :Count], :render_format => op.render_format)
 
     if dbs.empty?
       $stderr.puts "There are no databases."

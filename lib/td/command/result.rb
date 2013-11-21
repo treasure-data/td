@@ -21,6 +21,8 @@ module Command
   end
 
   def result_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -35,7 +37,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :URL])
+    puts cmd_render_table(rows, :fields => [:Name, :URL], :render_format => op.render_format)
 
     if rs.empty?
       $stderr.puts "There are no result URLs."

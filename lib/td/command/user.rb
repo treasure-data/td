@@ -20,6 +20,8 @@ module Command
   end
 
   def user_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -31,7 +33,7 @@ module Command
       rows << {:Name => user.name, :Email => user.email}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Email])
+    puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no users."
@@ -170,6 +172,8 @@ module Command
   end
 
   def user_apikey_list(op)
+    set_render_format_option(op)
+
     name = op.cmd_parse
 
     client = get_client
@@ -181,7 +185,7 @@ module Command
       rows << {:Key => key}
     }
 
-    puts cmd_render_table(rows, :fields => [:Key])
+    puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
   end
 
   def user_password_change(op)

@@ -5,6 +5,8 @@ module Command
   def sched_list(op)
     require 'td/command/job'  # job_priority_name_of
 
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -19,7 +21,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500, :render_format => op.render_format)
   end
 
   def sched_create(op)
@@ -215,6 +217,7 @@ module Command
     op.on('-s', '--skip N', 'skip N schedules', Integer) {|i|
       skip = i
     }
+    set_render_format_option(op)
 
     name, max = op.cmd_parse
 
@@ -254,7 +257,7 @@ module Command
       rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Priority => job_priority_name_of(j.priority), :Result=>j.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result])
+    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result], :render_format => op.render_format)
   end
 
   def sched_run(op)
@@ -263,6 +266,7 @@ module Command
     op.on('-n', '--num N', 'number of jobs to run', Integer) {|i|
       num = i
     }
+    set_render_format_option(op)
 
     name, time = op.cmd_parse
 
@@ -296,7 +300,7 @@ module Command
     }
 
     $stderr.puts "Scheduled #{num} jobs from #{t}."
-    puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
   end
 
 end

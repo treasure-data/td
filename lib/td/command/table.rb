@@ -121,6 +121,7 @@ module Command
   def table_list(op)
     require 'parallel'
 
+    format = 'table'
     num_threads = 4
     show_size_in_bytes = false
 
@@ -130,6 +131,7 @@ module Command
     op.on('--show-bytes', 'show estimated table size in bytes') {
       show_size_in_bytes = true
     }
+    set_render_format_option(op)
 
     db_name = op.cmd_parse
 
@@ -169,7 +171,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500, :render_format => op.render_format)
 
     if rows.empty?
       if db_name
