@@ -154,6 +154,7 @@ module Command
             :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
             'Last import' => table.last_import ? table.last_import.localtime : nil,
             'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,
+            'Expire days' => table.expire_days,
             :Schema => pschema
           }
         }
@@ -169,7 +170,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', 'Expire days', :Schema], :max_width=>500)
 
     if rows.empty?
       if db_name
@@ -389,16 +390,27 @@ module Command
   def table_expire(op)
     db_name, table_name, expire_days = op.cmd_parse
 
-    expire_days = expire_days.to_i
-    if expire_days <= 0
+    if ['off', 'disable'].include? expire_days
+      expire_days = 0
+    else
+      unless expire_days =~ /^[0-9]+$/
+        $stderr.puts "invalid table expiration parameter: #{expire_days}"
+        exit 1
+      end
+      expire_days = expire_days.to_i
+    end
+
+    if expire_days < 0
       $stderr.puts "Table expiration days must be greater than 0."
-      return
+      exit 1
+    elsif expire_days == 0
+      $stderr.puts "'#{db_name}.#{table_name}' data expiration disabled."
+    else
+      $stderr.puts "'#{db_name}.#{table_name}' set to expire data older than #{expire_days} days."
     end
 
     client = get_client
     client.update_expire(db_name, table_name, expire_days)
-
-    $stderr.puts "Table set to expire data older than #{expire_days} days."
   end
   
 
