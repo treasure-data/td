@@ -6,7 +6,7 @@ module Command
     db_name = nil
     wait = false
     output = nil
-    format = 'tsv'
+    format = nil
     render_opts = {}
     result_url = nil
     result_user = nil
@@ -29,6 +29,7 @@ module Command
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
+      format = 'tsv' if format.nil?
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
       unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
@@ -68,6 +69,12 @@ module Command
     }
 
     sql = op.cmd_parse
+
+    if output.nil? && format
+      unless ['tsv', 'csv', 'json'].include?(format)
+        raise "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
 
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
