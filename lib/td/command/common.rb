@@ -74,9 +74,7 @@ module Command
     when 'json'
       require 'yajl'
 
-      converted = rows.map { |row|
-        Yajl.dump(row)
-      }.join("\n")
+      Yajl.dump(rows)
     when 'table'
       Hirb::Helpers::Table.render(rows, *opts)
     else
