@@ -37,16 +37,48 @@ module Command
     get_client(opts)
   end
 
-  def cmd_render_table(rows, *opts)
-    require 'hirb'
-    Hirb::Helpers::Table.render(rows, *opts)
+  def set_render_format_option(op)
+    def op.render_format
+      @_render_format
+    end
+    op.on('-f', '--format FORMAT', 'format of the result rendering (tsv, csv, json or table. default is table)') {|s|
+      unless ['tsv', 'csv', 'json', 'table'].include?(s)
+        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, table"
+      end
+      op.instance_variable_set(:@_render_format, s)
+    }
   end
 
-  def gen_table_fields(has_org, fields)
-    if has_org
-      fields.unshift(:Organization)
+  def cmd_render_table(rows, *opts)
+    require 'hirb'
+
+    options = opts.first
+    format = options.delete(:render_format)
+
+    case format
+    when 'csv', 'tsv'
+      require 'csv'
+      headers = options[:fields]
+      csv_opts = {}
+      csv_opts[:col_sep] = "\t" if format == 'tsv'
+      CSV.generate('', csv_opts) { |csv|
+        csv << headers
+        rows.each { |row|
+          r = []
+          headers.each { |field|
+            r << row[field]
+          }
+          csv << r
+        }
+      }
+    when 'json'
+      require 'yajl'
+
+      Yajl.dump(rows)
+    when 'table'
+      Hirb::Helpers::Table.render(rows, *opts)
     else
-      fields
+      Hirb::Helpers::Table.render(rows, *opts)
     end
   end
 

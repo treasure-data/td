@@ -15,13 +15,13 @@ module Command
       exit 1
     end
 
-    $stderr.puts "Name         : #{user.name}"
-    $stderr.puts "Organization : #{user.org_name}"
-    $stderr.puts "Email        : #{user.email}"
-    $stderr.puts "Roles        : #{user.role_names.join(', ')}"
+    $stderr.puts "Name  : #{user.name}"
+    $stderr.puts "Email : #{user.email}"
   end
 
   def user_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -30,10 +30,10 @@ module Command
 
     rows = []
     users.each {|user|
-      rows << {:Name => user.name, :Organization => user.org_name, :Email => user.email, :Roles => user.role_names.join(',')}
+      rows << {:Name => user.name, :Email => user.email}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Organization, :Email, :Roles])
+    puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no users."
@@ -42,18 +42,8 @@ module Command
   end
 
   def user_create(op)
-    org = nil
     email = nil
     random_password = false
-    create_org = nil
-
-    op.on('-g', '--org ORGANIZATION', "create the user under this organization") {|s|
-      org = s
-    }
-
-    op.on('-G', "create the user under the a new organization", TrueClass) {|b|
-      create_org = b
-    }
 
     op.on('-e', '--email EMAIL', "Use this email address to identify the user") {|s|
       email = s
@@ -127,26 +117,10 @@ module Command
     end
 
     client = get_client(:ssl => true)
+    client.add_user(name, nil, email, password)
 
-    if create_org
-      org ||= name
-      client.create_organization(org)
-    end
-
-    begin
-      client.add_user(name, org, email, password)
-    ensure
-      if create_org
-        client.delete_organization(org)
-      end
-    end
-
-    if create_org
-      $stderr.puts "Organization '#{org}' and user '#{name}' are created."
-    else
-      $stderr.puts "User '#{name}' is created."
-    end
-    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:apikeys #{name}' to show the API key."
+    $stderr.puts "User '#{name}' is created."
+    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "user:apikeys #{name}' to show the API key."    
   end
 
   def user_delete(op)
@@ -198,6 +172,8 @@ module Command
   end
 
   def user_apikey_list(op)
+    set_render_format_option(op)
+
     name = op.cmd_parse
 
     client = get_client
@@ -209,7 +185,7 @@ module Command
       rows << {:Key => key}
     }
 
-    puts cmd_render_table(rows, :fields => [:Key])
+    puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
   end
 
   def user_password_change(op)

@@ -13,6 +13,31 @@ module Command
   ]
 
   def table_create(op)
+    type = nil
+    primary_key = nil
+    primary_key_type = nil
+
+    op.on('-T', '--type TYPE', 'set table type (log or item)') {|s|
+      unless ['item', 'log'].include?(s)
+        raise "Unknown table type #{s.dump}. Supported types: log and item"
+      end
+      type = s.to_sym
+    }
+    op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type]') {|s|
+      unless /\A[\w]+:(string|int)\z/ =~ s
+        $stderr.puts "--primary-key PRIMARY_KEY_AND_TYPE is required, and should be in the format [primary key]:[primary key type]"
+        exit 1
+      end
+
+      args = s.split(':')
+      if args.length != 2
+        # this really shouldn't happen with the above regex
+        exit 1
+      end
+      primary_key = args[0]
+      primary_key_type = args[1]
+    }
+
     db_name, table_name = op.cmd_parse
 
     #API.validate_database_name(db_name)
@@ -24,10 +49,19 @@ module Command
       $stderr.puts "  For a list of all reserved keywords, see our FAQ: http://docs.treasure-data.com/articles/faq"
     end
 
+    if type == :item && (primary_key.nil? || primary_key_type.nil?)
+      $stderr.puts "for TYPE 'item', the primary-key is required"
+      exit 1
+    end
+
     client = get_client
 
     begin
-      client.create_log_table(db_name, table_name)
+      if type == :item
+        client.create_item_table(db_name, table_name, primary_key, primary_key_type)
+      else
+        client.create_log_table(db_name, table_name)
+      end
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -87,6 +121,7 @@ module Command
   def table_list(op)
     require 'parallel'
 
+    format = 'table'
     num_threads = 4
     show_size_in_bytes = false
 
@@ -96,6 +131,7 @@ module Command
     op.on('--show-bytes', 'show estimated table size in bytes') {
       show_size_in_bytes = true
     }
+    set_render_format_option(op)
 
     db_name = op.cmd_parse
 
@@ -135,7 +171,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500)
+    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500, :render_format => op.render_format)
 
     if rows.empty?
       if db_name
@@ -294,14 +330,10 @@ module Command
   end
 
   def table_partial_delete(op)
-    org = nil
     from = nil
     to = nil
     wait = false
 
-    op.on('-g', '--org ORGANIZATION', "delete data partially under this organization") {|s|
-      org = s
-    }
     op.on('-t', '--to TIME', 'end time of logs to delete') {|s|
       if s.to_i.to_s == s
         # UNIX time
@@ -345,7 +377,6 @@ module Command
     table = get_table(client, db_name, table_name)
 
     opts = {}
-    opts['organization'] = org if org
     job = client.partial_delete(db_name, table_name, to, from, opts)
 
     $stderr.puts "Partial delete job #{job.job_id} is queued."

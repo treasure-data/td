@@ -3,11 +3,10 @@ module TreasureData
 module Command
 
   def query(op)
-    org = nil
     db_name = nil
     wait = false
     output = nil
-    format = 'tsv'
+    format = nil
     render_opts = {}
     result_url = nil
     result_user = nil
@@ -19,9 +18,6 @@ module Command
     type = nil
     exclude = false
 
-    op.on('-g', '--org ORGANIZATION', "issue the query under this organization") {|s|
-      org = s
-    }
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
@@ -33,6 +29,7 @@ module Command
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
+      format = 'tsv' if format.nil?
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
       unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
@@ -73,6 +70,12 @@ module Command
 
     sql = op.cmd_parse
 
+    if output.nil? && format
+      unless ['tsv', 'csv', 'json'].include?(format)
+        raise "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
+
     unless db_name
       $stderr.puts "-d, --database DB_NAME option is required."
       exit 1
@@ -100,7 +103,6 @@ module Command
     get_database(client, db_name)
 
     opts = {}
-    opts['organization'] = org if org
     opts['sampling_all'] = sampling_all if sampling_all
     opts['type'] = type if type
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
@@ -114,7 +116,10 @@ module Command
       puts "Status     : #{job.status}"
       if job.success? && !exclude
         puts "Result     :"
-        show_result(job, output, format, render_opts)
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::NotFoundError => e
+        end
       end
     end
   end

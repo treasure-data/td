@@ -3,6 +3,8 @@ module TreasureData
 module Command
 
   def bulk_import_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
@@ -10,13 +12,11 @@ module Command
     bis = client.bulk_imports
 
     rows = []
-    has_org = false
     bis.each {|bi|
-      rows << {:Name=>bi.name, :Table=>"#{bi.database}.#{bi.table}", :Status=>bi.status.to_s.capitalize, :Frozen=>bi.upload_frozen? ? 'Frozen' : '', :JobID=>bi.job_id, :"Valid Parts"=>bi.valid_parts, :"Error Parts"=>bi.error_parts, :"Valid Records"=>bi.valid_records, :"Error Records"=>bi.error_records, :Organization=>bi.org_name}
-      has_org = true if bi.org_name
+      rows << {:Name=>bi.name, :Table=>"#{bi.database}.#{bi.table}", :Status=>bi.status.to_s.capitalize, :Frozen=>bi.upload_frozen? ? 'Frozen' : '', :JobID=>bi.job_id, :"Valid Parts"=>bi.valid_parts, :"Error Parts"=>bi.error_parts, :"Valid Records"=>bi.valid_records, :"Error Records"=>bi.error_records}
     }
 
-    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"]), :max_width=>200)
+    puts cmd_render_table(rows, :fields => [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"], :max_width=>200, :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no bulk import sessions."
@@ -25,12 +25,6 @@ module Command
   end
 
   def bulk_import_create(op)
-    org = nil
-
-    op.on('-g', '--org ORGANIZATION', "create the bulk import session under this organization") {|s|
-      org = s
-    }
-
     name, db_name, table_name = op.cmd_parse
 
     client = get_client
@@ -38,7 +32,6 @@ module Command
     table = get_table(client, db_name, table_name)
 
     opts = {}
-    opts['organization'] = org if org
     client.create_bulk_import(name, db_name, table_name, opts)
 
     $stderr.puts "Bulk import session '#{name}' is created."
@@ -73,7 +66,6 @@ module Command
       exit 1
     end
 
-    $stderr.puts "Organization : #{bi.org_name}"
     $stderr.puts "Name         : #{bi.name}"
     $stderr.puts "Database     : #{bi.database}"
     $stderr.puts "Table        : #{bi.table}"

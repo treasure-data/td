@@ -50,6 +50,7 @@ module Command
     op.on('--slow [SECONDS]', 'show slow queries (default threshold: 3600 seconds)', Integer) { |i|
       slower_than = i || 3600
     }
+    set_render_format_option(op)
 
     max = op.cmd_parse
 
@@ -69,23 +70,21 @@ module Command
     jobs = client.jobs(skip, skip+max-1, status, conditions)
 
     rows = []
-    has_org = false
     jobs.each {|job|
       start = job.start_at
       elapsed = cmd_format_elapsed(start, job.end_at)
       priority = job_priority_name_of(job.priority)
-      rows << {:JobID => job.job_id, :Database => job.db_name, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url, :Organization => job.org_name}
-      has_org = true if job.org_name
+      rows << {:JobID => job.job_id, :Database => job.db_name, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query]), :max_width => 140)
+    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query], :max_width => 140, :render_format => op.render_format)
   end
 
   def job_show(op)
     verbose = nil
     wait = false
     output = nil
-    format = 'tsv'
+    format = nil
     render_opts = {}
     exclude = false
 
@@ -100,6 +99,7 @@ module Command
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
       output = s
+      format = 'tsv' if format.nil?
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
       unless ['tsv', 'csv', 'json', 'msgpack', 'msgpack.gz'].include?(s)
@@ -113,32 +113,44 @@ module Command
 
     job_id = op.cmd_parse
 
+    if output.nil? && format
+      unless ['tsv', 'csv', 'json'].include?(format)
+        raise "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
+
     client = get_client
 
     job = client.job(job_id)
 
-    puts "Organization : #{job.org_name}"
-    puts "JobID        : #{job.job_id}"
-    #puts "URL          : #{job.url}"
-    puts "Status       : #{job.status}"
-    puts "Type         : #{job.type}"
-    puts "Priority     : #{job_priority_name_of(job.priority)}"
-    puts "Retry limit  : #{job.retry_limit}"
-    puts "Result       : #{job.result_url}"
-    puts "Database     : #{job.db_name}"
-    puts "Query        : #{job.query}"
+    puts "JobID       : #{job.job_id}"
+    #puts "URL         : #{job.url}"
+    puts "Status      : #{job.status}"
+    puts "Type        : #{job.type}"
+    puts "Priority    : #{job_priority_name_of(job.priority)}"
+    puts "Retry limit : #{job.retry_limit}"
+    puts "Result      : #{job.result_url}"
+    puts "Database    : #{job.db_name}"
+    puts "Query       : #{job.query}"
 
     if wait && !job.finished?
       wait_job(job)
-      if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
-        show_result(job, output, format, render_opts)
+      if [:hive, :pig, :impala].include?(job.type) && !exclude
+        puts "Result      :"
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::NotFoundError => e
+          # Got 404 because result not found.
+        end
       end
 
     else
-      if job.success? && [:hive, :pig, :impala].include?(job.type) && !exclude
-        puts "Result       :"
-        show_result(job, output, format, render_opts)
+      if [:hive, :pig, :impala].include?(job.type) && !exclude
+        puts "Result      :"
+        begin
+          show_result(job, output, format, render_opts)
+        rescue TreasureData::NotFoundError => e
+        end
       end
 
       if verbose
@@ -218,7 +230,7 @@ module Command
       write_result(job, output, format)
       puts "written to #{output} in #{format} format"
     else
-      render_result(job, render_opts)
+      render_result(job, render_opts, format)
     end
   end
 
@@ -227,7 +239,7 @@ module Command
     when 'json'
       require 'yajl'
       first = true
-      File.open(output, "w") {|f|
+      open_file(output, "w") { |f|
         f.write "["
         job.result_each {|row|
           if first
@@ -239,21 +251,24 @@ module Command
         }
         f.write "]"
       }
+      puts if output.nil?
 
     when 'msgpack'
-      File.open(output, "wb") {|f|
+      open_file(output, "wb") { |f|
         job.result_format('msgpack', f)
       }
 
     when 'msgpack.gz'
-      File.open(output, "wb") {|f|
+      open_file(output, "wb") { |f|
         job.result_format('msgpack.gz', f)
       }
 
     when 'csv'
       require 'yajl'
       require 'csv'
-      CSV.open(output, "w") {|writer|
+
+      open_file(output, "w") { |f|
+        writer = CSV.new(f)
         job.result_each {|row|
           writer << row.map {|col| dump_column(col) }
         }
@@ -261,7 +276,7 @@ module Command
 
     when 'tsv'
       require 'yajl'
-      File.open(output, "w") {|f|
+      open_file(output, "w") { |f|
         job.result_each {|row|
           first = true
           row.each {|col|
@@ -281,22 +296,41 @@ module Command
     end
   end
 
-  def render_result(job, opts)
-    require 'yajl'
-    rows = []
-    job.result_each {|row|
-      # TODO limit number of rows to show
-      rows << row.map {|v|
-        dump_column(v)
-      }
-    }
-
-    opts[:max_width] = 10000
-    if job.hive_result_schema
-      opts[:change_fields] = job.hive_result_schema.map {|name,type| name }
+  def open_file(output, mode)
+    f = nil
+    if output.nil?
+      yield STDOUT
+    else
+      f = File.open(output, mode)
+      yield f
     end
+  ensure
+    if f
+      f.close unless f.closed?
+    end
+  end
 
-    puts cmd_render_table(rows, opts)
+  def render_result(job, opts, format = nil)
+    require 'yajl'
+
+    if format.nil?
+      rows = []
+      job.result_each {|row|
+        # TODO limit number of rows to show
+        rows << row.map {|v|
+          dump_column(v)
+        }
+      }
+
+      opts[:max_width] = 10000
+      if job.hive_result_schema
+        opts[:change_fields] = job.hive_result_schema.map {|name,type| name }
+      end
+
+      puts cmd_render_table(rows, opts)
+    else
+      write_result(job, nil, format)
+    end
   end
 
   def dump_column(v)

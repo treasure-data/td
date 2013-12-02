@@ -1,9 +1,32 @@
-== 2013-10-04 version 0.10.92
+== 2013-11-20 version 0.10.95
 
-* Improves import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long unix timestamp.
-* Improves import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
-* Improves import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss Z' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
-* Adds 'regex' to source file format option of import:prepare command.
+* Fix import:prepare command. It cannot parse time-format options that includes ',' charactor.
+* Fix import:upload command. It cannot re-upload data by the problem of retry mechanism.
+
+
+== 2013-11-14 version 0.10.94
+
+* Update td-client-ruby to 0.8.56
+
+
+== 2013-11-14 version 0.10.93
+
+* Improve import:prepare command. 'all-string' option is added.
+* Fix import:prepare command. NumberFormatException often occurs. (When sample method in CSVFileReader class is executed. SimpleDateFormat objects are used in non synchronized block.)
+* Fix import:prepare command. There are incompatibility with bulk_import command regarding 'NULL' string.
+* Fix import:prepare command. NullPointerException occurs when unknown column type is specified as 'column-types' option.
+* Support item type in table:create
+* Remove organization, role and ip_limit subcommands
+* Enable query result download even if job status is error
+
+
+== 2013-11-05 version 0.10.92
+
+* Improve import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long unix timestamp.
+* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
+* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss Z' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
+* Add 'regex' to source file format option of import:prepare command.
+* Fix import:upload command. NullPointerException often occurs when data files are uploaded.
 
 
 == 2013-10-04 version 0.10.91

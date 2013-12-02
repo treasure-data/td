@@ -3,6 +3,8 @@ module TreasureData
 module Command
 
   def db_show(op)
+    set_render_format_option(op)
+
     db_name = op.cmd_parse
 
     client = get_client
@@ -20,22 +22,22 @@ module Command
       [map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema])
+    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema], :render_format => op.render_format)
   end
 
   def db_list(op)
+    set_render_format_option(op)
+
     op.cmd_parse
 
     client = get_client
     dbs = client.databases
 
     rows = []
-    has_org = false
     dbs.each {|db|
-      rows << {:Name=>db.name, :Count=>db.count, :Organization=>db.org_name}
-      has_org = true if db.org_name
+      rows << {:Name=>db.name, :Count=>db.count}
     }
-    puts cmd_render_table(rows, :fields => gen_table_fields(has_org, [:Name, :Count]))
+    puts cmd_render_table(rows, :fields => [:Name, :Count], :render_format => op.render_format)
 
     if dbs.empty?
       $stderr.puts "There are no databases."
@@ -44,12 +46,6 @@ module Command
   end
 
   def db_create(op)
-    org = nil
-
-    op.on('-g', '--org ORGANIZATION', "create the database under this organization") {|s|
-      org = s
-    }
-
     db_name = op.cmd_parse
 
     API.validate_database_name(db_name)
@@ -57,7 +53,6 @@ module Command
     client = get_client
 
     opts = {}
-    opts['organization'] = org if org
     begin
       client.create_database(db_name, opts)
     rescue AlreadyExistsError
