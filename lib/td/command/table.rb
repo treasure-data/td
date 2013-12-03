@@ -465,9 +465,13 @@ module Command
       # Merge with db_create and table_create after refactoring
       API.validate_database_name(db_name)
       begin
-        client.create_database(db_name)
-        $stderr.puts "Database '#{db_name}' is created."
-      rescue AlreadyExistsError
+        client.database(db_name)
+      rescue NotFoundError
+        begin
+          client.create_database(db_name)
+          $stderr.puts "Database '#{db_name}' is created."
+        rescue AlreadyExistsError
+        end
       end
 
       API.validate_table_name(table_name)
