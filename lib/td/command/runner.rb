@@ -21,7 +21,7 @@ class Runner
     $prog = @prog_name || File.basename($0)
 
     op = OptionParser.new
-    op.version = TreasureData::VERSION
+    op.version = VERSION
     op.banner = <<EOF
 usage: #{$prog} [options] COMMAND [args]
 
@@ -109,13 +109,14 @@ EOF
 
       require 'td/config'
       if config_path
-        TreasureData::Config.path = config_path
+        Config.path = config_path
       end
       if apikey
-        TreasureData::Config.apikey = apikey
+        Config.apikey = apikey
+        Config.cl_apikey = true
       end
       if insecure
-        TreasureData::Config.secure = false
+        Config.secure = false
       end
     rescue
       usage $!.to_s
@@ -127,16 +128,16 @@ EOF
       Encoding.default_external = 'UTF-8' if Encoding.respond_to?(:default_external)
     end
 
-    method = TreasureData::Command::List.get_method(cmd)
+    method = Command::List.get_method(cmd)
     unless method
       $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
-      TreasureData::Command::List.show_guess(cmd)
+      Command::List.show_guess(cmd)
       exit 1
     end
 
     begin
       method.call(argv)
-    rescue TreasureData::ConfigError
+    rescue ConfigError
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
     rescue => e

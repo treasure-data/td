@@ -18,7 +18,7 @@ module Command
 
     if rows.empty?
       $stderr.puts "There are no aggregation schemas."
-      $stderr.puts "Use '#{$prog} aggr:create <name>' to create a aggregation schema."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "aggr:create <name>' to create a aggregation schema."
     end
   end
 
@@ -130,7 +130,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Aggregation schema '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} aggr:create #{name}' to create the aggregation schema."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "aggr:create #{name}' to create the aggregation schema."
       exit 1
     rescue AlreadyExistsError
       $stderr.puts "Aggregation log entry '#{entry_name}' already exists."
@@ -164,7 +164,7 @@ module Command
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Aggregation schema '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} aggr:create #{name}' to create the aggregation schema."
+      $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "aggr:create #{name}' to create the aggregation schema."
       exit 1
     rescue AlreadyExistsError
       $stderr.puts "Aggregation attribute entry '#{entry_name}' already exists."
