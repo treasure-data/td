@@ -1,3 +1,11 @@
+== 2013-12-04 version 0.10.96
+
+* Add --format option to some subcommands to specify render format. json, csv and tsv.
+* job:show and query subcommand now accept --format option without --output
+* Show -k option in command result message if -k option is given.
+* Support import:jar_update subcommand to update td-import seperately
+
+
 == 2013-11-20 version 0.10.95
 
 * Fix import:prepare command. It cannot parse time-format options that includes ',' charactor.
