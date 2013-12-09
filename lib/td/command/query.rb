@@ -111,8 +111,8 @@ module Command
     $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show #{job.job_id}' to show the status."
     #$stderr.puts "See #{job.url} to see the progress."
 
-    if wait && !job.finished?
-      wait_job(job)
+    if wait
+      wait_job(job, true)
       puts "Status     : #{job.status}"
       if job.success? && !exclude
         puts "Result     :"
