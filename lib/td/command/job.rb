@@ -196,14 +196,15 @@ module Command
   end
 
   private
-  def wait_job(job)
+  def wait_job(job, first_call = false)
     $stderr.puts "queued..."
 
     cmdout_lines = 0
     stderr_lines = 0
     max_error_counts = JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR
 
-    until job.finished?
+    while first_call || !job.finished?
+      first_call = false
       begin
         sleep 2
         job.update_status!
