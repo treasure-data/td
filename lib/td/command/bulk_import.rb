@@ -269,6 +269,12 @@ module Command
   end
 
   def bulk_import_commit(op)
+    wait = false
+
+    op.on('-w', '--wait', 'wait for finishing the commit', TrueClass) {|b|
+      wait = b
+    }
+
     name = op.cmd_parse
 
     client = get_client
@@ -276,6 +282,44 @@ module Command
     job = client.commit_bulk_import(name)
 
     $stderr.puts "Bulk import session '#{name}' started to commit."
+
+    if wait
+      wait_commit(name) # wait the commit
+    end
+  end
+
+  private
+  def wait_commit(name)
+    first_call = true
+    finished = false
+    max_error_counts = 10
+
+    while first_call || !finished
+      first_call = false
+      begin
+        sleep 5
+
+        # extract buik_import session
+        client = get_client
+        bis = client.bulk_imports
+        bi = bis.find {|bi| name == bi.name }
+        unless bi
+          $stderr.puts "Bulk import session '#{name}' does not exist."
+          exit 1
+        end
+
+        # check status of the bulk_import session
+        if bi.status == 'committed' || bi.status == 'ready'
+          finished = true
+        end
+      rescue Timeout::Error, SystemCallError, EOFError, SocketError
+        if max_error_counts <= 0
+          raise
+        end
+        max_error_counts -= 1
+        retry
+      end
+    end
   end
 
   def bulk_import_error_records(op)
