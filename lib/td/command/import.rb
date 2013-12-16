@@ -50,7 +50,7 @@ module Command
       File.open(File.join(UPDATED_PATH, 'VERSION'), 'w') { |f| f.print "#{version} via import:jar_update" }
       File.open(File.join(UPDATED_PATH, 'td-import-java.version'), 'w') { |f| f.print "#{version} #{updated}" }
       File.open(File.join(UPDATED_PATH, 'td-import.jar'), 'wb') { |f|
-        f.print Updater.fetch("http://maven.treasure-data.com/com/treasure_data/td-import/#{version}/td-import-#{version}.jar")
+        f.print Updater.fetch("http://maven.treasure-data.com/com/treasure_data/td-import/#{version}/td-import-#{version}-jar-with-dependencies.jar")
       }
       puts "Installed td-import.jar #{version} into #{UPDATED_PATH}"
     else
