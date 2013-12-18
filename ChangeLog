@@ -1,6 +1,9 @@
-== 20XX-XX-XX version 0.10.97
+== 2013-12-18 version 0.10.97
 
 * import:commit accepts --wait option.
+* import:jar_update command to download correct jar file
+* Fix no error message when impala query failed immediately
+
 
 == 2013-12-04 version 0.10.96
 
