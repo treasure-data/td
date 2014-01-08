@@ -127,7 +127,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^aggr/, /^update/, /^user/, /^acl/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, *examples)
@@ -308,15 +308,6 @@ module List
   add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
   # TODO acl:test
 
-  add_list 'aggr:list', %w[], 'Show list of aggregation schemas'
-  add_list 'aggr:show', %w[name], 'Describe a aggregation schema'
-  add_list 'aggr:create', %w[name relation_key], 'Create a aggregation schema'
-  add_list 'aggr:delete', %w[name], 'Delete a aggregation schema'
-  add_list 'aggr:add-log', %w[name db table entry_name o1_key? o2_key? o3_key?], 'Add a log aggregation entry'
-  add_list 'aggr:add-attr', %w[name db table entry_name method_name parameters_?], 'Add an attribute aggregation entry'
-  add_list 'aggr:del-log', %w[name entry_name], 'Delete a log aggregation entry'
-  add_list 'aggr:del-attr', %w[name entry_name], 'Delete an attribute aggregation entry'
-
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
 
   add_list 'sample:apache', %w[path.json], 'Create a sample log file'
@@ -374,9 +365,6 @@ module List
 
   add_alias 'acl', 'acl:list'
   add_alias 'acls', 'acl:list'
-
-  add_alias 'aggr', 'aggr:show'
-  add_alias 'aggrs', 'aggr:list'
 
   add_alias 'apikey', 'apikey:show'
   add_alias 'server', 'server:status'
