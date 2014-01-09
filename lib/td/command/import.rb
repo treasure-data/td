@@ -97,7 +97,7 @@ module Command
 
   def import_unfreeze(op)
     require 'td/command/bulk_import'
-    bulk_importunfreeze(op)
+    bulk_import_unfreeze(op)
   end
 
   private
