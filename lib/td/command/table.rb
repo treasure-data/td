@@ -23,7 +23,7 @@ module Command
       end
       type = s.to_sym
     }
-    op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type]') {|s|
+    op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type(int or string)]') {|s|
       unless /\A[\w]+:(string|int)\z/ =~ s
         $stderr.puts "--primary-key PRIMARY_KEY_AND_TYPE is required, and should be in the format [primary key]:[primary key type]"
         exit 1
