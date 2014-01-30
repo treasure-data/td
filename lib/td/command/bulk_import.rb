@@ -58,8 +58,7 @@ module Command
 
     client = get_client
 
-    bis = client.bulk_imports
-    bi = bis.find {|bi| name == bi.name }
+    bi = client.bulk_import(name)
     unless bi
       $stderr.puts "Bulk import session '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "bulk_import:create <name> <db> <table>' to create a session."
