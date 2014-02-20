@@ -16,6 +16,7 @@ module Command
     query = nil
     sampling_all = nil
     type = nil
+    limit = nil
     exclude = false
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
@@ -63,6 +64,12 @@ module Command
     }
     op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
       sampling_all = i
+    }
+    op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
+      unless s.to_i > 0
+        raise "Invalid limit number. Must be a positive integer"
+      end
+      limit = s.to_i
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
@@ -117,7 +124,7 @@ module Command
       if job.success? && !exclude
         puts "Result     :"
         begin
-          show_result(job, output, format, render_opts)
+          show_result(job, output, format, limit, render_opts)
         rescue TreasureData::NotFoundError => e
         end
       end

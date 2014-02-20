@@ -47,7 +47,7 @@ module Command
     op.on('-E', '--error', 'show only failed jobs', TrueClass) {|b|
       status = 'error'
     }
-    op.on('--slow [SECONDS]', 'show slow queries (default threshold: 3600 seconds)', Integer) { |i|
+    op.on('--slow [SECONDS]', 'show slow queries (default threshold: 3600 seconds)', Integer) {|i|
       slower_than = i || 3600
     }
     set_render_format_option(op)
@@ -86,6 +86,7 @@ module Command
     output = nil
     format = nil
     render_opts = {}
+    limit = nil
     exclude = false
 
     op.on('-v', '--verbose', 'show logs', TrueClass) {|b|
@@ -106,6 +107,12 @@ module Command
         raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack, msgpack.gz"
       end
       format = s
+    }
+    op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
+      unless s.to_i > 0
+        raise "Invalid limit number. Must be a positive integer"
+      end
+      limit = s.to_i
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
@@ -141,7 +148,7 @@ module Command
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
-          show_result(job, output, format, render_opts)
+          show_result(job, output, format, limit, render_opts)
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
         end
@@ -151,8 +158,9 @@ module Command
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
-          show_result(job, output, format, render_opts)
+          show_result(job, output, format, limit, render_opts)
         rescue TreasureData::NotFoundError => e
+          # Got 404 because result not found.
         end
       end
 
@@ -233,70 +241,80 @@ module Command
     end
   end
 
-  def show_result(job, output, format, render_opts={})
+  def show_result(job, output, format, limit, render_opts={})
     if output
-      write_result(job, output, format)
+      write_result(job, output, format, limit)
       puts "written to #{output} in #{format} format"
     else
-      render_result(job, render_opts, format)
+      render_result(job, render_opts, limit, format)
     end
   end
 
-  def write_result(job, output, format)
+  def write_result(job, output, format, limit)
+
+    # the next 3 formats allow writing to both a file and stdout
+
     case format
     when 'json'
       require 'yajl'
-      first = true
-      open_file(output, "w") { |f|
+      open_file(output, "w") {|f|
         f.write "["
+        n_rows = 0
         job.result_each {|row|
-          if first
-            first = false
-          else
-            f.write ","
-          end
+          n_rows += 1
+          f.write ",\n" if n_rows > 1
           f.write Yajl.dump(row)
+          break if output.nil? and !limit.nil? and n_rows == limit
         }
         f.write "]"
       }
       puts if output.nil?
 
-    when 'msgpack'
-      open_file(output, "wb") { |f|
-        job.result_format('msgpack', f)
-      }
-
-    when 'msgpack.gz'
-      open_file(output, "wb") { |f|
-        job.result_format('msgpack.gz', f)
-      }
-
     when 'csv'
       require 'yajl'
       require 'csv'
 
-      open_file(output, "w") { |f|
+      open_file(output, "w") {|f|
         writer = CSV.new(f)
+        n_rows = 0
         job.result_each {|row|
-          writer << row.map {|col| dump_column(col) }
+          n_rows += 1
+          # TODO limit the # of columns
+          writer << row.map {|col| 
+            dump_column(col)
+          }
+          break if output.nil? and !limit.nil? and n_rows == limit
         }
       }
 
     when 'tsv'
       require 'yajl'
-      open_file(output, "w") { |f|
+      open_file(output, "w") {|f|
+        n_rows = 0
         job.result_each {|row|
-          first = true
+          n_rows += 1
+          n_cols = 0
           row.each {|col|
-            if first
-              first = false
-            else
-              f.write "\t"
-            end
+            n_cols += 1
+            f.write "\t" if n_cols > 1
+            # TODO limit the # of columns
             f.write dump_column(col)
           }
           f.write "\n"
+          break if output.nil? and !limit.nil? and n_rows == limit
         }
+      }
+
+    # these last 2 formats are only valid if writing the result to file through the -o/--output option.
+
+    when 'msgpack'
+      open_file(output, "wb") {|f|
+        job.result_format('msgpack', f)
+      }
+
+    when 'msgpack.gz'
+      open_file(output, "wb") {|f|
+        job.result_format('msgpack.gz', f)
       }
 
     else
@@ -318,16 +336,20 @@ module Command
     end
   end
 
-  def render_result(job, opts, format = nil)
+  def render_result(job, opts, limit, format = nil)
     require 'yajl'
 
     if format.nil?
+      # display result in tabular format
       rows = []
+      n_rows = 0
       job.result_each {|row|
         # TODO limit number of rows to show
         rows << row.map {|v|
           dump_column(v)
         }
+        n_rows += 1
+        break if !limit.nil? and n_rows == limit
       }
 
       opts[:max_width] = 10000
@@ -337,7 +359,9 @@ module Command
 
       puts cmd_render_table(rows, opts)
     else
-      write_result(job, nil, format)
+      # display result in any of: json, csv, tsv. 
+      # msgpack and mspgpack.gz are not supported for stdout output
+      write_result(job, nil, format, limit)
     end
   end
 
