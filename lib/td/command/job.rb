@@ -85,7 +85,7 @@ module Command
     wait = false
     output = nil
     format = nil
-    render_opts = {}
+    render_opts = {:header => true}
     limit = nil
     exclude = false
 
@@ -113,6 +113,8 @@ module Command
         raise "Invalid limit number. Must be a positive integer"
       end
       limit = s.to_i
+    op.on('-s', '--suppress-column-header', 'suppress output of the column header, when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+      render_opts[:header] = !b;
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
@@ -125,6 +127,12 @@ module Command
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
         raise "Supported formats are only tsv, csv and json without -o / --output option"
+      end
+    end
+
+    if !render_opts[:header]
+      unless ['tsv', 'csv'].include?(format)
+        raise "Supported formats are only tsv and csv with the -s / --suppress-column-header option"
       end
     end
 
@@ -248,16 +256,16 @@ module Command
     end
   end
 
-  def show_result(job, output, format, limit, render_opts={})
+  def show_result(job, output, limit, format, render_opts={})
     if output
-      write_result(job, output, format, limit)
+      write_result(job, output, limit, format, render_opts)
       puts "written to #{output} in #{format} format"
     else
-      render_result(job, render_opts, limit, format)
+      render_result(job, limit, format, render_opts)
     end
   end
 
-  def write_result(job, output, format, limit)
+  def write_result(job, output, limit, format, render_opts={})
 
     # the next 3 formats allow writing to both a file and stdout
 
@@ -284,6 +292,13 @@ module Command
       open_file(output, "w") {|f|
         writer = CSV.new(f)
         n_rows = 0
+        # output headers
+        if render_opts[:header] && job.hive_result_schema
+          writer << job.hive_result_schema.map {|name,type|
+            name
+          }
+        end
+        # output data
         job.result_each {|row|
           # TODO limit the # of columns
           writer << row.map {|col|
@@ -297,6 +312,14 @@ module Command
     when 'tsv'
       require 'yajl'
       open_file(output, "w") {|f|
+        # output headers
+        if render_opts[:header] && job.hive_result_schema
+          job.hive_result_schema.each {|name,type|
+            f.write name + "\t"
+          }
+          f.write "\n"
+        end
+        # output data
         n_rows = 0
         job.result_each {|row|
           n_cols = 0
@@ -343,7 +366,7 @@ module Command
     end
   end
 
-  def render_result(job, opts, limit, format = nil)
+  def render_result(job, limit, format=nil, render_opts={})
     require 'yajl'
 
     if format.nil?
@@ -359,16 +382,16 @@ module Command
         break if !limit.nil? and n_rows == limit
       }
 
-      opts[:max_width] = 10000
+      render_opts[:max_width] = 10000
       if job.hive_result_schema
-        opts[:change_fields] = job.hive_result_schema.map {|name,type| name }
+        render_opts[:change_fields] = job.hive_result_schema.map { |name,type| name }
       end
 
-      puts cmd_render_table(rows, opts)
+      puts cmd_render_table(rows, render_opts)
     else
       # display result in any of: json, csv, tsv.
       # msgpack and mspgpack.gz are not supported for stdout output
-      write_result(job, nil, format, limit)
+      write_result(job, nil, limit, format, render_opts)
     end
   end
 
