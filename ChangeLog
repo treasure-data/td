@@ -1,3 +1,10 @@
+
+== 2014-02-21 version 0.10.98
+
+* import:unfreeze: fixed NoMethodError error
+* import:show uses more efficient REST API
+
+
 == 2013-12-18 version 0.10.97
 
 * import:commit accepts --wait option.
