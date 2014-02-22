@@ -85,7 +85,7 @@ module Command
     wait = false
     output = nil
     format = nil
-    render_opts = {:header => true}
+    render_opts = {:header => false}
     limit = nil
     exclude = false
 
@@ -113,8 +113,9 @@ module Command
         raise "Invalid limit number. Must be a positive integer"
       end
       limit = s.to_i
-    op.on('-s', '--suppress-column-header', 'suppress output of the column header, when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
-      render_opts[:header] = !b;
+    }
+    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+      render_opts[:header] = b;
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
@@ -130,9 +131,9 @@ module Command
       end
     end
 
-    if !render_opts[:header]
+    if render_opts[:header]
       unless ['tsv', 'csv'].include?(format)
-        raise "Supported formats are only tsv and csv with the -s / --suppress-column-header option"
+        raise "Option -c / --column-header is only supported with tsv and csv formats"
       end
     end
 
