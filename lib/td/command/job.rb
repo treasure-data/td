@@ -127,15 +127,18 @@ module Command
     #puts "URL         : #{job.url}"
     puts "Status      : #{job.status}"
     puts "Type        : #{job.type}"
-    puts "Priority    : #{job_priority_name_of(job.priority)}"
-    puts "Retry limit : #{job.retry_limit}"
-    puts "Result      : #{job.result_url}"
     puts "Database    : #{job.db_name}"
-    puts "Query       : #{job.query}"
+    # exclude some fields from bulk_import_perform type jobs
+    if [:hive, :pig, :impala, :presto].include?(job.type)
+      puts "Priority    : #{job_priority_name_of(job.priority)}"
+      puts "Retry limit : #{job.retry_limit}"
+      puts "Output      : #{job.result_url}"
+      puts "Query       : #{job.query}"
+    end
 
     if wait && !job.finished?
       wait_job(job)
-      if [:hive, :pig, :impala].include?(job.type) && !exclude
+      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
           show_result(job, output, format, render_opts)
@@ -145,7 +148,7 @@ module Command
       end
 
     else
-      if [:hive, :pig, :impala].include?(job.type) && !exclude
+      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
           show_result(job, output, format, render_opts)
@@ -154,16 +157,20 @@ module Command
       end
 
       if verbose
-        puts ""
-        puts "cmdout:"
-        job.debug['cmdout'].to_s.split("\n").each {|line|
-          puts "  "+line
-        }
-        puts ""
-        puts "stderr:"
-        job.debug['stderr'].to_s.split("\n").each {|line|
-          puts "  "+line
-        }
+        if !job.debug['cmdout'].nil?
+          puts ""
+          puts "cmdout:"
+          job.debug['cmdout'].to_s.split("\n").each {|line|
+            puts "  " + line
+          }
+        end
+        if !job.debug['stderr'].nil?
+          puts ""
+          puts "stderr:"
+          job.debug['stderr'].to_s.split("\n").each {|line|
+            puts "  " + line
+          }
+        end
       end
     end
 
