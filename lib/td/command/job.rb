@@ -120,10 +120,17 @@ module Command
 
     job_id = op.cmd_parse
 
+    # parameter concurrency validation
+
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
-        raise "Supported formats are only tsv, csv and json without --output option"
+        raise "Supported formats are only tsv, csv and json without -o / --output option"
       end
+    end
+
+    if !output.nil? && !limit.nil?
+      raise "Option -l / --limit is only valid when not outputting to file " +
+            "(no -o / --output option provided)"
     end
 
     client = get_client
@@ -261,9 +268,9 @@ module Command
         f.write "["
         n_rows = 0
         job.result_each {|row|
-          n_rows += 1
-          f.write ",\n" if n_rows > 1
+          f.write ",\n" if n_rows > 0
           f.write Yajl.dump(row)
+          n_rows += 1
           break if output.nil? and !limit.nil? and n_rows == limit
         }
         f.write "]"
@@ -278,11 +285,11 @@ module Command
         writer = CSV.new(f)
         n_rows = 0
         job.result_each {|row|
-          n_rows += 1
           # TODO limit the # of columns
-          writer << row.map {|col| 
+          writer << row.map {|col|
             dump_column(col)
           }
+          n_rows += 1
           break if output.nil? and !limit.nil? and n_rows == limit
         }
       }
@@ -292,15 +299,15 @@ module Command
       open_file(output, "w") {|f|
         n_rows = 0
         job.result_each {|row|
-          n_rows += 1
           n_cols = 0
           row.each {|col|
-            n_cols += 1
-            f.write "\t" if n_cols > 1
+            f.write "\t" if n_cols > 0
             # TODO limit the # of columns
             f.write dump_column(col)
+            n_cols += 1
           }
           f.write "\n"
+          n_rows += 1
           break if output.nil? and !limit.nil? and n_rows == limit
         }
       }
@@ -359,7 +366,7 @@ module Command
 
       puts cmd_render_table(rows, opts)
     else
-      # display result in any of: json, csv, tsv. 
+      # display result in any of: json, csv, tsv.
       # msgpack and mspgpack.gz are not supported for stdout output
       write_result(job, nil, format, limit)
     end
