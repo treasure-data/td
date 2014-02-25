@@ -7,7 +7,7 @@ module Command
     wait = false
     output = nil
     format = nil
-    render_opts = {}
+    render_opts = {:header => false}
     result_url = nil
     result_user = nil
     result_ask_password = false
@@ -71,15 +71,26 @@ module Command
       end
       limit = s.to_i
     }
+    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+      render_opts[:header] = b;
+    }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
     }
 
     sql = op.cmd_parse
 
+    # parameter concurrency validation
+
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
         raise "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
+
+    if render_opts[:header]
+      unless ['tsv', 'csv'].include?(format)
+        raise "Option -c / --column-header is only supported with tsv and csv formats"
       end
     end
 
@@ -124,7 +135,7 @@ module Command
       if job.success? && !exclude
         puts "Result     :"
         begin
-          show_result(job, output, format, limit, render_opts)
+          show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
         end
       end
