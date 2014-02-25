@@ -164,7 +164,7 @@ module Command
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
-          show_result(job, output, format, limit, render_opts)
+          show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
         end
@@ -174,7 +174,7 @@ module Command
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
         begin
-          show_result(job, output, format, limit, render_opts)
+          show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
         end
