@@ -1,8 +1,15 @@
+== 2014-02-26 version 0.10.99
+
+* job:show, query: limit the number of records ouputted when printing on stdout using the -l / --limit option
+* job:show, query: optionally output/store csv and tsv files with headers using the -c / --column-names option
+* job:show, query: support result output from Presto
+
 
 == 2014-02-21 version 0.10.98
 
 * import:unfreeze: fixed NoMethodError error
 * import:show uses more efficient REST API
+* Update td-client-ruby to 0.8.57
 
 
 == 2013-12-18 version 0.10.97
