@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
+
 require 'rubygems' unless defined?(gem)
 gem 'td-client'
 here = File.dirname(__FILE__)
 $LOAD_PATH << File.expand_path(File.join(here, '..', 'lib'))
 
+# disable the updater for the td gem
 require 'td/updater'
 TreasureData::Updater.disable(<<EOS
 `td update` is only available from Treasure Data Toolbelt.
@@ -12,6 +14,6 @@ Download and install from http://toolbelt.treasure-data.com
 EOS
 )
 
+# start up the CLI
 require 'td/command/runner'
 TreasureData::Command::Runner.new.run ARGV
-

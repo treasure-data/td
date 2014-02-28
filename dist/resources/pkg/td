@@ -26,5 +26,5 @@ require 'td/updater'
 TreasureData::Updater.inject_libpath
 
 # start up the CLI
-require "td/command/runner"
+require 'td/command/runner'
 TreasureData::Command::Runner.new.run ARGV

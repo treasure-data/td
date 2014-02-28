@@ -45,11 +45,11 @@ Basic commands:
   import         # manage bulk import sessions (Java based fast processing)
   bulk_import    # manage bulk import sessions (Old Ruby-based implementation)
   result         # create/delete/list result URLs
+  sched          # create/delete/list schedules that run a query periodically
+  schema         # create/delete/modify schemas of tables
 
 Additional commands:
 
-  sched          # create/delete/list schedules that run a query periodically
-  schema         # create/delete/modify schemas of tables
   status         # show scheds, jobs, tables and results
   apikey         # show/set API key
   server         # show status of the Treasure Data server
