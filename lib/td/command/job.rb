@@ -102,9 +102,9 @@ module Command
       output = s
       format = 'tsv' if format.nil?
     }
-    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
+    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json, msgpack, and msgpack.gz)') {|s|
       unless ['tsv', 'csv', 'json', 'msgpack', 'msgpack.gz'].include?(s)
-        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack, msgpack.gz"
+        raise "Unknown format #{s.dump}. Supported formats are: tsv, csv, json, msgpack, and msgpack.gz"
       end
       format = s
     }
