@@ -144,20 +144,27 @@ module Command
       databases = client.databases
     end
 
+    has_item = databases.select {|db| db.tables.select {|table| table.type == :item}.length > 0 }.length > 0
+
     rows = []
     ::Parallel.each(databases, :in_threads => num_threads) {|db|
       begin
+        db.tables.each {}
         db.tables.each {|table|
           pschema = table.schema.fields.map {|f|
             "#{f.name}:#{f.type}"
           }.join(', ')
-          rows << {
+          new_row = {
             :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
             :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
             'Last import' => table.last_import ? table.last_import.localtime : nil,
             'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,
             :Schema => pschema
           }
+          if has_item and table.type == :item
+            new_row['Primary key'] = "#{table.primary_key}:#{table.primary_key_type}"
+          end
+          rows << new_row
         }
       rescue APIError => e
         # ignores permission error because db:list shows all databases
@@ -171,7 +178,13 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema], :max_width=>500, :render_format => op.render_format)
+    fields = []
+    if has_item
+      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', 'Primary key', :Schema]
+    else
+      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
+    end
+    puts cmd_render_table(rows, :fields => fields, :max_width => 500, :render_format => op.render_format)
 
     if rows.empty?
       if db_name
@@ -207,10 +220,12 @@ module Command
 
     table = get_table(client, db_name, table_name)
 
-    puts "Name      : #{table.db_name}.#{table.name}"
-    puts "Type      : #{table.type}"
-    puts "Count     : #{table.count}"
-    puts "Schema    : ("
+    puts "Name        : #{table.db_name}.#{table.name}"
+    puts "Type        : #{table.type}"
+    puts "Count       : #{table.count}"
+    # p table.methods.each {|m| puts m}
+    puts "Primary key : #{table.primary_key}:#{table.primary_key_type}" if table.type == :item
+    puts "Schema      : ("
     table.schema.fields.each {|f|
       puts "    #{f.name}:#{f.type}"
     }
@@ -402,7 +417,7 @@ module Command
 
     $stderr.puts "Table set to expire data older than #{expire_days} days."
   end
-  
+
 
   IMPORT_TEMPLATES = {
     'apache' => [

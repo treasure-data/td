@@ -7,7 +7,7 @@ module Command
     wait = false
     output = nil
     format = nil
-    render_opts = {}
+    render_opts = {:header => false}
     result_url = nil
     result_user = nil
     result_ask_password = false
@@ -16,6 +16,7 @@ module Command
     query = nil
     sampling_all = nil
     type = nil
+    limit = nil
     exclude = false
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
@@ -64,15 +65,32 @@ module Command
     op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
       sampling_all = i
     }
+    op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
+      unless s.to_i > 0
+        raise "Invalid limit number. Must be a positive integer"
+      end
+      limit = s.to_i
+    }
+    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+      render_opts[:header] = b;
+    }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
     }
 
     sql = op.cmd_parse
 
+    # parameter concurrency validation
+
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
         raise "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
+
+    if render_opts[:header]
+      unless ['tsv', 'csv'].include?(format)
+        raise "Option -c / --column-header is only supported with tsv and csv formats"
       end
     end
 
@@ -117,7 +135,7 @@ module Command
       if job.success? && !exclude
         puts "Result     :"
         begin
-          show_result(job, output, format, render_opts)
+          show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
         end
       end

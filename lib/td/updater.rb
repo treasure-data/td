@@ -4,8 +4,9 @@ require "shellwords"
 require "zip/zip"
 
 module TreasureData
-  # This architecture is based on Heroku command
   module Updater
+    DEFAULT_TOOLBELT_URL = "http://toolbelt.treasuredata.com/"
+
     def self.raise_error(message)
       # TODO: Replace better Exception class
       raise RuntimeError.new(message)
@@ -95,7 +96,7 @@ module TreasureData
     end
 
     def self.package_category
-      case 
+      case
       when on_windows?
         'exe'
       when on_mac?
@@ -114,7 +115,7 @@ module TreasureData
       # So we use following code to avoid above issues.
       u = URI(uri)
       response = if u.scheme == 'https'
-                   http = Net::HTTP.new(u.host, u.port)        
+                   http = Net::HTTP.new(u.host, u.port)
                    http.use_ssl = true
                    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
                    http.request(Net::HTTP::Get.new(u.path))
@@ -130,12 +131,17 @@ module TreasureData
       end
     end
 
+    def self.endpoint_root
+      ENV['TD_TOOLBELT_UPDATE_ROOT'] || DEFAULT_TOOLBELT_URL
+    end
+    #puts "endpoint_root: #{self.endpoint_root}"
+
     def self.version_endpoint
-      "http://toolbelt.treasure-data.com/version.#{package_category}"
+      "#{endpoint_root}/version.#{package_category}"
     end
 
     def self.update_package_endpoint
-      "http://toolbelt.treasure-data.com/td-update-#{package_category}.zip"
+      "#{endpoint_root}/td-update-#{package_category}.zip"
     end
 
     def self.update(autoupdate = false)
