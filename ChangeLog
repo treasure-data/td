@@ -1,3 +1,6 @@
+== 20XX-XX-XX version 0.10.99
+* Upgrade td-import-java 0.4.10. ChangeLog is:
+  https://github.com/treasure-data/td-import-java/blob/master/CHANGES.txt
 
 == 2014-02-21 version 0.10.98
 
