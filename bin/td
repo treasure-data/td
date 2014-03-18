@@ -16,4 +16,4 @@ EOS
 
 # start up the CLI
 require 'td/command/runner'
-TreasureData::Command::Runner.new.run ARGV
+exit TreasureData::Command::Runner.new.run ARGV

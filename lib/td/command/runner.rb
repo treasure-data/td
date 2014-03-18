@@ -157,7 +157,9 @@ If you want to use td command through a proxy,
 please set HTTP_PROXY environment variable (e.g. export HTTP_PROXY="host:port")
 EOS
       end
+      return 1
     end
+    return 0
   end
 end
 
