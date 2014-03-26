@@ -1,5 +1,9 @@
 .bundle
+.DS_Store
 build/td-import-java
 Gemfile.lock
 vendor/*
+pkg/
+build/pkg.build/
+build/exe.build/
 *~
