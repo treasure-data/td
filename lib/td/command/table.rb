@@ -349,7 +349,7 @@ module Command
     to = nil
     wait = false
 
-    op.on('-t', '--to TIME', 'end time of logs to delete') {|s|
+    op.on('-t', '--to TIME', 'end time of logs to delete in Unix time multiple of 3600 (1 hour)') {|s|
       if s.to_i.to_s == s
         # UNIX time
         to = s.to_i
@@ -358,7 +358,7 @@ module Command
         to = Time.parse(s).to_i
       end
     }
-    op.on('-f', '--from TIME', 'start time of logs to delete') {|s|
+    op.on('-f', '--from TIME', 'start time of logs to delete in Unix time multiple of 3600 (1 hour)') {|s|
       if s.to_i.to_s == s
         from = s.to_i
       else
@@ -366,7 +366,7 @@ module Command
         from = Time.parse(s).to_i
       end
     }
-    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
+    op.on('-w', '--wait', 'wait for the job to finish', TrueClass) {|b|
       wait = b
     }
 
@@ -383,7 +383,7 @@ module Command
     end
 
     if from % 3600 != 0 || to % 3600 != 0
-      $stderr.puts "time must be a multiple of 3600 (1 hour)"
+      $stderr.puts "Time for the -f / --from and -t / --to options must be a multiple of 3600 (1 hour)"
       exit 1
     end
 
