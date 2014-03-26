@@ -3,8 +3,11 @@ require 'td/updater'
 module TreasureData
 module Command
 
+  # locate the root of the td package which is 3 folders up from the location of this file
   BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
   UPDATED_PATH = File.join(Updater.home_directory, ".td", "java")
+
+  MAVEN_REPO="http://maven.treasure-data.com/com/treasure_data/td-import"
 
   JAVA_COMMAND = "java"
   JAVA_MAIN_CLASS = "com.treasure_data.td_import.BulkImportCommand"
@@ -37,7 +40,7 @@ module Command
     require 'open-uri'
     require 'fileutils'
 
-    doc = REXML::Document.new(open('http://maven.treasure-data.com/com/treasure_data/td-import/maven-metadata.xml') { |f| f.read })
+    doc = REXML::Document.new(open('#{MAVEN_REPO}/maven-metadata.xml') { |f| f.read })
     updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
     version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
@@ -50,7 +53,7 @@ module Command
       File.open(File.join(UPDATED_PATH, 'VERSION'), 'w') { |f| f.print "#{version} via import:jar_update" }
       File.open(File.join(UPDATED_PATH, 'td-import-java.version'), 'w') { |f| f.print "#{version} #{updated}" }
       File.open(File.join(UPDATED_PATH, 'td-import.jar'), 'wb') { |f|
-        f.print Updater.fetch("http://maven.treasure-data.com/com/treasure_data/td-import/#{version}/td-import-#{version}-jar-with-dependencies.jar")
+        f.print Updater.fetch("#{MAVEN_REPO}/#{version}/td-import-#{version}-jar-with-dependencies.jar")
       }
       puts "Installed td-import.jar #{version} into #{UPDATED_PATH}"
     else
