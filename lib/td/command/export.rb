@@ -9,7 +9,7 @@ module Command
     s3_bucket = nil
     aws_access_key_id = nil
     aws_secret_access_key = nil
-    file_format = nil
+    file_format = "json.gz" # default
 
     op.on('-f', '--from TIME', 'export data which is newer than or same with the TIME') {|s|
       from = export_parse_time(s)
@@ -26,7 +26,7 @@ module Command
     op.on('-s', '--aws-secret-key SECRET_KEY', 'AWS secret access key to export data (required)') {|s|
       aws_secret_access_key = s
     }
-    op.on('-F', '--file-format FILE_FORMAT', 'file format for exported data, either json.gz (default) or line-json.gz') { |s| 
+    op.on('-F', '--file-format FILE_FORMAT', 'file format for exported data, either json.gz (default) or line-json.gz') { |s|
       raise ArgumentError, "#{s} is not a supported file format" unless SUPPORTED_FORMATS.include?(s)
       file_format = s
     }
