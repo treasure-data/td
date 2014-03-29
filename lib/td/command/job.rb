@@ -183,14 +183,14 @@ module Command
       if verbose
         if !job.debug['cmdout'].nil?
           puts ""
-          puts "cmdout:"
+          puts "Output:"
           job.debug['cmdout'].to_s.split("\n").each {|line|
             puts "  " + line
           }
         end
         if !job.debug['stderr'].nil?
           puts ""
-          puts "stderr:"
+          puts "Details:"
           job.debug['stderr'].to_s.split("\n").each {|line|
             puts "  " + line
           }
