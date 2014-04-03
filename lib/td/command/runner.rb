@@ -2,7 +2,6 @@
 module TreasureData
 module Command
 
-
 class Runner
   def initialize
     @config_path = nil
@@ -141,12 +140,18 @@ EOF
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
     rescue => e
-      $stderr.puts "error #{$!.class}: backtrace:"
-      $!.backtrace.each {|b|
-        $stderr.puts "  #{b}"
-      }
-      puts ""
-      puts $!
+      # work in progress look ahead development: new exceptions are rendered as simple
+      # error messages unless the TD_TOOLBELT_DEBUG variable is not empty.
+      # List of new exceptions:
+      # => ParameterConfigurationError
+      unless [ParameterConfigurationError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+        $stderr.puts "error #{$!.class}: backtrace:"
+        $!.backtrace.each {|b|
+          $stderr.puts "  #{b}"
+        }
+        puts ""
+      end
+      puts "Error: " + $!.to_s
 
       require 'socket'
       if e.is_a?(::SocketError)

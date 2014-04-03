@@ -11,6 +11,9 @@ autoload :Job, 'td/client'
 
 module Command
 
+  class ParameterConfigurationError < ArgumentError
+  end
+
   private
   def initialize
     @render_indent = ''
