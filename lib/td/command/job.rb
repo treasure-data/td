@@ -157,6 +157,8 @@ module Command
       puts "Retry limit : #{job.retry_limit}"
       puts "Output      : #{job.result_url}"
       puts "Query       : #{job.query}"
+    elsif job.type == :bulk_import_perform
+      puts "Destination : #{job.query}"
     end
 
     if wait && !job.finished?
@@ -198,7 +200,7 @@ module Command
       end
     end
 
-    $stderr.puts "Use '-v' option to show detailed messages." unless verbose
+    puts "Use '-v' option to show detailed messages." unless verbose
   end
 
   def job_status(op)
