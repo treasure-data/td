@@ -41,7 +41,13 @@ module Command
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
-    op.on('-t', '--timezone TZ', 'name of the timezone (like Asia/Tokyo)') {|s|
+    op.on('-t', '--timezone TZ', "name of the timezone.",
+                                 "  Only extended timezones like 'Asia/Tokyo', 'America/Los_Angeles' are supported,",
+                                 "  (no 'PST', 'PDT', etc...).",
+                                 "  When a timezone is specified, the cron schedule is referred to that timezone.",
+                                 "  Otherwise, the cron schedule is referred to the UTC timezone.",
+                                 "  E.g. cron schedule '0 12 * * *' will execute daily at 5 AM without timezone option",
+                                 "  and at 12PM with the -t / --timezone 'America/Los_Angeles' timezone option") {|s|
       timezone = s
     }
     op.on('-D', '--delay SECONDS', 'delay time of the schedule', Integer) {|i|
@@ -97,7 +103,7 @@ module Command
 
     client = get_client
 
-    # local existance check
+    # local existence check
     get_database(client, db_name)
 
     begin
@@ -153,7 +159,13 @@ module Command
     op.on('-r', '--result RESULT_TABLE', 'change the result table') {|s|
       result = s
     }
-    op.on('-t', '--timezone TZ', 'change the name of the timezone (like Asia/Tokyo)') {|s|
+    op.on('-t', '--timezone TZ', "name of the timezone.",
+                                 "  Only extended timezones like 'Asia/Tokyo', 'America/Los_Angeles' are supported,",
+                                 "  (no 'PST', 'PDT', etc...).",
+                                 "  When a timezone is specified, the cron schedule is referred to that timezone.",
+                                 "  Otherwise, the cron schedule is referred to the UTC timezone.",
+                                 "  E.g. cron schedule '0 12 * * *' will execute daily at 5 AM without timezone option",
+                                 "  and at 12PM with the -t / --timezone 'America/Los_Angeles' timezone option") {|s|
       timezone = s
     }
     op.on('-D', '--delay SECONDS', 'change the delay time of the schedule', Integer) {|i|
