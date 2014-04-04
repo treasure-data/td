@@ -261,9 +261,9 @@ module List
   add_list 'import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'import:unfreeze logs_201201'
 
   add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
-  add_list 'result:show', %w[name], 'Describe information of a result URL', 'result mydb'
-  add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create mydb mysql://my-server/mydb'
-  add_list 'result:delete', %w[name], 'Delete a result URL', 'result:delete mydb'
+  add_list 'result:show', %w[name], 'Describe information of a result URL', 'result name'
+  add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create name mysql://my-server/mydb'
+  add_list 'result:delete', %w[name], 'Delete a result URL', 'result:delete name'
 
   add_list 'status', %w[], 'Show schedules, jobs, tables and results', 'status', 's'
 
