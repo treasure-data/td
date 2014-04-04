@@ -74,7 +74,11 @@ module Command
       name = name.to_s
       type = type.to_s
 
-      API.validate_column_name(name)
+      begin
+        API.validate_column_name(name)
+      rescue ParameterValidationError => e
+        raise ParameterConfigurationError, e
+      end
       #type = API.normalize_type_name(type)
 
       if schema.fields.find {|f| f.name == name }
