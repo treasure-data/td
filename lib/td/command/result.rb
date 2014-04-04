@@ -130,8 +130,8 @@ module Command
     dbs = match[1]
     tbl = match[2]
     begin
-      API.validate_name("Treasure Data result output destination database", dbs)
-      API.validate_name("Treasure Data result output destination table", tbl)
+      API.validate_name("Treasure Data result output destination database", 3, 256, dbs)
+      API.validate_name("Treasure Data result output destination table", 3, 256, tbl)
     rescue ParameterValidationError => e
       raise ParameterConfigurationError, e
     end
