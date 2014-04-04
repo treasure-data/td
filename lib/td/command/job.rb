@@ -114,7 +114,8 @@ module Command
       end
       limit = s.to_i
     }
-    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available',
+                                   '  for the table (only applies to tsv and csv formats)', TrueClass) {|b|
       render_opts[:header] = b;
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
@@ -127,19 +128,21 @@ module Command
 
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
-        raise "Supported formats are only tsv, csv and json without -o / --output option"
+        raise ParameterConfigurationError,
+              "Supported formats are only tsv, csv and json without -o / --output option"
       end
     end
 
     if render_opts[:header]
       unless ['tsv', 'csv'].include?(format)
-        raise "Option -c / --column-header is only supported with tsv and csv formats"
+        raise ParameterConfigurationError,
+              "Option -c / --column-header is only supported with tsv and csv formats"
       end
     end
 
     if !output.nil? && !limit.nil?
-      raise "Option -l / --limit is only valid when not outputting to file " +
-            "(no -o / --output option provided)"
+      raise ParameterConfigurationError,
+            "Option -l / --limit is only valid when not outputting to file (no -o / --output option provided)"
     end
 
     client = get_client
