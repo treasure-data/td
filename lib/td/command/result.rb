@@ -56,8 +56,7 @@ module Command
     }
 
     name, url = op.cmd_parse
-
-    API.validate_database_name(name)
+    API.validate_result_set_name(name)
 
     client = get_client
 
@@ -122,6 +121,20 @@ module Command
     end
 
     url
+  end
+
+  private
+  def validate_td_result_url(url)
+    re = /td:\/\/[^@]*@\/(.*)\/(.*)\?/
+    match = re.match(url)
+    dbs = match[1]
+    tbl = match[2]
+    begin
+      API.validate_name("Treasure Data result output destination database", dbs)
+      API.validate_name("Treasure Data result output destination table", tbl)
+    rescue ParameterValidationError => e
+      raise ParameterConfigurationError, e
+    end
   end
 end
 end

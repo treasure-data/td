@@ -80,23 +80,11 @@ module Command
 
     sql = op.cmd_parse
 
-    # parameter concurrency validation
-
-    if output.nil? && format
-      unless ['tsv', 'csv', 'json'].include?(format)
-        raise "Supported formats are only tsv, csv and json without --output option"
-      end
-    end
-
-    if render_opts[:header]
-      unless ['tsv', 'csv'].include?(format)
-        raise "Option -c / --column-header is only supported with tsv and csv formats"
-      end
-    end
+    # required parameters
 
     unless db_name
-      $stderr.puts "-d, --database DB_NAME option is required."
-      exit 1
+      raise ParameterConfigurationError,
+            "-d / --database DB_NAME option is required."
     end
 
     if sql == '-'
@@ -104,20 +92,38 @@ module Command
     elsif sql.nil?
       sql = query
     end
-
     unless sql
-      $stderr.puts "<sql> argument or -q,--query PATH option is required."
-      exit 1
+      raise ParameterConfigurationError,
+            "<sql> argument or -q / --query PATH option is required."
+    end
+
+    # parameter concurrency validation
+
+    if output.nil? && format
+      unless ['tsv', 'csv', 'json'].include?(format)
+        raise ParameterConfigurationError,
+              "Supported formats are only tsv, csv and json without --output option"
+      end
+    end
+
+    if render_opts[:header]
+      unless ['tsv', 'csv'].include?(format)
+        raise ParameterConfigurationError,
+              "Option -c / --column-header is only supported with tsv and csv formats"
+      end
     end
 
     if result_url
       require 'td/command/result'
       result_url = build_result_url(result_url, result_user, result_ask_password)
+      if result_url =~ /^td:/
+        validate_td_result_url(result_url)
+      end
     end
 
     client = get_client
 
-    # local existance check
+    # local existence check
     get_database(client, db_name)
 
     opts = {}
@@ -125,9 +131,9 @@ module Command
     opts['type'] = type if type
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
-    $stderr.puts "Job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show #{job.job_id}' to show the status."
-    #$stderr.puts "See #{job.url} to see the progress."
+    puts "Job #{job.job_id} is queued."
+    puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show #{job.job_id}' to show the status."
+    #puts "See #{job.url} to see the progress."
 
     if wait
       wait_job(job, true)
