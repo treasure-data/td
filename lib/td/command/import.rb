@@ -40,7 +40,7 @@ module Command
     require 'open-uri'
     require 'fileutils'
 
-    doc = REXML::Document.new(open('#{MAVEN_REPO}/maven-metadata.xml') { |f| f.read })
+    doc = REXML::Document.new(open("#{MAVEN_REPO}/maven-metadata.xml") { |f| f.read })
     updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
     version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
