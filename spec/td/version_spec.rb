@@ -6,7 +6,7 @@ module TreasureData::Command
       stderr, stdout = execute_td("--version")
       stderr.should == ""
       stdout.should == <<-STDOUT
-td #{TreasureData::VERSION}
+#{TreasureData::TOOLBELT_VERSION}
 STDOUT
     end
   end
