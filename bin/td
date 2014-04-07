@@ -9,11 +9,18 @@ $LOAD_PATH << File.expand_path(File.join(here, '..', 'lib'))
 # disable the updater for the td gem
 require 'td/updater'
 TreasureData::Updater.disable(<<EOS
-`td update` is only available from Treasure Data Toolbelt.
-Download and install from http://toolbelt.treasure-data.com
+`td update` is only available from the Treasure Data Toolbelt.
+You can download and install it from http://toolbelt.treasure-data.com.
+It appers you are running the `td` gem. To update the gem to the latest
+version, please run `gem update td`.
 EOS
 )
 
 # start up the CLI
 require 'td/command/runner'
-exit TreasureData::Command::Runner.new.run ARGV
+ev = TreasureData::Command::Runner.new.run ARGV
+unless ev.nil?
+  exit ev
+else
+  puts "No exit status"
+end
