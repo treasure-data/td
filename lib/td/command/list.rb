@@ -248,8 +248,8 @@ module List
   add_list 'import:list', %w[], 'List bulk import sessions', 'import:list'
   add_list 'import:show', %w[name], 'Show list of uploaded parts', 'import:show'
   add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', 'import:create logs_201201 example_db event_logs'
-  add_list 'import:java_version', %w[], 'Show version', 'import:java_version'
-  add_list 'import:jar_update', %w[], 'Update import jar', 'import:jar_update'
+  add_list 'import:jar_version', %w[], 'Show import jar version', 'import:jar_version'
+  add_list 'import:jar_update', %w[], 'Update import jar to the latest version', 'import:jar_update'
   add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
   add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
   add_list 'import:auto', %w[name files_], 'Upload files and automatically perform and commit the data', 'import:auto parts/* --parallel 4'
@@ -346,8 +346,10 @@ module List
   add_alias 'scheds', 'sched:list'
   add_alias 'schedules', 'sched:list'
 
-  add_alias 'import',           'import:show'
-  add_alias 'imports',          'import:list'
+  add_alias 'import',              'import:show'
+  add_alias 'imports',             'import:list'
+  add_alias 'import:java_version', 'import:jar_version'
+
 
   add_alias 'bulk_import', 'bulk_import:show'
   add_alias 'bulk_imports', 'bulk_import:list'

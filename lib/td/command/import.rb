@@ -28,7 +28,7 @@ module Command
     bulk_import_create(op)
   end
 
-  def import_java_version(op)
+  def import_jar_version(op)
     vfile = find_version_file[0]
     puts "td-import-java #{File.open(vfile, 'r').read}"
   end
@@ -57,7 +57,7 @@ module Command
       }
       puts "Installed td-import.jar #{version} into #{UPDATED_PATH}"
     else
-      puts 'Installed td-import.jar is latest version'
+      puts 'Installed td-import.jar is already at the latest version'
     end
   end
 
