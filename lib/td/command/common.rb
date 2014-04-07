@@ -27,7 +27,7 @@ module Command
     unless apikey
       raise ConfigError, "Account is not configured."
     end
-    opts[:user_agent] = "TD: #{TreasureData::VERSION}"
+    opts[:user_agent] = "TD: #{TOOLBELT_VERSION}"
     if h = ENV['TD_API_HEADERS']
       pairs = h.split("\n")
       opts[:headers] = Hash[pairs.map {|pair| pair.split('=', 2) }]

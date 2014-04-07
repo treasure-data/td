@@ -20,7 +20,7 @@ class Runner
     $prog = @prog_name || File.basename($0)
 
     op = OptionParser.new
-    op.version = VERSION
+    op.version = TOOLBELT_VERSION
     op.banner = <<EOF
 usage: #{$prog} [options] COMMAND [args]
 

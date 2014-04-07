@@ -11,7 +11,7 @@ module Command
 
     $stderr.puts <<EOS
 Updating started at #{Time.now}
-from #{TreasureData::VERSION}
+from #{TOOLBELT_VERSION}
 EOS
     if new_version = TreasureData::Updater.update
       $stderr.puts "updated to #{new_version}"
