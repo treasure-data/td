@@ -1,13 +1,9 @@
 require 'td/updater'
+require 'time'
 
 module TreasureData
 module Command
-
-  # locate the root of the td package which is 3 folders up from the location of this file
-  BASE_PATH = File.expand_path('../../..', File.dirname(__FILE__))
-  UPDATED_PATH = File.join(Updater.home_directory, ".td", "java")
-
-  MAVEN_REPO="http://maven.treasure-data.com/com/treasure_data/td-import"
+  include TreasureData::Updater
 
   JAVA_COMMAND = "java"
   JAVA_MAIN_CLASS = "com.treasure_data.td_import.BulkImportCommand"
@@ -29,36 +25,12 @@ module Command
   end
 
   def import_jar_version(op)
-    vfile = find_version_file[0]
+    version = find_version_file
     puts "td-import-java #{File.open(vfile, 'r').read}"
   end
 
   def import_jar_update(op)
-    last_updated = existence_jar_updated_time
-
-    require 'rexml/document'
-    require 'open-uri'
-    require 'fileutils'
-
-    doc = REXML::Document.new(open("#{MAVEN_REPO}/maven-metadata.xml") { |f| f.read })
-    updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
-    version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
-
-    # Convert into UTF to compare time correctly
-    updated = (updated + updated.gmt_offset).utc unless updated.gmt?
-    last_updated = last_updated.utc unless last_updated.gmt?
-
-    if updated > last_updated
-      FileUtils.mkdir_p(UPDATED_PATH) unless File.exist?(UPDATED_PATH)
-      File.open(File.join(UPDATED_PATH, 'VERSION'), 'w') { |f| f.print "#{version} via import:jar_update" }
-      File.open(File.join(UPDATED_PATH, 'td-import-java.version'), 'w') { |f| f.print "#{version} #{updated}" }
-      File.open(File.join(UPDATED_PATH, 'td-import.jar'), 'wb') { |f|
-        f.print Updater.fetch("#{MAVEN_REPO}/#{version}/td-import-#{version}-jar-with-dependencies.jar")
-      }
-      puts "Installed td-import.jar #{version} into #{UPDATED_PATH}"
-    else
-      puts 'Installed td-import.jar is already at the latest version'
-    end
+    check_n_update_jar(false)
   end
 
   def import_prepare(op)
@@ -103,8 +75,14 @@ module Command
     bulk_import_unfreeze(op)
   end
 
+  #
+  # Module private methods - don't map to import:* commands
+  #
+
   private
   def import_by_java(subcmd)
+    check_n_update_jar(true)
+
     # check java runtime exists or not
     check_java
 
@@ -139,20 +117,10 @@ module Command
 
     unless $?.success?
       $stderr.puts "Java is not installed. 'td import' command requires Java (version 1.6 or later)."
-      $stderr.puts "Alternatively, you can use 'bulk_import' commands instead which is much slower."
+      $stderr.puts "Alternatively, you can use the 'bulk_import' commands."
+      $stderr.puts "Since they are implemented in Ruby, they perform significantly slower."
       exit 1
     end
-  end
-
-  private
-  def find_td_import_jar
-    libjars = find_files('*.jar')
-    found = libjars.find { |path| File.basename(path) =~ /^td-import/ }
-    if found.nil?
-      $stderr.puts "td-import.jar is not found."
-      exit 1
-    end
-    found
   end
 
   private
@@ -161,13 +129,12 @@ module Command
 
     # set apiserver
     set_sysprops_endpoint(sysprops)
-
     # set http_proxy
     set_sysprops_http_proxy(sysprops)
 
     # set configuration file for logging
-    conf_file = try_find_logging_conf_file
-    if conf_file
+    conf_file = find_logging_property
+    unless conf_file.empty?
       sysprops << "-Djava.util.logging.config.file=#{conf_file}"
     end
 
@@ -226,30 +193,5 @@ module Command
     end
   end
 
-  private
-  def try_find_logging_conf_file
-    libjars = Dir.glob("#{BASE_PATH}/java/**/*.properties")
-    libjars.find { |path| File.basename(path) =~ /^logging.properties/ }
-  end
-
-  private
-  def find_version_file
-    vfile = find_files('VERSION')
-    vfile
-  end
-
-  def existence_jar_updated_time
-    require 'time'
-
-    content = File.open(find_files("td-import-java.version").first).read
-    index = content.index(' ')
-    Time.parse(content[index + 1..-1].strip)
-  end
-
-  def find_files(target)
-    files = Dir.glob("#{UPDATED_PATH}/**/#{target}")
-    return files unless files.empty?
-    Dir.glob("#{BASE_PATH}/java/**/#{target}")
-  end
 end
 end

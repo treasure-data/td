@@ -4,21 +4,21 @@ module TreasureData
 module Command
 
   def update(op)
-    if TreasureData::Updater.disable?
-      $stderr.puts TreasureData::Updater.disable_message
+    # for gem installation, this command is disallowed -
+    #   it only works for the toolbelt.
+    if Updater.disable?
+      $stderr.puts Updater.disable_message
       exit
     end
 
-    $stderr.puts <<EOS
-Updating started at #{Time.now}
-from #{TOOLBELT_VERSION}
-EOS
-    if new_version = TreasureData::Updater.update
-      $stderr.puts "updated to #{new_version}"
+    start_time = Time.now
+    puts "Updating 'td' from #{TOOLBELT_VERSION}..."
+    if new_version = Updater.update
+      total_time = Time.now - start_time
+      puts "Successully updated to #{new_version} in #{total_time}."
     else
-      $stderr.puts "nothing to update"
+      puts "Nothing to update."
     end
-    $stderr.puts "ended at #{Time.now}"
   end
 
 end
