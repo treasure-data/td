@@ -26,7 +26,7 @@ module Command
 
   def import_jar_version(op)
     version = find_version_file
-    puts "td-import-java #{File.open(vfile, 'r').read}"
+    puts "td-import-java #{File.open(version, 'r').read}"
   end
 
   def import_jar_update(op)
