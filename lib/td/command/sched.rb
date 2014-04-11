@@ -144,6 +144,7 @@ module Command
     timezone = nil
     delay = nil
     priority = nil
+    query = nil
     retry_limit = nil
     type = nil
 
@@ -177,6 +178,9 @@ module Command
         raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
       end
     }
+    op.on('-Q', '--query PATH', 'use file instead of inline query') {|s|
+      query = File.open(s) { |f| f.read.strip }
+    }
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
@@ -189,7 +193,7 @@ module Command
 
     params = {}
     params['cron'] = cron if cron
-    params['query'] = sql if sql
+    params['query'] = sql || query if sql || query
     params['database'] = db_name if db_name
     params['result'] = result if result
     params['timezone'] = timezone if timezone
