@@ -379,6 +379,7 @@ module Command
       # display result in tabular format
       rows = []
       n_rows = 0
+      print "WARNING: the query result is being downloaded...\r"
       job.result_each {|row|
         # TODO limit number of rows to show
         rows << row.map {|v|
@@ -387,6 +388,8 @@ module Command
         n_rows += 1
         break if !limit.nil? and n_rows == limit
       }
+      print " " * 100, "\r" # make sure the previous WARNING is cleared over
+
 
       render_opts[:max_width] = 10000
       if job.hive_result_schema

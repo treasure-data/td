@@ -38,7 +38,9 @@ module Command
       end
       format = s
     }
-    op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)') {|s|
+    op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)',
+                                       ' It is suggested for this option to be used with the -x / --exclude option to suppress printing',
+                                       ' of the query result to stdout or -o / --output to dump the query result into a file.') {|s|
       result_url = s
     }
     op.on('-u', '--user NAME', 'set user name for the result URL') {|s|
