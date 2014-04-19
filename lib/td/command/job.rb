@@ -267,6 +267,7 @@ module Command
       write_result(job, output, limit, format, render_opts)
       puts "written to #{output} in #{format} format"
     else
+      # every format that is allowed on stdout
       render_result(job, limit, format, render_opts)
     end
   end

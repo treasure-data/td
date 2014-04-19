@@ -14,6 +14,9 @@ module Command
   class ParameterConfigurationError < ArgumentError
   end
 
+  class BulkImportExecutionError < ArgumentError
+  end
+
   private
   def initialize
     @render_indent = ''

@@ -144,7 +144,8 @@ EOF
       # error messages unless the TD_TOOLBELT_DEBUG variable is not empty.
       # List of new exceptions:
       # => ParameterConfigurationError
-      unless [ParameterConfigurationError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+      # => BulkImportExecutionError
+      unless [ParameterConfigurationError, BulkImportExecutionError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
         $stderr.puts "error #{$!.class}: backtrace:"
         $!.backtrace.each {|b|
           $stderr.puts "  #{b}"

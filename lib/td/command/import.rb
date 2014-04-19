@@ -103,6 +103,10 @@ module Command
 
     cmd = [JAVA_COMMAND] + JVM_OPTS + java_args
     system(*cmd)
+    if $?.exitstatus != 0
+      raise BulkImportExecutionError,
+            "Bulk Import returned error #{$?.exitstatus}. Please check the 'td-bulk-import.log' logfile for details."
+    end
   end
 
   private
