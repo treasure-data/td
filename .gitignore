@@ -4,6 +4,5 @@ build/td-import-java
 Gemfile.lock
 vendor/*
 pkg/
-build/pkg.build/
-build/exe.build/
+build/*
 *~
