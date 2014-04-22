@@ -11,7 +11,7 @@ require "erb"
 
 def version
   require project_root_path('lib/td/version')
-  TreasureData::VERSION
+  TreasureData::TOOLBELT_VERSION
 end
 
 task "jar" do

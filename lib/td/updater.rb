@@ -63,7 +63,7 @@ module TreasureData
 
     def self.client_version_from_path(path)
       if version_file = get_client_version_file(path)
-        File.read(version_file).match(/VERSION = '([^']+)'/)[1]
+        File.read(version_file).match(/TOOLBELT_VERSION = '([^']+)'/)[1]
       else
         '0.0.0'
       end
