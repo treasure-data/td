@@ -111,30 +111,53 @@ EOS
     end
   end
 
-  def cmd_format_elapsed(start, finish)
+  def humanize_time(time, is_ms = false)
+    if time.nil?
+      return ''
+    end
+
+    time = time.to_i
+    millisecs = nil
+    elapsed = ''
+
+    if is_ms
+      # store the first 3 decimals
+      millisecs = time % 1000
+      time /= 1000
+    end
+
+    if time >= 3600
+      elapsed << "#{time / 3600}h "
+      time %= 3600
+      elapsed << "%dm " % (time / 60)
+      time %= 60
+      elapsed << "%ds" % time
+    elsif time >= 60
+      elapsed << "%dm " % (time / 60)
+      time %= 60
+      elapsed << "%ds" % time
+    elsif time > 0
+      elapsed << "%ds" % time
+    end
+
+    if is_ms and millisecs > 0
+      elapsed << " %03dms" % millisecs
+    end
+
+    elapsed
+  end
+
+  # assumed to
+  def humanize_elapsed_time(start, finish)
     if start
       if !finish
         finish = Time.now.utc
       end
-      e = finish.to_i - start.to_i
-      elapsed = ''
-      if e >= 3600
-        elapsed << "#{e/3600}h "
-        e %= 3600
-        elapsed << "%2dm " % (e/60)
-        e %= 60
-        elapsed << "%2dsec" % e
-      elsif e >= 60
-        elapsed << "%2dm " % (e/60)
-        e %= 60
-        elapsed << "%2dsec" % e
-      else
-        elapsed << "%2dsec" % e
-      end
+      elapsed = humanize_time(finish.to_i - start.to_i, false)
     else
       elapsed = ''
     end
-    elapsed = "% 13s" % elapsed  # right aligned
+    elapsed
   end
 
   def get_database(client, db_name)

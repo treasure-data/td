@@ -34,7 +34,7 @@ module Command
     j = client.jobs(0, 4)
     j.each {|job|
       start = job.start_at
-      elapsed = cmd_format_elapsed(start, job.end_at)
+      elapsed = humanize_elapsed_time(start, job.end_at)
       jobs << {:JobID => job.job_id, :Status => job.status, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Result => job.result_url}
     }
     x2, y2 = status_render(0, 0, "[Jobs]", jobs, :fields => [:JobID, :Status, :Start, :Elapsed, :Result, :Query])

@@ -67,17 +67,33 @@ module Command
       conditions = {:slower_than => slower_than}
     end
 
-    jobs = client.jobs(skip, skip+max-1, status, conditions)
+    jobs = client.jobs(skip, skip + max - 1, status, conditions)
 
     rows = []
     jobs.each {|job|
       start = job.start_at
-      elapsed = cmd_format_elapsed(start, job.end_at)
+      elapsed = humanize_elapsed_time(start, job.end_at)
+      cpu_time = humanize_time(job.cpu_time, true)
       priority = job_priority_name_of(job.priority)
-      rows << {:JobID => job.job_id, :Database => job.db_name, :Status => job.status, :Type => job.type, :Query => job.query.to_s, :Start => (start ? start.localtime : ''), :Elapsed => elapsed, :Priority => priority, :Result => job.result_url}
+      rows << {
+        :JobID => job.job_id,
+        :Database => job.db_name,
+        :Status => job.status,
+        :Type => job.type,
+        :Query => job.query.to_s[0,50] + " ...",
+        :Start => (start ? start.localtime : ''),
+        :Elapsed => elapsed.rjust(11),
+        :CPUTime => cpu_time.rjust(17),
+        :Priority => priority,
+        :Result => job.result_url
+      }
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Status, :Start, :Elapsed, :Priority, :Result, :Type, :Database, :Query], :max_width => 140, :render_format => op.render_format)
+    puts cmd_render_table(rows,
+      :fields => [:JobID, :Status, :Start, :Elapsed, :CPUTime, :Priority, :Result, :Type, :Database, :Query],
+      :max_width => 1000,
+      :render_format => op.render_format
+    )
   end
 
   def job_show(op)
@@ -162,6 +178,10 @@ module Command
       puts "Query       : #{job.query}"
     elsif job.type == :bulk_import_perform
       puts "Destination : #{job.query}"
+    end
+    # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
+    if job.finished? && [:hive].include?(job.type)
+      puts "CPU time    : #{humanize_time(job.cpu_time)}"
     end
 
     if wait && !job.finished?
