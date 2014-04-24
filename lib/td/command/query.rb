@@ -14,7 +14,6 @@ module Command
     priority = nil
     retry_limit = nil
     query = nil
-    sampling_all = nil
     type = nil
     limit = nil
     exclude = false
@@ -64,8 +63,10 @@ module Command
     op.on('-T', '--type TYPE', 'set query type (hive, pig, impala, presto)') {|s|
       type = s.to_sym
     }
-    op.on('--sampling DENOMINATOR', 'enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
-      sampling_all = i
+    op.on('--sampling DENOMINATOR', 'OBSOLETE - enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
+      puts "WARNING: the random sampling feature enabled through the '--sampling' option was removed and does no longer"
+      puts "         have any effect. It is left for backwards compatibility with older scripts using 'td'."
+      puts
     }
     op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
       unless s.to_i > 0
@@ -129,7 +130,6 @@ module Command
     get_database(client, db_name)
 
     opts = {}
-    opts['sampling_all'] = sampling_all if sampling_all
     opts['type'] = type if type
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
