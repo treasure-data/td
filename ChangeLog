@@ -1,6 +1,21 @@
-== 20XX-XX-XX version 0.10.100
-* Upgrade td-import-java 0.4.10. ChangeLog is:
-  https://github.com/treasure-data/td-import-java/blob/master/CHANGES.txt
+== 2014-04-23 version 0.11.0
+
+* Show cumulative CPU time in the job:list and job:show outputs
+* The error message when the specified schema has columns containing upper case
+  alphanumeric characters is improved to be more representative of the problem
+* 'td query' commands with result output to Treasure Data (--result td://xxxx)
+  validate the database and table naming convention before running the query
+* The Java bulk import JAR file is now auto-updated. Checking for an updated
+  version is performed hourly
+* 'td query' commands with result output specification invite the user to use
+  the '-x / --exclude' option to avoid outputting the query result to stdout as
+  well
+* The 'Destination' field in the summary for the Bulk import perform output
+  from the jobs:show command contains the destination table name in the form of
+  a LOAD DATA SESSION query
+* Returning the correct non-zero error codes in the occurrence of an exception
+* Declare the 'td query' option '--sampling' obsolete. A warning indicating the
+  option is obsolete and has no effect will be printed to warn the user
 
 == 2014-02-26 version 0.10.99
 
