@@ -9,8 +9,6 @@ module TreasureData
     # Toolbelt upgrade
     #
 
-    DEFAULT_TOOLBELT_URL = "http://toolbelt.treasuredata.com/"
-
     def self.raise_error(message)
       # TODO: Replace better Exception class
       raise RuntimeError.new(message)
@@ -137,7 +135,7 @@ module TreasureData
     end
 
     def self.endpoint_root
-      ENV['TD_TOOLBELT_UPDATE_ROOT'] || DEFAULT_TOOLBELT_URL
+      ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com/"
     end
     #puts "endpoint_root: #{self.endpoint_root}"
 
