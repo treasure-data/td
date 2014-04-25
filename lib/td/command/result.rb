@@ -125,8 +125,11 @@ module Command
 
   private
   def validate_td_result_url(url)
-    re = /td:\/\/[^@]*@\/(.*)\/(.*)\?/
+    re = /td:\/\/[^@]*@\/(.*)\/(.*)?/
     match = re.match(url)
+    if match.nil?
+      raise ParameterConfigurationError, "Treasure Data result output invalid URL format"
+    end
     dbs = match[1]
     tbl = match[2]
     begin
