@@ -181,7 +181,7 @@ module Command
     end
     # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
     if job.finished? && [:hive].include?(job.type)
-      puts "CPU time    : #{humanize_time(job.cpu_time)}"
+      puts "CPU time    : #{humanize_time(job.cpu_time, true)}"
     end
 
     if wait && !job.finished?
