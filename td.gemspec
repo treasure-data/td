@@ -6,7 +6,6 @@ Gem::Specification.new do |gem|
   gem.name        = "td"
   gem.description = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
   gem.homepage    = "http://treasure-data.com/"
-  gem.
   gem.summary     = "CLI to manage data on Treasure Data, the Hadoop-based cloud data warehousing"
   gem.version     = TreasureData::TOOLBELT_VERSION
   gem.authors     = ["Treasure Data, Inc."]
