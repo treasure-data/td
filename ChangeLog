@@ -1,3 +1,14 @@
+== 2014-04-29 version 0.11.1
+
+* Fix Treasure Data query result output database and table validation
+  regular expression
+* Fixed auto updater which threw a warning due to a constant being
+  reinitialized
+* Interpret the CPU time as number of milliseconds as opposed to
+  number of seconds in the job:show output
+* when outputting the query result to file, flush the data every
+  100 records
+
 == 2014-04-23 version 0.11.0
 
 * Show cumulative CPU time in the job:list and job:show outputs
