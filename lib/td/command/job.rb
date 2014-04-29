@@ -332,12 +332,14 @@ module Command
             dump_column(col)
           }
           n_rows += 1
+          writer.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
       }
 
     when 'tsv'
       require 'yajl'
+
       open_file(output, "w") {|f|
         # output headers
         if render_opts[:header] && job.hive_result_schema
@@ -358,6 +360,7 @@ module Command
           }
           f.write "\n"
           n_rows += 1
+          f.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
       }
@@ -365,11 +368,19 @@ module Command
     # these last 2 formats are only valid if writing the result to file through the -o/--output option.
 
     when 'msgpack'
+      if output.nil?
+        raise ParameterConfigurationError,
+              "Format 'msgpack' does not support writing to stdout"
+      end
       open_file(output, "wb") {|f|
         job.result_format('msgpack', f)
       }
 
     when 'msgpack.gz'
+      if output.nil?
+        raise ParameterConfigurationError,
+              "Format 'msgpack' does not support writing to stdout"
+      end
       open_file(output, "wb") {|f|
         job.result_format('msgpack.gz', f)
       }
@@ -410,7 +421,6 @@ module Command
         break if !limit.nil? and n_rows == limit
       }
       print " " * 100, "\r" # make sure the previous WARNING is cleared over
-
 
       render_opts[:max_width] = 10000
       if job.hive_result_schema
