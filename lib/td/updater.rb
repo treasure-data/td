@@ -135,9 +135,8 @@ module TreasureData
     end
 
     def self.endpoint_root
-      ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com/"
+      ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com"
     end
-    #puts "endpoint_root: #{self.endpoint_root}"
 
     def self.version_endpoint
       "#{endpoint_root}/version.#{package_category}"
@@ -158,11 +157,31 @@ module TreasureData
 
         if compare_versions(latest_version, latest_local_version) > 0
           Dir.mktmpdir do |download_dir|
-            print "Downloading updated toolbelt package..."
+
+            # initialize the progress indicator
+            base_msg = "Downloading updated toolbelt package"
+            print base_msg + " " * 10
+            start_time = last_time = Time.new.to_i
+
+            # downloading the update compressed file
             File.open("#{download_dir}/td-update.zip", "wb") do |file|
-              stream_fetch(update_package_endpoint, file)
+              endpoint = update_package_endpoint
+              puts "\npackage '#{endpoint}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
+              stream_fetch(endpoint, file) {
+
+                # progress indicator
+                if (time = Time.now.to_i) - last_time > 2
+                  msg = "\r" + base_msg + ": #{time - start_time}s elapsed"
+                  # TODO parse 'time - start_time' with humanize_time from common.rb
+                  #      once this method is not static
+                  print msg + " " * 10
+                  last_time = time
+                end
+              }
             end
-            print "done\n"
+
+            # clear progress indicator with this final message
+            puts "\r" + base_msg + "...done" + " " * 20
 
             print "Unpacking updated toolbelt package..."
             Zip::ZipFile.open("#{download_dir}/td-update.zip") do |zip|
@@ -243,13 +262,12 @@ module TreasureData
     #
 
     # locate the root of the td package which is 3 folders up from the location of this file
-    INSTALLED_PATH = File.join(File.expand_path('../..', File.dirname(__FILE__)), 'java')
-    UPDATED_PATH = File.join(Updater.home_directory, ".td", "java")
-
-    MAVEN_REPO = "http://maven.treasure-data.com/com/treasure_data/td-import"
+    def jarfile_dest_path
+      File.join(Updater.home_directory, ".td", "java")
+    end
 
     private
-    def stream_fetch(url, binfile)
+    def self.stream_fetch(url, binfile, &progress)
       require 'net/http'
 
       uri = URI(url)
@@ -263,20 +281,15 @@ module TreasureData
       http.request request do |response|
         if response.class == Net::HTTPOK
           # print a . every tick_period seconds
-          tick_period = 2 # seconds
-          last_tick_time = Time.new.to_i + tick_period
           response.read_body do |chunk|
             binfile.write chunk
-            if Time.new.to_i > last_tick_time
-              print "."
-              last_tick_time += tick_period
-            end
+            progress.call #unless progress.nil?
           end
           return true
         elsif response.class == Net::HTTPFound || \
               response.class == Net::HTTPRedirection
-          #puts "redirect " + url + " " + response['Location']
-          return stream_fetch(response['Location'], binfile)
+          puts "redirect '#{url}' to '#{response['Location']}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          return stream_fetch(response['Location'], binfile, &progress)
         else
           raise "An error occurred when fetching from '#{uri}'."
           return false
@@ -286,11 +299,13 @@ module TreasureData
 
     private
     def jar_update(hourly = false)
+      maven_repo = "http://maven.treasure-data.com/com/treasure_data/td-import"
+
       require 'rexml/document'
       require 'open-uri'
       require 'fileutils'
 
-      doc = REXML::Document.new(open("#{MAVEN_REPO}/maven-metadata.xml") { |f| f.read })
+      doc = REXML::Document.new(open("#{maven_repo}/maven-metadata.xml") { |f| f.read })
       updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
       version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
@@ -299,23 +314,39 @@ module TreasureData
       last_updated = existent_jar_updated_time
 
       if updated > last_updated
-        FileUtils.mkdir_p(UPDATED_PATH) unless File.exists?(UPDATED_PATH)
-        Dir.chdir UPDATED_PATH
+        FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(jarfile_dest_path)
+        Dir.chdir jarfile_dest_path
 
         File.open('VERSION', 'w') { |f| f.print "#{version} via import:jar_update" }
         File.open('td-import-java.version', 'w') { |f| f.print "#{version} #{updated}" }
 
-        print "Updating td-import.jar..."
+        # initialize the progress indicator
+        base_msg = "Updating td-import.jar"
+        start_time = last_time = Time.new.to_i
+        print base_msg + " " * 10
+
         binfile = File.open 'td-import.jar.new', 'wb'
-        status = stream_fetch "#{MAVEN_REPO}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile
-        print "done\n"
+        status = Updater.stream_fetch("#{maven_repo}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile) {
+
+          # progress indicator
+          if (time = Time.now.to_i) - last_time > 2
+            msg = "\r" + base_msg + ": #{humanize_time(time - start_time)} elapsed"
+            # TODO parse 'time - start_time' with humanize_time from common.rb
+            #      once this method is not static
+            print msg + " " * 10
+            last_time = time
+          end
+        }
         binfile.close
 
+        # clear progress indicator with this final message
+        puts "\r" + base_msg + "...done" + " " * 20
+
         if status
-          puts "Installed td-import.jar v#{version} in '#{UPDATED_PATH}'.\n"
+          puts "Installed td-import.jar v#{version} in '#{jarfile_dest_path}'.\n"
           File.rename 'td-import.jar.new', 'td-import.jar'
         else
-          #puts "Update of td-import.jar failed."
+          puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
           File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
         end
       else
@@ -330,17 +361,17 @@ module TreasureData
         return
       end
       jar_update(hourly)
-      FileUtils.touch File.join(UPDATED_PATH, "td-import-java.version")
+      FileUtils.touch File.join(jarfile_dest_path, "td-import-java.version")
     end
 
     private
     def last_jar_autoupdate_timestamp
-      File.join(UPDATED_PATH, "td-import-java.version")
+      File.join(jarfile_dest_path, "td-import-java.version")
     end
 
     private
     def existent_jar_updated_time
-      files = find_files("td-import-java.version", [UPDATED_PATH])
+      files = find_files("td-import-java.version", [jarfile_dest_path])
       if files.empty?
         return Time.at(0)
       end
@@ -368,29 +399,29 @@ module TreasureData
     end
 
     def find_version_file
-      version = find_files('VERSION', [UPDATED_PATH])
+      version = find_files('VERSION', [jarfile_dest_path])
       if version.empty?
-        $stderr.puts "Cannot find VERSION file in '#{UPDATED_PATH}'."
+        $stderr.puts "Cannot find VERSION file in '#{jarfile_dest_path}'."
         exit 10
       end
       version.first
     end
 
     def find_td_import_jar
-      jar = find_files('td-import.jar', [UPDATED_PATH])
+      jar = find_files('td-import.jar', [jarfile_dest_path])
       if jar.empty?
-        $stderr.puts "Cannot find td-import.jar in '#{UPDATED_PATH}'."
+        $stderr.puts "Cannot find td-import.jar in '#{jarfile_dest_path}'."
         exit 10
       end
       jar.first
     end
 
     def find_logging_property
-      config = find_files("logging.properties", [INSTALLED_PATH])
+      installed_path = File.join(File.expand_path('../..', File.dirname(__FILE__)), 'java')
+
+      config = find_files("logging.properties", [installed_path])
       if config.empty?
-        unless ENV['TD_TOOLBELT_DEBUG'].nil?
-          puts "Cannot find 'logging.properties' file in '#{UPDATED_PATH}'."
-        end
+        puts "Cannot find 'logging.properties' file in '#{installed_path}'." unless ENV['TD_TOOLBELT_DEBUG'].nil?
         []
       else
         config.first

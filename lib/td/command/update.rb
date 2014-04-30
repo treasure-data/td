@@ -14,8 +14,7 @@ module Command
     start_time = Time.now
     puts "Updating 'td' from #{TOOLBELT_VERSION}..."
     if new_version = Updater.update
-      total_time = Time.now - start_time
-      puts "Successully updated to #{new_version} in #{total_time}."
+      puts "Successfully updated to #{new_version} in #{humanize_time((Time.now - start_time).to_i)}."
     else
       puts "Nothing to update."
     end
