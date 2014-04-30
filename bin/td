@@ -9,10 +9,18 @@ $LOAD_PATH << File.expand_path(File.join(here, '..', 'lib'))
 # disable the updater for the td gem
 require 'td/updater'
 TreasureData::Updater.disable(<<EOS
+
 `td update` is only available from the Treasure Data Toolbelt.
 You can download and install it from http://toolbelt.treasure-data.com.
+
 It appers you are running the `td` gem. To update the gem to the latest
 version, please run `gem update td`.
+
+Please note that if you install `td` with `bundler` in a Gemfile/Gemspec
+federated environment, you will need to upgrade the reference version for
+`td` in the Gemfile/Gemspec for the updated `td` version to be used after
+updating it.
+
 EOS
 )
 
