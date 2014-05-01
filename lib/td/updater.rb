@@ -375,7 +375,7 @@ module TreasureData
       if files.empty?
         return Time.at(0)
       end
-      content = File.open(files.first) { |f| f.read }
+      content = File.read(files.first)
       index = content.index(' ')
       time = nil
       if index.nil?
