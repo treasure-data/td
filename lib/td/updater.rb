@@ -361,7 +361,7 @@ module TreasureData
         return
       end
       jar_update(hourly)
-      FileUtils.touch File.join(jarfile_dest_path, "td-import-java.version")
+      FileUtils.touch last_jar_autoupdate_timestamp
     end
 
     private
@@ -375,7 +375,7 @@ module TreasureData
       if files.empty?
         return Time.at(0)
       end
-      content = File.open(files.first).read
+      content = File.open(files.first) { |f| f.read }
       index = content.index(' ')
       time = nil
       if index.nil?
