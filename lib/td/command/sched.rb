@@ -156,7 +156,8 @@ module Command
     op.on('-d', '--database DB_NAME', 'change the database') {|s|
       db_name = s
     }
-    op.on('-r', '--result RESULT_TABLE', 'change the result table') {|s|
+    op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)') {|s|
+    op.on('-r', '--result RESULT_URL', 'change the result target (see also result:create subcommand)') {|s|
       result = s
     }
     op.on('-t', '--timezone TZ', "name of the timezone.",
