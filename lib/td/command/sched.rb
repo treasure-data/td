@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 
@@ -156,7 +155,6 @@ module Command
     op.on('-d', '--database DB_NAME', 'change the database') {|s|
       db_name = s
     }
-    op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)') {|s|
     op.on('-r', '--result RESULT_URL', 'change the result target (see also result:create subcommand)') {|s|
       result = s
     }
@@ -316,5 +314,5 @@ module Command
     puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
   end
 
-end
-end
+end # module Command
+end # module TreasureData
