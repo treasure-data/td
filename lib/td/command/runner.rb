@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 
@@ -6,11 +5,12 @@ class Runner
   def initialize
     @config_path = nil
     @apikey = nil
+    @endpoint = nil
     @prog_name = nil
-    @secure = true
+    @insecure = false
   end
 
-  attr_accessor :apikey, :config_path, :prog_name, :secure
+  attr_accessor :apikey, :endpoint, :config_path, :prog_name, :insecure
 
   def run(argv=ARGV)
     require 'td/version'
@@ -66,13 +66,16 @@ EOF
       end
     end
 
+    # there local vars are loaded with the values of the options below
+    # here they are preloaded with the defaults
     config_path = @config_path
     apikey = @apikey
+    endpoint = @endpoint
     insecure = nil
     $verbose = false
     #$debug = false
 
-    op.on('-c', '--config PATH', "path to config file (~/.td/td.conf)") {|s|
+    op.on('-c', '--config PATH', "path to the configuration file (default: ~/.td/td.conf)") {|s|
       config_path = s
     }
 
@@ -80,7 +83,11 @@ EOF
       apikey = s
     }
 
-    op.on('--insecure', "Insecure access: disable SSL") { |b|
+    op.on('-e', '--endpoint API_SERVER', "specify the URL for API server to use (default: https://api.treasuredata.com)") {|e|
+      endpoint = e
+    }
+
+    op.on('--insecure', "Insecure access: disable SSL") {|b|
       insecure = true
     }
 
@@ -106,6 +113,8 @@ EOF
       usage nil if argv.empty?
       cmd = argv.shift
 
+      # NOTE: these information are loaded from by each command through
+      #       'TreasureData::Command::get_client' from 'lib/td/command/common.rb'
       require 'td/config'
       if config_path
         Config.path = config_path
@@ -113,6 +122,10 @@ EOF
       if apikey
         Config.apikey = apikey
         Config.cl_apikey = true
+      end
+      if endpoint
+        Config.endpoint = endpoint
+        Config.cl_endpoint = true
       end
       if insecure
         Config.secure = false
@@ -167,9 +180,8 @@ EOS
     end
     return 0
   end
-end
+end # class Runner
 
-
-end
-end
+end # module Command
+end # module TreasureData
 

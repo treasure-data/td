@@ -13,11 +13,22 @@ module Command
 
     user_name = op.cmd_parse
 
+    endpoint = nil
+    # user may be calling 'td account' with the -e / --endpoint
+    # option, which we want to preserve and save
+    begin
+       endpoint = Config.endpoint
+    rescue ConfigNotFoundError => e
+      # the endpoint is neither stored in the config file
+      # nor passed as option on the command line
+    end
+
     conf = nil
     begin
       conf = Config.read
     rescue ConfigError
     end
+
     if conf && conf['account.apikey']
       unless force
         if conf['account.user']
@@ -68,7 +79,10 @@ module Command
 
       begin
         # enalbe SSL for the authentication
-        client = Client.authenticate(user_name, password, :ssl=>true)
+        opts = {}
+        opts[:ssl] = true
+        opts[:endpoint] = endpoint if endpoint
+        client = Client.authenticate(user_name, password, opts)
       rescue TreasureData::AuthError
         $stderr.puts "User name or password mismatched."
       end
@@ -77,28 +91,27 @@ module Command
     end
     return unless client
 
-    $stderr.puts "Authenticated successfully."
+    puts "Authenticated successfully."
 
     conf ||= Config.new
     conf["account.user"] = user_name
     conf["account.apikey"] = client.apikey
+    conf['account.endpoint'] = endpoint if endpoint
     conf.save
 
-    $stderr.puts "Use '#{$prog} " + Config.cl_apikey_string + "db:create <db_name>' to create a database."
+    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "db:create <db_name>' to create a database."
   end
 
   def account_usage(op)
     op.cmd_parse
 
     client = get_client
-
     a = client.account
 
     $stderr.puts "Storage:  #{a.storage_size_string}"
   end
 
   private
-
   if Helpers.on_windows?
     require 'Win32API'
 

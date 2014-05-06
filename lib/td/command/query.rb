@@ -134,7 +134,7 @@ module Command
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     puts "Job #{job.job_id} is queued."
-    puts "Use '#{$prog} " + Config.cl_apikey_string + "job:show #{job.job_id}' to show the status."
+    puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
     #puts "See #{job.url} to see the progress."
 
     if wait

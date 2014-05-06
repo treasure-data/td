@@ -26,15 +26,22 @@ module Command
     unless opts.has_key?(:ssl)
       opts[:ssl] = Config.secure
     end
+
+    # apikey is mandatory
     apikey = Config.apikey
-    unless apikey
-      raise ConfigError, "Account is not configured."
+    raise ConfigError, "Account is not configured." unless apikey
+
+    # optional, if not provided a default is used in the client library
+    if Config.endpoint
+      opts[:endpoint] = Config.endpoint
     end
+
     opts[:user_agent] = "TD: #{TOOLBELT_VERSION}"
     if h = ENV['TD_API_HEADERS']
       pairs = h.split("\n")
       opts[:headers] = Hash[pairs.map {|pair| pair.split('=', 2) }]
     end
+
     Client.new(apikey, opts)
   end
 

@@ -55,9 +55,8 @@ module Command
     conf["account.apikey"] = apikey
     conf.save
 
-    $stderr.puts "API key is set."
-
-    $stderr.puts "Use '#{$prog} db:create <db_name>' to create a database."
+    puts "API key is set."
+    puts "Use '#{$prog} db:create <db_name>' to create a database."
   end
 
 end

@@ -309,6 +309,7 @@ module List
   # TODO acl:test
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
+  add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint", "td server:endpoint 'https://api.treasuredata.com'"
 
   add_list 'sample:apache', %w[path.json], 'Create a sample log file'
 

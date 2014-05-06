@@ -13,6 +13,16 @@ end
 
 
 class Config
+  # class variables
+  @@path = ENV['TREASURE_DATA_CONFIG_PATH'] || ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
+  @@apikey = ENV['TREASURE_DATA_API_KEY'] || ENV['TD_API_KEY']
+  @@apikey = nil if @@apikey == ""
+  @@cl_apikey = false # flag to indicate whether an apikey has been provided through the command-line
+  @@endpoint = ENV['TREASURE_DATA_API_SERVER'] || ENV['TD_API_SERVER']
+  @@endpoint = nil if @@endpoint == ""
+  @@cl_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line
+  @@secure = true
+
   def initialize
     @path = nil
     @conf = {}   # section.key = val
@@ -76,23 +86,18 @@ class Config
     FileUtils.mkdir_p File.dirname(@path)
     File.open(@path, "w") {|f|
       @conf.keys.map {|cate_key|
-        cate_key.split('.',2)
-      }.zip(@conf.values).group_by {|(section,key),val|
+        cate_key.split('.', 2)
+      }.zip(@conf.values).group_by {|(section,key), val|
         section
       }.each {|section,cate_key_vals|
         f.puts "[#{section}]"
-        cate_key_vals.each {|(section,key),val|
+        cate_key_vals.each {|(section,key), val|
           f.puts "  #{key} = #{val}"
         }
       }
     }
   end
 
-  @@path = ENV['TREASURE_DATA_CONFIG_PATH'] || ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
-  @@apikey = ENV['TREASURE_DATA_API_KEY'] || ENV['TD_API_KEY']
-  @@apikey = nil if @@apikey == ""
-  @@cl_apikey = false # flag to indicate whether an apikey has been provided through the command-line
-  @@secure = true
 
   def self.path
     @@path
@@ -101,6 +106,16 @@ class Config
   def self.path=(path)
     @@path = path
   end
+
+
+  def self.secure
+    @@secure
+  end
+
+  def self.secure=(secure)
+    @@secure = secure
+  end
+
 
   def self.apikey
     @@apikey || Config.read['account.apikey']
@@ -118,22 +133,30 @@ class Config
     @@cl_apikey = flag
   end
 
-  def self.cl_apikey_string
-    if @@cl_apikey
-      "-k #{@@apikey} "
-    else
-      ""
-    end
+
+  def self.endpoint
+    @@endpoint || Config.read['account.endpoint']
   end
 
-  def self.secure
-    @@secure
+  def self.endpoint=(endpoint)
+    @@endpoint = endpoint
   end
 
-  def self.secure=(secure)
-    @@secure = secure
+  def self.cl_endpoint
+    @@cl_endpoint
   end
-end
 
+  def self.cl_endpoint=(flag)
+    @@cl_endpoint = flag
+  end
 
-end
+  # renders the apikey and endpoint options as a string for the helper commands
+  def self.cl_options_string
+    string = ""
+    string += "-k #{@@apikey} " if @@cl_apikey
+    string += "-e #{@@endpoint}" if @@cl_endpoint
+    string
+  end
+
+end # class Config
+end # module TreasureData
