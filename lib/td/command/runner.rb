@@ -158,7 +158,7 @@ EOF
       # List of new exceptions:
       # => ParameterConfigurationError
       # => BulkImportExecutionError
-      unless [ParameterConfigurationError, BulkImportExecutionError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+      unless [ParameterConfigurationError, BulkImportExecutionError, APIError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
         $stderr.puts "error #{$!.class}: backtrace:"
         $!.backtrace.each {|b|
           $stderr.puts "  #{b}"
