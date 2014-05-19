@@ -123,9 +123,11 @@ module Command
     url
   end
 
+  # DEPRECATED: relying on API server side validation which will return
+  #             immediately after query submission with error code 422.
   private
   def validate_td_result_url(url)
-    re = /td:\/\/[^@]*@\/(.*)\/(.*)?/
+    re = /td:\/\/[^@]*@\/(.*)\/([^?]+)/
     match = re.match(url)
     if match.nil?
       raise ParameterConfigurationError, "Treasure Data result output invalid URL format"

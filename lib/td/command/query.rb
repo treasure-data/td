@@ -119,9 +119,6 @@ module Command
     if result_url
       require 'td/command/result'
       result_url = build_result_url(result_url, result_user, result_ask_password)
-      if result_url =~ /^td:/
-        validate_td_result_url(result_url)
-      end
     end
 
     client = get_client

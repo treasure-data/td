@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 module List
@@ -397,7 +396,8 @@ module List
   add_guess 'server-status',    'server:status'
 
   finishup
-end
-end
-end
+
+end # module List
+end # module Command
+end # module TreasureData
 
