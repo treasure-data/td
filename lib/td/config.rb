@@ -153,8 +153,10 @@ class Config
   # renders the apikey and endpoint options as a string for the helper commands
   def self.cl_options_string
     string = ""
-    string += "-k #{@@apikey} " if @@cl_apikey
+    string += "-k #{@@apikey}" if @@cl_apikey
+    string += " " unless string.empty?
     string += "-e #{@@endpoint}" if @@cl_endpoint
+    string += " " unless string.empty?
     string
   end
 
