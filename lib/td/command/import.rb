@@ -150,7 +150,7 @@ module Command
 
   private
   def set_sysprops_endpoint(sysprops)
-    endpoint = ENV['TD_API_SERVER']
+    endpoint = Config.endpoint
     if endpoint
       require 'uri'
 
@@ -160,23 +160,25 @@ module Command
       when 'http', 'https'
         host = uri.host
         port = uri.port
-        ssl = uri.scheme == 'https'
-
-        port = 80 if port == 443 and ssl
+        ssl = (uri.scheme == 'https')
       else
-        if uri.port
-          # invalid URI
+        # uri scheme is not set if the endpoint is
+        #   like 'api.treasuredata.com:80'. In that case the
+        #   uri object does not contain any useful info.
+        if uri.port # invalid URI
           raise "Invalid endpoint: #{endpoint}"
         end
 
         # generic URI
         host, port = endpoint.split(':', 2)
         port = port.to_i
-        # TODO support ssl
         port = 80 if port == 0
-        ssl = false
+
+        # TODO support ssl
+        ssl = (port == 443)
       end
 
+      sysprops << "-Dtd.api.server.scheme=#{ssl ? 'https' : 'http'}://"
       sysprops << "-Dtd.api.server.host=#{host}"
       sysprops << "-Dtd.api.server.port=#{port}"
     end
