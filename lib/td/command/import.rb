@@ -172,7 +172,7 @@ module Command
         # generic URI
         host, port = endpoint.split(':', 2)
         port = port.to_i
-        port = 80 if port == 0
+        port = 443 if port == 0
 
         # TODO support ssl
         ssl = (port == 443)
