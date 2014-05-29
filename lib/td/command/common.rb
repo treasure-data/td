@@ -32,8 +32,16 @@ module Command
     raise ConfigError, "Account is not configured." unless apikey
 
     # optional, if not provided a default is used in the client library
-    if Config.endpoint
-      opts[:endpoint] = Config.endpoint
+    begin
+      if Config.endpoint
+        opts[:endpoint] = Config.endpoint
+      end
+    rescue ConfigNotFoundError => e
+      # rescue the ConfigNotFoundError exception which orginate when
+      #   the config file is not found because the check on the apikey
+      #   guarantees that the API key has been provided on the command
+      #   line and that's good enough to continue since the default
+      #   endpoint will be used in place of this definition.
     end
 
     opts[:user_agent] = "TD: #{TOOLBELT_VERSION}"
