@@ -83,11 +83,14 @@ EOF
       apikey = s
     }
 
-    op.on('-e', '--endpoint API_SERVER', "specify the URL for API server to use (default: https://api.treasuredata.com)") {|e|
+    op.on('-e', '--endpoint API_SERVER', "specify the URL for API server to use (default: https://api.treasuredata.com)." ,
+                                         "  If the URL scheme (http or https) is not specified with the endpoint (e.g.",
+                                         "  api.treasuredata.com) please use the '--insecure' option if you want to",
+                                         "  disable SSL communication which is enabled by default.") {|e|
       endpoint = e
     }
 
-    op.on('--insecure', "Insecure access: disable SSL") {|b|
+    op.on('--insecure', "Insecure access: disable SSL (enabled by default)") {|b|
       insecure = true
     }
 

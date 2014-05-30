@@ -31,7 +31,7 @@ module Command
     apikey = Config.apikey
     raise ConfigError, "Account is not configured." unless apikey
 
-    # optional, if not provided a default is used in the client library
+    # optional, if not provided a default is used from the ruby client library
     begin
       if Config.endpoint
         opts[:endpoint] = Config.endpoint

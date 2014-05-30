@@ -160,6 +160,8 @@ module Command
       when 'http', 'https'
         host = uri.host
         port = uri.port
+        # NOTE: Config.secure option is ignored in favor
+        # of defining ssl based on the URL scheme
         ssl = (uri.scheme == 'https')
       else
         # uri scheme is not set if the endpoint is
@@ -172,11 +174,15 @@ module Command
         # generic URI
         host, port = endpoint.split(':', 2)
         port = port.to_i
-        port = 443 if port == 0
-
-        # TODO support ssl
-        ssl = (port == 443)
-      end
+        # Config.secure = false is the --insecure option was used
+        if Config.secure
+          port = 443 if port == 0
+          ssl = true
+        else
+          port = 80 if port == 0
+          ssl = false
+        end
+        end
 
       sysprops << "-Dtd.api.server.scheme=#{ssl ? 'https' : 'http'}://"
       sysprops << "-Dtd.api.server.host=#{host}"
