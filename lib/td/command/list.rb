@@ -45,7 +45,7 @@ module List
 
     def cmd_usage(msg=nil)
       puts self.to_s
-      puts "error: #{msg}" if msg
+      puts "Error: #{msg}" if msg
       exit 1
     end
   end
@@ -308,7 +308,7 @@ module List
   # TODO acl:test
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
-  add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint", "td server:endpoint 'https://api.treasuredata.com'"
+  add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint (must be a valid URI)", "td server:endpoint 'https://api.treasuredata.com'"
 
   add_list 'sample:apache', %w[path.json], 'Create a sample log file'
 

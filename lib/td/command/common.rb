@@ -226,5 +226,33 @@ EOS
     end
   end
 
-end
-end
+  def self.validate_api_endpoint(endpoint)
+    require 'uri'
+
+    uri = URI.parse(endpoint)
+    unless uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
+      raise ParameterConfigurationError,
+            "API server endpoint URL must use 'http' or 'https' protocol. Example format: 'https://api.treasuredata.com'"
+    end
+
+    if !(md = /(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})/.match(uri.host)).nil? # IP address
+      md[1..-1].each { |v|
+        if v.to_i < 0 || v.to_i > 255
+          raise ParameterConfigurationError,
+                "API server IP address must a 4 integers tuple, with every integer in the [0,255] range. Example format: 'https://1.2.3.4'"
+        end
+      }
+    else # host name validation
+      unless uri.host =~ /\.treasure\-?data\.com$/
+        raise ParameterConfigurationError,
+              "API server endpoint URL must end with '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'"
+      end
+      unless uri.host =~ /[\d\w\.]+\.treasure\-?data\.com$/
+        raise ParameterConfigurationError,
+              "API server endpoint URL must have prefix before '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'."
+      end
+    end
+  end
+
+end # module Command
+end # module TrasureData

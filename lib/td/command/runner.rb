@@ -58,7 +58,7 @@ Additional commands:
 Type 'td help COMMAND' for more information on a specific command.
 EOF
         if errmsg
-          puts "error: #{errmsg}"
+          puts "Error: #{errmsg}"
           exit 1
         else
           exit 0
@@ -84,9 +84,10 @@ EOF
     }
 
     op.on('-e', '--endpoint API_SERVER', "specify the URL for API server to use (default: https://api.treasuredata.com)." ,
-                                         "  If the URL scheme (http or https) is not specified with the endpoint (e.g.",
-                                         "  api.treasuredata.com) please use the '--insecure' option if you want to",
-                                         "  disable SSL communication which is enabled by default.") {|e|
+                                         "  The URL must contain a scheme (http:// or https:// prefix) to be valid.",
+                                         "  Valid IPv4 addresses are accepted as well in place of the host name.") {|e|
+      require 'td/command/common'
+      Command.validate_api_endpoint(e)
       endpoint = e
     }
 
@@ -164,7 +165,7 @@ EOF
       require 'td/client/api'
       # => APIError
       unless [ParameterConfigurationError, BulkImportExecutionError, APIError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
-        $stderr.puts "error #{$!.class}: backtrace:"
+        $stderr.puts "Error #{$!.class}: backtrace:"
         $!.backtrace.each {|b|
           $stderr.puts "  #{b}"
         }
