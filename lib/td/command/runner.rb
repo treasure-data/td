@@ -162,9 +162,12 @@ EOF
       # List of new exceptions:
       # => ParameterConfigurationError
       # => BulkImportExecutionError
+      # => UpUpdateError
       require 'td/client/api'
       # => APIError
-      unless [ParameterConfigurationError, BulkImportExecutionError, APIError].include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+      unless [ParameterConfigurationError, BulkImportExecutionError, UpdateError,
+              APIError]
+              .include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
         $stderr.puts "Error #{$!.class}: backtrace:"
         $!.backtrace.each {|b|
           $stderr.puts "  #{b}"

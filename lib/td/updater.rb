@@ -305,7 +305,24 @@ module TreasureData
       require 'open-uri'
       require 'fileutils'
 
-      doc = REXML::Document.new(open("#{maven_repo}/maven-metadata.xml") { |f| f.read })
+      # fetch the content of the maven-metadata.xml file
+      xml = ''
+      begin
+        open("#{maven_repo}/maven-metadata.xml") {|f|
+          xml = f.read
+        }
+      rescue SocketError, Net::HTTPBadResponse, Errno::ECONNREFUSED => e
+        raise Command::UpdateError,
+              "There was a problem accessing the remote XML resource '#{maven_repo}/maven-metadata.xml': " +
+              e.class.to_s + ": " + e.message
+      end
+      if xml.nil? || xml.empty?
+        raise Command::UpdateError,
+              "The remote XML resource '#{maven_repo}/maven-metadata.xml' returned an empty file."
+      end
+
+      # read version and update date from the xml file
+      doc = REXML::Document.new(xml)
       updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
       version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
