@@ -201,17 +201,30 @@ module Command
 
   private
   def set_sysprops_http_proxy(sysprops)
-    http_proxy = ENV['HTTP_PROXY']
-    if http_proxy
-      if http_proxy =~ /\Ahttp:\/\/(.*)\z/
-        http_proxy = $~[1]
-      end
-      proxy_host, proxy_port = http_proxy.split(':', 2)
-      proxy_port = (proxy_port ? proxy_port.to_i : 80)
+    uri_string = ENV['HTTP_PROXY']
+    return unless uri_string
 
-      sysprops << "-Dhttp.proxyHost=#{proxy_host}"
-      sysprops << "-Dhttp.proxyPort=#{proxy_port}"
+    require 'uri'
+    uri = URI.parse(uri_string)
+    proxy_host = nil
+    proxy_port = nil
+
+    case uri.scheme
+    when 'http'
+      if uri.host
+        proxy_host = uri.host             # host is required
+        proxy_port = uri.port if uri.port # default value of uri.port is 80.
+      end
+    when 'https'
+      raise ParameterConfigurationError,
+            "HTTP proxy URL must use 'http' protocol. Example format: 'http://localhost:3128'."
+    else
+      proxy_host, proxy_port = uri_string.split(':', 2)
+      proxy_port = (proxy_port ? proxy_port.to_i : 80)
     end
+
+    sysprops << "-Dhttp.proxyHost=#{proxy_host}" if proxy_host
+    sysprops << "-Dhttp.proxyPort=#{proxy_port}" if proxy_port
   end
 
 end
