@@ -37,7 +37,7 @@ module Command
         opts[:endpoint] = Config.endpoint
       end
     rescue ConfigNotFoundError => e
-      # rescue the ConfigNotFoundError exception which orginate when
+      # rescue the ConfigNotFoundError exception which originates when
       #   the config file is not found because the check on the apikey
       #   guarantees that the API key has been provided on the command
       #   line and that's good enough to continue since the default

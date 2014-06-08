@@ -150,7 +150,16 @@ module Command
 
   private
   def set_sysprops_endpoint(sysprops)
-    endpoint = Config.endpoint
+    # optional, if not provided a default is used from the ruby client library
+    begin
+      endpoint = Config.endpoint
+    rescue ConfigNotFoundError => e
+      # rescue the ConfigNotFoundError exception which originates when
+      #   the config file is not found or an endpoint is not provided
+      #   either through -e / --endpoint or TD_API_SERVER environment
+      #   variable.
+    end
+
     if endpoint
       require 'uri'
 

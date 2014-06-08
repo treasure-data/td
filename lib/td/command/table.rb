@@ -40,7 +40,6 @@ module Command
 
     db_name, table_name = op.cmd_parse
 
-    #API.validate_database_name(db_name)
     API.validate_table_name(table_name)
 
     if HIVE_RESERVED_KEYWORDS.include?(table_name.upcase)
