@@ -196,7 +196,7 @@ module Command
       end
 
     else
-      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
+      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude && job.finished?
         puts "Result      :"
         begin
           show_result(job, output, limit, format, render_opts)
