@@ -129,7 +129,7 @@ EOS
     end
   end
 
-  def humanize_time(time, is_ms = false)
+  def self.humanize_time(time, is_ms = false)
     if time.nil?
       return ''
     end
@@ -166,7 +166,7 @@ EOS
   end
 
   # assumed to
-  def humanize_elapsed_time(start, finish)
+  def self.humanize_elapsed_time(start, finish)
     if start
       if !finish
         finish = Time.now.utc
@@ -254,6 +254,45 @@ EOS
         raise ParameterConfigurationError,
               "API server endpoint URL must have prefix before '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'."
       end
+    end
+  end
+
+  def self.get_http_class
+    # use Net::HTTP::Proxy in place of Net::HTTP if a proxy is provided
+    http_proxy = ENV['HTTP_PROXY']
+    if http_proxy
+      http_proxy = (http_proxy =~ /\Ahttp:\/\/(.*)\z/) ? $~[1] : http_proxy
+      host, port = http_proxy.split(':', 2)
+      port = (port ? port.to_i : 80)
+      return Net::HTTP::Proxy(host, port)
+    else
+      return Net::HTTP
+    end
+  end
+
+  class DownloadProgressIndicator
+    def initialize(msg, start_time, periodicity)
+      @base_msg = msg
+      @start_time = start_time
+      @last_time = start_time
+      @periodicity = periodicity
+
+      print @base_msg + " " * 10
+    end
+  end
+
+  class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
+    def update
+      # progress indicator
+      if (time = Time.now.to_i) - @last_time > @periodicity
+        msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
+        print msg + " " * 10
+        @last_time = time
+      end
+    end
+
+    def finish
+      puts "\r#{@base_msg}...done" + " " * 20
     end
   end
 
