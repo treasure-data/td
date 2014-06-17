@@ -107,7 +107,7 @@ module Updater
     end
   end
 
-  def self.fetch(uri)
+  def self.fetch(url)
     require 'net/http'
     require 'openssl'
 
@@ -116,7 +116,7 @@ module Updater
     # open-uri can't treat 'http -> https' redirection and
     # Net::HTTP.get_response can't get response from HTTPS endpoint.
     # So we use following code to avoid these issues.
-    uri = URI(uri)
+    uri = URI(url)
     response =
       if uri.scheme == 'https' and ENV['HTTP_PROXY'].nil?
         # NOTE: SSL is force off for communications over proxy
@@ -125,14 +125,14 @@ module Updater
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         http.request(Net::HTTP::Get.new(uri.path))
       else
-        http_class.get_response(u)
+        http_class.get_response(uri)
       end
 
     case response
     when Net::HTTPSuccess then response.body
     when Net::HTTPRedirection then fetch(response['Location'])
     else
-      raise "An error occurred when fetching from '#{uri}'."
+      raise "An error occurred when fetching from '#{url}'."
       response.error!
     end
   end
@@ -292,11 +292,11 @@ module Updater
 
   private
   def jar_update(hourly = false)
-    maven_repo = "http://maven.treasure-data.com/com/treasure_data/td-import"
-
     require 'rexml/document'
     require 'open-uri'
     require 'fileutils'
+
+    maven_repo = "http://maven.treasure-data.com/com/treasure_data/td-import"
 
     begin
       xml = Updater.fetch("#{maven_repo}/maven-metadata.xml")
