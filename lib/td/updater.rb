@@ -348,10 +348,22 @@ module Updater
   end
 
   def check_n_update_jar(hourly = false)
-    if hourly && \
-       File.exists?(last_jar_autoupdate_timestamp) && \
+    if hourly
+      if !ENV['TD_TOOLBELT_JAR_UPDATE'].nil?
+        # also validates the TD_TOOLBELT_JAR_UPDATE environment variable value
+        if ENV['TD_TOOLBELT_JAR_UPDATE'] == "0"
+          puts "Warning: Bulk Import JAR auto-update disabled by TD_TOOLBELT_JAR_UPDATE=0"
+          return
+        elsif ENV['TD_TOOLBELT_JAR_UPDATE'] != "1"
+          raise UpdateError,
+                "Invalid value for TD_TOOLBELT_JAR_UPDATE environment variable. Only 0 and 1 are allowed."
+        end
+      end
+
+      if File.exists?(last_jar_autoupdate_timestamp) && \
        (Time.now - File.mtime(last_jar_autoupdate_timestamp)).to_i < (60 * 60 * 1) # every hour
-      return
+        return
+      end
     end
     jar_update(hourly)
     FileUtils.touch last_jar_autoupdate_timestamp

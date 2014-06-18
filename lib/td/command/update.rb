@@ -20,6 +20,6 @@ module Command
     end
   end
 
-end
-end
+end # module Command
+end # module TreasureData
 
