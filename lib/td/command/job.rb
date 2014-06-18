@@ -72,8 +72,8 @@ module Command
     rows = []
     jobs.each {|job|
       start = job.start_at
-      elapsed = humanize_elapsed_time(start, job.end_at)
-      cpu_time = humanize_time(job.cpu_time, true)
+      elapsed = Command.humanize_elapsed_time(start, job.end_at)
+      cpu_time = Command.humanize_time(job.cpu_time, true)
       priority = job_priority_name_of(job.priority)
       rows << {
         :JobID => job.job_id,
@@ -181,7 +181,7 @@ module Command
     end
     # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
     if job.finished? && [:hive].include?(job.type)
-      puts "CPU time    : #{humanize_time(job.cpu_time, true)}"
+      puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
     end
 
     if wait && !job.finished?
@@ -458,6 +458,7 @@ module Command
     }
     return nil
   end
-end
-end
+
+end # module Command
+end # module TrasureData
 
