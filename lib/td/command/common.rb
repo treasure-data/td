@@ -129,6 +129,40 @@ EOS
     end
   end
 
+  def self.humanize_bytesize(size, fractional_digits = 1)
+    labels = ["B", "kB", "MB", "GB", "TB"]
+    max_power = labels.length - 1
+
+    size = size.to_i
+
+    if size == 0
+      return "0 B"
+    end
+
+    # integer part
+    value = size
+    power = 0
+    while value > 0 do
+      value /= 1024
+      power += 1
+    end
+    power -= 1
+    power = power > max_power ? max_power : power # limit to TB display
+    integer = size / (1024 ** power)
+    out = integer.to_s
+
+    # fractional part - remove the integer part to avoid running into floating
+    # point precision problems
+    value = size % ((1024 ** power) * integer)
+    if value > 0 and fractional_digits > 0
+      fractional = value.to_f / (1024 ** power)
+      fractional *= 10 ** fractional_digits
+      out += sprintf ".%0*d", fractional_digits, fractional.to_i
+    end
+    out += " " + labels[power.to_i]
+    out
+  end
+
   def self.humanize_time(time, is_ms = false)
     if time.nil?
       return ''
