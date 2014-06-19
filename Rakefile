@@ -43,13 +43,13 @@ def install_use_gems(target_dir)
   USE_GEMS.each {|gem|
     begin
       # this is a hack to have the dependency handling for the 'td' gem
-      #   pick up a local gem for 'td-client' so as to be able to build 
+      #   pick up a local gem for 'td-client' so as to be able to build
       #   and test the 'toolbelt' package without publishing the 'td-client'
       #   gem on rubygems.com
       unless ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM'].nil?
         unless File.exists? ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']
           raise "Cannot find gem file with path #{ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']}"
-	end
+        end
         puts "Copy local gem #{ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']} to #{Dir.pwd}"
         FileUtils.cp File.expand_path(ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']), Dir.pwd
       end
