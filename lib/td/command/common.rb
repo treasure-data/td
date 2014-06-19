@@ -305,23 +305,57 @@ EOS
   end
 
   class DownloadProgressIndicator
-    def initialize(msg, start_time, periodicity)
+    def initialize(msg)
       @base_msg = msg
-      @start_time = start_time
-      @last_time = start_time
-      @periodicity = periodicity
-
       print @base_msg + " " * 10
     end
   end
 
   class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
+    def initialize(msg, start_time, periodicity = 2)
+      @start_time = start_time
+      @last_time = start_time
+      @periodicity = periodicity
+      super(msg)
+    end
+
     def update
-      # progress indicator
-      if (time = Time.now.to_i) - @last_time > @periodicity
+      if (time = Time.now.to_i) - @last_time >= @periodicity
         msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
         print msg + " " * 10
         @last_time = time
+        true
+      else
+        false
+      end
+    end
+
+    def finish
+      puts "\r#{@base_msg}...done" + " " * 20
+    end
+  end
+
+  class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
+    def initialize(msg, size, perc_step = 1)
+      @size = size
+      @perc_step = perc_step
+
+      # track progress
+      @curr_size = 0
+      @last_perc_step = 0
+      super(msg)
+    end
+    def update(chunk_size)
+      @curr_size += chunk_size
+      ratio = @curr_size * 100 / @size
+      # puts "ratio #{ratio} #{@curr_size} #{@size}"
+      if ratio >= (@last_perc_step + @perc_step)
+        msg = "\r#{@base_msg}: #{ratio}%"
+        print msg + " " * 10
+        @last_perc_step = ratio
+        true
+      else
+        false
       end
     end
 

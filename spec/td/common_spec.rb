@@ -135,4 +135,58 @@ module TreasureData::Command
       }
     end
   end
+
+  describe 'SizeBasedDownloadProgressIndicator' do
+    it "shows in 1% increments with default 'perc_step'" do
+      size = 200
+      indicator = TreasureData::Command::SizeBasedDownloadProgressIndicator.new("Downloading", size)
+      size_increments = 2
+      curr_size = 0
+      while (curr_size += size_increments) < size do
+        indicator.update(size_increments)
+        sleep(0.05)
+      end
+      indicator.finish
+    end
+  end
+
+  describe 'TimeBasedDownloadProgressIndicator' do
+    it "increments about every 2 seconds with default 'periodicity'" do
+      start_time = Time.now.to_i
+      indicator = TreasureData::Command::TimeBasedDownloadProgressIndicator.new("Downloading", start_time)
+      end_time = start_time + 10
+      last_time = start_time
+      while (curr_time = Time.now.to_i) < end_time do
+        ret = indicator.update
+        if ret == true
+          diff = curr_time - last_time
+          diff.should be >= 2
+          diff.should be < 3
+          last_time = curr_time
+        end
+        sleep(0.5)
+      end
+      indicator.finish
+    end
+
+    periodicities = [1, 2, 5]
+    periodicities.each {|periodicity|
+      it "increments about every #{periodicity} seconds with 'periodicity' = #{periodicity}" do
+        start_time = Time.now.to_i
+        indicator = TreasureData::Command::TimeBasedDownloadProgressIndicator.new("Downloading", start_time, periodicity)
+        end_time = start_time + 10
+        last_time = start_time
+        while (curr_time = Time.now.to_i) < end_time do
+          ret = indicator.update
+          if ret == true
+            (curr_time - last_time).should be >= periodicity
+            (curr_time - last_time).should be < (periodicity + 1)
+            last_time = curr_time
+          end
+          sleep(0.5)
+        end
+        indicator.finish
+      end
+    }
+  end
 end
