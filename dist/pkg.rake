@@ -18,10 +18,10 @@ task 'pkg:build' => :build do
 
     zip_files(project_root_path('pkg/td-update-pkg.zip'), 'td-client.build')
 
-    # crete ./bundle/td-client.pkg/Bom
+    # create ./bundle/td-client.pkg/Bom
     sh "mkbom -s td-client.build bundle/td-client.pkg/Bom"
 
-    # crete ./bundle/td-client.pkg/Scripts/
+    # create ./bundle/td-client.pkg/Scripts/
     install_resource 'pkg/postinstall', 'bundle/td-client.pkg/Scripts/postinstall', 0755
 
     variables = {
