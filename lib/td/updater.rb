@@ -323,8 +323,16 @@ module Updater
       FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(jarfile_dest_path)
       Dir.chdir jarfile_dest_path
 
-      File.open('VERSION', 'w') { |f| f.print "#{version} via import:jar_update" }
-      File.open('td-import-java.version', 'w') { |f| f.print "#{version} #{updated}" }
+      File.open('VERSION', 'w') {|f|
+        if hourly
+          f.print "#{version} via hourly jar auto-update"
+        else
+          f.print "#{version} via import:jar_update command"
+        end
+      }
+      File.open('td-import-java.version', 'w') {|f|
+        f.print "#{version} #{updated}"
+      }
 
       indicator = Command::TimeBasedDownloadProgressIndicator.new(
         "Updating td-import.jar", Time.new.to_i, 2)
