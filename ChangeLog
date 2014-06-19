@@ -1,3 +1,32 @@
+== 2014-06-18 version 0.11.2
+
+* Improve the update experience by showing a download progress indicator
+* Fix issue on Windows OS where the JAR version file handle was not closed
+  and caused permissions access problems to the file in subsequent attempts
+  to open the file
+* Add support for other/alternative backends using the -e / --endpoint
+  option. The backend can be also saved on the configuration file of use
+  via the 'td server:endpoint' or when running 'td -e <newendpoint> account'
+  command. The TD_API_SERVER environment variable still takes precendence
+  over all these settings
+* Removed Treasure Data Result Output database and table name client side
+  validation since it's performed in the API backend
+* Suppress stack traces for APIError exceptions from the client library
+* Changed the default HTTP port from 80 to 443 when interacting with the API
+  server to support SSL
+* Support working entirely without a configuration file (hence without
+  having to run 'td account' prior to using the CLI) by passing the -k option
+  on the command line
+* don't wipe out the current JAR file if an attempt to retrieve the most updated
+  JAR file failed because of network connectivity problems
+* Show the job result only for finished jobs: unfinished jobs don't have any
+  result to display anyway)
+* Honor the HTTP_PROXY setting also when updating the JAR file or the Toolbelt
+  itself
+* Fix parsing of the HTTP_PROXY variable for the Bulk Loader's usage
+* Allow optionally disabling the JAR file auto-update feature by setting the
+  TD_TOOLBELT_JAR_UPDATE environment variable to 0
+
 == 2014-04-29 version 0.11.1
 
 * Fix Treasure Data query result output database and table validation
