@@ -280,10 +280,13 @@ module Updater
         return true
       elsif response.class == Net::HTTPFound || \
             response.class == Net::HTTPRedirection
-        puts "redirect '#{url}' to '#{response['Location']}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
+        unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          puts "redirect '#{url}' to '#{response['Location']}'... "
+        end
         return stream_fetch(response['Location'], binfile, &progress)
       else
-        raise "An error occurred when fetching from '#{uri}' " +
+        raise Command::UpdateError,
+              "An error occurred when fetching from '#{uri}' " +
               "(#{response.class.to_s}: #{response.message})."
         return false
       end
@@ -296,23 +299,25 @@ module Updater
     require 'open-uri'
     require 'fileutils'
 
-    maven_repo = "http://maven.treasure-data.com/com/treasure_data/td-import"
+    maven_repo = "http://central.maven.org/maven2/com/treasuredata/td-import"
 
     begin
       xml = Updater.fetch("#{maven_repo}/maven-metadata.xml")
     rescue Exception => exc
       raise Command::UpdateError,
-            "There was a problem accessing the remote XML resource '#{maven_repo}/maven-metadata.xml' " +
-            "(#{exc.class.to_s}: #{exc.message})"
+            "There was a problem accessing the remote XML resource " +
+            "'#{maven_repo}/maven-metadata.xml' (#{exc.class.to_s}: #{exc.message})"
     end
     if xml.nil? || xml.empty?
       raise Command::UpdateError,
-            "The remote XML resource '#{maven_repo}/maven-metadata.xml' returned an empty file."
+            "The remote XML resource '#{maven_repo}/maven-metadata.xml' " +
+            "returned an empty file."
     end
 
     # read version and update date from the xml file
     doc = REXML::Document.new(xml)
-    updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
+    updated = Time.strptime(REXML::XPath.match(doc,
+      '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
     version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
     # Convert into UTF to compare time correctly
@@ -336,11 +341,11 @@ module Updater
 
       indicator = Command::TimeBasedDownloadProgressIndicator.new(
         "Updating td-import.jar", Time.new.to_i, 2)
-      binfile = File.open 'td-import.jar.new', 'wb'
-      status = Updater.stream_fetch("#{maven_repo}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile) {
-        indicator.update
+      File.open('td-import.jar.new', 'wb') {|binfile|
+        status = Updater.stream_fetch("#{maven_repo}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile) {
+          indicator.update
+        }
       }
-      binfile.close
       indicator.finish()
 
       if status
