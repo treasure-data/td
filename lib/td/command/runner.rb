@@ -163,9 +163,11 @@ EOF
       # => ParameterConfigurationError
       # => BulkImportExecutionError
       # => UpUpdateError
+      # => ImportError
       require 'td/client/api'
       # => APIError
-      unless [ParameterConfigurationError, BulkImportExecutionError, UpdateError,
+      unless [ParameterConfigurationError, BulkImportExecutionError,
+                UpdateError, ImportError,
               APIError]
               .include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
         $stderr.puts "Error #{$!.class}: backtrace:"

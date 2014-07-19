@@ -20,6 +20,9 @@ module Command
   class UpdateError < ArgumentError
   end
 
+  class ImportError < RuntimeError
+  end
+
   private
   def initialize
     @render_indent = ''
@@ -108,9 +111,9 @@ module Command
 
   def normalized_message
     <<EOS
-Your event has large number larger than 2^64.
+Your event has numbers larger than 2^64.
 These numbers are converted into string type.
-So you should use cast operator, e.g. cast(v['key'] as decimal), in your query.
+You should consider using the cast operator in your query: e.g. cast(v['key'] as decimal).
 EOS
   end
 

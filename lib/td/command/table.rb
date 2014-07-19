@@ -11,6 +11,7 @@ module Command
     COLLECTION ITEMS KEYS LINES STORED SEQUENCEFILE TEXTFILE INPUTFORMAT OUTPUTFORMAT LOCATION TABLESAMPLE BUCKET OUT
     OF CAST ADD REPLACE COLUMNS RLIKE REGEXP TEMPORARY FUNCTION EXPLAIN EXTENDED SERDE WITH SERDEPROPERTIES LIMIT SET TBLPROPERTIES
   ]
+  KEY_NUM_LIMIT = 512
 
   def table_create(op)
     type = nil
@@ -510,7 +511,7 @@ module Command
         parser = MessagePackParser.new(time_key)
       end
 
-    else
+    else  # apache, syslog
       regexp, names, time_format = IMPORT_TEMPLATES[format]
       if !regexp || !names || !time_format
         $stderr.puts "Unknown format '#{format}'"
@@ -538,7 +539,7 @@ module Command
     require 'tempfile'
     #require 'thread'
 
-    files.zip(paths).each {|file,path|
+    files.zip(paths).each {|file, path|
       import_log_file(file, path, client, db_name, table_name, parser)
     }
 
@@ -568,10 +569,11 @@ module Command
 
       n += 1
       x += 1
-      if n % 10000 == 0
+      if n % 10000 == 0   # by records imported
         puts "  imported #{n} entries from #{path}..."
 
-      elsif out.pos > 1024*1024  # TODO size
+      # TODO size
+      elsif out.pos > 1024 * 1024   # by 1 MB chunks
         puts "  imported #{n} entries from #{path}..."
         begin
           writer.finish
@@ -592,6 +594,7 @@ module Command
       end
     }
 
+    # if there is anything parse but not imported yet
     if x != 0
       writer.finish
       size = out.pos
@@ -600,6 +603,11 @@ module Command
       puts "  uploading #{size} bytes..."
       # TODO upload on background thread
       client.import(db_name, table_name, "msgpack.gz", out, size)
+    end
+
+    # throw an exception if no record is imported
+    if n == 0
+      raise ImportError, "no valid record to import from #{path}"
     end
 
     puts "  imported #{n} entries from #{path}."
@@ -661,75 +669,64 @@ module Command
     end
   end
 
-  class JsonParser
+  # Generic class for both JSON and MessagePack parsers to
+  # reduce code duplication
+  class StructuredParser
+    def sanitize_record(record, &block)
+      unless record.is_a?(Hash)
+        raise "record must be a Hash"
+      end
+
+      time = record[@time_key]
+      unless time
+        raise "record doesn't have '#{@time_key}' column"
+      end
+
+      if record.size > KEY_NUM_LIMIT
+        raise "record contains too many keys (#{record.size}, max allowed #{KEY_NUM_LIMIT})"
+      end
+
+      case time
+      when Integer
+        # do nothing
+      else
+        time = Time.parse(time.to_s).to_i
+      end
+      record['time'] = time
+
+      block.call(record)
+    end
+    protected :sanitize_record
+  end
+
+  class JsonParser < StructuredParser
     def initialize(time_key)
       require 'json'
       @time_key = time_key
     end
 
     def call(file, path, &block)
-      i = 0
       file.each_line {|line|
-        i += 1
         begin
           record = JSON.parse(line)
-
-          unless record.is_a?(Hash)
-            raise "record must be a Hash"
-          end
-
-          time = record[@time_key]
-          unless time
-            raise "record doesn't have '#{@time_key}' column"
-          end
-
-          case time
-          when Integer
-            # do nothing
-          else
-            time = Time.parse(time.to_s).to_i
-          end
-          record['time'] = time
-
-          block.call(record)
-
+          sanitize_record(record, &block)
         rescue
-          $stderr.puts "  skipped: #{$!}: #{line.dump}"
+          $stderr.puts "  skipped: #{$!}: #{record.to_json}"
         end
       }
     end
   end
 
-  class MessagePackParser
+  class MessagePackParser < StructuredParser
     def initialize(time_key)
       require 'msgpack'
       @time_key = time_key
     end
 
     def call(file, path, &block)
-      i = 0
       MessagePack::Unpacker.new(file).each {|record|
-        i += 1
         begin
-          unless record.is_a?(Hash)
-            raise "record must be a Hash"
-          end
-
-          time = record[@time_key]
-          unless time
-            raise "record doesn't have '#{@time_key}' column"
-          end
-
-          case time
-          when Integer
-            # do nothing
-          else
-            time = Time.parse(time.to_s).to_i
-          end
-          record['time'] = time
-
-          block.call(record)
-
+          sanitize_record(record, &block)
         rescue
           $stderr.puts "  skipped: #{$!}: #{record.to_json}"
         end
