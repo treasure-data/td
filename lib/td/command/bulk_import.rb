@@ -28,11 +28,7 @@ module Command
     name, db_name, table_name = op.cmd_parse
 
     client = get_client
-
-    table = get_table(client, db_name, table_name)
-
-    opts = {}
-    client.create_bulk_import(name, db_name, table_name, opts)
+    client.create_bulk_import(name, db_name, table_name, {})
 
     $stderr.puts "Bulk import session '#{name}' is created."
   end
