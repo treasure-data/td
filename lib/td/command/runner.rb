@@ -166,10 +166,14 @@ EOF
       # => ImportError
       require 'td/client/api'
       # => APIError
+      # => ForbiddenError
+      # => NotFoundError
+      # => AuthError
       unless [ParameterConfigurationError, BulkImportExecutionError,
                 UpdateError, ImportError,
-              APIError]
-              .include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+              APIError, ForbiddenError, NotFoundError, AuthError]
+              .include?(e.class) &&
+              (ENV['TD_TOOLBELT_DEBUG'].nil? || $version)
         $stderr.puts "Error #{$!.class}: backtrace:"
         $!.backtrace.each {|b|
           $stderr.puts "  #{b}"

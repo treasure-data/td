@@ -128,7 +128,7 @@ EOS
       $!.backtrace.each {|b|
         $stderr.puts "  #{b}"
       }
-        $stderr.puts ""
+      $stderr.puts ""
     end
   end
 
