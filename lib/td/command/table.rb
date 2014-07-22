@@ -520,7 +520,17 @@ module Command
       parser = TextParser.new(names, regexp, time_format)
     end
 
-    get_table(client, db_name, table_name)
+    begin
+      db = client.database(db_name)
+    rescue TreasureData::ForbiddenError => e
+      puts "Warning: database and table validation skipped - #{e.message}"
+    else
+      begin
+        table = db.table(table_name)
+      rescue TreasureData::ForbiddenError => e
+        puts "Warning: table validation skipped - #{e.message}"
+      end
+    end
 
     require 'zlib'
 
