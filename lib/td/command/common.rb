@@ -240,6 +240,10 @@ EOS
       raise ParameterConfigurationError,
             "API server endpoint URL must use 'http' or 'https' protocol. Example format: 'https://api.treasuredata.com'"
     end
+    unless uri.path =~ /^\/*$/
+      raise ParameterConfigurationError,
+            "API server path must be empty ('#{uri.path}' provided). Example format: 'https://api.treasuredata.com'"
+    end
 
     if !(md = /(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})/.match(uri.host)).nil? # IP address
       md[1..-1].each { |v|
@@ -248,15 +252,15 @@ EOS
                 "API server IP address must a 4 integers tuple, with every integer in the [0,255] range. Example format: 'https://1.2.3.4'"
         end
       }
-    else # host name validation
-      unless uri.host =~ /\.treasure\-?data\.com$/
-        raise ParameterConfigurationError,
-              "API server endpoint URL must end with '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'"
-      end
-      unless uri.host =~ /[\d\w\.]+\.treasure\-?data\.com$/
-        raise ParameterConfigurationError,
-              "API server endpoint URL must have prefix before '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'."
-      end
+    end
+
+    begin
+      # although the API may return 'Server is down' that is a good enough
+      #   indication that we hit a valid TD endpoint to accept it
+      Client.server_status(:endpoint => endpoint)
+    rescue
+      raise ParameterConfigurationError,
+            "The specified API server endpoint (#{endpoint}) does not respond."
     end
   end
 
