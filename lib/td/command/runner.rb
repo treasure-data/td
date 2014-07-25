@@ -59,9 +59,9 @@ Type 'td help COMMAND' for more information on a specific command.
 EOF
         if errmsg
           puts "Error: #{errmsg}"
-          exit 1
+          return 1
         else
-          exit 0
+          return 0
         end
       end
     end
@@ -104,17 +104,17 @@ EOF
     #}
 
     op.on('-h', '--help', "show help") {
-      usage nil
+      return usage nil
     }
 
     op.on('--version', "show version") {
       puts op.version
-      exit
+      return 0
     }
 
     begin
       op.order!(argv)
-      usage nil if argv.empty?
+      return usage nil if argv.empty?
       cmd = argv.shift
 
       # NOTE: these information are loaded from by each command through
@@ -135,7 +135,7 @@ EOF
         Config.secure = false
       end
     rescue
-      usage $!.to_s
+      return usage $!.to_s
     end
 
     require 'td/command/list'
@@ -148,7 +148,7 @@ EOF
     unless method
       $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
       Command::List.show_guess(cmd)
-      exit 1
+      return 1
     end
 
     begin
