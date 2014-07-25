@@ -175,12 +175,15 @@ EOF
               .include?(e.class) &&
               (ENV['TD_TOOLBELT_DEBUG'].nil? || $version)
         $stderr.puts "Error #{$!.class}: backtrace:"
-        $!.backtrace.each {|b|
-          $stderr.puts "  #{b}"
+        $!.backtrace.each {|bt|
+          $stderr.puts "  #{bt}"
         }
         puts ""
       end
-      puts "Error: " + $!.to_s
+      print "Error: "
+      [ForbiddenError, NotFoundError, AuthError].include?(e.class)
+        print "#{e.class} - "
+      puts $!.to_s
 
       require 'socket'
       if e.is_a?(::SocketError)
