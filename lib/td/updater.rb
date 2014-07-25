@@ -339,6 +339,7 @@ module Updater
         f.print "#{version} #{updated}"
       }
 
+      status = nil
       indicator = Command::TimeBasedDownloadProgressIndicator.new(
         "Updating td-import.jar", Time.new.to_i, 2)
       File.open('td-import.jar.new', 'wb') {|binfile|
