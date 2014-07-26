@@ -51,15 +51,16 @@ module List
   end
 
   class CommandOption
-    def initialize(name, args, description, examples)
+    def initialize(name, args, description, examples = [], requires_connectivity = true)
       @name = name
       @args = args
       @description = description.to_s
       @examples = examples
+      @requires_connectivity = requires_connectivity
       @override_message = nil
     end
 
-    attr_reader :name, :args, :description, :examples
+    attr_reader :name, :args, :description, :examples, :requires_connectivity
     attr_accessor :override_message
 
     def compile!
@@ -129,8 +130,8 @@ module List
   HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
-  def self.add_list(name, args, description, *examples)
-    LIST << COMMAND[name] = CommandOption.new(name, args, description, examples)
+  def self.add_list(name, args, description, examples = [], cmd_requires_connectivity = true)
+    LIST << COMMAND[name] = CommandOption.new(name, args, description, examples, cmd_requires_connectivity)
   end
 
   def self.add_alias(new_cmd, old_cmd)
@@ -157,7 +158,7 @@ module List
       require "td/command/#{group}"
       cmd = name.gsub(/[\:\-]/, '_')
       m = Object.new.extend(Command).method(cmd)
-      return Proc.new {|args| m.call(c.create_optparse(args)) }
+      return Proc.new {|args| m.call(c.create_optparse(args)) }, c.requires_connectivity
     end
     nil
   end
@@ -213,85 +214,85 @@ module List
     }
   end
 
-  add_list 'db:list', %w[], 'Show list of tables in a database', 'db:list', 'dbs'
-  add_list 'db:show', %w[db], 'Describe information of a database', 'db example_db'
-  add_list 'db:create', %w[db], 'Create a database', 'db:create example_db'
-  add_list 'db:delete', %w[db], 'Delete a database', 'db:delete example_db'
+  add_list 'db:list', %w[], 'Show list of tables in a database', ['db:list', 'dbs']
+  add_list 'db:show', %w[db], 'Describe information of a database', ['db example_db']
+  add_list 'db:create', %w[db], 'Create a database', ['db:create example_db']
+  add_list 'db:delete', %w[db], 'Delete a database', ['db:delete example_db']
 
-  add_list 'table:list', %w[db?], 'Show list of tables', 'table:list', 'table:list example_db', 'tables'
-  add_list 'table:show', %w[db table], 'Describe information of a table', 'table example_db table1'
-  add_list 'table:create', %w[db table], 'Create a table', 'table:create example_db table1'
-  add_list 'table:delete', %w[db table], 'Delete a table', 'table:delete example_db table1'
-  add_list 'table:import', %w[db table files_], 'Parse and import files to a table', 'table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json'
-  add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', 'table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY'
-  add_list 'table:swap', %w[db table1 table2], 'Swap names of two tables', 'table:swap example_db table1 table2'
-  add_list 'table:tail', %w[db table], 'Get recently imported logs', 'table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30'
-  add_list 'table:partial_delete', %w[db table], 'Delete logs from the table within the specified time range', 'table:partial_delete example_db table1 --from 1341000000 --to 1341003600'
-  add_list 'table:expire', %w[db table expire_days], 'Expire data in table after specified number of days', 'table:expire example_db table1 30'
+  add_list 'table:list', %w[db?], 'Show list of tables', ['table:list', 'table:list example_db', 'tables']
+  add_list 'table:show', %w[db table], 'Describe information of a table', ['table example_db table1']
+  add_list 'table:create', %w[db table], 'Create a table', ['table:create example_db table1']
+  add_list 'table:delete', %w[db table], 'Delete a table', ['table:delete example_db table1']
+  add_list 'table:import', %w[db table files_], 'Parse and import files to a table', ['table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json']
+  add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', ['table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY']
+  add_list 'table:swap', %w[db table1 table2], 'Swap names of two tables', ['table:swap example_db table1 table2']
+  add_list 'table:tail', %w[db table], 'Get recently imported logs', ['table:tail example_db table1', 'table:tail example_db table1 -t "2011-01-02 03:04:05" -n 30']
+  add_list 'table:partial_delete', %w[db table], 'Delete logs from the table within the specified time range', ['table:partial_delete example_db table1 --from 1341000000 --to 1341003600']
+  add_list 'table:expire', %w[db table expire_days], 'Expire data in table after specified number of days', ['table:expire example_db table1 30']
 
-  add_list 'bulk_import:list', %w[], 'List bulk import sessions', 'bulk_import:list'
-  add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', 'bulk_import:show'
-  add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', 'bulk_import:create logs_201201 example_db event_logs'
-  add_list 'bulk_import:prepare_parts', %w[files_], 'Convert files into part file format', 'bulk_import:prepare_parts logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
-  add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', 'bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz'
-  add_list 'bulk_import:upload_parts', %w[name files_], 'Upload or re-upload files into a bulk import session', 'bulk_import:upload_parts parts/* --parallel 4'
-  add_list 'bulk_import:delete_part', %w[name id], 'Delete a uploaded file from a bulk import session', 'bulk_import:delete_part logs_201201 01h'
-  add_list 'bulk_import:delete_parts', %w[name ids_], 'Delete uploaded files from a bulk import session', 'bulk_import:delete_parts logs_201201 01h 02h 03h'
-  add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', 'bulk_import:perform logs_201201'
-  add_list 'bulk_import:error_records', %w[name], 'Show records which did not pass validations', 'bulk_import:error_records logs_201201'
-  add_list 'bulk_import:commit', %w[name], 'Start to commit a performed bulk import session', 'bulk_import:commit logs_201201'
-  add_list 'bulk_import:delete', %w[name], 'Delete a bulk import session', 'bulk_import:delete logs_201201'
-  add_list 'bulk_import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'bulk_import:freeze logs_201201'
-  add_list 'bulk_import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'bulk_import:unfreeze logs_201201'
+  add_list 'bulk_import:list', %w[], 'List bulk import sessions', ['bulk_import:list']
+  add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', ['bulk_import:show']
+  add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', ['bulk_import:create logs_201201 example_db event_logs']
+  add_list 'bulk_import:prepare_parts', %w[files_], 'Convert files into part file format', ['bulk_import:prepare_parts logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/']
+  add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', ['bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz']
+  add_list 'bulk_import:upload_parts', %w[name files_], 'Upload or re-upload files into a bulk import session', ['bulk_import:upload_parts parts/* --parallel 4']
+  add_list 'bulk_import:delete_part', %w[name id], 'Delete a uploaded file from a bulk import session', ['bulk_import:delete_part logs_201201 01h']
+  add_list 'bulk_import:delete_parts', %w[name ids_], 'Delete uploaded files from a bulk import session', ['bulk_import:delete_parts logs_201201 01h 02h 03h']
+  add_list 'bulk_import:perform', %w[name], 'Start to validate and convert uploaded files', ['bulk_import:perform logs_201201']
+  add_list 'bulk_import:error_records', %w[name], 'Show records which did not pass validations', ['bulk_import:error_records logs_201201']
+  add_list 'bulk_import:commit', %w[name], 'Start to commit a performed bulk import session', ['bulk_import:commit logs_201201']
+  add_list 'bulk_import:delete', %w[name], 'Delete a bulk import session', ['bulk_import:delete logs_201201']
+  add_list 'bulk_import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', ['bulk_import:freeze logs_201201']
+  add_list 'bulk_import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', ['bulk_import:unfreeze logs_201201']
 
-  add_list 'import:list', %w[], 'List bulk import sessions', 'import:list'
-  add_list 'import:show', %w[name], 'Show list of uploaded parts', 'import:show'
-  add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', 'import:create logs_201201 example_db event_logs'
-  add_list 'import:jar_version', %w[], 'Show import jar version', 'import:jar_version'
-  add_list 'import:jar_update', %w[], 'Update import jar to the latest version', 'import:jar_update'
-  add_list 'import:prepare', %w[files_], 'Convert files into part file format', 'import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'
-  add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', 'import:upload parts/* --parallel 4'
-  add_list 'import:auto', %w[name files_], 'Upload files and automatically perform and commit the data', 'import:auto parts/* --parallel 4'
-  add_list 'import:perform', %w[name], 'Start to validate and convert uploaded files', 'import:perform logs_201201'
-  add_list 'import:error_records', %w[name], 'Show records which did not pass validations', 'import:error_records logs_201201'
-  add_list 'import:commit', %w[name], 'Start to commit a performed bulk import session', 'import:commit logs_201201'
-  add_list 'import:delete', %w[name], 'Delete a bulk import session', 'import:delete logs_201201'
-  add_list 'import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', 'import:freeze logs_201201'
-  add_list 'import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', 'import:unfreeze logs_201201'
+  add_list 'import:list', %w[], 'List bulk import sessions', ['import:list']
+  add_list 'import:show', %w[name], 'Show list of uploaded parts', ['import:show']
+  add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', ['import:create logs_201201 example_db event_logs']
+  add_list 'import:jar_version', %w[], 'Show import jar version', ['import:jar_version'], false
+  add_list 'import:jar_update', %w[], 'Update import jar to the latest version', ['import:jar_update']
+  add_list 'import:prepare', %w[files_], 'Convert files into part file format', ['import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'], false
+  add_list 'import:upload', %w[name files_], 'Upload or re-upload files into a bulk import session', ['import:upload parts/* --parallel 4']
+  add_list 'import:auto', %w[name files_], 'Upload files and automatically perform and commit the data', ['import:auto parts/* --parallel 4']
+  add_list 'import:perform', %w[name], 'Start to validate and convert uploaded files', ['import:perform logs_201201']
+  add_list 'import:error_records', %w[name], 'Show records which did not pass validations', ['import:error_records logs_201201']
+  add_list 'import:commit', %w[name], 'Start to commit a performed bulk import session', ['import:commit logs_201201']
+  add_list 'import:delete', %w[name], 'Delete a bulk import session', ['import:delete logs_201201']
+  add_list 'import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', ['import:freeze logs_201201']
+  add_list 'import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', ['import:unfreeze logs_201201']
 
-  add_list 'result:list', %w[], 'Show list of result URLs', 'result:list', 'results'
-  add_list 'result:show', %w[name], 'Describe information of a result URL', 'result name'
-  add_list 'result:create', %w[name URL], 'Create a result URL', 'result:create name mysql://my-server/mydb'
-  add_list 'result:delete', %w[name], 'Delete a result URL', 'result:delete name'
+  add_list 'result:list', %w[], 'Show list of result URLs', ['result:list', 'results']
+  add_list 'result:show', %w[name], 'Describe information of a result URL', ['result name']
+  add_list 'result:create', %w[name URL], 'Create a result URL', ['result:create name mysql://my-server/mydb']
+  add_list 'result:delete', %w[name], 'Delete a result URL', ['result:delete name']
 
-  add_list 'status', %w[], 'Show schedules, jobs, tables and results', 'status', 's'
+  add_list 'status', %w[], 'Show schedules, jobs, tables and results', ['status', 's']
 
-  add_list 'schema:show', %w[db table], 'Show schema of a table', 'schema example_db table1'
-  add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table', 'schema:set example_db table1 user:string size:int'
-  add_list 'schema:add', %w[db table columns_], 'Add new columns to a table', 'schema:add example_db table1 user:string size:int'
-  add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table', 'schema:remove example_db table1 user size'
+  add_list 'schema:show', %w[db table], 'Show schema of a table', ['schema example_db table1']
+  add_list 'schema:set', %w[db table columns_?], 'Set new schema on a table', ['schema:set example_db table1 user:string size:int']
+  add_list 'schema:add', %w[db table columns_], 'Add new columns to a table', ['schema:add example_db table1 user:string size:int']
+  add_list 'schema:remove', %w[db table columns_], 'Remove columns from a table', ['schema:remove example_db table1 user size']
 
-  add_list 'sched:list', %w[], 'Show list of schedules', 'sched:list', 'scheds'
-  add_list 'sched:create', %w[name cron sql?], 'Create a schedule', 'sched:create sched1 "0 * * * *" -d example_db "select count(*) from table1" -r rset1',
-                                                                    'sched:create sched1 "0 * * * *" -d example_db -q query.txt -r rset2'
-  add_list 'sched:delete', %w[name], 'Delete a schedule', 'sched:delete sched1'
-  add_list 'sched:update', %w[name], 'Modify a schedule', 'sched:update sched1 -s "0 */2 * * *" -d my_db -t "Asia/Tokyo" -D 3600'
-  add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', 'sched sched1 --page 1'
-  add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', 'sched:run sched1 "2013-01-01 00:00:00" -n 6'
+  add_list 'sched:list', %w[], 'Show list of schedules', ['sched:list', 'scheds']
+  add_list 'sched:create', %w[name cron sql?], 'Create a schedule', ['sched:create sched1 "0 * * * *" -d example_db "select count(*) from table1" -r rset1',
+                                                                    'sched:create sched1 "0 * * * *" -d example_db -q query.txt -r rset2']
+  add_list 'sched:delete', %w[name], 'Delete a schedule', ['sched:delete sched1']
+  add_list 'sched:update', %w[name], 'Modify a schedule', ['sched:update sched1 -s "0 */2 * * *" -d my_db -t "Asia/Tokyo" -D 3600']
+  add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', ['sched sched1 --page 1']
+  add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', ['sched:run sched1 "2013-01-01 00:00:00" -n 6']
 
-  add_list 'query', %w[sql?], 'Issue a query', 'query -d example_db -w -r rset1 "select count(*) from table1"',
-                                               'query -d example_db -w -r rset1 -q query.txt'
+  add_list 'query', %w[sql?], 'Issue a query', ['query -d example_db -w -r rset1 "select count(*) from table1"',
+                                               'query -d example_db -w -r rset1 -q query.txt']
 
-  add_list 'job:show', %w[job_id], 'Show status and result of a job', 'job:show 1461'
-  add_list 'job:status', %w[job_id], 'Show status progress of a job', 'job:status 1461'
-  add_list 'job:list', %w[max?], 'Show list of jobs', 'jobs', 'jobs --page 1'
-  add_list 'job:kill', %w[job_id], 'Kill or cancel a job', 'job:kill 1461'
+  add_list 'job:show', %w[job_id], 'Show status and result of a job', ['job:show 1461']
+  add_list 'job:status', %w[job_id], 'Show status progress of a job', ['job:status 1461']
+  add_list 'job:list', %w[max?], 'Show list of jobs', ['jobs', 'jobs --page 1']
+  add_list 'job:kill', %w[job_id], 'Kill or cancel a job', ['job:kill 1461']
 
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
   add_list 'account:usage', %w[user_name?], 'Show resource usage information'
   add_list 'password:change', %w[], 'Change password'
-  add_list 'apikey:show', %w[], 'Show Treasure Data API key'
-  add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key'
+  add_list 'apikey:show', %w[], 'Show Treasure Data API key', [], false
+  add_list 'apikey:set', %w[apikey], 'Set Treasure Data API key', [], false
 
   add_list 'user:list', %w[], 'Show list of users'
   add_list 'user:show', %w[name], 'Show an user'
@@ -308,12 +309,12 @@ module List
   # TODO acl:test
 
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
-  add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint (must be a valid URI)", "td server:endpoint 'https://api.treasuredata.com'"
+  add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint (must be a valid URI)", ["td server:endpoint 'https://api.treasuredata.com'"]
 
-  add_list 'sample:apache', %w[path.json], 'Create a sample log file'
+  add_list 'sample:apache', %w[path.json], 'Create a sample log file', [], false
 
-  add_list 'help:all', %w[], 'Show usage of all commands'
-  add_list 'help', %w[command], 'Show usage of a command'
+  add_list 'help:all', %w[], 'Show usage of all commands', [], false
+  add_list 'help', %w[command], 'Show usage of a command', [], false
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 

@@ -144,7 +144,7 @@ EOF
       Encoding.default_external = 'UTF-8' if Encoding.respond_to?(:default_external)
     end
 
-    method = Command::List.get_method(cmd)
+    method, cmd_req_connectivity = Command::List.get_method(cmd)
     unless method
       $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
       Command::List.show_guess(cmd)
@@ -152,6 +152,10 @@ EOF
     end
 
     begin
+      # test the connectivity with the API endpoint
+      if cmd_req_connectivity && Config.cl_endpoint
+        Command.test_api_endpoint(Config.endpoint)
+      end
       method.call(argv)
     rescue ConfigError
       $stderr.puts "TreasureData account is not configured yet."

@@ -12,12 +12,15 @@ module Command
   def server_endpoint(op)
     endpoint = op.cmd_parse
 
-    Command.validate_api_endpoint(endpoint)
-
     if Config.cl_endpoint and endpoint != Config.endpoint
       raise ParameterConfigurationError,
-            "You specified the API server endpoint in the command options as well (-e / --endpoint option) but it does not match the value provided to the 'server:endpoint' command. Please remove the option or ensure the endpoints URLs match each other."
+            "You specified the API server endpoint in the command options as well (-e / --endpoint " +
+            "option) but it does not match the value provided to the 'server:endpoint' command. " +
+            "Please remove the option or ensure the endpoints URLs match each other."
     end
+
+    Command.validate_api_endpoint(endpoint)
+    Coomand.test_api_endpoint(endpoint)
 
     conf = nil
     begin

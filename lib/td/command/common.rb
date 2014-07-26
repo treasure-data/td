@@ -253,7 +253,9 @@ EOS
         end
       }
     end
+  end
 
+  def self.test_api_endpoint(endpoint)
     begin
       # although the API may return 'Server is down' that is a good enough
       #   indication that we hit a valid TD endpoint to accept it
