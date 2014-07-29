@@ -23,7 +23,7 @@ task 'exe:build' => :build do
       install_resource 'exe/td-cmd.bat', 'td-cmd.bat', 0755
     end
 
-    zip_files(project_root_path('pkg/td-update-exe.zip'), 'td')
+    zip_files(project_root_path("pkg/td-update-exe-#{version}.zip"), 'td')
 
     # create td.iss and run Inno Setup
     install_erb_resource 'exe/td.iss', 'td.iss', 0644, variables
@@ -41,6 +41,6 @@ desc "clean Windows exe package"
 task "exe:clean" do
   FileUtils.rm_rf build_dir_path('exe')
   FileUtils.rm_rf project_root_path("pkg/td-#{version}.exe")
-  FileUtils.rm_rf project_root_path("pkg/td-update-exe.zip")
+  FileUtils.rm_rf project_root_path("pkg/td-update-exe-#{version}.zip")
 end
 

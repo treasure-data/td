@@ -103,7 +103,7 @@ module Updater
     when on_mac?
       'pkg'
     else
-      raise_error "Non supported environment"
+      raise_error "Environment not supported"
     end
   end
 

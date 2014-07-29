@@ -16,7 +16,7 @@ task 'pkg:build' => :build do
       sh "pax -wz -x cpio . > ../bundle/td-client.pkg/Payload"
     end
 
-    zip_files(project_root_path('pkg/td-update-pkg.zip'), 'td-client.build')
+    zip_files(project_root_path("pkg/td-update-pkg-#{version}.zip"), 'td-client.build')
 
     # create ./bundle/td-client.pkg/Bom
     sh "mkbom -s td-client.build bundle/td-client.pkg/Bom"
@@ -49,6 +49,6 @@ desc "clean Mac OS X pkg package"
 task "pkg:clean" do
   FileUtils.rm_rf build_dir_path('pkg')
   FileUtils.rm_rf project_root_path("pkg/td-#{version}.pkg")
-  FileUtils.rm_rf project_root_path("pkg/td-update-pkg.zip")
+  FileUtils.rm_rf project_root_path("pkg/td-update-pkg-#{version}.zip")
 end
 
