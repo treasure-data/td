@@ -81,7 +81,15 @@ module Command
 
   private
   def import_by_java(subcmd)
-    check_n_update_jar(true)
+    begin
+      check_n_update_jar(true)
+    rescue UpdateError => e
+      unless subcmd == "prepare"
+        raise e
+      else
+        puts "Warning: #{e.message}"
+      end
+    end
 
     # check java runtime exists or not
     check_java
