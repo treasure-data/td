@@ -132,7 +132,8 @@ module Updater
     when Net::HTTPSuccess then response.body
     when Net::HTTPRedirection then fetch(response['Location'])
     else
-      raise "An error occurred when fetching from '#{url}'."
+      raise Command::UpdateError,
+            "An error occurred when fetching from '#{url}'."
       response.error!
     end
   end
