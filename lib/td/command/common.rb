@@ -279,6 +279,15 @@ EOS
     end
   end
 
+  def self.find_files(glob, locations)
+    files = []
+    locations.each {|loc|
+      files = Dir.glob("#{loc}/#{glob}")
+      break unless files.empty?
+    }
+    files
+  end
+
   class DownloadProgressIndicator
     def initialize(msg, start_time, periodicity)
       @base_msg = msg

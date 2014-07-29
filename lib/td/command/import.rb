@@ -236,5 +236,41 @@ module Command
     sysprops << "-Dhttp.proxyPort=#{proxy_port}" if proxy_port
   end
 
+  #
+  # Helpers
+  #
+
+  # find logging.properties file, first in the jarfile_dest_path, then in the
+  #   installed_path
+  def find_logging_property
+    installed_path = File.join(File.expand_path('../../..', File.dirname(__FILE__)), 'java')
+    config = Command.find_files("logging.properties", [Updater.jarfile_dest_path, installed_path])
+    if config.empty?
+      puts "Cannot find 'logging.properties' file in '#{Updater.jarfile_dest_path}' or " +
+           "'#{installed_path}'." unless ENV['TD_TOOLBELT_DEBUG'].nil?
+      []
+    else
+      config.first
+    end
+  end
+
+  def find_td_import_jar
+    jar = Command.find_files('td-import.jar', [Updater.jarfile_dest_path])
+    if jar.empty?
+      $stderr.puts "Cannot find td-import.jar in '#{Updater.jarfile_dest_path}'."
+      exit 10
+    end
+    jar.first
+  end
+
+  def find_version_file
+    version = Command.find_files('VERSION', [Updater.jarfile_dest_path])
+    if version.empty?
+      $stderr.puts "Cannot find VERSION file in '#{Updater.jarfile_dest_path}'."
+      exit 10
+    end
+    version.first
+  end
+
 end
 end

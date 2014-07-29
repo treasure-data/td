@@ -253,8 +253,8 @@ module Updater
   #
 
   # locate the root of the td package which is 3 folders up from the location of this file
-  def jarfile_dest_path
-    File.join(Updater.home_directory, ".td", "java")
+  def self.jarfile_dest_path
+    File.join(home_directory, ".td", "java")
   end
 
   private
@@ -326,8 +326,8 @@ module Updater
     last_updated = existent_jar_updated_time
 
     if updated > last_updated
-      FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(jarfile_dest_path)
-      Dir.chdir jarfile_dest_path
+      FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
+      Dir.chdir Updater.jarfile_dest_path
 
       File.open('VERSION', 'w') {|f|
         if hourly
@@ -351,7 +351,7 @@ module Updater
       indicator.finish()
 
       if status
-        puts "Installed td-import.jar v#{version} in '#{jarfile_dest_path}'.\n"
+        puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
         File.rename 'td-import.jar.new', 'td-import.jar'
       else
         puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
@@ -386,12 +386,12 @@ module Updater
 
   private
   def last_jar_autoupdate_timestamp
-    File.join(jarfile_dest_path, "td-import-java.version")
+    File.join(Updater.jarfile_dest_path, "td-import-java.version")
   end
 
   private
   def existent_jar_updated_time
-    files = find_files("td-import-java.version", [jarfile_dest_path])
+    files = Command.find_files("td-import-java.version", [Updater.jarfile_dest_path])
     if files.empty?
       return Time.at(0)
     end
@@ -404,48 +404,6 @@ module Updater
       time = Time.parse(content[index+1..-1].strip).utc
     end
     time
-  end
-
-  #
-  # Helpers
-  #
-  def find_files(glob, locations)
-    files = []
-    locations.each {|loc|
-      files = Dir.glob("#{loc}/#{glob}")
-      break unless files.empty?
-    }
-    files
-  end
-
-  def find_version_file
-    version = find_files('VERSION', [jarfile_dest_path])
-    if version.empty?
-      $stderr.puts "Cannot find VERSION file in '#{jarfile_dest_path}'."
-      exit 10
-    end
-    version.first
-  end
-
-  def find_td_import_jar
-    jar = find_files('td-import.jar', [jarfile_dest_path])
-    if jar.empty?
-      $stderr.puts "Cannot find td-import.jar in '#{jarfile_dest_path}'."
-      exit 10
-    end
-    jar.first
-  end
-
-  def find_logging_property
-    installed_path = File.join(File.expand_path('../..', File.dirname(__FILE__)), 'java')
-
-    config = find_files("logging.properties", [installed_path])
-    if config.empty?
-      puts "Cannot find 'logging.properties' file in '#{installed_path}'." unless ENV['TD_TOOLBELT_DEBUG'].nil?
-      []
-    else
-      config.first
-    end
   end
 
 end # module Updater
