@@ -486,7 +486,10 @@ module Command
           client.create_database(db_name)
           $stderr.puts "Database '#{db_name}' is created."
         rescue AlreadyExistsError
+          # do nothing
         end
+      rescue ForbiddenError
+        # do nothing
       end
 
       API.validate_table_name(table_name)
@@ -522,28 +525,32 @@ module Command
 
     begin
       db = client.database(db_name)
-    rescue TreasureData::ForbiddenError => e
+    rescue ForbiddenError => e
       puts "Warning: database and table validation skipped - #{e.message}"
     else
       begin
         table = db.table(table_name)
-      rescue TreasureData::ForbiddenError => e
+      rescue ForbiddenError => e
         puts "Warning: table validation skipped - #{e.message}"
       end
     end
 
     require 'zlib'
 
-    files = paths.map {|path|
-      if path == '-'
-        $stdin
-      elsif path =~ /\.gz$/
-        require 'td/compat_gzip_reader'
-        Zlib::GzipReader.open(path)
-      else
-        File.open(path)
-      end
-    }
+    begin
+      files = paths.map {|path|
+        if path == '-'
+          $stdin
+        elsif path =~ /\.gz$/
+          require 'td/compat_gzip_reader'
+          Zlib::GzipReader.open(path)
+        else
+          File.open(path)
+        end
+      }
+    rescue Errno::ENOENT => e
+      raise ImportError, e.message
+    end
 
     require 'msgpack'
     require 'tempfile'
