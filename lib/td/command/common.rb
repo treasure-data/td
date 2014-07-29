@@ -293,7 +293,7 @@ EOS
   class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
     def update
       # progress indicator
-      if (time = Time.now.to_i) - @last_time > @periodicity
+      if (time = Time.now.to_i) - @last_time >= @periodicity
         msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
         print msg + " " * 10
         @last_time = time
