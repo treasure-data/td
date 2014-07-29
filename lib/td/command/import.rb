@@ -34,15 +34,15 @@ module Command
   end
 
   def import_prepare(op)
-    import_by_java('prepare')
+    import_by_java(op)
   end
 
   def import_upload(op)
-    import_by_java('upload')
+    import_by_java(op)
   end
 
   def import_auto(op)
-    import_by_java('auto')
+    import_by_java(op)
   end
 
   def import_perform(op)
@@ -80,14 +80,15 @@ module Command
   #
 
   private
-  def import_by_java(subcmd)
+  def import_by_java(op)
+    subcmd = op.name.split(/:/)[1]
     begin
       check_n_update_jar(true)
     rescue UpdateError => e
-      unless subcmd == "prepare"
+      if op.cmd_requires_connectivity
         raise e
       else
-        puts "Warning: #{e.message}"
+        puts "Warning: JAR update skipped for connectivity issues"
       end
     end
 

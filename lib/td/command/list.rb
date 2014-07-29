@@ -3,17 +3,19 @@ module Command
 module List
 
   class CommandParser < OptionParser
-    def initialize(name, req_args, opt_args, varlen, argv)
+    def initialize(name, req_args, opt_args, varlen, argv, req_conn)
       super()
+      @name = name
       @req_args = req_args
       @opt_args = opt_args
       @varlen = varlen
       @argv = argv
       @has_options = false
       @message = ''
+      @cmd_requires_connectivity = req_conn
     end
 
-    attr_accessor :message
+    attr_accessor :message, :name, :cmd_requires_connectivity
 
     def on(*argv)
       @has_options = true
@@ -51,16 +53,16 @@ module List
   end
 
   class CommandOption
-    def initialize(name, args, description, examples = [], requires_connectivity = true)
+    def initialize(name, args, description, examples = [], req_conn = true)
       @name = name
       @args = args
       @description = description.to_s
       @examples = examples
-      @requires_connectivity = requires_connectivity
+      @req_conn = req_conn
       @override_message = nil
     end
 
-    attr_reader :name, :args, :description, :examples, :requires_connectivity
+    attr_reader :name, :args, :description, :examples, :req_conn
     attr_accessor :override_message
 
     def compile!
@@ -85,7 +87,7 @@ module List
 
     def create_optparse(argv)
       compile!
-      op = CommandParser.new(@name, @req_args, @opt_args, @varlen, argv)
+      op = CommandParser.new(@name, @req_args, @opt_args, @varlen, argv, @req_conn)
 
       message = "usage:\n"
       message << "  $ #{File.basename($0)} #{@usage_args}\n"
@@ -130,8 +132,8 @@ module List
   HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
-  def self.add_list(name, args, description, examples = [], cmd_requires_connectivity = true)
-    LIST << COMMAND[name] = CommandOption.new(name, args, description, examples, cmd_requires_connectivity)
+  def self.add_list(name, args, description, examples = [], cmd_req_conn = true)
+    LIST << COMMAND[name] = CommandOption.new(name, args, description, examples, cmd_req_conn)
   end
 
   def self.add_alias(new_cmd, old_cmd)
@@ -158,7 +160,7 @@ module List
       require "td/command/#{group}"
       cmd = name.gsub(/[\:\-]/, '_')
       m = Object.new.extend(Command).method(cmd)
-      return Proc.new {|args| m.call(c.create_optparse(args)) }, c.requires_connectivity
+      return Proc.new { |args| m.call(c.create_optparse(args)) }, c.req_conn
     end
     nil
   end
