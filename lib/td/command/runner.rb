@@ -161,23 +161,21 @@ EOF
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
     rescue => e
-      # work in progress look ahead development: new exceptions are rendered as simple
-      # error messages unless the TD_TOOLBELT_DEBUG variable is not empty.
-      # List of new exceptions:
-      # => ParameterConfigurationError
-      # => BulkImportExecutionError
-      # => UpUpdateError
-      # => ImportError
+      # known exceptions are rendered as simple error messages unless the
+      # TD_TOOLBELT_DEBUG variable is set or the -v / --verbose option is used.
+      # List of known exceptions:
+      #   => ParameterConfigurationError
+      #   => BulkImportExecutionError
+      #   => UpUpdateError
+      #   => ImportError
       require 'td/client/api'
-      # => APIError
-      # => ForbiddenError
-      # => NotFoundError
-      # => AuthError
-      unless [ParameterConfigurationError, BulkImportExecutionError,
-                UpdateError, ImportError,
-              APIError, ForbiddenError, NotFoundError, AuthError]
-              .include?(e.class) &&
-              (ENV['TD_TOOLBELT_DEBUG'].nil? || $version)
+      #   => APIError
+      #   => ForbiddenError
+      #   => NotFoundError
+      #   => AuthError
+      if ![ParameterConfigurationError, BulkImportExecutionError, UpdateError, ImportError,
+            APIError, ForbiddenError, NotFoundError, AuthError].include?(e.class) ||
+         !ENV['TD_TOOLBELT_DEBUG'].nil? || $verbose
         $stderr.puts "Error #{$!.class}: backtrace:"
         $!.backtrace.each {|bt|
           $stderr.puts "  #{bt}"
@@ -185,8 +183,9 @@ EOF
         puts ""
       end
       print "Error: "
-      [ForbiddenError, NotFoundError, AuthError].include?(e.class)
+      if [ForbiddenError, NotFoundError, AuthError].include?(e.class)
         print "#{e.class} - "
+      end
       puts $!.to_s
 
       require 'socket'
