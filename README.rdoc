@@ -1,9 +1,9 @@
 = Treasure Data command line tool
 
-This CUI utility wraps the td-client-ruby (https://github.com/treasure-data/td-client-ruby),
-the REST API for managing databases and jobs on the Treasure Data Cloud.
+This CUI utility wraps the {Ruby Client Library td-client-ruby}[https://github.com/treasure-data/td-client-ruby] 
+to interact with the REST API in managing databases and jobs on the Treasure Data Cloud.
 
-For more about Treasure Data, see <http://treasure-data.com/>.
+For more info about Treasure Data, see <http://treasure-data.com/>.
 
 For full documentation see <http://docs.treasure-data.com/>.
 
@@ -56,6 +56,24 @@ Then run following commands on MinGW Shell:
     $ gem install bundler rubyzip
     $ bundle install  # don't use "--path" option
     $ rake exe:build  # don't use "bundle exec"
+
+== Bulk Import
+
+Some of the +td+ commands prefixed with +td+ +import+ leverages the {Java Bulk Import CLI td-import-java}[https://github.com/treasure-data/td-import-java]
+to process and Bulk load data in the Treasure Data Cloud.
+
+The Bulk Import CLI is downloaded automatically at the first call to any of the command that require it; the use will 
+need internet connectivity in order to fetch the Bulk Import CLI JAR file from the 
+{Central Maven repository}[http://central.maven.org/maven2/com/treasuredata/td-import/]
+and take advantage of these advanced features. If you need to setup a proxy, please consult this 
+{documentation}[http://docs.treasuredata.com/articles/faq#how-can-i-use-the-td-command-through-a-proxy] page.
+
+The log levels and properties of the Bulk Import CLI can be configured in a +logging.properties+ file. A default
+configuration is provided in a file within the gem or Toolbelt folder root, in the +java/+ folder. If you wish to 
+customize it, please make a copy of this file and store it in the:
+
+    ~/.td/java             folder on Mac OSX or Linux
+    %USERPROFILE%\.td\java folder on Windows 
 
 == Testing Hooks
 
