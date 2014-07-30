@@ -340,7 +340,8 @@ EOS
     def update
       if (time = Time.now.to_i) - @last_time >= @periodicity
         msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
-        print msg + " " * 10
+        print "\r" + " " * (msg.length + 10)
+        print msg
         @last_time = time
         true
       else
@@ -354,23 +355,32 @@ EOS
   end
 
   class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
-    def initialize(msg, size, perc_step = 1)
+    def initialize(msg, size, perc_step = 1, min_periodicity = nil)
       @size = size
+
+      # perc_step is how small a percentage increment can be shown
       @perc_step = perc_step
 
+      # min_periodicity=X limits updates to one every X second
+      @start_time = Time.now.to_i
+      @min_periodicity = min_periodicity
+
       # track progress
-      @curr_size = 0
       @last_perc_step = 0
+      @last_time = @start_time
+
       super(msg)
     end
-    def update(chunk_size)
-      @curr_size += chunk_size
-      ratio = @curr_size * 100 / @size
-      # puts "ratio #{ratio} #{@curr_size} #{@size}"
-      if ratio >= (@last_perc_step + @perc_step)
-        msg = "\r#{@base_msg}: #{ratio}%"
-        print msg + " " * 10
+
+    def update(curr_size)
+      ratio = (curr_size.to_f * 100 / @size).round(1)
+      if ratio >= (@last_perc_step + @perc_step) &&
+         (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
+        msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
+        print "\r" + " " * (msg.length + 10)
+        print msg
         @last_perc_step = ratio
+        @last_time = time
         true
       else
         false

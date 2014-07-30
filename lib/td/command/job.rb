@@ -186,7 +186,7 @@ module Command
         puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
       end
       if [:hive, :pig, :impala, :presto].include?(job.type)
-        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
+        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)} #{job.result_size}"
       end
     end
 
@@ -308,13 +308,19 @@ module Command
       open_file(output, "w") {|f|
         f.write "["
         n_rows = 0
-        job.result_each {|row|
+        unless output.nil?
+          indicator = Command::SizeBasedDownloadProgressIndicator.new(
+            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+        end
+        job.result_each_with_compr_size {|row, compr_size|
+          indicator.update(compr_size) unless output.nil?
           f.write ",\n" if n_rows > 0
           f.write Yajl.dump(row)
           n_rows += 1
           break if output.nil? and !limit.nil? and n_rows == limit
         }
         f.write "]"
+        indicator.finish
       }
       puts if output.nil?
 
@@ -324,7 +330,6 @@ module Command
 
       open_file(output, "w") {|f|
         writer = CSV.new(f)
-        n_rows = 0
         # output headers
         if render_opts[:header] && job.hive_result_schema
           writer << job.hive_result_schema.map {|name,type|
@@ -332,7 +337,13 @@ module Command
           }
         end
         # output data
-        job.result_each {|row|
+        n_rows = 0
+        unless output.nil?
+          indicator = Command::SizeBasedDownloadProgressIndicator.new(
+            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+        end
+        job.result_each_with_compr_size {|row, compr_size|
+          indicator.update(compr_size) unless output.nil?
           # TODO limit the # of columns
           writer << row.map {|col|
             dump_column(col)
@@ -341,6 +352,7 @@ module Command
           writer.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
+        indicator.finish
       }
 
     when 'tsv'
@@ -356,7 +368,12 @@ module Command
         end
         # output data
         n_rows = 0
-        job.result_each {|row|
+        unless output.nil?
+          indicator = Command::SizeBasedDownloadProgressIndicator.new(
+            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+        end
+        job.result_each_with_compr_size {|row, compr_size|
+          indicator.update(compr_size) unless output.nil?
           n_cols = 0
           row.each {|col|
             f.write "\t" if n_cols > 0
@@ -369,6 +386,7 @@ module Command
           f.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
+        indicator.finish
       }
 
     # these last 2 formats are only valid if writing the result to file through the -o/--output option.
@@ -378,8 +396,13 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
+      indicator = Command::SizeBasedDownloadProgressIndicator.new(
+        "NOTE: the query result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
-        job.result_format('msgpack', f)
+        job.result_format('msgpack', f) {|compr_size|
+          indicator.update(compr_size)
+        }
+        indicator.finish
       }
 
     when 'msgpack.gz'
@@ -387,8 +410,13 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
+      indicator = Command::SizeBasedDownloadProgressIndicator.new(
+        "NOTE: the query result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
-        job.result_format('msgpack.gz', f)
+        job.result_format('msgpack.gz', f) {|compr_size|
+          indicator.update(compr_size)
+        }
+        indicator.finish
       }
 
     else
@@ -417,9 +445,11 @@ module Command
       # display result in tabular format
       rows = []
       n_rows = 0
-      print "WARNING: the query result is being downloaded...\r"
-      job.result_each {|row|
-        # TODO limit number of rows to show
+
+      indicator = Command::SizeBasedDownloadProgressIndicator.new(
+        "WARNING: the query result is being downloaded...", job.result_size, 0.1, 1)
+      job.result_each_with_compr_size {|row, compr_size|
+        indicator.update(compr_size)
         rows << row.map {|v|
           dump_column(v)
         }
