@@ -136,6 +136,7 @@ module Command
   def sched_update(op)
     require 'td/command/job'  # job_priority_id_of
 
+    newname = nil
     cron = nil
     sql = nil
     db_name = nil
@@ -146,6 +147,9 @@ module Command
     retry_limit = nil
     type = nil
 
+    op.on('-n', '--newname NAME', 'change the schedule\'s name') {|n|
+      newname = n
+    }
     op.on('-s', '--schedule CRON', 'change the schedule') {|s|
       cron = s
     }
@@ -183,10 +187,10 @@ module Command
       type = s
     }
 
-
-    name = op.cmd_parse
+    curname = op.cmd_parse
 
     params = {}
+    params['name'] = newname if newname
     params['cron'] = cron if cron
     params['query'] = sql if sql
     params['database'] = db_name if db_name
@@ -205,15 +209,19 @@ module Command
     client = get_client
 
     begin
-      client.update_schedule(name, params)
+      client.update_schedule(curname, params)
     rescue NotFoundError
       cmd_debug_error $!
-      $stderr.puts "Schedule '#{name}' does not exist."
+      $stderr.puts "Schedule '#{curname}' does not exist."
       $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "sched:list' to show list of the schedules."
       exit 1
     end
 
-    $stderr.puts "Schedule '#{name}' is updated."
+    if newname && curname != newname
+      puts "Schedule '#{curname}' is updated and its name changed to '#{newname}'."
+    else
+      puts "Schedule '#{curname}' is updated."
+    end
   end
 
   def sched_history(op)

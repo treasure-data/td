@@ -20,6 +20,9 @@ module Command
   class UpdateError < ArgumentError
   end
 
+  class ImportError < RuntimeError
+  end
+
   private
   def initialize
     @render_indent = ''
@@ -108,9 +111,9 @@ module Command
 
   def normalized_message
     <<EOS
-Your event has large number larger than 2^64.
+Your event has numbers larger than 2^64.
 These numbers are converted into string type.
-So you should use cast operator, e.g. cast(v['key'] as decimal), in your query.
+You should consider using the cast operator in your query: e.g. cast(v['key'] as decimal).
 EOS
   end
 
@@ -125,7 +128,7 @@ EOS
       $!.backtrace.each {|b|
         $stderr.puts "  #{b}"
       }
-        $stderr.puts ""
+      $stderr.puts ""
     end
   end
 
@@ -271,6 +274,10 @@ EOS
       raise ParameterConfigurationError,
             "API server endpoint URL must use 'http' or 'https' protocol. Example format: 'https://api.treasuredata.com'"
     end
+    unless uri.path =~ /^\/*$/
+      raise ParameterConfigurationError,
+            "API server path must be empty ('#{uri.path}' provided). Example format: 'https://api.treasuredata.com'"
+    end
 
     if !(md = /(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})/.match(uri.host)).nil? # IP address
       md[1..-1].each { |v|
@@ -279,15 +286,17 @@ EOS
                 "API server IP address must a 4 integers tuple, with every integer in the [0,255] range. Example format: 'https://1.2.3.4'"
         end
       }
-    else # host name validation
-      unless uri.host =~ /\.treasure\-?data\.com$/
-        raise ParameterConfigurationError,
-              "API server endpoint URL must end with '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'"
-      end
-      unless uri.host =~ /[\d\w\.]+\.treasure\-?data\.com$/
-        raise ParameterConfigurationError,
-              "API server endpoint URL must have prefix before '.treasuredata.com' or '.treasure-data.com'. Example format: 'https://api.treasuredata.com'."
-      end
+    end
+  end
+
+  def self.test_api_endpoint(endpoint)
+    begin
+      # although the API may return 'Server is down' that is a good enough
+      #   indication that we hit a valid TD endpoint to accept it
+      Client.server_status(:endpoint => endpoint)
+    rescue
+      raise ParameterConfigurationError,
+            "The specified API server endpoint (#{endpoint}) does not respond."
     end
   end
 
@@ -302,6 +311,15 @@ EOS
     else
       return Net::HTTP
     end
+  end
+
+  def self.find_files(glob, locations)
+    files = []
+    locations.each {|loc|
+      files = Dir.glob("#{loc}/#{glob}")
+      break unless files.empty?
+    }
+    files
   end
 
   class DownloadProgressIndicator

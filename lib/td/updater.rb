@@ -103,7 +103,7 @@ module Updater
     when on_mac?
       'pkg'
     else
-      raise_error "Non supported environment"
+      raise_error "Environment not supported"
     end
   end
 
@@ -132,7 +132,8 @@ module Updater
     when Net::HTTPSuccess then response.body
     when Net::HTTPRedirection then fetch(response['Location'])
     else
-      raise "An error occurred when fetching from '#{url}'."
+      raise Command::UpdateError,
+            "An error occurred when fetching from '#{url}'."
       response.error!
     end
   end
@@ -252,8 +253,8 @@ module Updater
   #
 
   # locate the root of the td package which is 3 folders up from the location of this file
-  def jarfile_dest_path
-    File.join(Updater.home_directory, ".td", "java")
+  def self.jarfile_dest_path
+    File.join(home_directory, ".td", "java")
   end
 
   private
@@ -280,10 +281,13 @@ module Updater
         return true
       elsif response.class == Net::HTTPFound || \
             response.class == Net::HTTPRedirection
-        puts "redirect '#{url}' to '#{response['Location']}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
+        unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          puts "redirect '#{url}' to '#{response['Location']}'... "
+        end
         return stream_fetch(response['Location'], binfile, &progress)
       else
-        raise "An error occurred when fetching from '#{uri}' " +
+        raise Command::UpdateError,
+              "An error occurred when fetching from '#{uri}' " +
               "(#{response.class.to_s}: #{response.message})."
         return false
       end
@@ -296,23 +300,25 @@ module Updater
     require 'open-uri'
     require 'fileutils'
 
-    maven_repo = "http://maven.treasure-data.com/com/treasure_data/td-import"
+    maven_repo = "http://central.maven.org/maven2/com/treasuredata/td-import"
 
     begin
       xml = Updater.fetch("#{maven_repo}/maven-metadata.xml")
     rescue Exception => exc
       raise Command::UpdateError,
-            "There was a problem accessing the remote XML resource '#{maven_repo}/maven-metadata.xml' " +
-            "(#{exc.class.to_s}: #{exc.message})"
+            "There was a problem accessing the remote XML resource " +
+            "'#{maven_repo}/maven-metadata.xml' (#{exc.class.to_s}: #{exc.message})"
     end
     if xml.nil? || xml.empty?
       raise Command::UpdateError,
-            "The remote XML resource '#{maven_repo}/maven-metadata.xml' returned an empty file."
+            "The remote XML resource '#{maven_repo}/maven-metadata.xml' " +
+            "returned an empty file."
     end
 
     # read version and update date from the xml file
     doc = REXML::Document.new(xml)
-    updated = Time.strptime(REXML::XPath.match(doc, '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
+    updated = Time.strptime(REXML::XPath.match(doc,
+      '/metadata/versioning/lastUpdated').first.text, "%Y%m%d%H%M%S")
     version = REXML::XPath.match(doc, '/metadata/versioning/release').first.text
 
     # Convert into UTF to compare time correctly
@@ -320,23 +326,32 @@ module Updater
     last_updated = existent_jar_updated_time
 
     if updated > last_updated
-      FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(jarfile_dest_path)
-      Dir.chdir jarfile_dest_path
+      FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
+      Dir.chdir Updater.jarfile_dest_path
 
-      File.open('VERSION', 'w') { |f| f.print "#{version} via import:jar_update" }
-      File.open('td-import-java.version', 'w') { |f| f.print "#{version} #{updated}" }
+      File.open('VERSION', 'w') {|f|
+        if hourly
+          f.print "#{version} via hourly jar auto-update"
+        else
+          f.print "#{version} via import:jar_update command"
+        end
+      }
+      File.open('td-import-java.version', 'w') {|f|
+        f.print "#{version} #{updated}"
+      }
 
+      status = nil
       indicator = Command::TimeBasedDownloadProgressIndicator.new(
         "Updating td-import.jar", Time.new.to_i, 2)
-      binfile = File.open 'td-import.jar.new', 'wb'
-      status = Updater.stream_fetch("#{maven_repo}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile) {
-        indicator.update
+      File.open('td-import.jar.new', 'wb') {|binfile|
+        status = Updater.stream_fetch("#{maven_repo}/#{version}/td-import-#{version}-jar-with-dependencies.jar", binfile) {
+          indicator.update
+        }
       }
-      binfile.close
       indicator.finish()
 
       if status
-        puts "Installed td-import.jar v#{version} in '#{jarfile_dest_path}'.\n"
+        puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
         File.rename 'td-import.jar.new', 'td-import.jar'
       else
         puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
@@ -371,12 +386,12 @@ module Updater
 
   private
   def last_jar_autoupdate_timestamp
-    File.join(jarfile_dest_path, "td-import-java.version")
+    File.join(Updater.jarfile_dest_path, "td-import-java.version")
   end
 
   private
   def existent_jar_updated_time
-    files = find_files("td-import-java.version", [jarfile_dest_path])
+    files = Command.find_files("td-import-java.version", [Updater.jarfile_dest_path])
     if files.empty?
       return Time.at(0)
     end
@@ -389,48 +404,6 @@ module Updater
       time = Time.parse(content[index+1..-1].strip).utc
     end
     time
-  end
-
-  #
-  # Helpers
-  #
-  def find_files(glob, locations)
-    files = []
-    locations.each {|loc|
-      files = Dir.glob("#{loc}/#{glob}")
-      break unless files.empty?
-    }
-    files
-  end
-
-  def find_version_file
-    version = find_files('VERSION', [jarfile_dest_path])
-    if version.empty?
-      $stderr.puts "Cannot find VERSION file in '#{jarfile_dest_path}'."
-      exit 10
-    end
-    version.first
-  end
-
-  def find_td_import_jar
-    jar = find_files('td-import.jar', [jarfile_dest_path])
-    if jar.empty?
-      $stderr.puts "Cannot find td-import.jar in '#{jarfile_dest_path}'."
-      exit 10
-    end
-    jar.first
-  end
-
-  def find_logging_property
-    installed_path = File.join(File.expand_path('../..', File.dirname(__FILE__)), 'java')
-
-    config = find_files("logging.properties", [installed_path])
-    if config.empty?
-      puts "Cannot find 'logging.properties' file in '#{installed_path}'." unless ENV['TD_TOOLBELT_DEBUG'].nil?
-      []
-    else
-      config.first
-    end
   end
 
 end # module Updater

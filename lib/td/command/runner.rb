@@ -59,9 +59,9 @@ Type 'td help COMMAND' for more information on a specific command.
 EOF
         if errmsg
           puts "Error: #{errmsg}"
-          exit 1
+          return 1
         else
-          exit 0
+          return 0
         end
       end
     end
@@ -104,17 +104,17 @@ EOF
     #}
 
     op.on('-h', '--help', "show help") {
-      usage nil
+      return usage nil
     }
 
     op.on('--version', "show version") {
       puts op.version
-      exit
+      return 0
     }
 
     begin
       op.order!(argv)
-      usage nil if argv.empty?
+      return usage nil if argv.empty?
       cmd = argv.shift
 
       # NOTE: these information are loaded from by each command through
@@ -135,7 +135,7 @@ EOF
         Config.secure = false
       end
     rescue
-      usage $!.to_s
+      return usage $!.to_s
     end
 
     require 'td/command/list'
@@ -144,37 +144,49 @@ EOF
       Encoding.default_external = 'UTF-8' if Encoding.respond_to?(:default_external)
     end
 
-    method = Command::List.get_method(cmd)
+    method, cmd_req_connectivity = Command::List.get_method(cmd)
     unless method
       $stderr.puts "'#{cmd}' is not a td command. Run '#{$prog}' to show the list."
       Command::List.show_guess(cmd)
-      exit 1
+      return 1
     end
 
     begin
+      # test the connectivity with the API endpoint
+      if cmd_req_connectivity && Config.cl_endpoint
+        Command.test_api_endpoint(Config.endpoint)
+      end
       method.call(argv)
     rescue ConfigError
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
     rescue => e
-      # work in progress look ahead development: new exceptions are rendered as simple
-      # error messages unless the TD_TOOLBELT_DEBUG variable is not empty.
-      # List of new exceptions:
-      # => ParameterConfigurationError
-      # => BulkImportExecutionError
-      # => UpUpdateError
+      # known exceptions are rendered as simple error messages unless the
+      # TD_TOOLBELT_DEBUG variable is set or the -v / --verbose option is used.
+      # List of known exceptions:
+      #   => ParameterConfigurationError
+      #   => BulkImportExecutionError
+      #   => UpUpdateError
+      #   => ImportError
       require 'td/client/api'
-      # => APIError
-      unless [ParameterConfigurationError, BulkImportExecutionError, UpdateError,
-              APIError]
-              .include?(e.class) && ENV['TD_TOOLBELT_DEBUG'].nil?
+      #   => APIError
+      #   => ForbiddenError
+      #   => NotFoundError
+      #   => AuthError
+      if ![ParameterConfigurationError, BulkImportExecutionError, UpdateError, ImportError,
+            APIError, ForbiddenError, NotFoundError, AuthError].include?(e.class) ||
+         !ENV['TD_TOOLBELT_DEBUG'].nil? || $verbose
         $stderr.puts "Error #{$!.class}: backtrace:"
-        $!.backtrace.each {|b|
-          $stderr.puts "  #{b}"
+        $!.backtrace.each {|bt|
+          $stderr.puts "  #{bt}"
         }
         puts ""
       end
-      puts "Error: " + $!.to_s
+      print "Error: "
+      if [ForbiddenError, NotFoundError, AuthError].include?(e.class)
+        print "#{e.class} - "
+      end
+      puts $!.to_s
 
       require 'socket'
       if e.is_a?(::SocketError)
