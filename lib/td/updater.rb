@@ -326,7 +326,7 @@ module Updater
     last_updated = existent_jar_updated_time
 
     if updated > last_updated
-      FileUtils.mkdir_p(jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
+      FileUtils.mkdir_p(Updater.jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
       Dir.chdir Updater.jarfile_dest_path
 
       File.open('VERSION', 'w') {|f|
