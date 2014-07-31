@@ -1,3 +1,33 @@
+== 2014-07-30 version 0.11.3
+
+* Support name updates for schedules using sched:update command
+* Update Bulk Import JAR file repository to Central Maven Repository where
+  the Bulk Import JAR file is now hosted
+* Require Ruby v1.9 or superior for td to work ==> deprecated Ruby v1.8
+* Limit the number of keys in the input file (JSON, Msgoack) that can be
+  imported in one import to 512 as per the backend's limitations
+* Fixed import:create to work with import-only permissions and write-only API
+  keys
+* Handle NotFoundError, AuthError, and ForbiddenError to suppress printing of
+  the exception stack traces but yet show the exception class name for reference
+  back to the actual HTTP error code
+* validate the endpoints provided by -e / --endpoint using the Health-check
+  REST API /v3/system/server_status. Validation is avoided for any command
+  that does not require connectivity with the Treasure Data REST API server
+* JAR update errors are ignored when running import:prepare. This command
+  does not require connectivity and can be ran even when the machine is not
+  connected to the internet
+* Fixed Time based progress indicator to reflect the update interval exactly
+* Read logging.properties Logging configuration file from ~/.td/java first,
+  then the td repository's location (default). This allows customization of
+  the logging for the Java Bulk Import CLI (td-import-java).
+* Improve job result downloading by showing the total downloaded size and
+  percentage progress (Size based progress indicator). This is done when
+  printing the result in tabular format or writing the result on file in csv,
+  tsv, json, msgpack, or msgpack.gz formats. When displaying the result in csv,
+  tsv, and json format on stdout, the progress indicator is not used since the
+  data is progressively streamed in as it's received from the API server
+
 == 2014-06-18 version 0.11.2
 
 * Improve the update experience by showing a download progress indicator
@@ -7,7 +37,7 @@
 * Add support for other/alternative backends using the -e / --endpoint
   option. The backend can be also saved on the configuration file of use
   via the 'td server:endpoint' or when running 'td -e <newendpoint> account'
-  command. The TD_API_SERVER environment variable still takes precendence
+  command. The TD_API_SERVER environment variable still takes precedence
   over all these settings
 * Removed Treasure Data Result Output database and table name client side
   validation since it's performed in the API backend
@@ -82,7 +112,7 @@
 * Add --format option to some subcommands to specify render format. json, csv and tsv.
 * job:show and query subcommand now accept --format option without --output
 * Show -k option in command result message if -k option is given.
-* Support import:jar_update subcommand to update td-import seperately
+* Support import:jar_update subcommand to update td-import separately
 
 
 == 2013-11-20 version 0.10.95
@@ -109,10 +139,10 @@
 
 == 2013-11-05 version 0.10.92
 
-* Improve import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long unix timestamp.
-* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
-* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss Z' time format automatically without specifying 'time-format' and transfer into long unix timestamp.
-* Add 'regex' to source file format option of import:prepare command.
+* Improve import commands. It can parse string values of 'HH:mm:ss' time format automatically without specifying '%T' and transfer into long Unix timestamp.
+* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss' time format automatically without specifying 'time-format' and transfer into long Unix timestamp.
+* Improve import commands. It can parse string values of 'yyyy/MM/dd HH:mm:ss Z' time format automatically without specifying 'time-format' and transfer into long Unix timestamp.
+* Add 'regexp' to source file format option of import:prepare command.
 * Fix import:upload command. NullPointerException often occurs when data files are uploaded.
 
 
@@ -205,7 +235,7 @@
 == 2013-05-27 version 0.10.78
 
 * Add -q(--query) option to sched:create command
-* Add -x option to job:show, exlude result from automatically being downloaded
+* Add -x option to job:show, exclude result from automatically being downloaded
 * Update parallel gem dependency to 0.6.1 or later
 * user:add now requires email and password
 * td-client v0.8.50
@@ -214,8 +244,8 @@
 == 2013-05-06 version 0.10.77
 
 * Fix 'invalid byte sequence in UTF-8' at job result writing to CSV
-* Fix installed version check mechanizm of auto updater
-* Remove using curses to detect terminal height for Windows unexpected behaviour
+* Fix installed version check mechanism of auto updater
+* Remove using curses to detect terminal height for Windows unexpected behavior
 * Set User-Agent header
 
 
@@ -280,7 +310,8 @@
 
 == 2013-01-22 version 0.10.68
 
-* Fixed cmdline argument handling problems of bulk_import:prepare_parts2 subcommand
+* Fixed command-line argument handling problems of
+  bulk_import:prepare_parts2 subcommand
 
 
 == 2013-01-18 version 0.10.67
@@ -412,7 +443,7 @@ results on console
 
 * bulk_import:prepare_parts supports --true and --false type conversion options
 * bulk_import:prepare_parts supports --time-value option
-* bulk_import:prepare_parts convers /null/i to NULL by default
+* bulk_import:prepare_parts converts /null/i to NULL by default
 
 
 == 2012-09-04 version 0.10.44
@@ -432,7 +463,7 @@ results on console
 
 == 2012-08-30 version 0.10.41
 
-* Supports HTTP_PROXY environemnt variable to use a proxy server
+* Supports HTTP_PROXY environment variable to use a proxy server
 
 
 == 2012-08-07 version 0.10.40
@@ -662,7 +693,7 @@ results on console
 * Added new feature: status
 * Refined usage message
 * Fixed argument length check
-* help subcommand shows commandline examples
+* help subcommand shows command-line examples
 * table:tail subcommand reduced default max row number
 * job:list subcommand supports --running and --error options
 
@@ -759,7 +790,7 @@ results on console
 
 == 2011-09-08 version 0.9.0
 
-* Changed subcommands grammer: action-group -> group:action
+* Changed subcommands grammar: action-group -> group:action
 * Fixed import subcommand to strip \n
 
 
