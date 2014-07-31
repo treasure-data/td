@@ -468,7 +468,8 @@ module Command
         render_opts[:change_fields] = job.hive_result_schema.map { |name,type| name }
       end
 
-      puts cmd_render_table(rows, render_opts)
+      print "\r" + " " * 50
+      puts "\r" + cmd_render_table(rows, render_opts)
     else
       # display result in any of: json, csv, tsv.
       # msgpack and mspgpack.gz are not supported for stdout output
