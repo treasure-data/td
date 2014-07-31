@@ -388,7 +388,7 @@ EOS
     end
 
     def finish
-      puts "\r#{@base_msg}...done" + " " * 20
+      print "\r#{@base_msg}...done" + " " * 20
     end
   end
 

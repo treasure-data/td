@@ -291,7 +291,7 @@ module Command
   def show_result(job, output, limit, format, render_opts={})
     if output
       write_result(job, output, limit, format, render_opts)
-      puts "written to #{output} in #{format} format"
+      puts "\rwritten to #{output} in #{format} format"
     else
       # every format that is allowed on stdout
       render_result(job, limit, format, render_opts)
