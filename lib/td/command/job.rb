@@ -320,7 +320,7 @@ module Command
           break if output.nil? and !limit.nil? and n_rows == limit
         }
         f.write "]"
-        indicator.finish
+        indicator.finish unless output.nil?
       }
       puts if output.nil?
 
@@ -332,7 +332,7 @@ module Command
         writer = CSV.new(f)
         # output headers
         if render_opts[:header] && job.hive_result_schema
-          writer << job.hive_result_schema.map {|name,type|
+          writer << job.hive_result_schema.map {|name, type|
             name
           }
         end
@@ -352,7 +352,7 @@ module Command
           writer.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
-        indicator.finish
+        indicator.finish unless output.nil?
       }
 
     when 'tsv'
@@ -386,7 +386,7 @@ module Command
           f.flush if n_rows % 100 == 0 # flush every 100 recods
           break if output.nil? and !limit.nil? and n_rows == limit
         }
-        indicator.finish
+        indicator.finish unless output.nil?
       }
 
     # these last 2 formats are only valid if writing the result to file through the -o/--output option.
