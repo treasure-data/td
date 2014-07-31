@@ -291,7 +291,7 @@ module Command
   def show_result(job, output, limit, format, render_opts={})
     if output
       write_result(job, output, limit, format, render_opts)
-      puts "\rwritten to #{output} in #{format} format"
+      puts "\rwritten to #{output} in #{format} format" + " " * 50
     else
       # every format that is allowed on stdout
       render_result(job, limit, format, render_opts)
@@ -310,7 +310,8 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the job result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written to #{output} in json format",
+            job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -340,7 +341,8 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the job result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written to #{output} in csv format",
+            job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -370,7 +372,8 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the job result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written to #{output} in tsv format",
+            job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -396,9 +399,10 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      indicator = Command::SizeBasedDownloadProgressIndicator.new(
-        "NOTE: the job result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
+        indicator = Command::SizeBasedDownloadProgressIndicator.new(
+          "NOTE: the job result is being written to #{output} in msgpack format",
+          job.result_size, 0.1, 1)
         job.result_format('msgpack', f) {|compr_size|
           indicator.update(compr_size)
         }
@@ -410,9 +414,10 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      indicator = Command::SizeBasedDownloadProgressIndicator.new(
-        "NOTE: the job result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
+        indicator = Command::SizeBasedDownloadProgressIndicator.new(
+          "NOTE: the job result is being written to #{output} in msgpack.gz format",
+          job.result_size, 0.1, 1)
         job.result_format('msgpack.gz', f) {|compr_size|
           indicator.update(compr_size)
         }
