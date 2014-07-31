@@ -142,6 +142,10 @@ module Updater
     ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com"
   end
 
+  def maven_repo_root
+    ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "http://central.maven.org"
+  end
+
   def self.version_endpoint
     "#{endpoint_root}/version.#{package_category}"
   end
@@ -300,7 +304,7 @@ module Updater
     require 'open-uri'
     require 'fileutils'
 
-    maven_repo = "http://central.maven.org/maven2/com/treasuredata/td-import"
+    maven_repo = "#{maven_repo_root}/maven2/com/treasuredata/td-import"
 
     begin
       xml = Updater.fetch("#{maven_repo}/maven-metadata.xml")

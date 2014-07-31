@@ -1,6 +1,6 @@
 = Treasure Data command line tool
 
-This CUI utility wraps the {Ruby Client Library td-client-ruby}[https://github.com/treasure-data/td-client-ruby] 
+This CUI utility wraps the {Ruby Client Library td-client-ruby}[https://github.com/treasure-data/td-client-ruby]
 to interact with the REST API in managing databases and jobs on the Treasure Data Cloud.
 
 For more info about Treasure Data, see <http://treasure-data.com/>.
@@ -62,18 +62,18 @@ Then run following commands on MinGW Shell:
 Some of the +td+ commands prefixed with +td+ +import+ leverages the {Java Bulk Import CLI td-import-java}[https://github.com/treasure-data/td-import-java]
 to process and Bulk load data in the Treasure Data Cloud.
 
-The Bulk Import CLI is downloaded automatically at the first call to any of the command that require it; the use will 
-need internet connectivity in order to fetch the Bulk Import CLI JAR file from the 
+The Bulk Import CLI is downloaded automatically at the first call to any of the command that require it; the use will
+need internet connectivity in order to fetch the Bulk Import CLI JAR file from the
 {Central Maven repository}[http://central.maven.org/maven2/com/treasuredata/td-import/]
-and take advantage of these advanced features. If you need to setup a proxy, please consult this 
+and take advantage of these advanced features. If you need to setup a proxy, please consult this
 {documentation}[http://docs.treasuredata.com/articles/faq#how-can-i-use-the-td-command-through-a-proxy] page.
 
 The log levels and properties of the Bulk Import CLI can be configured in a +logging.properties+ file. A default
-configuration is provided in a file within the gem or Toolbelt folder root, in the +java/+ folder. If you wish to 
+configuration is provided in a file within the gem or Toolbelt folder root, in the +java/+ folder. If you wish to
 customize it, please make a copy of this file and store it in the:
 
     ~/.td/java             folder on Mac OSX or Linux
-    %USERPROFILE%\.td\java folder on Windows 
+    %USERPROFILE%\.td\java folder on Windows
 
 == Testing Hooks
 
@@ -84,61 +84,65 @@ These hooks are expressed as environment variables and can therefore be provided
 
 * Unix / Linux / MacOSX
   * environment variable export in the shell the command is executed. The setting remains active until the shell is closed. E.g.:
-  
+
         $ export TD_TOOLBELT_DEBUG=1
-  
+
   * in the shell configuration file, to be active in any new shell that is opened. E.g.: add
-  
+
         export TD_TOOLBELT_DEBUG=1
-  
+
     to <tt>~/.bashrc</tt> or equivalent shell configuration file.
     To make the setting active in the current shell, source the configuration file, e.g.:
-    
+
         $ source ~/.bashrc
-        
+
   * on the command line at runtime (active only for the duration of the command). E.g.:
-        
+
         $ TD_TOOLBELT_DEBUG=1 td ....
-        
+
   * as alias on in the current shell. The setting remains active until the shell is closed. E.g.:
-        
+
         $ alias td='TD_TOOLBELT_DEBUG=1 td'
-        
+
   * as alias in configuration file, to be active in any new shell that is opened. E.g.:
-        
+
         alias td='TD_TOOLBELT_DEBUG=1 td'`
-        
+
     to <tt>~/.bashrc</tt> or equivalent shell configuration file.
     To make the setting active in the current shell, source the configuration file, e.g.:
-    
+
         $ source ~/.bashrc
-        
+
 * Windows
   * in the command prompt the command is executed. The setting remains active until the command prompt window is closed. E.g.:
-    
+
         cmd> set TD_TOOLBELT_DEBUG=1
-          
+
   * as a global environment variable in the system settings. It will be active for all new command prompt windows.
 
 These are the available hooks:
 
 * Enable debugging mode:
-  
+
     $ TD_TOOLBELT_DEBUG=1
-    
+
 * JAR auto update (enabled by default is not specified). This setting does not affect <tt>import:jar_update</tt>:
   * Enable:
-        
+
       $ TD_TOOLBELT_JAR_UPDATE=1
-        
+
   * Disable:
-      
+
       $ TD_TOOLBELT_JAR_UPDATE=0
-        
-* Specify an alternative endpoint to use to update the toolbelt (default: http://toolbelt.treasuredata.com): 
-  
+
+* Specify an alternative endpoint to use updating the toolbelt (default: http://toolbelt.treasuredata.com):
+
     $ TD_TOOLBELT_UPDATE_ROOT="http://toolbelt.treasuredata.com"
-    
+
+* Specify an alternative endpoint to use updating the JAR file (default: http://central.maven.org):
+
+    $ TD_TOOLBELT_JARUPDATE_ROOT="http://central.maven.org"
+
 
 = Copyright
 
