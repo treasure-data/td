@@ -186,7 +186,7 @@ module Command
         puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
       end
       if [:hive, :pig, :impala, :presto].include?(job.type)
-        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)} #{job.result_size}"
+        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
       end
     end
 
@@ -310,7 +310,7 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written", job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -340,7 +340,7 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written", job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -370,7 +370,7 @@ module Command
         n_rows = 0
         unless output.nil?
           indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the query result is being written", job.result_size, 0.1, 1)
+            "NOTE: the job result is being written", job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
           indicator.update(compr_size) unless output.nil?
@@ -397,7 +397,7 @@ module Command
               "Format 'msgpack' does not support writing to stdout"
       end
       indicator = Command::SizeBasedDownloadProgressIndicator.new(
-        "NOTE: the query result is being downloaded", job.result_size, 0.1, 1)
+        "NOTE: the job result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
         job.result_format('msgpack', f) {|compr_size|
           indicator.update(compr_size)
@@ -411,7 +411,7 @@ module Command
               "Format 'msgpack' does not support writing to stdout"
       end
       indicator = Command::SizeBasedDownloadProgressIndicator.new(
-        "NOTE: the query result is being downloaded", job.result_size, 0.1, 1)
+        "NOTE: the job result is being downloaded", job.result_size, 0.1, 1)
       open_file(output, "wb") {|f|
         job.result_format('msgpack.gz', f) {|compr_size|
           indicator.update(compr_size)
@@ -447,7 +447,7 @@ module Command
       n_rows = 0
 
       indicator = Command::SizeBasedDownloadProgressIndicator.new(
-        "WARNING: the query result is being downloaded...", job.result_size, 0.1, 1)
+        "WARNING: the job result is being downloaded...", job.result_size, 0.1, 1)
       job.result_each_with_compr_size {|row, compr_size|
         indicator.update(compr_size)
         rows << row.map {|v|
