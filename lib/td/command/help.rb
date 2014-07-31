@@ -17,7 +17,7 @@ module Command
       exit 1
 
     else
-      method = List.get_method(cmd)
+      method, cmd_req_connectivity = List.get_method(cmd)
       method.call(['--help'])
     end
   end
