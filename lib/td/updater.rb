@@ -11,7 +11,7 @@ module Updater
 
   def self.raise_error(message)
     # TODO: Replace better Exception class
-    raise RuntimeError.new(message)
+    raise Command::UpdateError, message
   end
 
   # copied from TreasureData::Helpers to avoid load issue.
@@ -132,8 +132,7 @@ module Updater
     when Net::HTTPSuccess then response.body
     when Net::HTTPRedirection then fetch(response['Location'])
     else
-      raise Command::UpdateError,
-            "An error occurred when fetching from '#{url}'."
+      raise_error "An error occurred when fetching from '#{url}'."
       response.error!
     end
   end
@@ -290,9 +289,9 @@ module Updater
         end
         return stream_fetch(response['Location'], binfile, &progress)
       else
-        raise Command::UpdateError,
-              "An error occurred when fetching from '#{uri}' " +
-              "(#{response.class.to_s}: #{response.message})."
+        raise_error
+          "An error occurred when fetching from '#{uri}' " +
+          "(#{response.class.to_s}: #{response.message})."
         return false
       end
     }
