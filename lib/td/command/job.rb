@@ -116,7 +116,7 @@ module Command
       render_opts[:vertical] = b
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
-      output = s
+      output = File.expand_path(s)
       format = 'tsv' if format.nil?
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json, msgpack, and msgpack.gz)') {|s|
@@ -229,7 +229,7 @@ module Command
       end
     end
 
-    puts "Use '-v' option to show detailed messages." unless verbose
+    puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
   end
 
   def job_status(op)

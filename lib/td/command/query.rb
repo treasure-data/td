@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 
@@ -28,7 +27,7 @@ module Command
       render_opts[:vertical] = b
     }
     op.on('-o', '--output PATH', 'write result to the file') {|s|
-      output = s
+      output = File.expand_path(s)
       format = 'tsv' if format.nil?
     }
     op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
