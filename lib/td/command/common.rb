@@ -376,17 +376,23 @@ EOS
     end
 
     def update(curr_size)
-      ratio = (curr_size.to_f * 100 / @size).round(1)
-      if ratio >= (@last_perc_step + @perc_step) &&
-         (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
-        msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
-        print "\r" + " " * (msg.length + 10)
+      if @size.nil? || @size == 0
+        msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)}"
         print msg
-        @last_perc_step = ratio
-        @last_time = time
         true
       else
-        false
+        ratio = (curr_size.to_f * 100 / @size).round(1)
+        if ratio >= (@last_perc_step + @perc_step) &&
+           (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
+          msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
+          print "\r" + " " * (msg.length + 10)
+          print msg
+          @last_perc_step = ratio
+          @last_time = time
+          true
+        else
+          false
+        end
       end
     end
 
