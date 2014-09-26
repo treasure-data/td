@@ -2,7 +2,8 @@
 
 * Expand file path containing wildcards and not escaped by the underlying shell
 * Add a global '-r / --retry-post-requests' option to enable the td-client-ruby
-  retrying mechanism for post request.
+  retrying mechanism for post request. 
+  Note: -r option must be right after 'td' before subcommands like: td -r query
   WARNING: enabling this option can lead to unexpected results because the
   retrying mechanism can caused the creation of duplicated resources since the
   POST methods are not idempotent.
