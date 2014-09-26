@@ -22,6 +22,7 @@ class Config
   @@endpoint = nil if @@endpoint == ""
   @@cl_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line
   @@secure = true
+  @@retry_post_requests = false
 
   def initialize
     @path = nil
@@ -114,6 +115,15 @@ class Config
 
   def self.secure=(secure)
     @@secure = secure
+  end
+
+
+  def self.retry_post_requests
+    @@retry_post_requests
+  end
+
+  def self.retry_post_requests=(retry_post_requests)
+    @@retry_post_requests = retry_post_requests
   end
 
 

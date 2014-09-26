@@ -32,6 +32,9 @@ module Command
     unless opts.has_key?(:ssl)
       opts[:ssl] = Config.secure
     end
+    unless opts.has_key?(:retry_post_requests)
+      opts[:retry_post_requests] = Config.retry_post_requests
+    end
 
     # apikey is mandatory
     apikey = Config.apikey

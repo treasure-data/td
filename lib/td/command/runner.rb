@@ -74,6 +74,7 @@ EOF
     insecure = nil
     $verbose = false
     #$debug = false
+    retry_post_requests = false
 
     op.on('-c', '--config PATH', "path to the configuration file (default: ~/.td/td.conf)") {|s|
       config_path = s
@@ -107,6 +108,12 @@ EOF
       return usage nil
     }
 
+    op.on('-r', '--retry-post-requests', "retry on failed post requests.",
+                                         "Warning: can cause resource duplication, such as duplicated job submissions.",
+                                         TrueClass) {|b|
+      retry_post_requests = b
+    }
+
     op.on('--version', "show version") {
       puts op.version
       return 0
@@ -133,6 +140,9 @@ EOF
       end
       if insecure
         Config.secure = false
+      end
+      if retry_post_requests
+        Config.retry_post_requests = true
       end
     rescue
       return usage $!.to_s
