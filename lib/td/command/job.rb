@@ -193,14 +193,34 @@ module Command
       end
     end
 
+    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
+    retry_delay = 5
+    max_cumul_retry_delay = 200
+    cumul_retry_delay = 0
+
     if wait && !job.finished?
       wait_job(job)
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         puts "Result      :"
+
         begin
           show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
+        rescue TreasureData::APIError, # HTTP status code 500 or more
+               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+          # don't retry on 300 and 400 errors
+          if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
+            raise e
+          end
+          if cumul_retry_delay > max_cumul_retry_delay
+            raise e
+          end
+          $stderr.puts "Error #{e.class}: #{e.message}. Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
         end
       end
 
@@ -211,6 +231,20 @@ module Command
           show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
+        rescue TreasureData::APIError,
+               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+          # don't retry on 300 and 400 errors
+          if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
+            raise e
+          end
+          if cumul_retry_delay > max_cumul_retry_delay
+            raise e
+          end
+          $stderr.puts "Error #{e.class}: #{e.message}. Retrying after #{retry_delay} seconds..."
+          sleep retry_delay
+          cumul_retry_delay += retry_delay
+          retry_delay *= 2
+          retry
         end
       end
 
