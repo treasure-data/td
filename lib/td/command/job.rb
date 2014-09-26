@@ -208,7 +208,8 @@ module Command
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
         rescue TreasureData::APIError, # HTTP status code 500 or more
-               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
+               OpenSSL::SSL::SSLError, SocketError => e
           # don't retry on 300 and 400 errors
           if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
             raise e
@@ -232,7 +233,8 @@ module Command
         rescue TreasureData::NotFoundError => e
           # Got 404 because result not found.
         rescue TreasureData::APIError,
-               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError => e
+               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
+               OpenSSL::SSL::SSLError, SocketError => e
           # don't retry on 300 and 400 errors
           if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
             raise e
