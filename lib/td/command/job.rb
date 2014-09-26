@@ -326,6 +326,10 @@ module Command
   end
 
   def show_result(job, output, limit, format, render_opts={})
+    if job.result_size.nil? || job.result_size == 0
+      return
+    end
+
     if output
       write_result(job, output, limit, format, render_opts)
       puts "\rwritten to #{output} in #{format} format" + " " * 50
