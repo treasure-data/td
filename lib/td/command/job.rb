@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 

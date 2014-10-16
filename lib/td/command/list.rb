@@ -15,7 +15,7 @@ module List
       @cmd_requires_connectivity = req_conn
     end
 
-    attr_accessor :message, :name, :cmd_requires_connectivity
+    attr_accessor :message, :name, :cmd_requires_connectivity, :argv
 
     def on(*argv)
       @has_options = true
@@ -118,7 +118,15 @@ module List
 
     def usage
       compile!
-      "%-40s   # %s" % [@usage_args, @description]
+      description_lines = @description.split("\n")
+      strout = "%-40s   # %s" % [@usage_args, description_lines[0]]
+      if description_lines.length > 1
+        description_lines[1..-1].each {|lines|
+          strout += "\n"
+          strout += "%-40s     # %s" % ["", lines]
+        }
+      end
+      strout
     end
 
     def group
@@ -281,6 +289,9 @@ module List
   add_list 'sched:update', %w[name], 'Modify a schedule', ['sched:update sched1 -s "0 */2 * * *" -d my_db -t "Asia/Tokyo" -D 3600']
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', ['sched sched1 --page 1']
   add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', ['sched:run sched1 "2013-01-01 00:00:00" -n 6']
+  add_list 'sched:last_job', %w[name], "Show status and result of the last job ran\n" +
+                                       "The options are identical to those of the 'job:show' command.",
+                                        ['sched:last_job sched1']
 
   add_list 'query', %w[sql?], 'Issue a query', ['query -d example_db -w -r rset1 "select count(*) from table1"',
                                                'query -d example_db -w -r rset1 -q query.txt']
