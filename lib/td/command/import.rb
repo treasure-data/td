@@ -235,7 +235,9 @@ module Command
     end
 
     sysprops << "-Dhttp.proxyHost=#{proxy_host}" if proxy_host
+    sysprops << "-Dhttps.proxyHost=#{ proxy_host}" if proxy_host
     sysprops << "-Dhttp.proxyPort=#{proxy_port}" if proxy_port
+    sysprops << "-Dhttps.proxyPort=#{ proxy_port}" if proxy_port
   end
 
   #
