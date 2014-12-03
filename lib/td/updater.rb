@@ -118,8 +118,7 @@ module Updater
     # So we use following code to avoid these issues.
     uri = URI(url)
     response =
-      if uri.scheme == 'https' and ENV['HTTP_PROXY'].nil?
-        # NOTE: SSL is force off for communications over proxy
+      if uri.scheme == 'https'
         http = http_class.new(uri.host, uri.port)
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -268,8 +267,7 @@ module Updater
     http_class = Command.get_http_class
     http = http_class.new(uri.host, uri.port)
 
-    # NOTE: keep SSL off when using a proxy
-    if uri.scheme == 'https' and ENV['HTTP_PROXY'].nil?
+    if uri.scheme == 'https'
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
