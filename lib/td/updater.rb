@@ -289,8 +289,7 @@ module Updater
         end
         return stream_fetch(response['Location'], binfile, &progress)
       else
-        raise_error
-          "An error occurred when fetching from '#{uri}' " +
+        raise_error "An error occurred when fetching from '#{uri}' " +
           "(#{response.class.to_s}: #{response.message})."
         return false
       end
