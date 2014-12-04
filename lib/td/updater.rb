@@ -9,37 +9,38 @@ module Updater
   # Toolbelt upgrade
   #
 
-  def self.raise_error(message)
+module ModuleDefinition
+  def raise_error(message)
     # TODO: Replace better Exception class
     raise Command::UpdateError, message
   end
 
   # copied from TreasureData::Helpers to avoid load issue.
-  def self.home_directory
+  def home_directory
     on_windows? ? ENV['USERPROFILE'].gsub("\\","/") : ENV['HOME']
   end
 
-  def self.on_windows?
+  def on_windows?
     RUBY_PLATFORM =~ /mswin32|mingw32/
   end
 
-  def self.on_mac?
+  def on_mac?
     RUBY_PLATFORM =~ /-darwin\d/
   end
 
-  def self.updating_lock_path
+  def updating_lock_path
     File.join(home_directory, ".td", "updating")
   end
 
-  def self.installed_client_path
+  def installed_client_path
     File.expand_path("../../../../../..", __FILE__)
   end
 
-  def self.updated_client_path
+  def updated_client_path
     File.join(home_directory, ".td", "updated")
   end
 
-  def self.latest_local_version
+  def latest_local_version
     installed_version = client_version_from_path(installed_client_path)
     updated_version = client_version_from_path(updated_client_path)
     if compare_versions(updated_version, installed_version) > 0
@@ -49,7 +50,7 @@ module Updater
     end
   end
 
-  def self.get_client_version_file(path)
+  def get_client_version_file(path)
     td_gems = Dir[File.join(path, "vendor/gems/td-*")]
     td_gems.each { |td_gem|
       if td_gem =~ /#{"#{Regexp.escape(path)}\/vendor\/gems\/td-\\d*.\\d*.\\d*"}/
@@ -59,7 +60,7 @@ module Updater
     nil
   end
 
-  def self.client_version_from_path(path)
+  def client_version_from_path(path)
     if version_file = get_client_version_file(path)
       File.read(version_file).match(/TOOLBELT_VERSION = '([^']+)'/)[1]
     else
@@ -67,19 +68,19 @@ module Updater
     end
   end
 
-  def self.disable(message)
+  def disable(message)
     @disable = message
   end
 
-  def self.disable?
+  def disable?
     !@disable.nil?
   end
 
-  def self.disable_message
+  def disable_message
     @disable
   end
 
-  def self.wait_for_lock(path, wait_for = 5, check_every = 0.5)
+  def wait_for_lock(path, wait_for = 5, check_every = 0.5)
     start = Time.now.to_i
     while File.exists?(path)
       sleep check_every
@@ -96,7 +97,7 @@ module Updater
     ret
   end
 
-  def self.package_category
+  def package_category
     case
     when on_windows?
       'exe'
@@ -107,7 +108,7 @@ module Updater
     end
   end
 
-  def self.fetch(url)
+  def fetch(url)
     require 'net/http'
     require 'openssl'
 
@@ -136,7 +137,7 @@ module Updater
     end
   end
 
-  def self.endpoint_root
+  def endpoint_root
     ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com"
   end
 
@@ -144,15 +145,15 @@ module Updater
     ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "http://central.maven.org"
   end
 
-  def self.version_endpoint
+  def version_endpoint
     "#{endpoint_root}/version.#{package_category}"
   end
 
-  def self.update_package_endpoint
+  def update_package_endpoint
     "#{endpoint_root}/td-update-#{package_category}.zip"
   end
 
-  def self.update(autoupdate = false)
+  def update(autoupdate = false)
     wait_for_lock(updating_lock_path, 5) do
       require "td"
       require 'open-uri'
@@ -209,11 +210,11 @@ module Updater
     FileUtils.rm_f(updating_lock_path)
   end
 
-  def self.compare_versions(first_version, second_version)
+  def compare_versions(first_version, second_version)
     first_version.split('.').map { |part| Integer(part) rescue part } <=> second_version.split('.').map { |part| Integer(part) rescue part }
   end
 
-  def self.inject_libpath
+  def inject_libpath
     old_version = client_version_from_path(installed_client_path)
     new_version = client_version_from_path(updated_client_path)
 
@@ -246,7 +247,7 @@ module Updater
     FileUtils.touch last_toolbelt_autoupdate_timestamp
   end
 
-  def self.last_toolbelt_autoupdate_timestamp
+  def last_toolbelt_autoupdate_timestamp
     File.join(home_directory, ".td", "autoupdate.last")
   end
 
@@ -255,12 +256,12 @@ module Updater
   #
 
   # locate the root of the td package which is 3 folders up from the location of this file
-  def self.jarfile_dest_path
+  def jarfile_dest_path
     File.join(home_directory, ".td", "java")
   end
 
   private
-  def self.stream_fetch(url, binfile, &progress)
+  def stream_fetch(url, binfile, &progress)
     require 'net/http'
 
     uri = URI(url)
@@ -293,6 +294,9 @@ module Updater
       end
     }
   end
+end # module ModuleDefinition
+
+  extend ModuleDefinition
 
   private
   def jar_update(hourly = false)
