@@ -141,10 +141,6 @@ module ModuleDefinition
     ENV['TD_TOOLBELT_UPDATE_ROOT'] || "http://toolbelt.treasuredata.com"
   end
 
-  def maven_repo_root
-    ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "http://central.maven.org"
-  end
-
   def version_endpoint
     "#{endpoint_root}/version.#{package_category}"
   end
@@ -260,7 +256,6 @@ module ModuleDefinition
     File.join(home_directory, ".td", "java")
   end
 
-  private
   def stream_fetch(url, binfile, &progress)
     require 'net/http'
 
@@ -297,6 +292,10 @@ module ModuleDefinition
 end # module ModuleDefinition
 
   extend ModuleDefinition
+
+  def maven_repo_root
+    ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "http://central.maven.org"
+  end
 
   private
   def jar_update(hourly = false)
