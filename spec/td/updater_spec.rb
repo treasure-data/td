@@ -79,21 +79,51 @@ module TreasureData::Updater
       end
     end
 
+    class JarUpdateTester
+      include TreasureData::Updater
+
+      def kick
+        jar_update
+      end
+    end
+
     it 'downloads tmp.zip via proxy and raise td version conflict' do
-      backup, ENV['HTTP_PROXY'] = ENV['HTTP_PROXY'], "http://localhost:#{@proxy_server.config[:Port]}"
-      begin
+      with_proxy do
         expect {
           TestUpdater.new("https://localhost:#{@server.config[:Port]}").update
         }.to raise_error TreasureData::Command::UpdateError
+      end
+    end
+
+    it 'works' do
+      with_proxy do
+        with_env('TD_TOOLBELT_JARUPDATE_ROOT', "https://localhost:#{@server.config[:Port]}") do
+          expect {
+            JarUpdateTester.new.kick
+          }.not_to raise_error
+        end
+      end
+    end
+
+    def with_proxy
+      with_env('HTTP_PROXY', "http://localhost:#{@proxy_server.config[:Port]}") do
+        yield
+      end
+    end
+
+    def with_env(name, var)
+      backup, ENV[name] = ENV[name], var
+      begin
+        yield
       ensure
-        ENV['HTTP_PROXY'] = backup
+        ENV[name] = backup
       end
     end
 
     def setup_proxy_server
       logger = Logger.new(STDERR)
       logger.progname = 'proxy'
-      #logger.level = Logger::Severity::FATAL  # avoid logging
+      logger.level = Logger::Severity::FATAL  # avoid logging
       @proxy_server = WEBrick::HTTPProxyServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
@@ -107,7 +137,7 @@ module TreasureData::Updater
     def setup_server
       logger = Logger.new(STDERR)
       logger.progname = 'server'
-      #logger.level = Logger::Severity::FATAL  # avoid logging
+      logger.level = Logger::Severity::FATAL  # avoid logging
       @server = WEBrick::HTTPServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
@@ -128,6 +158,10 @@ module TreasureData::Updater
         '/td-update-exe.zip',
         WEBrick::HTTPServlet::ProcHandler.new(method(:download).to_proc)
       )
+      @server.mount(
+        '/maven2/com/treasuredata/td-import/maven-metadata.xml',
+        WEBrick::HTTPServlet::ProcHandler.new(method(:metadata).to_proc)
+      )
       @server_thread = start_server_thread(@server)
       @server
     end
@@ -140,6 +174,11 @@ module TreasureData::Updater
     def download(req, res)
       res['content-type'] = 'application/octet-stream'
       res.body = File.read(fixture_file('tmp.zip'))
+    end
+
+    def metadata(req, res)
+      res['content-type'] = 'application/xml'
+      res.body = '<metadata><versioning><lastUpdated>20141204123456</lastUpdated><release>version</release></versioning></metadata>'
     end
 
     def start_server_thread(server)
