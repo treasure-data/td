@@ -162,6 +162,10 @@ module TreasureData::Updater
         '/maven2/com/treasuredata/td-import/maven-metadata.xml',
         WEBrick::HTTPServlet::ProcHandler.new(method(:metadata).to_proc)
       )
+      @server.mount(
+        '/maven2/com/treasuredata/td-import/version/td-import-version-jar-with-dependencies.jar',
+        WEBrick::HTTPServlet::ProcHandler.new(method(:jar).to_proc)
+      )
       @server_thread = start_server_thread(@server)
       @server
     end
@@ -179,6 +183,11 @@ module TreasureData::Updater
     def metadata(req, res)
       res['content-type'] = 'application/xml'
       res.body = '<metadata><versioning><lastUpdated>20141204123456</lastUpdated><release>version</release></versioning></metadata>'
+    end
+
+    def jar
+      res['content-type'] = 'application/octet-stream'
+      res.body = File.read(fixture_file('tmp.zip'))
     end
 
     def start_server_thread(server)
