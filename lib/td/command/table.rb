@@ -412,15 +412,19 @@ module Command
     db_name, table_name, expire_days = op.cmd_parse
 
     expire_days = expire_days.to_i
-    if expire_days <= 0
-      $stderr.puts "Table expiration days must be greater than 0."
+    if expire_days < 0
+      $stderr.puts "Table expiration days must be greater or equal to 0."
       return
     end
 
     client = get_client
     client.update_expire(db_name, table_name, expire_days)
 
-    $stderr.puts "Table set to expire data older than #{expire_days} days."
+    if expire_days == 0
+      puts "Data expiration disabled for this table."
+    else
+      puts "Table set to expire data older than #{expire_days} days."
+    end
   end
 
 
