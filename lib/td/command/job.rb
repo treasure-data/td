@@ -75,12 +75,13 @@ module Command
       elapsed = Command.humanize_elapsed_time(start, job.end_at)
       cpu_time = Command.humanize_time(job.cpu_time, true)
       priority = job_priority_name_of(job.priority)
+      query = (op.render_format == 'table' || op.render_format.nil? ? job.query.to_s[0,50] + " ..." : job.query)
       rows << {
         :JobID => job.job_id,
         :Database => job.db_name,
         :Status => job.status,
         :Type => job.type,
-        :Query => job.query.to_s[0,50] + " ...",
+        :Query => query,
         :Start => (start ? start.localtime : ''),
         :Elapsed => elapsed.rjust(11),
         :CPUTime => cpu_time.rjust(17),
