@@ -385,13 +385,15 @@ module Command
             job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
-          indicator.update(compr_size) unless output.nil?
           # TODO limit the # of columns
           writer << row.map {|col|
             dump_column(col)
           }
           n_rows += 1
-          writer.flush if n_rows % 100 == 0 # flush every 100 recods
+          if n_rows % 100 == 0 # flush every 100 recods
+            writer.flush
+            indicator.update(compr_size) unless output.nil?
+          end
           break if output.nil? and !limit.nil? and n_rows == limit
         }
         indicator.finish unless output.nil?
@@ -416,17 +418,12 @@ module Command
             job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
-          indicator.update(compr_size) unless output.nil?
-          n_cols = 0
-          row.each {|col|
-            f.write "\t" if n_cols > 0
-            # TODO limit the # of columns
-            f.write dump_column(col)
-            n_cols += 1
-          }
-          f.write "\n"
+          f.write row.map {|col| dump_column(col)}.join("\t") + "\n"
           n_rows += 1
-          f.flush if n_rows % 100 == 0 # flush every 100 recods
+          if n_rows % 100 == 0
+            f.flush # flush every 100 recods
+            indicator.update(compr_size) unless output.nil?
+          end
           break if output.nil? and !limit.nil? and n_rows == limit
         }
         indicator.finish unless output.nil?
@@ -496,7 +493,7 @@ module Command
       job.result_each_with_compr_size {|row, compr_size|
         indicator.update(compr_size)
         rows << row.map {|v|
-          dump_column(v)
+          dump_column_safe_utf8(v)
         }
         n_rows += 1
         break if !limit.nil? and n_rows == limit
@@ -518,9 +515,11 @@ module Command
   end
 
   def dump_column(v)
-    require 'yajl'
+    v.is_a?(String) ? v.to_s : Yajl.dump(v)
+  end
 
-    s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
+  def dump_column_safe_utf8(v)
+    s = dump_column(v)
     # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
     #   a) to make sure the string doesn't include invalid byte sequence
     #   b) to display multi-byte characters as it is
