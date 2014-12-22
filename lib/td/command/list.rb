@@ -320,6 +320,10 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
+  add_list 'bulk_load:guess', %w[config?], 'TODO', ['bulk_load:guess TODO!!!!!!!!']
+  add_list 'bulk_load:preview', %w[config], 'TODO', ['bulk_load:preview TODO!!!!!!!!']
+  add_list 'bulk_load:issue', %w[config], 'TODO', ['bulk_load:issue TODO!!!!!!!!']
+
   # aliases
   add_alias 'db', 'db:show'
   add_alias 'dbs', 'db:list'
@@ -376,6 +380,8 @@ module List
   add_alias 'sample', 'sample:apache'
 
   add_alias 's', 'status'
+
+  add_alias 'bulk_load', 'bulk_load:guess'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'
