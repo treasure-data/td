@@ -61,6 +61,10 @@ module Command
     client = get_client
     job = client.bulk_load_guess(job)
 
+    # TODO: API should keep database/table in config
+    job['database'] ||= database
+    job['table'] ||= table
+
     create_bulkload_job_file_backup(out)
     if /\.json\z/ =~ out
       config_str = JSON.pretty_generate(job.to_h)
@@ -72,21 +76,26 @@ module Command
     end
 
     puts "Created #{out} file."
-    puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:preview --load-config #{out} to preview Server-side bulk load."
+    puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:preview #{out}' to see bulk load preview."
   end
 
   def bulk_load_preview(op)
-    job = prepare_bulkload_job_config(op)
+    config_file = op.cmd_parse
+    job = prepare_bulkload_job_config(config_file)
     client = get_client()
     preview = client.bulk_load_preview(job)
 
     # TODO: pretty printing
     require 'pp'
     pp preview
+
+    puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "bulk_load:preview #{config_file}' to preview again."
+    puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:issue #{config_file}' to run Server-side bulk load."
   end
 
   def bulk_load_issue(op)
-    job = prepare_bulkload_job_config(op)
+    config_file = op.cmd_parse
+    job = prepare_bulkload_job_config(config_file)
     client = get_client()
     job_id = client.bulk_load_issue(job)
 
@@ -110,8 +119,7 @@ private
     nil
   end
 
-  def prepare_bulkload_job_config(op)
-    config_file = op.cmd_parse
+  def prepare_bulkload_job_config(config_file)
     unless File.exist?(config_file)
       raise ParameterConfigurationError, "configuration file: #{config_file} not found"
     end
