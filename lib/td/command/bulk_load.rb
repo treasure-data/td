@@ -1,5 +1,6 @@
 require 'td/command/common'
 require 'uri'
+require 'yaml'
 
 module TreasureData
 module Command
@@ -21,13 +22,12 @@ module Command
     op.on('--source SOURCE', "resource(s) URI to be imported (e.g. https://s3-us-west-1.amazonaws.com/bucketname/path/prefix/to/import/)") { |s| source = s }
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
-    op.on('--out', "configuration file") { |s| out = s }
+    op.on('--out FILE_NAME', "configuration file") { |s| out = s }
 
     config = op.cmd_parse
-    out ||= config
-
     if config
       job = API::BulkLoad::Job.from_json(File.read(config))
+      out ||= config
     else
       required('--access-id', id)
       required('--access-secret', secret)
@@ -39,8 +39,8 @@ module Command
       uri = URI.parse(source)
       endpoint = uri.host
       path_components = uri.path.scan(/\/[^\/]*/)
-      bucket = path_components.shift
-      path = path_components.join
+      bucket = path_components.shift.sub(/\//, '')
+      path = path_components.join.sub(/\//, '')
 
       job = API::BulkLoad::Job.from_hash(
         :config => {
@@ -62,8 +62,13 @@ module Command
     job = client.bulk_load_guess(job)
 
     create_bulkload_job_file_backup(out)
+    if /\.json\z/ =~ out
+      config_str = JSON.pretty_generate(job.to_h)
+    else
+      config_str = YAML.dump(job.to_h)
+    end
     File.open(out, 'w') do |f|
-      f << JSON.pretty_generate(job.to_h)
+      f << config_str
     end
 
     puts "Created #{out} file."
@@ -76,7 +81,8 @@ module Command
     preview = client.bulk_load_preview(job)
 
     # TODO: pretty printing
-    puts preview
+    require 'pp'
+    pp preview
   end
 
   def bulk_load_issue(op)
@@ -90,12 +96,30 @@ module Command
 
 private
 
-  def prepare_bulkload_job_config(op)
-    config = op.cmd_parse
-    unless File.exist?(config)
-      raise ParameterConfigurationError, "configuration file: #{config} not found"
+  def file_type(str)
+    begin
+      YAML.load(str)
+      return :yaml
+    rescue
     end
-    API::BulkLoad::Job.from_json(File.read(config))
+    begin
+      JSON.parse(str)
+      return :json
+    rescue
+    end
+    nil
+  end
+
+  def prepare_bulkload_job_config(op)
+    config_file = op.cmd_parse
+    unless File.exist?(config_file)
+      raise ParameterConfigurationError, "configuration file: #{config_file} not found"
+    end
+    config_str = File.read(config_file)
+    if file_type(config_str) == :yaml
+      config_str = JSON.pretty_generate(YAML.load(config_str))
+    end
+    API::BulkLoad::Job.from_json(config_str)
   end
 
   def create_bulkload_job_file_backup(out)
