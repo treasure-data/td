@@ -322,32 +322,6 @@ module Command
     puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
   end
 
-  def old_sched_last_job(op)
-    # require 'td/command/job'  # job_priority_name_of
-    require 'td/command/runner'
-
-    name = op.argv.last
-
-    client = get_client
-
-    begin
-      history = client.history(name, 0, 1)
-    rescue NotFoundError
-      cmd_debug_error $!
-      $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "sched:list' to show list of the schedules."
-      exit 1
-    end
-
-    job_id = history.first.job_id
-
-    # build the job:show command now
-    argv = ['job:show']
-    argv += op.argv[0..-2] if op.argv.length > 1
-    argv << job_id.to_s
-    Runner.new.run(argv)
-  end
-
   def sched_last_job(op)
     op.on('-v', '--verbose', 'show logs', TrueClass) {}
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
@@ -392,6 +366,7 @@ module Command
     argv = ['job:show']
     argv += argv_saved if argv_saved.length > 0
     argv << job_id.to_s
+
     Runner.new.run(argv)
   end
 
