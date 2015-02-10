@@ -20,7 +20,7 @@ module Command
     end
 
     Command.validate_api_endpoint(endpoint)
-    Coomand.test_api_endpoint(endpoint)
+    Command.test_api_endpoint(endpoint)
 
     conf = nil
     begin
