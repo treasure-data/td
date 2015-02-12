@@ -46,7 +46,7 @@ module TreasureData
       def forward
         content = @u.each {|r| break r }
         raise MessagePackEOFError unless content
-        return content
+        content
       end
     end
 
