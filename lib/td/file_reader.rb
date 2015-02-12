@@ -9,6 +9,7 @@ module TreasureData
   # - when --columns a,b,c
   # ["v", 10, true] # array types
   # ...
+  class MessagePackEOFError < StandardError; end
   class FileReader
     require 'time'
     require 'zlib'
@@ -43,7 +44,9 @@ module TreasureData
       end
 
       def forward
-        @u.each {|r| break r }
+        content = @u.each {|r| break r }
+        raise MessagePackEOFError unless content
+        return content
       end
     end
 
@@ -498,7 +501,7 @@ module TreasureData
         while record = parser.forward
           block.call(record)
         end
-      rescue EOFError
+      rescue EOFError, MessagePackEOFError
       end
     end
 
