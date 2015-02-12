@@ -33,21 +33,21 @@ describe FileReader::LineReader do
 
   it 'initialize with specifid encoding' do
     if io.respond_to?(:external_encoding)
-      ee = io.external_encoding
+      original_encoding = io.external_encoding
     end
 
     # when RUBY_VERSION >= 2.0, default encoding is utf-8.
-    # ensure that external_encoding is differ from the original external_encoding(ee).
-    if ee == Encoding.find('utf-8')
-      external_encoding = 'sjis'
+    # ensure that external_encoding is differ from the original external_encoding(original_encoding).
+    if original_encoding == Encoding.find('utf-8')
+      specified_encoding = 'sjis'
     else
-      external_encoding = 'utf-8'
+      specified_encoding = 'utf-8'
     end
 
-    FileReader::LineReader.new(io, error, {:encoding => external_encoding})
+    FileReader::LineReader.new(io, error, {:encoding => specified_encoding})
     if io.respond_to?(:external_encoding)
-      io.external_encoding.should_not == ee
-      io.external_encoding.should == Encoding.find(external_encoding)
+      io.external_encoding.should_not == original_encoding
+      io.external_encoding.should == Encoding.find(specified_encoding)
     end
   end
 
