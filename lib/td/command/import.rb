@@ -101,6 +101,7 @@ module Command
     show_help = ARGV.size == 0 || (ARGV.size == 1 || ARGV[0] =~ /^import:/)
 
     # configure java command-line arguments
+    timeout = nil
     java_args = []
     java_args.concat build_sysprops
     java_args.concat ["-cp", find_td_import_jar]
@@ -109,18 +110,66 @@ module Command
     if show_help
       java_args << "--help"
     else
+      0.upto(ARGV.length - 1) do |idx|
+        if ARGV[idx] == '--bulk-import-timeout'
+          timeout = ARGV[idx + 1]
+          if timeout.nil?
+            raise ArgumentError, 'timeout not given'
+          end
+          timeout = Integer(timeout)
+          ARGV.slice!(idx, 2)
+        end
+      end
       java_args.concat ARGV
     end
-
     cmd = [JAVA_COMMAND] + JVM_OPTS + java_args
-    system(*cmd)
-    if $?.exitstatus != 0
-      raise BulkImportExecutionError,
-            "Bulk Import returned error #{$?.exitstatus}. Please check the 'td-bulk-import.log' logfile for details."
+
+    CommandExecutor.new(cmd, timeout).execute
+  end
+
+  class CommandExecutor
+    def initialize(cmd, timeout)
+      @cmd, @timeout = cmd, timeout
+    end
+
+    def execute
+      status = execute_command
+      if status.exitstatus != 0
+        raise BulkImportExecutionError,
+              "Bulk Import returned error #{status.exitstatus}. Please check the 'td-bulk-import.log' logfile for details."
+      end
+      status
+    end
+
+  private
+
+    def execute_command
+      if @timeout
+        require 'timeout'
+        pid = nil
+        begin
+          Timeout.timeout(@timeout) do
+            pid = Process.spawn(*@cmd)
+            Process.waitpid(pid)
+            return $?
+          end
+        rescue Timeout::Error
+          if pid
+            require 'rbconfig'
+            if RbConfig::CONFIG['host_os'] !~ /mswin|mingw|cygwin/
+              Process.kill('QUIT', pid)
+            end
+            Process.kill('TERM', pid)
+          end
+          raise BulkImportExecutionError, "Bulk Import execution timed out: #{@timeout} [sec]"
+        end
+      else
+        system(*@cmd)
+        return $?
+      end
     end
   end
 
-  private
   def check_java
     if RbConfig::CONFIG["target_os"].downcase =~ /mswin(?!ce)|mingw|cygwin|bccwin/ # windows
       cmd = "#{JAVA_COMMAND} -version > NUL 2>&1"
