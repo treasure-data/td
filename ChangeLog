@@ -1,3 +1,22 @@
+== 2015-02-16 version 0.11.7
+
+* fix server:endpoint command not working
+* Experimental new feature: timeout for import subcommands.  To prevent Java
+  process stall this option allows user to specify maximum execution seconds
+  for import subcommands by --bulk-import-timeout option. When execution
+  exceeds specified seconds the command fails after sending SIGQUIT to
+  internal java process if it's not running on Windows.
+  NOTE1: the execution time is measured against all subcommand execution. If
+  the command parameter designates perform and commit execution the whole
+  time could be longer than just uploading part files.
+  NOTE2: this option is not shown in help at this moment.
+* Show full query text for CSV, TSV, and JSON output format (It's now only
+  truncated in table format)
+* msgpack.gz to CSV/TSV perf optimization. It should be faster around 2 times
+  than before.
+* Allow to disable table data expiration by setting the period to 0.
+* Several spec fixes. Thanks @yakitorii!
+
 == 2014-12-03 version 0.11.6
 
 * Support HTTP proxy for bulk import
