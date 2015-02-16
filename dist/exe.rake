@@ -4,7 +4,7 @@ task 'exe:build' => :build do
   create_build_dir('exe') do |dir|
     # create ./installers/
     FileUtils.mkdir_p "installers"
-    installer_path = download_resource('http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.9.3-p545.exe?direct')
+    installer_path = download_resource('http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-2.1.5.exe?direct')
     FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
     variables = {
