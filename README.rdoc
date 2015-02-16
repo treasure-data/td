@@ -46,7 +46,7 @@ Install following binary packages:
 
   * MinGW with MSYS Basic System and using mingw-get-inst
   * Git for Windows, with Windows Command Prompt support
-  * Ruby ruby-1.9.3p327 using RubyInstaller for Windows, with PATH update
+  * Ruby ruby-2.1.5p273 using RubyInstaller for Windows, with PATH update
   * Inno Setup 5
 
 Then run following commands on MinGW Shell:
