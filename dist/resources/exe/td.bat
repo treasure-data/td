@@ -5,9 +5,9 @@ if not "%~f0" == "~f0" goto WinNT
 goto Win9x
 
 :Win9x
-@"%~dp0\..\ruby-2.1.5\bin\ruby.exe" "td" %1 %2 %3 %4 %5 %6 %7 %8 %9
+@"%~dp0\..\ruby-2.0.0\bin\ruby.exe" "td" %1 %2 %3 %4 %5 %6 %7 %8 %9
 goto :EOF
 
 :WinNT
-@"%~dp0\..\ruby-2.1.5\bin\ruby.exe" "%~dpn0" %*
+@"%~dp0\..\ruby-2.0.0\bin\ruby.exe" "%~dpn0" %*
 goto :EOF
