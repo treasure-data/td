@@ -43,7 +43,9 @@ module TreasureData
       end
 
       def forward
-        @u.each {|r| break r }
+        content = @u.each {|r| break r }
+        raise EOFError unless content
+        content
       end
     end
 
