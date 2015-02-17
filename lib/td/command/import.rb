@@ -156,10 +156,14 @@ module Command
         rescue Timeout::Error
           if pid
             require 'rbconfig'
+            # win32 ruby does not support QUIT and TERM
             if RbConfig::CONFIG['host_os'] !~ /mswin|mingw|cygwin/
               Process.kill('QUIT', pid)
+              Process.kill('TERM', pid)
+            else
+              # just kill without thread dump on win32 platforms
+              Process.kill('KILL', pid)
             end
-            Process.kill('TERM', pid)
           end
           raise BulkImportExecutionError, "Bulk Import execution timed out: #{@timeout} [sec]"
         end
