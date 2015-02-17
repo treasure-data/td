@@ -158,12 +158,8 @@ module Command
             require 'rbconfig'
             if RbConfig::CONFIG['host_os'] !~ /mswin|mingw|cygwin/
               Process.kill('QUIT', pid)
-              Process.kill('TERM', pid)
-            else
-              # win32 does not support SIGTERM
-              Process.kill('INT', pid)
             end
-            Process.kill('KILL', pid) rescue nil
+            Process.kill('TERM', pid)
           end
           raise BulkImportExecutionError, "Bulk Import execution timed out: #{@timeout} [sec]"
         end
