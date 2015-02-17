@@ -273,7 +273,8 @@ module Command
 
     rows = []
     history.each {|j|
-      rows << {:Time => j.scheduled_at.localtime, :JobID => j.job_id, :Status => j.status, :Priority => job_priority_name_of(j.priority), :Result=>j.result_url}
+      scheduled_at = j.scheduled_at ? j.scheduled_at.localtime : nil
+      rows << {:Time => scheduled_at, :JobID => j.job_id, :Status => j.status, :Priority => job_priority_name_of(j.priority), :Result=>j.result_url}
     }
 
     puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result], :render_format => op.render_format)
