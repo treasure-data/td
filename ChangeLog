@@ -1,6 +1,6 @@
 == 2015-02-16 version 0.11.7
 
-* fix server:endpoint command not working
+* Fix server:endpoint command not working
 * Experimental new feature: timeout for import subcommands.  To prevent Java
   process stall this option allows user to specify maximum execution seconds
   for import subcommands by --bulk-import-timeout option. When execution
@@ -15,6 +15,7 @@
 * msgpack.gz to CSV/TSV perf optimization. It should be faster around 2 times
   than before.
 * Allow to disable table data expiration by setting the period to 0.
+* Fix sched:history crash when scheduled_at == ""
 * Several spec fixes. Thanks @yakitorii!
 
 == 2014-12-03 version 0.11.6
