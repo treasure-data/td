@@ -515,7 +515,10 @@ module Command
   end
 
   def dump_column(v)
-    v.is_a?(String) ? v.to_s : Yajl.dump(v)
+    s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
+    # CAUTION: msgpack-ruby populates byte sequences as Encoding.default_internal which should be BINARY
+    s = s.force_encoding('BINARY') if s.respond_to?(:encode)
+    s
   end
 
   def dump_column_safe_utf8(v)
