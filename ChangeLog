@@ -1,3 +1,23 @@
+== 2015-02-20 version 0.11.8
+
+* Fix: save CSV/TSV file without transcoding.
+
+  The fix in 9d74b44b533878ee5f2a84db3506279f87f85bef at 0.11.7 broke the
+  job:show command when the download format is CSV or TSV and the target
+  query result contains non UTF-8 encoded byte sequence.
+
+  0.11.6 and before does transcoding and *sanitizes* non UTF-8 byte
+  sequence before saving to file. So the generated file is always in
+  UTF-8, but could be broken when query result is not in UTF-8.
+
+  0.11.7 simply removes that transcoding logic by
+  9d74b44b533878ee5f2a84db3506279f87f85bef for performance and crashes for
+  non UTF-8 encoded byte sequence.
+
+  This release fixes 0.11.7 and saves non UTF-8 encoded byte sequence
+  as-is (through 'BINARY' encoding) so that the generated file should be
+  properly encoded in UTF-8, Shift_JIS, or whatever.
+
 == 2015-02-16 version 0.11.7
 
 * Fix server:endpoint command not working
