@@ -144,7 +144,9 @@ module Command
       databases = client.databases
     end
 
-    has_item = databases.select {|db| db.tables.select {|table| table.type == :item}.length > 0 }.length > 0
+    has_item = databases.select {|db|
+      db.permission != :import_only ? (db.tables.select {|table| table.type == :item}.length > 0) : false
+    }.length > 0
 
     rows = []
     ::Parallel.each(databases, :in_threads => num_threads) {|db|
