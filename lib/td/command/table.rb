@@ -149,6 +149,9 @@ module Command
     rows = []
     ::Parallel.each(databases, :in_threads => num_threads) {|db|
       begin
+        if db.permission == :import_only
+          next
+        end
         db.tables.each {}
         db.tables.each {|table|
           pschema = table.schema.fields.map {|f|
@@ -188,8 +191,12 @@ module Command
 
     if rows.empty?
       if db_name
-        $stderr.puts "Database '#{db_name}' has no tables."
-        $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "table:create <db> <table>' to create a table."
+        if databases.first.permission == :import_only
+          $stderr.puts "Database '#{db_name}' is import only, cannot list or create tables."
+        else
+          $stderr.puts "Database '#{db_name}' has no tables."
+          $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "table:create <db> <table>' to create a table."
+        end
       elsif databases.empty?
         $stderr.puts "There are no databases."
         $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "db:create <db>' to create a database."
