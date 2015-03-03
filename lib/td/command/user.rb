@@ -120,7 +120,7 @@ module Command
     client.add_user(name, nil, email, password)
 
     $stderr.puts "User '#{name}' is created."
-    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "user:apikeys #{name}' to show the API key."    
+    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "user:apikeys #{name}' to show the API key."
   end
 
   def user_delete(op)
