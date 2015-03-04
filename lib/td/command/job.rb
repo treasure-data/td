@@ -143,6 +143,10 @@ module Command
       exclude = b
     }
 
+    op.on('-n', '--null', 'show null as blank in tsv/csv', TrueClass) { |b|
+      render_opts[:null_blank] = b
+    }
+
     job_id = op.cmd_parse
 
     # parameter concurrency validation
@@ -167,7 +171,6 @@ module Command
     end
 
     client = get_client
-
     job = client.job(job_id)
 
     puts "JobID       : #{job.job_id}"
@@ -387,7 +390,7 @@ module Command
         job.result_each_with_compr_size {|row, compr_size|
           # TODO limit the # of columns
           writer << row.map {|col|
-            dump_column(col)
+            dump_column(col, render_opts[:null_blank])
           }
           n_rows += 1
           if n_rows % 100 == 0 # flush every 100 recods
@@ -418,7 +421,7 @@ module Command
             job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
-          f.write row.map {|col| dump_column(col)}.join("\t") + "\n"
+          f.write row.map {|col| dump_column(col, render_opts[:null_blank])}.join("\t") + "\n"
           n_rows += 1
           if n_rows % 100 == 0
             f.flush # flush every 100 recods
@@ -493,7 +496,7 @@ module Command
       job.result_each_with_compr_size {|row, compr_size|
         indicator.update(compr_size)
         rows << row.map {|v|
-          dump_column_safe_utf8(v)
+          dump_column_safe_utf8(v, render_opts[:null_blank])
         }
         n_rows += 1
         break if !limit.nil? and n_rows == limit
@@ -514,15 +517,17 @@ module Command
     end
   end
 
-  def dump_column(v)
+  def dump_column(v, null_blank = false)
+    return nil if v.nil? && null_blank
+
     s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
     # CAUTION: msgpack-ruby populates byte sequences as Encoding.default_internal which should be BINARY
     s = s.force_encoding('BINARY') if s.respond_to?(:encode)
     s
   end
 
-  def dump_column_safe_utf8(v)
-    s = dump_column(v)
+  def dump_column_safe_utf8(v, null_blank = false)
+    s = dump_column(v, null_blank)
     # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
     #   a) to make sure the string doesn't include invalid byte sequence
     #   b) to display multi-byte characters as it is
