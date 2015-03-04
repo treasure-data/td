@@ -366,6 +366,7 @@ end # module ModuleDefinition
   end
 
   def check_n_update_jar(hourly = false)
+    current_dir = FileUtils.pwd
     if hourly
       if !ENV['TD_TOOLBELT_JAR_UPDATE'].nil?
         # also validates the TD_TOOLBELT_JAR_UPDATE environment variable value
@@ -385,6 +386,8 @@ end # module ModuleDefinition
     end
     jar_update(hourly)
     FileUtils.touch last_jar_autoupdate_timestamp
+  ensure
+    FileUtils.chdir current_dir
   end
 
   private
