@@ -185,7 +185,7 @@ module TreasureData::Updater
       res.body = '<metadata><versioning><lastUpdated>20141204123456</lastUpdated><release>version</release></versioning></metadata>'
     end
 
-    def jar
+    def jar(req, res)
       res['content-type'] = 'application/octet-stream'
       res.body = File.read(fixture_file('tmp.zip'))
     end
