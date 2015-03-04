@@ -105,6 +105,42 @@ module TreasureData::Updater
       end
     end
 
+    describe "current working directory doesn't change after call `jar_update`" do
+      shared_examples_for("jar_update behavior") do
+        it "doesn't change cwd" do 
+          with_env('TD_TOOLBELT_JARUPDATE_ROOT', "https://localhost:#{@server.config[:Port]}") do
+            pwd = Dir.pwd
+            subject
+            expect(Dir.pwd).to eq pwd
+          end
+        end
+
+        it "don't exists td-import.jar.new" do
+          with_env('TD_TOOLBELT_JARUPDATE_ROOT', "https://localhost:#{@server.config[:Port]}") do
+            subject
+          end
+          tmpfile = File.join(TreasureData::Updater.jarfile_dest_path, 'td-import.jar.new')
+          expect(File.exists?(tmpfile)).to eq false
+        end
+      end
+
+      let(:updater) { JarUpdateTester.new }
+
+      subject { updater.kick }
+
+      context "not updated" do
+        before { updater.stub(:existent_jar_updated_time).and_return(Time.now) }
+
+        it_behaves_like "jar_update behavior"
+      end
+
+      context "updated" do
+        before { updater.stub(:existent_jar_updated_time).and_return(Time.at(0)) }
+
+        it_behaves_like "jar_update behavior"
+      end
+    end
+
     def with_proxy
       with_env('HTTP_PROXY', "http://localhost:#{@proxy_server.config[:Port]}") do
         yield
