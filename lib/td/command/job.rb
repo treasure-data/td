@@ -1,4 +1,3 @@
-
 module TreasureData
 module Command
 
@@ -420,6 +419,7 @@ module Command
             "NOTE: the job result is being written to #{output} in tsv format",
             job.result_size, 0.1, 1)
         end
+
         job.result_each_with_compr_size {|row, compr_size|
           f.write row.map {|col| dump_column(col, render_opts[:null_expr])}.join("\t") + "\n"
           n_rows += 1
@@ -520,7 +520,7 @@ module Command
   def dump_column(v, null_expr = nil)
     v = null_expr if v.nil? && null_expr
 
-    s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
+    s = v.is_a?(String) ? v.to_s : Yajl.dump(sanitize_infinite_value(v))
     # CAUTION: msgpack-ruby populates byte sequences as Encoding.default_internal which should be BINARY
     s = s.force_encoding('BINARY') if s.respond_to?(:encode)
     s
@@ -535,6 +535,10 @@ module Command
     #   d) UTF-16LE was slightly faster than UTF-16BE, UTF-32LE or UTF-32BE
     s = s.encode('UTF-16LE', 'UTF-8', :invalid=>:replace, :undef=>:replace).encode!('UTF-8') if s.respond_to?(:encode)
     s
+  end
+
+  def sanitize_infinite_value(v)
+    (v.is_a?(Float) && !v.finite?) ? v.to_s : v
   end
 
   def job_priority_name_of(id)
