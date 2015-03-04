@@ -342,7 +342,7 @@ module Command
     }
 
     # save argv before calling cmd_parse, which removes flags from the argv array
-    argv_saved = op.argv[0..-2]
+    argv_saved = op.argv.dup
 
     name = op.cmd_parse
 
@@ -365,7 +365,7 @@ module Command
 
     # build the job:show command now
     argv = ['job:show']
-    argv += argv_saved if argv_saved.length > 0
+    argv += (argv_saved - [name]) if argv_saved.length > 0
     argv << job_id.to_s
 
     Runner.new.run(argv)
