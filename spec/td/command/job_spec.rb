@@ -77,20 +77,20 @@ module TreasureData::Command
         context 'with --null option' do
           it 'dose not effect json output (nil will be shown as null)' do
             file = Tempfile.new("job_spec")
-            command.send(:show_result, job, file, nil, 'json', { null_blank: true })
+            command.send(:show_result, job, file, nil, 'json', { null_expr: "NULL" })
             File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
           end
 
           it 'supports csv output' do
             file = Tempfile.new("job_spec")
-            command.send(:show_result, job, file, nil, 'csv', { null_blank: true })
-            File.read(file.path).should == %Q(,2.0,"{""key"":3}"\n)
+            command.send(:show_result, job, file, nil, 'csv', { null_expr: "NULL" })
+            File.read(file.path).should == %Q(NULL,2.0,"{""key"":3}"\n)
           end
 
           it 'supports tsv output' do
             file = Tempfile.new("job_spec")
-            command.send(:show_result, job, file, nil, 'tsv', { null_blank: true })
-            File.read(file.path).should == %Q(\t2.0\t{"key":3}\n)
+            command.send(:show_result, job, file, nil, 'tsv', { null_expr: "\"\"" })
+            File.read(file.path).should == %Q(""\t2.0\t{"key":3}\n)
           end
         end
       end
@@ -136,7 +136,7 @@ module TreasureData::Command
       end
 
       context 'without --null option' do
-        it 'calls #show_result without null_blank option' do
+        it 'calls #show_result without null_expr option' do
           command.stub(:show_result).with(job, nil, nil, nil, {:header=>false})
           op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345"], true)
           command.job_show(op)
@@ -144,9 +144,15 @@ module TreasureData::Command
       end
 
       context 'with --null option' do
-        it 'calls #show_result with null_blank option' do
-          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_blank=>true} )
-          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null"], true)
+        it 'calls #show_result with null_expr option' do
+          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>"NULL"} )
+          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", "NULL"], true)
+          command.job_show(op)
+        end
+
+        it 'calls #show_result with null_expr option' do
+          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>'""'} )
+          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", '""'], true)
           command.job_show(op)
         end
       end

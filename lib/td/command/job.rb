@@ -143,8 +143,8 @@ module Command
       exclude = b
     }
 
-    op.on('-n', '--null', 'show null as blank in tsv/csv', TrueClass) { |b|
-      render_opts[:null_blank] = b
+    op.on('-n STRING', '--null STRING', "null expression in csv or tsv (default: null)") {|s|
+      render_opts[:null_expr] = s.to_s
     }
 
     job_id = op.cmd_parse
@@ -390,7 +390,7 @@ module Command
         job.result_each_with_compr_size {|row, compr_size|
           # TODO limit the # of columns
           writer << row.map {|col|
-            dump_column(col, render_opts[:null_blank])
+            dump_column(col, render_opts[:null_expr])
           }
           n_rows += 1
           if n_rows % 100 == 0 # flush every 100 recods
@@ -421,7 +421,7 @@ module Command
             job.result_size, 0.1, 1)
         end
         job.result_each_with_compr_size {|row, compr_size|
-          f.write row.map {|col| dump_column(col, render_opts[:null_blank])}.join("\t") + "\n"
+          f.write row.map {|col| dump_column(col, render_opts[:null_expr])}.join("\t") + "\n"
           n_rows += 1
           if n_rows % 100 == 0
             f.flush # flush every 100 recods
@@ -496,7 +496,7 @@ module Command
       job.result_each_with_compr_size {|row, compr_size|
         indicator.update(compr_size)
         rows << row.map {|v|
-          dump_column_safe_utf8(v, render_opts[:null_blank])
+          dump_column_safe_utf8(v, render_opts[:null_expr])
         }
         n_rows += 1
         break if !limit.nil? and n_rows == limit
@@ -517,8 +517,8 @@ module Command
     end
   end
 
-  def dump_column(v, null_blank = false)
-    return nil if v.nil? && null_blank
+  def dump_column(v, null_expr = nil)
+    v = null_expr if v.nil? && null_expr
 
     s = v.is_a?(String) ? v.to_s : Yajl.dump(v)
     # CAUTION: msgpack-ruby populates byte sequences as Encoding.default_internal which should be BINARY
@@ -526,8 +526,8 @@ module Command
     s
   end
 
-  def dump_column_safe_utf8(v, null_blank = false)
-    s = dump_column(v, null_blank)
+  def dump_column_safe_utf8(v, null_expr = false)
+    s = dump_column(v, null_expr)
     # Here does UTF-8 -> UTF-16LE -> UTF8 conversion:
     #   a) to make sure the string doesn't include invalid byte sequence
     #   b) to display multi-byte characters as it is
