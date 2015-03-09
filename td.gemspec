@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.authors               = ["Treasure Data, Inc."]
   gem.email                 = "support@treasure-data.com"
   gem.has_rdoc              = false
-  gem.files                 = `git ls-files`.split("\n")
+  gem.files                 = `git ls-files`.split("\n").select { |f| !f.start_with?('dist') }
   gem.test_files            = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.executables           = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths         = ['lib']
