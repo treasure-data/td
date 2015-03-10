@@ -1,4 +1,5 @@
 require 'td/command/common'
+require 'json'
 require 'uri'
 require 'yaml'
 
