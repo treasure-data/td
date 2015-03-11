@@ -1,4 +1,5 @@
 require 'td/command/common'
+require 'json'
 require 'uri'
 require 'yaml'
 
@@ -12,13 +13,13 @@ module Command
   end
 
   def bulk_load_guess(op)
-    type = 's3_file'
+    type = 's3'
     id = secret = source = database = table = nil
     out = 'td-bulkload.yml'
 
-    op.on('--type[=TYPE]', "Server-side bulk_load type; only 's3_file' is supported") { |s| type = s }
-    op.on('--access-id ID', "access ID (S3 access key id for type: s3_file)") { |s| id = s }
-    op.on('--access-secret SECRET', "access secret (S3 secret access key for type: s3_file)") { |s| secret = s }
+    op.on('--type[=TYPE]', "Server-side bulk_load type; only 's3' is supported") { |s| type = s }
+    op.on('--access-id ID', "access ID (S3 access key id for type: s3)") { |s| id = s }
+    op.on('--access-secret SECRET', "access secret (S3 secret access key for type: s3)") { |s| secret = s }
     op.on('--source SOURCE', "resource(s) URI to be imported (e.g. https://s3-us-west-1.amazonaws.com/bucketname/path/prefix/to/import/)") { |s| source = s }
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
@@ -40,7 +41,7 @@ module Command
       endpoint = uri.host
       path_components = uri.path.scan(/\/[^\/]*/)
       bucket = path_components.shift.sub(/\//, '')
-      path = path_components.join.sub(/\//, '')
+      path_prefix = path_components.join.sub(/\//, '')
 
       job = API::BulkLoad::Job.from_hash(
         :config => {
@@ -49,9 +50,7 @@ module Command
           :secret_access_key => secret,
           :endpoint => endpoint,
           :bucket => bucket,
-          :paths => [
-            path
-          ]
+          :path_prefix => path_prefix,
         },
         :database => database,
         :table => table
