@@ -81,10 +81,26 @@ module TreasureData::Command
             File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
           end
 
-          it 'supports csv output' do
-            file = Tempfile.new("job_spec")
-            command.send(:show_result, job, file, nil, 'csv', { null_expr: "NULL" })
-            File.read(file.path).should == %Q(NULL,2.0,"{""key"":3}"\n)
+          context 'csv format' do
+            let(:file) { Tempfile.new("job_spec") }
+
+            context 'specified string is NULL' do
+              let!(:null_expr) { "NULL" }
+
+              it 'shows nill as specified string' do
+                command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
+                File.read(file.path).should == %Q(NULL,2.0,"{""key"":3}"\n)
+              end
+            end
+
+            context 'specified string is empty string' do
+              let!(:null_expr) { '' }
+
+              it 'shows nill as empty string' do
+                command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
+                File.read(file.path).should == %Q("",2.0,"{""key"":3}"\n)
+              end
+            end
           end
 
           it 'supports tsv output' do
