@@ -13,32 +13,156 @@ module TreasureData::Command
     end
 
     describe 'write_result' do
-      let :job do
-        job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
-        job.instance_eval do
-          @result = [[["1", 2.0, {key:3}], 1], [["4", 5.0, {key:6}], 2], [["7", 8.0, {key:9}], 3]]
-          @result_size = 3
-          @status = 'success'
+      let(:file) { Tempfile.new("job_spec") }
+
+      context 'result without nil' do
+        let :job do
+          job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
+          job.instance_eval do
+            @result = [[["1", 2.0, {key:3}], 1], [["4", 5.0, {key:6}], 2], [["7", 8.0, {key:9}], 3]]
+            @result_size = 3
+            @status = 'success'
+          end
+          job
         end
-        job
+
+        it 'supports json output' do
+          command.send(:show_result, job, file, nil, 'json')
+          File.read(file.path).should == %Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]])
+        end
+
+        it 'supports csv output' do
+          command.send(:show_result, job, file, nil, 'csv')
+          File.read(file.path).should == %Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
+        end
+
+        it 'supports tsv output' do
+          command.send(:show_result, job, file, nil, 'tsv')
+          File.read(file.path).should == %Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
+        end
       end
 
-      it 'supports json output' do
-        file = Tempfile.new("job_spec")
-        command.send(:show_result, job, file, nil, 'json')
-        File.read(file.path).should == %Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]])
+      context 'result with nil' do
+        let :job do
+          job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
+          job.instance_eval do
+            @result = [[[nil, 2.0, {key:3}], 1]]
+            @result_size = 3
+            @status = 'success'
+          end
+          job
+        end
+
+        context 'without --null option' do
+          it 'supports json output' do
+            command.send(:show_result, job, file, nil, 'json')
+            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+          end
+
+          it 'supports csv output' do
+            command.send(:show_result, job, file, nil, 'csv')
+            File.read(file.path).should == %Q(null,2.0,"{""key"":3}"\n)
+          end
+
+          it 'supports tsv output' do
+            command.send(:show_result, job, file, nil, 'tsv')
+            File.read(file.path).should == %Q(null\t2.0\t{"key":3}\n)
+          end
+        end
+
+        context 'with --null option' do
+          it 'dose not effect json output (nil will be shown as null)' do
+            command.send(:show_result, job, file, nil, 'json', { null_expr: "NULL" })
+            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+          end
+
+          context 'csv format' do
+            context 'specified string is NULL' do
+              let!(:null_expr) { "NULL" }
+
+              it 'shows nill as specified string' do
+                command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
+                File.read(file.path).should == %Q(NULL,2.0,"{""key"":3}"\n)
+              end
+            end
+
+            context 'specified string is empty string' do
+              let!(:null_expr) { '' }
+
+              it 'shows nill as empty string' do
+                command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
+                File.read(file.path).should == %Q("",2.0,"{""key"":3}"\n)
+              end
+            end
+          end
+
+          it 'supports tsv output' do
+            command.send(:show_result, job, file, nil, 'tsv', { null_expr: "\"\"" })
+            File.read(file.path).should == %Q(""\t2.0\t{"key":3}\n)
+          end
+        end
+      end
+    end
+
+    describe '#job_show' do
+      let(:job_id) { "12345" }
+
+      let :job_classs do
+        Struct.new(:job_id,
+                   :status,
+                   :type,
+                   :db_name,
+                   :priority,
+                   :retry_limit,
+                   :result_url,
+                   :query,
+                   :cpu_time,
+                   :result_size
+                  )
       end
 
-      it 'supports csv output' do
-        file = Tempfile.new("job_spec")
-        command.send(:show_result, job, file, nil, 'csv')
-        File.read(file.path).should == %Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
+      let :job do
+        job_classs.new(job_id,
+                       nil,
+                       :hive,
+                       "db_name",
+                       1,
+                       1,
+                       "test_url",
+                       "test_qury",
+                       1,
+                       3
+                      )
       end
 
-      it 'supports tsv output' do
-        file = Tempfile.new("job_spec")
-        command.send(:show_result, job, file, nil, 'tsv')
-        File.read(file.path).should == %Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
+      before do
+        job.stub(:finished?).and_return(true)
+
+        client = Object.new
+        client.stub(:job).with(job_id).and_return(job)
+        command.stub(:get_client).and_return(client)
+      end
+
+      context 'without --null option' do
+        it 'calls #show_result without null_expr option' do
+          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false})
+          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345"], true)
+          command.job_show(op)
+        end
+      end
+
+      context 'with --null option' do
+        it 'calls #show_result with null_expr option' do
+          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>"NULL"} )
+          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", "NULL"], true)
+          command.job_show(op)
+        end
+
+        it 'calls #show_result with null_expr option' do
+          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>'""'} )
+          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", '""'], true)
+          command.job_show(op)
+        end
       end
     end
 
