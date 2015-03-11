@@ -13,6 +13,8 @@ module TreasureData::Command
     end
 
     describe 'write_result' do
+      let(:file) { Tempfile.new("job_spec") }
+
       context 'result without nil' do
         let :job do
           job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
@@ -25,19 +27,16 @@ module TreasureData::Command
         end
 
         it 'supports json output' do
-          file = Tempfile.new("job_spec")
           command.send(:show_result, job, file, nil, 'json')
           File.read(file.path).should == %Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]])
         end
 
         it 'supports csv output' do
-          file = Tempfile.new("job_spec")
           command.send(:show_result, job, file, nil, 'csv')
           File.read(file.path).should == %Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
         end
 
         it 'supports tsv output' do
-          file = Tempfile.new("job_spec")
           command.send(:show_result, job, file, nil, 'tsv')
           File.read(file.path).should == %Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
         end
@@ -56,19 +55,16 @@ module TreasureData::Command
 
         context 'without --null option' do
           it 'supports json output' do
-            file = Tempfile.new("job_spec")
             command.send(:show_result, job, file, nil, 'json')
             File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
           end
 
           it 'supports csv output' do
-            file = Tempfile.new("job_spec")
             command.send(:show_result, job, file, nil, 'csv')
             File.read(file.path).should == %Q(null,2.0,"{""key"":3}"\n)
           end
 
           it 'supports tsv output' do
-            file = Tempfile.new("job_spec")
             command.send(:show_result, job, file, nil, 'tsv')
             File.read(file.path).should == %Q(null\t2.0\t{"key":3}\n)
           end
@@ -76,14 +72,11 @@ module TreasureData::Command
 
         context 'with --null option' do
           it 'dose not effect json output (nil will be shown as null)' do
-            file = Tempfile.new("job_spec")
             command.send(:show_result, job, file, nil, 'json', { null_expr: "NULL" })
             File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
           end
 
           context 'csv format' do
-            let(:file) { Tempfile.new("job_spec") }
-
             context 'specified string is NULL' do
               let!(:null_expr) { "NULL" }
 
@@ -104,7 +97,6 @@ module TreasureData::Command
           end
 
           it 'supports tsv output' do
-            file = Tempfile.new("job_spec")
             command.send(:show_result, job, file, nil, 'tsv', { null_expr: "\"\"" })
             File.read(file.path).should == %Q(""\t2.0\t{"key":3}\n)
           end
