@@ -143,9 +143,8 @@ module Command
       exclude = b
     }
 
-    op.on('--null [STRING]', "null expression in csv or tsv (default: null)") {|s|
-      expr = s || "null"
-      render_opts[:null_expr] = expr.to_s
+    op.on('--null STRING', "null expression in csv or tsv") {|s|
+      render_opts[:null_expr] = s.to_s
     }
 
     job_id = op.cmd_parse

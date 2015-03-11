@@ -163,12 +163,6 @@ module TreasureData::Command
           op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", '""'], true)
           command.job_show(op)
         end
-
-        it 'calls #show_result with null_expr option(only --null without string)' do
-          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>'null'} )
-          op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null"], true)
-          command.job_show(op)
-        end
       end
     end
 
