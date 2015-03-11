@@ -143,7 +143,7 @@ module Command
       exclude = b
     }
 
-    op.on('-n [STRING]', '--null [STRING]', "null expression in csv or tsv (default: null)") {|s|
+    op.on('--null [STRING]', "null expression in csv or tsv (default: null)") {|s|
       expr = s || "null"
       render_opts[:null_expr] = expr.to_s
     }
