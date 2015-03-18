@@ -289,9 +289,6 @@ module List
   add_list 'sched:update', %w[name], 'Modify a schedule', ['sched:update sched1 -s "0 */2 * * *" -d my_db -t "Asia/Tokyo" -D 3600']
   add_list 'sched:history', %w[name max?], 'Show history of scheduled queries', ['sched sched1 --page 1']
   add_list 'sched:run', %w[name time], 'Run scheduled queries for the specified time', ['sched:run sched1 "2013-01-01 00:00:00" -n 6']
-  add_list 'sched:last_job', %w[name], "Show status and result of the last job ran\n" +
-                                      "The options are identical to those of the 'job:show' command.",
-                                       ['sched:last_job sched1']
   add_list 'sched:result', %w[name], "Show status and result of the last job ran.\n" +
                                  "--last [N] option enables to show the result before N from the last.\n" +
                                  "The other options are identical to those of the 'job:show' command.",
