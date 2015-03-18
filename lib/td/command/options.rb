@@ -51,7 +51,16 @@ module Options
       render_opts[:null_expr] = s.to_s
     }
 
-    [op,verbose, wait, output, format, render_opts, limit, exclude]
+    {
+      :op          => op,
+      :verbose     => verbose,
+      :wait        => wait,
+      :output      => output,
+      :format      => format,
+      :render_opts => render_opts,
+      :limit       => limit,
+      :exclude     => exclude,
+    }
   end
 
 end # module Options

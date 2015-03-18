@@ -327,7 +327,16 @@ module Command
   end
 
   def sched_result(op)
-    op, verbose, wait, output, format, render_opts, limit, exclude = job_show_options(op)
+    options = job_show_options(op)
+
+    op          = options[:op]
+    verbose     = options[:verbose]
+    wait        = options[:wait]
+    output      = options[:output]
+    format      = options[:format]
+    render_opts = options[:render_opts]
+    limit       = options[:limit]
+    exclude     = options[:exclude]
 
     back_number = 1
     op.on('--last [Number]', "show the result before N from the last. default: 1") do |n|

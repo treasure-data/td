@@ -102,7 +102,16 @@ module Command
   end
 
   def job_show(op)
-    op, verbose, wait, output, format, render_opts, limit, exclude = job_show_options(op)
+    options = job_show_options(op)
+
+    op          = options[:op]
+    verbose     = options[:verbose]
+    wait        = options[:wait]
+    output      = options[:output]
+    format      = options[:format]
+    render_opts = options[:render_opts]
+    limit       = options[:limit]
+    exclude     = options[:exclude]
 
     job_id = op.cmd_parse
 
