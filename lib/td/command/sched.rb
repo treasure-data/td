@@ -353,7 +353,7 @@ module Command
     job = history.first
 
     if job.nil?
-      puts "No jobs available for this query. Refer to 'sched:history'."
+      $stderr.puts "No jobs available for this query. Refer to 'sched:history'."
       exit 1
     end
 
