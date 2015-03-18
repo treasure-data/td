@@ -355,6 +355,7 @@ module List
   add_alias 'schedule:create', 'sched:create'
   add_alias 'schedule:delete', 'sched:delete'
   add_alias 'schedule:history', 'sched:history'
+  add_alias 'schedule:result', 'sched:result'
   add_alias 'schedule:hist', 'sched:history'
   add_alias 'sched:hist', 'sched:history'
   add_alias 'sched', 'sched:history'
