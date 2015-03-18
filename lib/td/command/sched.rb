@@ -1,5 +1,8 @@
+require 'td/command/options'
+
 module TreasureData
 module Command
+  include Options
 
   def sched_list(op)
     require 'td/command/job'  # job_priority_name_of
@@ -348,14 +351,8 @@ module Command
 
     # fetch the last job ID
     client = get_client
-    begin
-      history = client.history(name, 0, 1)
-    rescue NotFoundError
-      cmd_debug_error $!
-      $stderr.puts "Schedule '#{name}' does not exist."
-      $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "sched:list' to show list of the schedules."
-      exit 1
-    end
+    history = get_history(client, name)
+
     job = history.first
     if job.nil?
       puts "No jobs available for this query. Refer to 'sched:history'."
@@ -369,6 +366,67 @@ module Command
     argv << job_id.to_s
 
     Runner.new.run(argv)
+  end
+
+  def sched_result(op)
+    op, verbose, wait, output, format, render_opts, limit, exclude = job_show_options(op)
+
+    back_number = 1
+    op.on('--last [Number]', "show the result before N from the last. default: 1") do |n|
+      back_number = n ?  n.to_i : 1
+    end
+
+    # save argv before calling cmd_parse, which removes flags from the argv array
+    argv_saved = op.argv.dup
+    name = op.cmd_parse
+
+    client = get_client
+    history = get_history(client, name)
+
+    # when arg is --last 1, meaning 'the last job history', you should get history[0]
+    job = history[back_number - 1]
+
+    if job.nil?
+      puts "No jobs available for this query. Refer to 'sched:history'."
+      exit 1
+    end
+
+    # build the job:show command now
+    argv = job_show_option_argv(argv_saved, name, back_number)
+    argv << job.job_id.to_s
+
+    Runner.new.run(argv)
+  end
+
+  def job_show_option_argv(argv_saved, name, back_number)
+    argv = ['job:show']
+    argv += (argv_saved - [name]) if argv_saved.length > 0
+
+    index_of_last = argv.index("--last")
+
+    return argv unless index_of_last
+
+    # the arg value following to "--last"
+    next_of_last = argv[index_of_last + 1]
+
+    options_for_sched_result = ["--last"]
+    # remove both "--last" and back_number if they were.
+    options_for_sched_result << next_of_last if next_of_last == back_number.to_s
+    argv = argv - options_for_sched_result
+
+    argv
+  end
+
+  def get_history(client, name)
+    begin
+      history = client.history(name, 0, 1)
+    rescue NotFoundError
+      cmd_debug_error $!
+      $stderr.puts "Schedule '#{name}' does not exist."
+      $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "sched:list' to show list of the schedules."
+      exit 1
+    end
+    history
   end
 
 end # module Command
