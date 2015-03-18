@@ -326,48 +326,6 @@ module Command
     puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
   end
 
-  def sched_last_job(op)
-    op.on('-v', '--verbose', 'show logs', TrueClass) {}
-    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
-    }
-    op.on('-G', '--vertical', 'use vertical table to show results', TrueClass) {|b|
-    }
-    op.on('-o', '--output PATH', 'write result to the file') {|s|
-    }
-    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json, msgpack, and msgpack.gz)') {|s|
-    }
-    op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
-    }
-    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available',
-                                   '  for the table (only applies to tsv and csv formats)', TrueClass) {|b|
-    }
-    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
-    }
-
-    # save argv before calling cmd_parse, which removes flags from the argv array
-    argv_saved = op.argv.dup
-
-    name = op.cmd_parse
-
-    # fetch the last job ID
-    client = get_client
-    history = get_history(client, name)
-
-    job = history.first
-    if job.nil?
-      puts "No jobs available for this query. Refer to 'sched:history'."
-      exit 1
-    end
-    job_id = job.job_id
-
-    # build the job:show command now
-    argv = ['job:show']
-    argv += (argv_saved - [name]) if argv_saved.length > 0
-    argv << job_id.to_s
-
-    Runner.new.run(argv)
-  end
-
   def sched_result(op)
     op, verbose, wait, output, format, render_opts, limit, exclude = job_show_options(op)
 
