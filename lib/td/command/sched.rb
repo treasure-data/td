@@ -348,10 +348,9 @@ module Command
     name = op.cmd_parse
 
     client = get_client
-    history = get_history(client, name)
+    history = get_history(client, name, (back_number - 1), back_number)
 
-    # when arg is --last 1, meaning 'the last job history', you should get history[0]
-    job = history[back_number - 1]
+    job = history.first
 
     if job.nil?
       puts "No jobs available for this query. Refer to 'sched:history'."
@@ -377,22 +376,23 @@ module Command
     next_of_last = argv[index_of_last + 1]
 
     options_for_sched_result = ["--last"]
-    # remove both "--last" and back_number if they were.
+    # remove both "--last" and back_number if they are.
     options_for_sched_result << next_of_last if next_of_last == back_number.to_s
     argv = argv - options_for_sched_result
 
     argv
   end
 
-  def get_history(client, name)
+  def get_history(client, name, from, to)
     begin
-      history = client.history(name, 0, 1)
+      history = client.history(name, from, to)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
       $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "sched:list' to show list of the schedules."
       exit 1
     end
+
     history
   end
 

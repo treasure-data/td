@@ -24,11 +24,14 @@ module TreasureData::Command
 
     before do
       client.stub(:schedules).and_return(schedules)
-      client.stub(:history).and_return(history)
       command.stub(:get_client).and_return(client)
     end
 
     describe 'sched_history' do
+      before do
+        client.stub(:history).and_return(history)
+      end
+
       let(:history) { [job1, job2] }
 
       it 'runs' do
@@ -41,6 +44,10 @@ module TreasureData::Command
     describe 'sched_result' do
       subject { command.sched_result(op) }
 
+      before do
+        command.stub(:get_history).with(client, nil, (back_number - 1), back_number).and_return(history)
+      end
+
       shared_examples_for("passing argv and job_id to job:show") do
         it "invoke 'job:show [original argv] [job id]'" do
           TreasureData::Command::Runner.any_instance.should_receive(:run).with(["job:show", *show_arg, job_id])
@@ -49,37 +56,49 @@ module TreasureData::Command
       end
 
       context "history exists" do
-        let(:history) { [job1, job2] }
+
+        let(:job_id) { history.first.job_id }
 
         context 'without --last option' do
+          let(:history) { [job1] }
+          let(:back_number) { 1 }
+
           let(:argv) { %w(--last --format csv) }
           let(:show_arg) { %w(--format csv) }
-          let(:job_id) { history.first.job_id }
           it_behaves_like "passing argv and job_id to job:show"
         end
 
         context '--last witout Num' do
+          let(:history) { [job1] }
+          let(:back_number) { 1 }
+
           let(:argv) { %w(--last --format csv) }
           let(:show_arg) { %w(--format csv) }
-          let(:job_id) { history.first.job_id }
           it_behaves_like "passing argv and job_id to job:show"
         end
 
         context '--last 1' do
+          let(:history) { [job1] }
+          let(:back_number) { 1 }
+
           let(:argv) { %w(--last 1 --format csv) }
           let(:show_arg) { %w(--format csv) }
-          let(:job_id) { history.first.job_id }
           it_behaves_like "passing argv and job_id to job:show"
         end
 
         context '--last 2 after format option' do
+          let(:history) { [job2] }
+          let(:back_number) { 2 }
+
           let(:argv) { %w(--format csv --last 2 ) }
           let(:show_arg) { %w(--format csv) }
-          let(:job_id) { history[1].job_id }
           it_behaves_like "passing argv and job_id to job:show"
         end
 
         context '--last 3(too back over)' do
+          let(:history) { [] }
+          let(:back_number) { 3 }
+
           let(:argv) { %w(--last 3 --format csv) }
           it 'raise ' do
             expect {
@@ -90,6 +109,7 @@ module TreasureData::Command
       end
 
       context "history dose not exists" do
+        let(:back_number) { 1 }
         let(:history) { [] }
         before { client.stub(:history) { raise TreasureData::NotFoundError } }
 
