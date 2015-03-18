@@ -56,4 +56,4 @@ module Options
 
 end # module Options
 end # module Command
-end # module TrasureData
+end # module TreasureData
