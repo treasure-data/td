@@ -320,9 +320,18 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
-  add_list 'bulk_load:guess', %w[config?], 'TODO', ['bulk_load:guess TODO!!!!!!!!']
-  add_list 'bulk_load:preview', %w[config], 'TODO', ['bulk_load:preview TODO!!!!!!!!']
-  add_list 'bulk_load:issue', %w[config], 'TODO', ['bulk_load:issue TODO!!!!!!!!']
+  add_list 'bulk_load:guess', %w[config?], 'Run guess to generate bulk_load config file', ['bulk_load:guess td-bulkload.yml', 'bulk_load:guess --access-id s3accessId --access-secret s3AccessKey --source https://s3.amazonaws.com/bucketname/path/prefix --database load_database --table load_table']
+  add_list 'bulk_load:preview', %w[config], 'Show preview of bulk_load execution', ['bulk_load:preview td-bulkload.yml']
+
+  add_list 'bulk_load:issue', %w[config], 'Run one time bulk_load execution', ['bulk_load:issue td-bulkload.yml']
+
+  add_list 'bulk_load:list', %w[], 'Show list of bulk_load sessions', ['bulk_load:list']
+  add_list 'bulk_load:create', %w[name cron database table config], 'Create new bulk_load session', ['bulk_load:create bulk_load1 "0 * * * *" load_database load_table td-bulkload.yml']
+  add_list 'bulk_load:show', %w[name], 'Show bulk_load session', ['bulk_load:show bulk_load1']
+  add_list 'bulk_load:update', %w[name config], 'Modify bulk_load session', ['bulk_load:update bulk_load1 td-bulkload.yml']
+  add_list 'bulk_load:delete', %w[name], 'Delete bulk_load session', ['bulk_load:delete bulk_load1']
+  add_list 'bulk_load:history', %w[name], 'Show job history of bulk_load session', ['bulk_load:history bulk_load1']
+  add_list 'bulk_load:run', %w[name time], 'Run bulk_load session for the specified time', ['bulk_load:run bulk_load1 "2016-01-01 00:00:00"']
 
   # aliases
   add_alias 'db', 'db:show'
