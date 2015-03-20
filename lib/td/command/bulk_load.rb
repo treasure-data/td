@@ -84,8 +84,11 @@ module Command
 
   def bulk_load_issue(op)
     database = table = nil
+    wait = exclude = false
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
+    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
+    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
     config_file = op.cmd_parse
 
@@ -99,6 +102,10 @@ module Command
 
     puts "Job #{job_id} is queued."
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
+
+    if wait
+      wait_bulk_load_job(job_id, exclude)
+    end
   end
 
   def bulk_load_list(op)
@@ -197,12 +204,20 @@ module Command
   end
 
   def bulk_load_run(op)
+    wait = exclude = false
+    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
+    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
+
     name, scheduled_time = op.cmd_parse
 
     client = get_client()
     job_id = client.bulk_load_run(name)
     puts "Job #{job_id} is queued."
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
+
+    if wait
+      wait_bulk_load_job(job_id, exclude)
+    end
   end
 
 private
@@ -253,6 +268,19 @@ private
     puts "Table    : #{session.user_table_name}"
     puts "Config"
     puts YAML.dump(session.config.to_h)
+  end
+
+  def wait_bulk_load_job(job_id, exclude)
+    job = client.job(job_id)
+    wait_job(job, true)
+    puts "Status     : #{job.status}"
+    if job.success? && !exclude
+      puts "Result     :"
+      begin
+        show_result(job, nil, nil, nil)
+      rescue TreasureData::NotFoundError => e
+      end
+    end
   end
 
 end
