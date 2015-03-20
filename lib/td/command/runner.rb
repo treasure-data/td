@@ -46,7 +46,6 @@ Basic commands:
   result         # create/delete/list result URLs
   sched          # create/delete/list schedules that run a query periodically
   schema         # create/delete/modify schemas of tables
-  bulk_load      # manage Server-side bulk import job
 
 Additional commands:
 
