@@ -148,6 +148,8 @@ module Command
       db.permission != :import_only ? (db.tables.select {|table| table.type == :item}.length > 0) : false
     }.length > 0
 
+    # ref. https://github.com/treasure-data/td/issues/26
+    should_number_format = [nil, "table"].include?(op.render_format)
     rows = []
     ::Parallel.each(databases, :in_threads => num_threads) {|db|
       begin
@@ -160,7 +162,7 @@ module Command
             "#{f.name}:#{f.type}"
           }.join(', ')
           new_row = {
-            :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => TreasureData::Helpers.format_with_delimiter(table.count),
+            :Database => db.name, :Table => table.name, :Type => table.type.to_s, :Count => (should_number_format ? TreasureData::Helpers.format_with_delimiter(table.count) : table.count),
             :Size => show_size_in_bytes ? TreasureData::Helpers.format_with_delimiter(table.estimated_storage_size) : table.estimated_storage_size_string,
             'Last import' => table.last_import ? table.last_import.localtime : nil,
             'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,

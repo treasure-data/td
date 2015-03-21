@@ -114,6 +114,73 @@ module TreasureData::Command
           command.table_list(op)
         }.to_not raise_exception
       end
+
+      describe "number format" do
+        let(:number_raw) { "1234567" }
+        let(:number_format) { "1,234,567" }
+        let(:client) { double('null object').as_null_object }
+        let(:db) { TreasureData::Database.new(client, 'full_access_db', nil, 1000, Time.now.to_i, Time.now.to_i, nil, 'full_access') }
+        let(:command) do
+          command = Class.new { include TreasureData::Command }.new
+          command.stub(:get_client).and_return(client)
+          command.stub(:get_database).and_return(db)
+          command
+        end
+
+        before do
+          create_tables = lambda {|db_name|
+            (1..6).map {|i|
+              # NOTE: TreasureData::Helpers.format_with_delimiter uses `gsub!` to their argument
+              #       the argument (in our case, `number_raw`) will be rewritten by them
+              #       To avoid that behavior, pass `number_raw.dup` instead of `number_raw`
+              schema = TreasureData::Schema.new.from_json(JSON.parse('[]'))
+              TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, number_raw.dup, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil, nil, nil)
+            }
+          }
+          db_tables = create_tables.call(db.name)
+          client.stub(:tables).with(db.name).and_return(db_tables)
+        end
+
+        subject do
+          # command.table_list uses `puts` to display result
+          # so temporary swapping $stdout with StringIO to fetch their output
+          backup = $stdout.dup
+          buf = StringIO.new
+          op = List::CommandParser.new('table:list', [], %w[db], false, options + %w(full_access_db), true)
+          begin
+            $stdout = buf
+            command.table_list(op)
+            $stdout.rewind
+            $stdout.read
+          ensure
+            $stdout = backup
+          end
+        end
+
+        context "without --format" do
+          let(:options) { [] }
+          it { should include(number_format) }
+          it { should_not include(number_raw) }
+        end
+
+        context "with --format table" do
+          let(:options) { %w(--format table) }
+          it { should include(number_format) }
+          it { should_not include(number_raw) }
+        end
+
+        context "with --format csv" do
+          let(:options) { %w(--format csv) }
+          it { should_not include(number_format) }
+          it { should include(number_raw) }
+        end
+
+        context "with --format tsv" do
+          let(:options) { %w(--format tsv) }
+          it { should_not include(number_format) }
+          it { should include(number_raw) }
+        end
+      end
     end
   end
 end
