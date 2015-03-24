@@ -359,7 +359,7 @@ module Command
 
     # build the job:show command now
     argv = job_show_option_argv(argv_saved, name, back_number)
-    argv << job.job_id.to_s
+    argv << job.job_id
 
     Runner.new.run(argv)
   end
