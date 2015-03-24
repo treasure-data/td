@@ -373,14 +373,23 @@ module Command
     return argv unless index_of_last
 
     # the arg value following to "--last"
-    next_of_last = argv[index_of_last + 1]
+    index_of_next_of_last = index_of_last + 1
+    next_of_last = argv[index_of_next_of_last]
 
-    options_for_sched_result = ["--last"]
-    # remove both "--last" and back_number if they are.
-    options_for_sched_result << next_of_last if next_of_last == back_number.to_s
-    argv = argv - options_for_sched_result
+    indexes_of_options_for_sched_result = [index_of_last]
+    # there are three argvs parters for sched_result.
+    # 1. without --last
+    # 2. --last (without Num)
+    # 3. --last Num
+    # 'back_number' is value of Num which was parsed by OptionParser.
+    # remove both "--last" and Num if they are.
+    indexes_of_options_for_sched_result << index_of_next_of_last if next_of_last == back_number.to_s
 
-    argv
+    indexes_of_options_for_sched_result.each do |index|
+      argv[index] = nil
+    end
+
+    argv.compact
   end
 
   def get_history(client, name, from, to)

@@ -86,6 +86,15 @@ module TreasureData::Command
           it_behaves_like "passing argv and job_id to job:show"
         end
 
+        context '--last 1 and --limit 1' do
+          let(:history) { [job1] }
+          let(:back_number) { 1 }
+
+          let(:argv) { %w(--last 1 --format csv --limit 1) }
+          let(:show_arg) { %w(--format csv --limit 1) }
+          it_behaves_like "passing argv and job_id to job:show"
+        end
+
         context '--last 2 after format option' do
           let(:history) { [job2] }
           let(:back_number) { 2 }
