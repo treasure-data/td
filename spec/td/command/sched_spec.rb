@@ -115,6 +115,21 @@ module TreasureData::Command
             }.to raise_exception, "No jobs available for this query. Refer to 'sched:history'"
           end
         end
+
+        context '--last WRONGARG(not a number)' do
+          let(:history) { [job1] }
+          let(:back_number) { 1 }
+
+          let(:argv) { %w(--last TEST --format csv) }
+
+          it "exit with 1" do
+            begin
+              command.sched_result(op)
+            rescue SystemExit => e
+              expect(e.status).to eq 1
+            end
+          end
+        end
       end
 
       context "history dose not exists" do

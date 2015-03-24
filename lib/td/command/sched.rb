@@ -339,8 +339,8 @@ module Command
     exclude     = options[:exclude]
 
     back_number = 1
-    op.on('--last [Number]', "show the result before N from the last. default: 1") do |n|
-      back_number = n ?  n.to_i : 1
+    op.on('--last [Number]', Integer, "show the result before N from the last. default: 1") do |n|
+      back_number = n ?  n : 1
     end
 
     # save argv before calling cmd_parse, which removes flags from the argv array
@@ -368,21 +368,23 @@ module Command
     argv = ['job:show']
     argv += (argv_saved - [name]) if argv_saved.length > 0
 
-    index_of_last = argv.index("--last")
-
-    return argv unless index_of_last
-
-    # the arg value following to "--last"
-    index_of_next_of_last = index_of_last + 1
-    next_of_last = argv[index_of_next_of_last]
-
-    indexes_of_options_for_sched_result = [index_of_last]
     # there are three argvs parters for sched_result.
     # 1. without --last
     # 2. --last (without Num)
     # 3. --last Num
     # 'back_number' is value of Num which was parsed by OptionParser.
     # remove both "--last" and Num if they are.
+
+    index_of_last = argv.index("--last")
+
+    return argv unless index_of_last
+
+    index_of_next_of_last = index_of_last + 1
+
+    # the arg value following to "--last"
+    next_of_last = argv[index_of_next_of_last]
+
+    indexes_of_options_for_sched_result = [index_of_last]
     indexes_of_options_for_sched_result << index_of_next_of_last if next_of_last == back_number.to_s
 
     indexes_of_options_for_sched_result.each do |index|
