@@ -286,64 +286,6 @@ module Command
     end
   end
 
-  def table_export(op)
-    from = nil
-    to = nil
-    s3_bucket = nil
-    wait = false
-
-    ## TODO
-    #op.on('-t', '--to TIME', 'end time of logs to get') {|s|
-    #  if s.to_i.to_s == s
-    #    to = s
-    #  else
-    #    require 'time'
-    #    to = Time.parse(s).to_i
-    #  end
-    #}
-    #op.on('-f', '--from TIME', 'start time of logs to get') {|s|
-    #  if s.to_i.to_s == s
-    #    from = s
-    #  else
-    #    require 'time'
-    #    from = Time.parse(s).to_i
-    #  end
-    #}
-    op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
-      wait = b
-    }
-    op.on('--s3-bucket NAME', 'name of the s3 bucket to output') {|s|
-      s3_bucket = s
-    }
-
-    db_name, table_name = op.cmd_parse
-
-    unless s3_bucket
-      $stderr.puts "--s3-bucket NAME option is required"
-      exit 1
-    end
-
-    client = get_client
-
-    table = get_table(client, db_name, table_name)
-
-    opts = {}
-    opts['s3_bucket'] = s3_bucket
-    opts['s3_file_format'] ='json.gz'
-    opts['from'] = from.to_s if from
-    opts['to']   = to.to_s if to
-
-    job = table.export('s3', opts)
-
-    $stderr.puts "Export job #{job.job_id} is queued."
-    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
-
-    if wait && !job.finished?
-      wait_job(job)
-      puts "Status     : #{job.status}"
-    end
-  end
-
   def table_partial_delete(op)
     from = nil
     to = nil

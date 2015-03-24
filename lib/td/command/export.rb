@@ -7,11 +7,15 @@ module Command
     from = nil
     to = nil
     s3_bucket = nil
+    wait = false
     aws_access_key_id = nil
     aws_secret_access_key = nil
     file_prefix = nil
     file_format = "json.gz" # default
 
+    op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
+      wait = b
+    }
     op.on('-f', '--from TIME', 'export data which is newer than or same with the TIME') {|s|
       from = export_parse_time(s)
     }
@@ -71,6 +75,11 @@ module Command
 
     $stderr.puts "Export job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
+
+    if wait && !job.finished?
+      wait_job(job)
+      puts "Status     : #{job.status}"
+    end
   end
 
   private
