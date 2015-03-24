@@ -60,7 +60,7 @@ module Command
 
     s3_opts = {}
     s3_opts['from'] = from.to_s if from
-    s4_opts['to'] = to.to_s if to
+    s3_opts['to'] = to.to_s if to
     s3_opts['file_prefix'] = file_prefix if file_prefix
     s3_opts['file_format'] = file_format
     s3_opts['bucket'] = s3_bucket
