@@ -1,7 +1,7 @@
 
 module TreasureData
 module Command
-  SUPPORTED_FORMATS = %W[json.gz line-json.gz]
+  SUPPORTED_FORMATS = %W[json.gz line-json.gz tsv.gz]
 
   def table_export(op)
     from = nil
@@ -9,6 +9,7 @@ module Command
     s3_bucket = nil
     aws_access_key_id = nil
     aws_secret_access_key = nil
+    file_prefix = nil
     file_format = "json.gz" # default
 
     op.on('-f', '--from TIME', 'export data which is newer than or same with the TIME') {|s|
@@ -19,6 +20,9 @@ module Command
     }
     op.on('-b', '--s3-bucket NAME', 'name of the destination S3 bucket (required)') {|s|
       s3_bucket = s
+    }
+    op.on('-p', '--prefix PATH', 'path prefix of the file on S3') {|s|
+      file_prefix = s
     }
     op.on('-k', '--aws-key-id KEY_ID', 'AWS access key id to export data (required)') {|s|
       aws_access_key_id = s
@@ -57,6 +61,7 @@ module Command
     s3_opts = {}
     s3_opts['from'] = from.to_s if from
     s3_opts['to'] = to.to_s if to
+    s3_opts['file_prefix'] = file_prefix if file_prefix
     s3_opts['file_format'] = file_format
     s3_opts['bucket'] = s3_bucket
     s3_opts['access_key_id'] = aws_access_key_id
