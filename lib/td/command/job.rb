@@ -344,10 +344,19 @@ module Command
 
     # the next 3 formats allow writing to both a file and stdout
 
+
+    if output
+      if output.is_a?(String)
+        tempfile = "#{output}.tmp"
+      else # File or Tempfile
+        tempfile = "#{output.path}.tmp"
+      end
+    end
+
     case format
     when 'json'
       require 'yajl'
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         f.write "["
         n_rows = 0
         unless output.nil?
@@ -371,7 +380,7 @@ module Command
       require 'yajl'
       require 'csv'
 
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         writer = CSV.new(f)
         # output headers
         if render_opts[:header] && job.hive_result_schema
@@ -404,7 +413,7 @@ module Command
     when 'tsv'
       require 'yajl'
 
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         # output headers
         if render_opts[:header] && job.hive_result_schema
           job.hive_result_schema.each {|name,type|
@@ -439,7 +448,7 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      open_file(output, "wb") {|f|
+      open_file(tempfile || output, "wb") {|f|
         indicator = Command::SizeBasedDownloadProgressIndicator.new(
           "NOTE: the job result is being written to #{output} in msgpack format",
           job.result_size, 0.1, 1)
@@ -454,7 +463,7 @@ module Command
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      open_file(output, "wb") {|f|
+      open_file(tempfile || output, "wb") {|f|
         indicator = Command::SizeBasedDownloadProgressIndicator.new(
           "NOTE: the job result is being written to #{output} in msgpack.gz format",
           job.result_size, 0.1, 1)
@@ -466,6 +475,11 @@ module Command
 
     else
       raise "Unknown format #{format.inspect}"
+    end
+
+    if tempfile && File.exists?(tempfile)
+      File.open(output, "wb"){|f| f.write(File.read(tempfile)) }
+      File.unlink(tempfile)
     end
   end
 

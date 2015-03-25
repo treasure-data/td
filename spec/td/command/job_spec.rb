@@ -22,7 +22,51 @@ module TreasureData::Command
           @result_size = 3
           @status = 'success'
         end
+        job.stub(:result_format) # for msgpack, msgpack.gz
         job
+      end
+
+      describe "using tempfile" do
+        let(:tempfile) { "#{file.path}.tmp" }
+        let(:content) { "dummy\ncontent" }
+
+        before do
+          File.should_receive(:read).with(tempfile).and_return { content }
+          File.should_receive(:unlink).with(tempfile)
+          command.send(:show_result, job, file, nil, format)
+        end
+
+        subject { file.read }
+
+        context "format: json" do
+          let(:format) { "json" }
+
+          it { should == content }
+        end
+
+        context "format: csv" do
+          let(:format) { "csv" }
+
+          it { should == content }
+        end
+
+        context "format: tsv" do
+          let(:format) { "tsv" }
+
+          it { should == content }
+        end
+
+        context "format: msgpack" do
+          let(:format) { "msgpack" }
+
+          it { should == content }
+        end
+
+        context "format: msgpack.gz" do
+          let(:format) { "msgpack.gz" }
+
+          it { should == content }
+        end
       end
 
       context 'result without nil' do
