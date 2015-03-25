@@ -29,41 +29,71 @@ module TreasureData::Command
       describe "using tempfile" do
         let(:tempfile) { "#{file.path}.tmp" }
 
-        before do
-          file.truncate(0)
-          command.send(:show_result, job, file, nil, format)
-        end
-
-        subject { file.size }
+        subject { command.send(:show_result, job, file, nil, format) }
 
         context "format: json" do
           let(:format) { "json" }
 
-          it { should >= 0 }
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
         end
 
         context "format: csv" do
           let(:format) { "csv" }
 
-          it { should >= 0 }
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
         end
 
         context "format: tsv" do
           let(:format) { "tsv" }
 
-          it { should >= 0 }
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
         end
 
         context "format: msgpack" do
           let(:format) { "msgpack" }
 
-          it { should >= 0 }
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "wb")
+            subject
+          end
         end
 
         context "format: msgpack.gz" do
           let(:format) { "msgpack.gz" }
 
-          it { should >= 0 }
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "wb")
+            subject
+          end
         end
       end
 
