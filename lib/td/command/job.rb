@@ -478,8 +478,7 @@ module Command
     end
 
     if tempfile && File.exists?(tempfile)
-      File.open(output, "wb"){|f| f.write(File.read(tempfile)) }
-      File.unlink(tempfile)
+      FileUtils.mv(tempfile, output.respond_to?(:path) ? output.path : output)
     end
   end
 
