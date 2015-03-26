@@ -1,4 +1,5 @@
 require 'td/command/common'
+require 'td/command/job'
 require 'json'
 require 'uri'
 require 'yaml'
@@ -104,7 +105,7 @@ module Command
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_bulk_load_job(job_id, exclude)
+      wait_bulk_load_job(client, job_id, exclude)
     end
   end
 
@@ -193,8 +194,8 @@ module Command
         :Status => e.status,
         :Records => e.records,
         # TODO: td-client-ruby should retuan only name
-        :Database => e.user_database['name'],
-        :Table => e.user_table['name'],
+        :Database => e.database['name'],
+        :Table => e.table['name'],
         :Priority => e.priority,
         :Started => Time.at(e.start_at),
         :Duration => e.end_at - e.start_at,
@@ -216,7 +217,7 @@ module Command
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_bulk_load_job(job_id, exclude)
+      wait_bulk_load_job(client, job_id, exclude)
     end
   end
 
@@ -264,23 +265,16 @@ private
     puts "Cron     : #{session.cron}"
     puts "Timezone : #{session.timezone}"
     puts "Delay    : #{session.delay}"
-    puts "Database : #{session.user_database_name}"
-    puts "Table    : #{session.user_table_name}"
+    puts "Database : #{session.database}"
+    puts "Table    : #{session.table}"
     puts "Config"
     puts YAML.dump(session.config.to_h)
   end
 
-  def wait_bulk_load_job(job_id, exclude)
+  def wait_bulk_load_job(client, job_id, exclude)
     job = client.job(job_id)
     wait_job(job, true)
     puts "Status     : #{job.status}"
-    if job.success? && !exclude
-      puts "Result     :"
-      begin
-        show_result(job, nil, nil, nil)
-      rescue TreasureData::NotFoundError => e
-      end
-    end
   end
 
 end
