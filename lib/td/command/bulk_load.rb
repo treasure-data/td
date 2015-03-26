@@ -70,14 +70,34 @@ module Command
   end
 
   def bulk_load_preview(op)
+    set_render_format_option(op)
     config_file = op.cmd_parse
     job = prepare_bulkload_job_config(config_file)
     client = get_client()
     preview = client.bulk_load_preview(job)
 
-    # TODO: pretty printing
-    require 'pp'
-    pp preview
+    cols = preview.schema.sort_by { |col|
+      col['index']
+    }
+    fields = cols.map { |col| col['name'] + ':' + col['type'] }
+    types = cols.map { |col| col['type'] }
+    rows = preview.records.map { |row|
+      cols = {}
+      row.each_with_index do |col, idx|
+        value = case types[idx]
+          when 'timestamp'
+            Time.at(col['epochSecond'])
+          when 'int', 'long', 'double'
+            col
+          else
+            col.to_s.dump
+          end
+        cols[fields[idx]] = value
+      end
+      cols
+    } 
+
+    puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
 
     puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "bulk_load:preview #{config_file}' to preview again."
     puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:issue #{config_file}' to run Server-side bulk load."
