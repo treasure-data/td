@@ -129,7 +129,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/, /^bulk_load/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, examples = [], cmd_req_conn = true)
