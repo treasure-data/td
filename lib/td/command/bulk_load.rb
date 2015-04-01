@@ -105,9 +105,11 @@ module Command
 
   def bulk_load_issue(op)
     database = table = nil
+    time_column = nil
     wait = exclude = false
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
+    op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
@@ -117,6 +119,7 @@ module Command
     required('--table', table)
 
     job = prepare_bulkload_job_config(config_file)
+    job['time_column'] = time_column if time_column
 
     client = get_client()
     job_id = client.bulk_load_issue(database, table, job)
@@ -149,6 +152,9 @@ module Command
   def bulk_load_create(op)
     # TODO it's a must parameter at this moment but API should be fixed
     opts = {:timezone => 'UTC'}
+    op.on('--time-column COLUMN_NAME', "data partitioning key") {|s|
+      opts[:time_column] = s
+    }
     op.on('-t', '--timezone TZ', "name of the timezone.",
                                  "  Only extended timezones like 'Asia/Tokyo', 'America/Los_Angeles' are supported,",
                                  "  (no 'PST', 'PDT', etc...).",
