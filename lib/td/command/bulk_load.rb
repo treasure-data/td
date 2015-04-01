@@ -218,7 +218,7 @@ module Command
         :Table => e.table['name'],
         :Priority => e.priority,
         :Started => Time.at(e.start_at),
-        :Duration => e.end_at - e.start_at,
+        :Duration => (e.end_at.nil? ? Time.now.to_i : e.end_at) - e.start_at,
       }
     }
     puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
