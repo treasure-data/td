@@ -26,7 +26,7 @@ module Command
 
     config = op.cmd_parse
     if config
-      job = API::BulkLoad::BulkLoad.from_json(File.read(config))
+      job = prepare_bulkload_job_config(config)
       out ||= config
     else
       required('--access-id', id)
