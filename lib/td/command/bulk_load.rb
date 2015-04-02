@@ -85,8 +85,6 @@ module Command
       cols = {}
       row.each_with_index do |col, idx|
         value = case types[idx]
-          when 'timestamp'
-            Time.at(col['epochSecond'])
           when 'int', 'long', 'double'
             col
           else
