@@ -84,13 +84,7 @@ module Command
     rows = preview.records.map { |row|
       cols = {}
       row.each_with_index do |col, idx|
-        value = case types[idx]
-          when 'int', 'long', 'double'
-            col
-          else
-            col.to_s.dump
-          end
-        cols[fields[idx]] = value
+        cols[fields[idx]] = col.inspect
       end
       cols
     } 
