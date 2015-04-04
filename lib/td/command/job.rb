@@ -169,109 +169,7 @@ module Command
             "Option -l / --limit is only valid when not outputting to file (no -o / --output option provided)"
     end
 
-    client = get_client
-    job = client.job(job_id)
-
-    puts "JobID       : #{job.job_id}"
-    #puts "URL         : #{job.url}"
-    puts "Status      : #{job.status}"
-    puts "Type        : #{job.type}"
-    puts "Database    : #{job.db_name}"
-    # exclude some fields from bulk_import_perform type jobs
-    if [:hive, :pig, :impala, :presto].include?(job.type)
-      puts "Priority    : #{job_priority_name_of(job.priority)}"
-      puts "Retry limit : #{job.retry_limit}"
-      puts "Output      : #{job.result_url}"
-      puts "Query       : #{job.query}"
-    elsif job.type == :bulk_import_perform
-      puts "Destination : #{job.query}"
-    end
-    # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
-    if job.finished?
-      if [:hive].include?(job.type)
-        puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
-      end
-      if [:hive, :pig, :impala, :presto].include?(job.type)
-        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
-      end
-    end
-
-    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
-    retry_delay = 5
-    max_cumul_retry_delay = 200
-    cumul_retry_delay = 0
-
-    if wait && !job.finished?
-      wait_job(job)
-      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
-        puts "Result      :"
-
-        begin
-          show_result(job, output, limit, format, render_opts)
-        rescue TreasureData::NotFoundError => e
-          # Got 404 because result not found.
-        rescue TreasureData::APIError, # HTTP status code 500 or more
-               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
-               OpenSSL::SSL::SSLError, SocketError => e
-          # don't retry on 300 and 400 errors
-          if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
-            raise e
-          end
-          if cumul_retry_delay > max_cumul_retry_delay
-            raise e
-          end
-          $stderr.puts "Error #{e.class}: #{e.message}. Retrying after #{retry_delay} seconds..."
-          sleep retry_delay
-          cumul_retry_delay += retry_delay
-          retry_delay *= 2
-          retry
-        end
-      end
-
-    else
-      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude && job.finished?
-        puts "Result      :"
-        begin
-          show_result(job, output, limit, format, render_opts)
-        rescue TreasureData::NotFoundError => e
-          # Got 404 because result not found.
-        rescue TreasureData::APIError,
-               Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
-               OpenSSL::SSL::SSLError, SocketError => e
-          # don't retry on 300 and 400 errors
-          if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
-            raise e
-          end
-          if cumul_retry_delay > max_cumul_retry_delay
-            raise e
-          end
-          $stderr.puts "Error #{e.class}: #{e.message}. Retrying after #{retry_delay} seconds..."
-          sleep retry_delay
-          cumul_retry_delay += retry_delay
-          retry_delay *= 2
-          retry
-        end
-      end
-
-      if verbose
-        if !job.debug['cmdout'].nil?
-          puts ""
-          puts "Output:"
-          job.debug['cmdout'].to_s.split("\n").each {|line|
-            puts "  " + line
-          }
-        end
-        if !job.debug['stderr'].nil?
-          puts ""
-          puts "Details:"
-          job.debug['stderr'].to_s.split("\n").each {|line|
-            puts "  " + line
-          }
-        end
-      end
-    end
-
-    puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
+    get_and_show_result(job_id, wait, exclude, output, limit, format, render_opts, verbose)
   end
 
   def job_status(op)
@@ -299,7 +197,67 @@ module Command
     end
   end
 
-  private
+private
+
+  def get_and_show_result(job_id, wait, exclude = false, output = nil, limit = nil, format = nil, render_opts = {}, verbose = false)
+    client = get_client
+    job = client.job(job_id)
+
+    puts "JobID       : #{job.job_id}"
+    #puts "URL         : #{job.url}"
+    puts "Status      : #{job.status}"
+    puts "Type        : #{job.type}"
+    puts "Database    : #{job.db_name}"
+    # exclude some fields from bulk_import_perform type jobs
+    if [:hive, :pig, :impala, :presto].include?(job.type)
+      puts "Priority    : #{job_priority_name_of(job.priority)}"
+      puts "Retry limit : #{job.retry_limit}"
+      puts "Output      : #{job.result_url}"
+      puts "Query       : #{job.query}"
+    elsif job.type == :bulk_import_perform
+      puts "Destination : #{job.query}"
+    end
+    # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
+    if job.finished?
+      if [:hive].include?(job.type)
+        puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
+      end
+      if [:hive, :pig, :impala, :presto].include?(job.type)
+        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
+      end
+    end
+
+    if wait && !job.finished?
+      wait_job(job)
+      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
+        show_result_with_retry(job, output, limit, format, render_opts)
+      end
+    else
+      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude && job.finished?
+        show_result_with_retry(job, output, limit, format, render_opts)
+      end
+
+      if verbose
+        if !job.debug['cmdout'].nil?
+          puts ""
+          puts "Output:"
+          job.debug['cmdout'].to_s.split("\n").each {|line|
+            puts "  " + line
+          }
+        end
+        if !job.debug['stderr'].nil?
+          puts ""
+          puts "Details:"
+          job.debug['stderr'].to_s.split("\n").each {|line|
+            puts "  " + line
+          }
+        end
+      end
+    end
+
+    puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
+  end
+
   def wait_job(job, first_call = false)
     $stderr.puts "queued..."
 
@@ -327,6 +285,35 @@ module Command
       }
       cmdout_lines += cmdout.size
       stderr_lines += stderr.size
+    end
+  end
+
+  def show_result_with_retry(job, output, limit, format, render_opts)
+    # up to 7 retries with exponential (base 2) back-off starting at 'retry_delay'
+    retry_delay = 5
+    max_cumul_retry_delay = 200
+    cumul_retry_delay = 0
+
+    puts "Result      :"
+    begin
+      show_result(job, output, limit, format, render_opts)
+    rescue TreasureData::NotFoundError => e
+      # Got 404 because result not found.
+    rescue TreasureData::APIError, # HTTP status code 500 or more
+            Errno::ECONNREFUSED, Errno::ECONNRESET, Timeout::Error, EOFError,
+            OpenSSL::SSL::SSLError, SocketError => e
+      # don't retry on 300 and 400 errors
+      if e.class == TreasureData::APIError && e.message !~ /^5\d\d:\s+/
+        raise e
+      end
+      if cumul_retry_delay > max_cumul_retry_delay
+        raise e
+      end
+      $stderr.puts "Error #{e.class}: #{e.message}. Retrying after #{retry_delay} seconds..."
+      sleep retry_delay
+      cumul_retry_delay += retry_delay
+      retry_delay *= 2
+      retry
     end
   end
 
