@@ -43,14 +43,42 @@ module TreasureData::Command
       end
 
       context 'result with nil' do
+        let :job_id do
+          12345
+        end
+
         let :job do
-          job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
+          job = TreasureData::Job.new(nil, job_id, 'hive', 'select * from employee')
           job.instance_eval do
             @result = [[[nil, 2.0, {key:3}], 1]]
             @result_size = 3
             @status = 'success'
           end
           job
+        end
+
+        context 'with --column-header option' do
+          before do
+            job.stub(:hive_result_schema).and_return([['c0', 'time'], ['c1', 'double'], ['v', nil], ['c3', 'long']])
+            client = Object.new
+            client.stub(:job).with(job_id).and_return(job)
+            command.stub(:get_client).and_return(client)
+          end
+
+          it 'supports json output' do
+            command.send(:show_result, job, file, nil, 'json', { header: true })
+            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+          end
+
+          it 'supports csv output' do
+            command.send(:show_result, job, file, nil, 'csv', { header: true })
+            File.read(file.path).should == %Q(c0,c1,v,c3\nnull,2.0,"{""key"":3}"\n)
+          end
+
+          it 'supports tsv output' do
+            command.send(:show_result, job, file, nil, 'tsv', { header: true })
+            File.read(file.path).should == %Q(c0\tc1\tv\tc3\nnull\t2.0\t{"key":3}\n)
+          end
         end
 
         context 'without --null option' do
