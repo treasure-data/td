@@ -394,10 +394,7 @@ private
       open_file(output, "w") {|f|
         # output headers
         if render_opts[:header] && job.hive_result_schema
-          job.hive_result_schema.each {|name,type|
-            f.write name + "\t"
-          }
-          f.write "\n"
+          f.write job.hive_result_schema.map {|col| col.first}.join("\t") + "\n"
         end
         # output data
         n_rows = 0
