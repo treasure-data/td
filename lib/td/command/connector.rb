@@ -13,12 +13,12 @@ module Command
     end
   end
 
-  def bulk_load_guess(op)
+  def connector_guess(op)
     type = 's3'
     id = secret = source = nil
     out = 'td-bulkload.yml'
 
-    op.on('--type[=TYPE]', "Server-side bulk_load type; only 's3' is supported") { |s| type = s }
+    op.on('--type[=TYPE]', "connector type; only 's3' is supported") { |s| type = s }
     op.on('--access-id ID', "access ID (S3 access key id for type: s3)") { |s| id = s }
     op.on('--access-secret SECRET', "access secret (S3 secret access key for type: s3)") { |s| secret = s }
     op.on('--source SOURCE', "resource(s) URI to be imported (e.g. https://s3-us-west-1.amazonaws.com/bucketname/path/prefix/to/import/)") { |s| source = s }
@@ -66,10 +66,10 @@ module Command
     end
 
     puts "Created #{out} file."
-    puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:preview #{out}' to see bulk load preview."
+    puts "Use '#{$prog} " + Config.cl_options_string + "connector:preview #{out}' to see bulk load preview."
   end
 
-  def bulk_load_preview(op)
+  def connector_preview(op)
     set_render_format_option(op)
     config_file = op.cmd_parse
     job = prepare_bulkload_job_config(config_file)
@@ -91,11 +91,11 @@ module Command
 
     puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
 
-    puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "bulk_load:preview #{config_file}' to preview again."
-    puts "Use '#{$prog} " + Config.cl_options_string + "bulk_load:issue #{config_file}' to run Server-side bulk load."
+    puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
+    puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run Server-side bulk load."
   end
 
-  def bulk_load_issue(op)
+  def connector_issue(op)
     database = table = nil
     time_column = nil
     wait = exclude = false
@@ -120,11 +120,11 @@ module Command
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_bulk_load_job(client, job_id, exclude)
+      wait_connector_job(client, job_id, exclude)
     end
   end
 
-  def bulk_load_list(op)
+  def connector_list(op)
     set_render_format_option(op)
     op.cmd_parse
 
@@ -141,7 +141,7 @@ module Command
     puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
   end
 
-  def bulk_load_create(op)
+  def connector_create(op)
     # TODO it's a must parameter at this moment but API should be fixed
     opts = {:timezone => 'UTC'}
     op.on('--time-column COLUMN_NAME', "data partitioning key") {|s|
@@ -169,38 +169,38 @@ module Command
     get_table(client, database, table)
 
     session = client.bulk_load_create(name, database, table, job, opts)
-    dump_bulk_load_session(session)
+    dump_connector_session(session)
   end
 
-  def bulk_load_show(op)
+  def connector_show(op)
     name = op.cmd_parse
 
     client = get_client()
     session = client.bulk_load_show(name)
-    dump_bulk_load_session(session)
+    dump_connector_session(session)
   end
 
-  def bulk_load_update(op)
+  def connector_update(op)
     name, config_file = op.cmd_parse
 
     job = prepare_bulkload_job_config(config_file)
 
     client = get_client()
     session = client.bulk_load_update(name, job)
-    dump_bulk_load_session(session)
+    dump_connector_session(session)
   end
 
-  def bulk_load_delete(op)
+  def connector_delete(op)
     name = op.cmd_parse
 
     client = get_client()
     session = client.bulk_load_delete(name)
     puts 'Deleted session'
     puts '--'
-    dump_bulk_load_session(session)
+    dump_connector_session(session)
   end
 
-  def bulk_load_history(op)
+  def connector_history(op)
     set_render_format_option(op)
     name = op.cmd_parse
 
@@ -222,7 +222,7 @@ module Command
     puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
   end
 
-  def bulk_load_run(op)
+  def connector_run(op)
     wait = exclude = false
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
@@ -235,7 +235,7 @@ module Command
     puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_bulk_load_job(client, job_id, exclude)
+      wait_connector_job(client, job_id, exclude)
     end
   end
 
@@ -278,7 +278,7 @@ private
     raise "backup file creation failed"
   end
 
-  def dump_bulk_load_session(session)
+  def dump_connector_session(session)
     puts "Name     : #{session.name}"
     puts "Cron     : #{session.cron}"
     puts "Timezone : #{session.timezone}"
@@ -289,7 +289,7 @@ private
     puts YAML.dump(session.config.to_h)
   end
 
-  def wait_bulk_load_job(client, job_id, exclude)
+  def wait_connector_job(client, job_id, exclude)
     job = client.job(job_id)
     wait_job(job, true)
     puts "Status     : #{job.status}"
