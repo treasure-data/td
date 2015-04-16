@@ -1,3 +1,22 @@
+== 2015-04-17 version 0.11.9
+
+* add connector commands.
+* add tsv.gz format to export command.
+* add --null option to job:show that specifies what character to represent
+  null value in csv or tsv format. It emits 'null' by default for backward
+  compatibility but you can specify '--null ""' to use empty string instead
+  of 'null'.
+* fix: remove illegal TAB character at the end of header record. Thanks y-ken!
+* fix: do fancy format of numbers in job:show only if format is 'table'.
+* fix: job:show to convert NaN to empty String if format is csv or tsv. The
+  column data NaN, Infinity and -Infinity caused an error if previous
+  versions.  If json format is specified it still raises an error because JSON
+  format does not have representation of those values.
+* fix: internal cwd handling for auto jar update that caused import:upload to
+  fail by changing cwd before reading specified file.
+* fix: table:list to consider import_only databases. It just skips such
+  databases and no longer crashes with insufficient permission.
+
 == 2015-02-20 version 0.11.8
 
 * Fix: save CSV/TSV file without transcoding.
