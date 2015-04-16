@@ -7,7 +7,7 @@
   compatibility but you can specify '--null ""' to use empty string instead
   of 'null'.
 * fix: remove illegal TAB character at the end of header record. Thanks y-ken!
-* fix: do fancy format of numbers in job:show only if format is 'table'.
+* fix: do fancy format of numbers in table:list only if format is 'table'.
 * fix: job:show to convert NaN to empty String if format is csv or tsv. The
   column data NaN, Infinity and -Infinity caused an error if previous
   versions.  If json format is specified it still raises an error because JSON
