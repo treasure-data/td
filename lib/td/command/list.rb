@@ -320,18 +320,18 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
-  add_list 'bulk_load:guess', %w[config?], 'Run guess to generate bulk_load config file', ['bulk_load:guess td-bulkload.yml', 'bulk_load:guess --access-id s3accessId --access-secret s3AccessKey --source https://s3.amazonaws.com/bucketname/path/prefix --database load_database --table load_table']
-  add_list 'bulk_load:preview', %w[config], 'Show preview of bulk_load execution', ['bulk_load:preview td-bulkload.yml']
+  add_list 'connector:guess', %w[config?], 'Run guess to generate connector config file', ['connector:guess td-bulkload.yml', 'connector:guess --access-id s3accessId --access-secret s3AccessKey --source https://s3.amazonaws.com/bucketname/path/prefix --database connector_database --table connector_table']
+  add_list 'connector:preview', %w[config], 'Show preview of connector execution', ['connector:preview td-bulkload.yml']
 
-  add_list 'bulk_load:issue', %w[config], 'Run one time bulk_load execution', ['bulk_load:issue td-bulkload.yml']
+  add_list 'connector:issue', %w[config], 'Run one time connector execution', ['connector:issue td-bulkload.yml']
 
-  add_list 'bulk_load:list', %w[], 'Show list of bulk_load sessions', ['bulk_load:list']
-  add_list 'bulk_load:create', %w[name cron database table config], 'Create new bulk_load session', ['bulk_load:create bulk_load1 "0 * * * *" load_database load_table td-bulkload.yml']
-  add_list 'bulk_load:show', %w[name], 'Show bulk_load session', ['bulk_load:show bulk_load1']
-  add_list 'bulk_load:update', %w[name config], 'Modify bulk_load session', ['bulk_load:update bulk_load1 td-bulkload.yml']
-  add_list 'bulk_load:delete', %w[name], 'Delete bulk_load session', ['bulk_load:delete bulk_load1']
-  add_list 'bulk_load:history', %w[name], 'Show job history of bulk_load session', ['bulk_load:history bulk_load1']
-  add_list 'bulk_load:run', %w[name time], 'Run bulk_load session for the specified time', ['bulk_load:run bulk_load1 "2016-01-01 00:00:00"']
+  add_list 'connector:list', %w[], 'Show list of connector sessions', ['connector:list']
+  add_list 'connector:create', %w[name cron database table config], 'Create new connector session', ['connector:create connector1 "0 * * * *" connector_database connector_table td-bulkload.yml']
+  add_list 'connector:show', %w[name], 'Show connector session', ['connector:show connector1']
+  add_list 'connector:update', %w[name config], 'Modify connector session', ['connector:update connector1 td-bulkload.yml']
+  add_list 'connector:delete', %w[name], 'Delete connector session', ['connector:delete connector1']
+  add_list 'connector:history', %w[name], 'Show job history of connector session', ['connector:history connector1']
+  add_list 'connector:run', %w[name time], 'Run connector session for the specified time', ['connector:run connector1 "2016-01-01 00:00:00"']
 
   # aliases
   add_alias 'db', 'db:show'
@@ -390,7 +390,7 @@ module List
 
   add_alias 's', 'status'
 
-  add_alias 'bulk_load', 'bulk_load:guess'
+  add_alias 'connector', 'connector:guess'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'
