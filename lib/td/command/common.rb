@@ -2,6 +2,8 @@ require 'td/version'
 
 module TreasureData
 
+require "td/config"
+
 autoload :API, 'td/client/api'
 autoload :Client, 'td/client'
 autoload :Database, 'td/client'
