@@ -75,7 +75,7 @@ module Command
     height = 0
     lines.each {|line|
       $stdout.print "\e[#{movex}C" if movex > 0
-      puts line
+      $stdout.puts line
       width = line.length
       max_width = width if max_width < width
       height += 1

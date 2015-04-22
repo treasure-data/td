@@ -41,7 +41,7 @@ module Command
       end
     end
 
-    puts "Enter your Treasure Data credentials."
+    $stdout.puts "Enter your Treasure Data credentials."
     unless user_name
       begin
         $stdout.print "Email: "
@@ -91,7 +91,7 @@ module Command
     end
     return unless client
 
-    puts "Authenticated successfully."
+    $stdout.puts "Authenticated successfully."
 
     conf ||= Config.new
     conf["account.user"] = user_name

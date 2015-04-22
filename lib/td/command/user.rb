@@ -33,7 +33,7 @@ module Command
       rows << {:Name => user.name, :Email => user.email}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no users."
@@ -73,7 +73,7 @@ module Command
       1.times { r << symbol.sort_by{rand}.first }
       password = r.sort_by{rand}.join
 
-      puts "Password: #{password}"
+      $stdout.puts "Password: #{password}"
 
     else
       3.times do
@@ -112,7 +112,7 @@ module Command
           break
         end
 
-        puts "Doesn't match."
+        $stdout.puts "Doesn't match."
       end
     end
 
@@ -185,7 +185,7 @@ module Command
       rows << {:Key => key}
     }
 
-    puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
   end
 
   def user_password_change(op)
@@ -229,7 +229,7 @@ module Command
         break
       end
 
-      puts "Doesn't match."
+      $stdout.puts "Doesn't match."
     end
 
     client = get_client(:ssl => true)

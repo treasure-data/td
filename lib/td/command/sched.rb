@@ -20,7 +20,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :Cron, :Timezone, :"Next schedule", :Delay, :Priority, :Result, :Database, :Query], :max_width=>500, :render_format => op.render_format)
   end
 
   def sched_create(op)
@@ -218,9 +218,9 @@ module Command
     end
 
     if newname && curname != newname
-      puts "Schedule '#{curname}' is updated and its name changed to '#{newname}'."
+      $stdout.puts "Schedule '#{curname}' is updated and its name changed to '#{newname}'."
     else
-      puts "Schedule '#{curname}' is updated."
+      $stdout.puts "Schedule '#{curname}' is updated."
     end
   end
 
@@ -259,16 +259,16 @@ module Command
 
     scheds = client.schedules
     if s = scheds.find {|s| s.name == name }
-      puts "Name        : #{s.name}"
-      puts "Cron        : #{s.cron}"
-      puts "Timezone    : #{s.timezone}"
-      puts "Delay       : #{s.delay} sec"
-      puts "Next        : #{s.next_time}"
-      puts "Result      : #{s.result_url}"
-      puts "Priority    : #{job_priority_name_of(s.priority)}"
-      puts "Retry limit : #{s.retry_limit}"
-      puts "Database    : #{s.database}"
-      puts "Query       : #{s.query}"
+      $stdout.puts "Name        : #{s.name}"
+      $stdout.puts "Cron        : #{s.cron}"
+      $stdout.puts "Timezone    : #{s.timezone}"
+      $stdout.puts "Delay       : #{s.delay} sec"
+      $stdout.puts "Next        : #{s.next_time}"
+      $stdout.puts "Result      : #{s.result_url}"
+      $stdout.puts "Priority    : #{job_priority_name_of(s.priority)}"
+      $stdout.puts "Retry limit : #{s.retry_limit}"
+      $stdout.puts "Database    : #{s.database}"
+      $stdout.puts "Query       : #{s.query}"
     end
 
     rows = []
@@ -277,7 +277,7 @@ module Command
       rows << {:Time => scheduled_at, :JobID => j.job_id, :Status => j.status, :Priority => job_priority_name_of(j.priority), :Result=>j.result_url}
     }
 
-    puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:JobID, :Time, :Status, :Priority, :Result], :render_format => op.render_format)
   end
 
   def sched_run(op)
@@ -320,7 +320,7 @@ module Command
     }
 
     $stderr.puts "Scheduled #{num} jobs from #{t}."
-    puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:JobID, :Time], :max_width=>500, :render_format => op.render_format)
   end
 
 end # module Command

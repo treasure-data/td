@@ -16,7 +16,7 @@ module Command
       rows << {:Name=>bi.name, :Table=>"#{bi.database}.#{bi.table}", :Status=>bi.status.to_s.capitalize, :Frozen=>bi.upload_frozen? ? 'Frozen' : '', :JobID=>bi.job_id, :"Valid Parts"=>bi.valid_parts, :"Error Parts"=>bi.error_parts, :"Valid Records"=>bi.valid_records, :"Error Records"=>bi.error_records}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"], :max_width=>200, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :Table, :Status, :Frozen, :JobID, :"Valid Parts", :"Error Parts", :"Valid Records", :"Error Records"], :max_width=>200, :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no bulk import sessions."
@@ -75,7 +75,7 @@ module Command
 
     list = client.list_bulk_import_parts(name)
     list.each {|name|
-      puts "  #{name}"
+      $stdout.puts "  #{name}"
     }
   end
 
@@ -185,7 +185,7 @@ module Command
   end
 
   def bulk_import_upload_parts2(op)
-    puts "This command is moved to 'td import:upload' since 0.10.85."
+    $stdout.puts "This command is moved to 'td import:upload' since 0.10.85."
   end
 
   # obsoleted
@@ -338,7 +338,7 @@ module Command
 
     require 'yajl'
     client.bulk_import_error_records(name) {|r|
-      puts Yajl.dump(r)
+      $stdout.puts Yajl.dump(r)
     }
   end
 
@@ -459,7 +459,7 @@ module Command
   end
 
   def bulk_import_prepare_parts2(op)
-    puts "This command is moved to 'td import:prepare' since 0.10.85."
+    $stdout.puts "This command is moved to 'td import:prepare' since 0.10.85."
   end
 
   private

@@ -65,8 +65,8 @@ module Command
       f << config_str
     end
 
-    puts "Created #{out} file."
-    puts "Use '#{$prog} " + Config.cl_options_string + "connector:preview #{out}' to see bulk load preview."
+    $stdout.puts "Created #{out} file."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:preview #{out}' to see bulk load preview."
   end
 
   def connector_preview(op)
@@ -89,10 +89,10 @@ module Command
       cols
     } 
 
-    puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
 
-    puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
-    puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run Server-side bulk load."
+    $stdout.puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run Server-side bulk load."
   end
 
   def connector_issue(op)
@@ -116,8 +116,8 @@ module Command
     client = get_client()
     job_id = client.bulk_load_issue(database, table, job)
 
-    puts "Job #{job_id} is queued."
-    puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
+    $stdout.puts "Job #{job_id} is queued."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
       wait_connector_job(client, job_id, exclude)
@@ -138,7 +138,7 @@ module Command
       Hash[fields.zip(e.to_h.values_at(*keys))]
     }
 
-    puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
   end
 
   def connector_create(op)
@@ -195,8 +195,8 @@ module Command
 
     client = get_client()
     session = client.bulk_load_delete(name)
-    puts 'Deleted session'
-    puts '--'
+    $stdout.puts 'Deleted session'
+    $stdout.puts '--'
     dump_connector_session(session)
   end
 
@@ -219,7 +219,7 @@ module Command
         :Duration => (e.end_at.nil? ? Time.now.to_i : e.end_at) - e.start_at,
       }
     }
-    puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
   end
 
   def connector_run(op)
@@ -231,8 +231,8 @@ module Command
 
     client = get_client()
     job_id = client.bulk_load_run(name)
-    puts "Job #{job_id} is queued."
-    puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
+    $stdout.puts "Job #{job_id} is queued."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
       wait_connector_job(client, job_id, exclude)
@@ -279,20 +279,20 @@ private
   end
 
   def dump_connector_session(session)
-    puts "Name     : #{session.name}"
-    puts "Cron     : #{session.cron}"
-    puts "Timezone : #{session.timezone}"
-    puts "Delay    : #{session.delay}"
-    puts "Database : #{session.database}"
-    puts "Table    : #{session.table}"
-    puts "Config"
-    puts YAML.dump(session.config.to_h)
+    $stdout.puts "Name     : #{session.name}"
+    $stdout.puts "Cron     : #{session.cron}"
+    $stdout.puts "Timezone : #{session.timezone}"
+    $stdout.puts "Delay    : #{session.delay}"
+    $stdout.puts "Database : #{session.database}"
+    $stdout.puts "Table    : #{session.table}"
+    $stdout.puts "Config"
+    $stdout.puts YAML.dump(session.config.to_h)
   end
 
   def wait_connector_job(client, job_id, exclude)
     job = client.job(job_id)
     wait_job(job, true)
-    puts "Status     : #{job.status}"
+    $stdout.puts "Status     : #{job.status}"
   end
 
 end

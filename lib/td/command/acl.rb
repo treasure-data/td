@@ -14,7 +14,7 @@ module Command
       rows << {:Subject => ac.subject, :Action => ac.action, :Scope => ac.scope, :"Grant option" => ac.grant_option}
     }
 
-    puts cmd_render_table(rows, :fields => [:Subject, :Action, :Scope, :"Grant option"])
+    $stdout.puts cmd_render_table(rows, :fields => [:Subject, :Action, :Scope, :"Grant option"])
 
     if rows.empty?
       $stderr.puts "There are no access controls."

@@ -90,7 +90,7 @@ module Command
       }
     }
 
-    puts cmd_render_table(rows,
+    $stdout.puts cmd_render_table(rows,
       :fields => [:JobID, :Status, :Start, :Elapsed, :CPUTime, :ResultSize, :Priority, :Result, :Type, :Database, :Query],
       :max_width => 1000,
       :render_format => op.render_format
@@ -176,7 +176,7 @@ module Command
     job_id = op.cmd_parse
     client = get_client
 
-    puts client.job_status(job_id)
+    $stdout.puts client.job_status(job_id)
   end
 
   def job_kill(op)
@@ -203,27 +203,27 @@ private
     client = get_client
     job = client.job(job_id)
 
-    puts "JobID       : #{job.job_id}"
+    $stdout.puts "JobID       : #{job.job_id}"
     #puts "URL         : #{job.url}"
-    puts "Status      : #{job.status}"
-    puts "Type        : #{job.type}"
-    puts "Database    : #{job.db_name}"
+    $stdout.puts "Status      : #{job.status}"
+    $stdout.puts "Type        : #{job.type}"
+    $stdout.puts "Database    : #{job.db_name}"
     # exclude some fields from bulk_import_perform type jobs
     if [:hive, :pig, :impala, :presto].include?(job.type)
-      puts "Priority    : #{job_priority_name_of(job.priority)}"
-      puts "Retry limit : #{job.retry_limit}"
-      puts "Output      : #{job.result_url}"
-      puts "Query       : #{job.query}"
+      $stdout.puts "Priority    : #{job_priority_name_of(job.priority)}"
+      $stdout.puts "Retry limit : #{job.retry_limit}"
+      $stdout.puts "Output      : #{job.result_url}"
+      $stdout.puts "Query       : #{job.query}"
     elsif job.type == :bulk_import_perform
-      puts "Destination : #{job.query}"
+      $stdout.puts "Destination : #{job.query}"
     end
     # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
     if job.finished?
       if [:hive].include?(job.type)
-        puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
+        $stdout.puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
       end
       if [:hive, :pig, :impala, :presto].include?(job.type)
-        puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
+        $stdout.puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
       end
     end
 
@@ -239,23 +239,23 @@ private
 
       if verbose
         if !job.debug['cmdout'].nil?
-          puts ""
-          puts "Output:"
+          $stdout.puts ""
+          $stdout.puts "Output:"
           job.debug['cmdout'].to_s.split("\n").each {|line|
-            puts "  " + line
+            $stdout.puts "  " + line
           }
         end
         if !job.debug['stderr'].nil?
-          puts ""
-          puts "Details:"
+          $stdout.puts ""
+          $stdout.puts "Details:"
           job.debug['stderr'].to_s.split("\n").each {|line|
-            puts "  " + line
+            $stdout.puts "  " + line
           }
         end
       end
     end
 
-    puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
+    $stdout.puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
   end
 
   def wait_job(job, first_call = false)
@@ -281,7 +281,7 @@ private
       cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
       stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
       (cmdout + stderr).each {|line|
-        puts "  "+line
+        $stdout.puts "  "+line
       }
       cmdout_lines += cmdout.size
       stderr_lines += stderr.size
@@ -294,7 +294,7 @@ private
     max_cumul_retry_delay = 200
     cumul_retry_delay = 0
 
-    puts "Result      :"
+    $stdout.puts "Result      :"
     begin
       show_result(job, output, limit, format, render_opts)
     rescue TreasureData::NotFoundError => e
@@ -320,7 +320,7 @@ private
   def show_result(job, output, limit, format, render_opts={})
     if output
       write_result(job, output, limit, format, render_opts)
-      puts "\rwritten to #{output} in #{format} format" + " " * 50
+      $stdout.puts "\rwritten to #{output} in #{format} format" + " " * 50
     else
       # every format that is allowed on stdout
       render_result(job, limit, format, render_opts)
@@ -352,7 +352,7 @@ private
         f.write "]"
         indicator.finish unless output.nil?
       }
-      puts if output.nil?
+      $stdout.puts if output.nil?
 
     when 'csv'
       require 'yajl'
@@ -493,7 +493,7 @@ private
       end
 
       $stdout.print "\r" + " " * 50
-      puts "\r" + cmd_render_table(rows, render_opts)
+      $stdout.puts "\r" + cmd_render_table(rows, render_opts)
     else
       # display result in any of: json, csv, tsv.
       # msgpack and mspgpack.gz are not supported for stdout output

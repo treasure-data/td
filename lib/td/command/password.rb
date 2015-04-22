@@ -62,7 +62,7 @@ module Command
         break
       end
 
-      puts "Doesn't match."
+      $stdout.puts "Doesn't match."
     end
 
     client = get_client(:ssl => true)

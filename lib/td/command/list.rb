@@ -46,8 +46,8 @@ module List
     end
 
     def cmd_usage(msg=nil)
-      puts self.to_s
-      puts "Error: #{msg}" if msg
+      $stdout.puts self.to_s
+      $stdout.puts "Error: #{msg}" if msg
       exit 1
     end
   end
@@ -181,9 +181,9 @@ module List
       next if HELP_EXCLUDE.any? {|pattern| pattern =~ c.name }
       if before_group != c.group
         before_group = c.group
-        puts ""
+        $stdout.puts ""
       end
-      puts "#{indent}#{c.usage}"
+      $stdout.puts "#{indent}#{c.usage}"
     }
   end
 

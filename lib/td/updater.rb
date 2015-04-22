@@ -166,7 +166,7 @@ module ModuleDefinition
           # downloading the update compressed file
           File.open("#{download_dir}/td-update.zip", "wb") do |file|
             endpoint = update_package_endpoint
-            puts "\npackage '#{endpoint}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
+            $stdout.puts "\npackage '#{endpoint}'... " unless ENV['TD_TOOLBELT_DEBUG'].nil?
             stream_fetch(endpoint, file) {
               indicator.update
             }
@@ -279,7 +279,7 @@ module ModuleDefinition
       elsif response.class == Net::HTTPFound || \
             response.class == Net::HTTPRedirection
         unless ENV['TD_TOOLBELT_DEBUG'].nil?
-          puts "redirect '#{url}' to '#{response['Location']}'... "
+          $stdout.puts "redirect '#{url}' to '#{response['Location']}'... "
         end
         return stream_fetch(response['Location'], binfile, &progress)
       else
@@ -353,15 +353,15 @@ end # module ModuleDefinition
         indicator.finish()
 
         if status
-          puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
+          $stdout.puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
           File.rename 'td-import.jar.new', 'td-import.jar'
         else
-          puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          $stdout.puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
           File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
         end
       end
     else
-      puts 'Installed td-import.jar is already at the latest version.' unless hourly
+      $stdout.puts 'Installed td-import.jar is already at the latest version.' unless hourly
     end
   end
 
@@ -370,7 +370,7 @@ end # module ModuleDefinition
       if !ENV['TD_TOOLBELT_JAR_UPDATE'].nil?
         # also validates the TD_TOOLBELT_JAR_UPDATE environment variable value
         if ENV['TD_TOOLBELT_JAR_UPDATE'] == "0"
-          puts "Warning: Bulk Import JAR auto-update disabled by TD_TOOLBELT_JAR_UPDATE=0"
+          $stdout.puts "Warning: Bulk Import JAR auto-update disabled by TD_TOOLBELT_JAR_UPDATE=0"
           return
         elsif ENV['TD_TOOLBELT_JAR_UPDATE'] != "1"
           raise UpdateError,
