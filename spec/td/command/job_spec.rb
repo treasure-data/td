@@ -238,6 +238,81 @@ module TreasureData::Command
       end
     end
 
+    describe '#job_list' do
+      subject do
+        backup = $stdout.dup
+        buf = StringIO.new
+        op = List::CommandParser.new("job:list", [], [:max], nil, [], true)
+
+        begin
+          $stdout = buf
+          command.job_list(op)
+          buf.string
+        ensure
+          $stdout = backup
+        end
+      end
+
+      let(:job_id) { "12345" }
+
+      let :job_class do
+        Struct.new(:job_id,
+                   :status,
+                   :type,
+                   :db_name,
+                   :priority,
+                   :retry_limit,
+                   :result_url,
+                   :query,
+                   :start_at,
+                   :end_at,
+                   :cpu_time,
+                   :result_size,
+                   :duration
+                  )
+      end
+
+      let :start_at do
+        Time.now
+      end
+
+      let :jobs do
+        [job_class.new(job_id,
+                       nil,
+                       :hive,
+                       "db_name",
+                       1,
+                       1,
+                       "test_url",
+                       "test_qury",
+                       start_at,
+                       start_at + 10,
+                       1,
+                       3,
+                       100
+                      )] * 3
+      end
+
+      before do
+        client = Object.new
+        client.stub(:jobs).and_return(jobs)
+        command.stub(:get_client).and_return(client)
+      end
+
+      it 'should display all job list' do
+        expect(subject).to eq <<ACTUAL
++-------+--------+---------------------------+-------------+-------------------+------------+----------+----------+------+----------+---------------+----------+
+| JobID | Status | Start                     | Elapsed     | CPUTime           | ResultSize | Priority | Result   | Type | Database | Query         | Duration |
++-------+--------+---------------------------+-------------+-------------------+------------+----------+----------+------+----------+---------------+----------+
+| 12345 |        | #{start_at} |         10s |             001ms | 3 B        | HIGH     | test_url | hive | db_name  | test_qury ... | 00:01:40 |
+| 12345 |        | #{start_at} |         10s |             001ms | 3 B        | HIGH     | test_url | hive | db_name  | test_qury ... | 00:01:40 |
+| 12345 |        | #{start_at} |         10s |             001ms | 3 B        | HIGH     | test_url | hive | db_name  | test_qury ... | 00:01:40 |
++-------+--------+---------------------------+-------------+-------------------+------------+----------+----------+------+----------+---------------+----------+
+3 rows in set
+ACTUAL
+      end
+    end
+
     describe 'multibyte chars' do
       let :multibyte_string do
         # Originally a Windows-31J but in UTF-8 like msgpack-ruby populates
