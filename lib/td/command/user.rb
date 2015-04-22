@@ -79,7 +79,7 @@ module Command
       3.times do
         begin
           system "stty -echo"  # TODO termios
-          print "Password (typing will be hidden): "
+          $stdout.print "Password (typing will be hidden): "
           password = STDIN.gets || ""
           password = password[0..-2]  # strip \n
         rescue Interrupt
@@ -87,7 +87,7 @@ module Command
           exit 1
         ensure
           system "stty echo"   # TODO termios
-          print "\n"
+          $stdout.print "\n"
         end
 
         if password.empty?
@@ -97,7 +97,7 @@ module Command
 
         begin
           system "stty -echo"  # TODO termios
-          print "Retype password: "
+          $stdout.print "Retype password: "
           password2 = STDIN.gets || ""
           password2 = password2[0..-2]  # strip \n
         rescue Interrupt
@@ -105,7 +105,7 @@ module Command
           exit 1
         ensure
           system "stty echo"   # TODO termios
-          print "\n"
+          $stdout.print "\n"
         end
 
         if password == password2
@@ -196,7 +196,7 @@ module Command
     3.times do
       begin
         system "stty -echo"  # TODO termios
-        print "New password (typing will be hidden): "
+        $stdout.print "New password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -204,7 +204,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password.empty?
@@ -214,7 +214,7 @@ module Command
 
       begin
         system "stty -echo"  # TODO termios
-        print "Retype new password: "
+        $stdout.print "Retype new password: "
         password2 = STDIN.gets || ""
         password2 = password2[0..-2]  # strip \n
       rescue Interrupt
@@ -222,7 +222,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password == password2

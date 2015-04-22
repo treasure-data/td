@@ -193,9 +193,9 @@ EOF
         }
         puts ""
       end
-      print "Error: "
+      $stdout.print "Error: "
       if [ForbiddenError, NotFoundError, AuthError].include?(e.class)
-        print "#{e.class} - "
+        $stdout.print "#{e.class} - "
       end
       puts $!.to_s
 

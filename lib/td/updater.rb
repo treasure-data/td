@@ -173,7 +173,7 @@ module ModuleDefinition
           end
           indicator.finish
 
-          print "Unpacking updated toolbelt package..."
+          $stdout.print "Unpacking updated toolbelt package..."
           Zip::ZipFile.open("#{download_dir}/td-update.zip") do |zip|
             zip.each do |entry|
               target = File.join(download_dir, entry.to_s)
@@ -181,7 +181,7 @@ module ModuleDefinition
               zip.extract(entry, target) { true }
             end
           end
-          print "done\n"
+          $stdout.print "done\n"
 
           FileUtils.rm "#{download_dir}/td-update.zip"
 
@@ -270,7 +270,7 @@ module ModuleDefinition
 
     http.request_get(uri.path) {|response|
       if response.class == Net::HTTPOK
-        # print a . every tick_period seconds
+        # $stdout.print a . every tick_period seconds
         response.read_body do |chunk|
           binfile.write chunk
           progress.call unless progress.nil?

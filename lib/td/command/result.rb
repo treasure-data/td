@@ -93,7 +93,7 @@ module Command
     if ask_password
       begin
         system "stty -echo"  # TODO termios
-        print "Password (typing will be hidden): "
+        $stdout.print "Password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -101,7 +101,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
     end
 

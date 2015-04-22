@@ -44,7 +44,7 @@ module Command
     puts "Enter your Treasure Data credentials."
     unless user_name
       begin
-        print "Email: "
+        $stdout.print "Email: "
         line = STDIN.gets || ""
         user_name = line.strip
       rescue Interrupt
@@ -62,14 +62,14 @@ module Command
 
     3.times do
       begin
-        print "Password (typing will be hidden): "
+        $stdout.print "Password (typing will be hidden): "
         password = get_password
       rescue Interrupt
         $stderr.print "\ncanceled."
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password.empty?

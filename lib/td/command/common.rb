@@ -249,7 +249,7 @@ EOS
     3.times do
       begin
         system "stty -echo"  # TODO termios
-        print "Password (typing will be hidden): "
+        $stdout.print "Password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -257,7 +257,7 @@ EOS
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password.empty?
@@ -328,7 +328,7 @@ EOS
   class DownloadProgressIndicator
     def initialize(msg)
       @base_msg = msg
-      print @base_msg + " " * 10
+      $stdout.print @base_msg + " " * 10
     end
   end
 
@@ -343,8 +343,8 @@ EOS
     def update
       if (time = Time.now.to_i) - @last_time >= @periodicity
         msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
-        print "\r" + " " * (msg.length + 10)
-        print msg
+        $stdout.print "\r" + " " * (msg.length + 10)
+        $stdout.print msg
         @last_time = time
         true
       else
@@ -378,15 +378,15 @@ EOS
     def update(curr_size)
       if @size.nil? || @size == 0
         msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)}"
-        print msg
+        $stdout.print msg
         true
       else
         ratio = (curr_size.to_f * 100 / @size).round(1)
         if ratio >= (@last_perc_step + @perc_step) &&
            (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
           msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
-          print "\r" + " " * (msg.length + 10)
-          print msg
+          $stdout.print "\r" + " " * (msg.length + 10)
+          $stdout.print msg
           @last_perc_step = ratio
           @last_time = time
           true
@@ -397,7 +397,7 @@ EOS
     end
 
     def finish
-      print "\r#{@base_msg}...done" + " " * 20
+      $stdout.print "\r#{@base_msg}...done" + " " * 20
     end
   end
 

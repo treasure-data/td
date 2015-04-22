@@ -485,14 +485,14 @@ private
         n_rows += 1
         break if !limit.nil? and n_rows == limit
       }
-      print " " * 100, "\r" # make sure the previous WARNING is cleared over
+      $stdout.print " " * 100, "\r" # make sure the previous WARNING is cleared over
 
       render_opts[:max_width] = 10000
       if job.hive_result_schema
         render_opts[:change_fields] = job.hive_result_schema.map { |name,type| name }
       end
 
-      print "\r" + " " * 50
+      $stdout.print "\r" + " " * 50
       puts "\r" + cmd_render_table(rows, render_opts)
     else
       # display result in any of: json, csv, tsv.
