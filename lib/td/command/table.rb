@@ -301,6 +301,7 @@ module Command
     from = nil
     to = nil
     wait = false
+    pool_name = nil
 
     op.on('-t', '--to TIME', 'end time of logs to delete in Unix time multiple of 3600 (1 hour)',
                              '  or Ruby time string format (e.g. \'2014-07-01 14:00:00 JST\') where',
@@ -326,6 +327,9 @@ module Command
     op.on('-w', '--wait', 'wait for the job to finish', TrueClass) {|b|
       wait = b
     }
+    op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
+      pool_name = s
+    }
 
     db_name, table_name = op.cmd_parse
 
@@ -350,6 +354,7 @@ module Command
     table = get_table(client, db_name, table_name)
 
     opts = {}
+    opts['pool_name'] = pool_name if pool_name
     job = client.partial_delete(db_name, table_name, to, from, opts)
 
     $stderr.puts "Partial delete job #{job.job_id} is queued."
