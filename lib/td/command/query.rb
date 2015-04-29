@@ -16,6 +16,7 @@ module Command
     type = nil
     limit = nil
     exclude = false
+    pool_name = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -77,10 +78,13 @@ module Command
       limit = s.to_i
     }
     op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
-      render_opts[:header] = b;
+      render_opts[:header] = b
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
       exclude = b
+    }
+    op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
+      pool_name = s
     }
 
     sql = op.cmd_parse
@@ -130,6 +134,7 @@ module Command
 
     opts = {}
     opts['type'] = type if type
+    opts['pool_name'] = pool_name if pool_name
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     puts "Job #{job.job_id} is queued."

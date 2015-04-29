@@ -100,6 +100,7 @@ module Command
     part_prefix = ""
     auto_perform = false
     parallel = 2
+    pool_name = nil
 
     op.on('-P', '--prefix NAME', 'add prefix to parts name') {|s|
       part_prefix = s
@@ -112,6 +113,9 @@ module Command
     }
     op.on('--parallel NUM', 'perform uploading in parallel (default: 2; max 8)', Integer) {|i|
       parallel = i
+    }
+    op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
+      pool_name = s
     }
 
     name, *files = op.cmd_parse
@@ -176,8 +180,10 @@ module Command
     $stderr.puts "done."
 
     if auto_perform
+      opts = {}
+      opts['pool_name'] = pool_name if pool_name
       client = get_client
-      job = client.perform_bulk_import(name)
+      job = client.perform_bulk_import(name, opts)
 
       $stderr.puts "Job #{job.job_id} is queued."
       $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show [-w] #{job.job_id}' to show the status."
@@ -223,12 +229,16 @@ module Command
   def bulk_import_perform(op)
     wait = false
     force = false
+    pool_name = nil
 
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
       wait = b
     }
     op.on('-f', '--force', 'force start performing', TrueClass) {|b|
       force = b
+    }
+    op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
+      pool_name = s
     }
 
     name = op.cmd_parse
@@ -252,7 +262,9 @@ module Command
       end
     end
 
-    job = client.perform_bulk_import(name)
+    opts = {}
+    opts['pool_name'] = pool_name if pool_name
+    job = client.perform_bulk_import(name, opts)
 
     $stderr.puts "Job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show [-w] #{job.job_id}' to show the status."
