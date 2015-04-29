@@ -22,7 +22,79 @@ module TreasureData::Command
           @result_size = 3
           @status = 'success'
         end
+        job.stub(:result_format) # for msgpack, msgpack.gz
         job
+      end
+
+      describe "using tempfile" do
+        let(:tempfile) { "#{file.path}.tmp" }
+
+        subject { command.send(:show_result, job, file, nil, format) }
+
+        context "format: json" do
+          let(:format) { "json" }
+
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
+        end
+
+        context "format: csv" do
+          let(:format) { "csv" }
+
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
+        end
+
+        context "format: tsv" do
+          let(:format) { "tsv" }
+
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "w")
+            subject
+          end
+        end
+
+        context "format: msgpack" do
+          let(:format) { "msgpack" }
+
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "wb")
+            subject
+          end
+        end
+
+        context "format: msgpack.gz" do
+          let(:format) { "msgpack.gz" }
+
+          it do
+            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            subject
+          end
+          it do
+            command.should_receive(:open_file).with(tempfile, "wb")
+            subject
+          end
+        end
       end
 
       context 'result without nil' do

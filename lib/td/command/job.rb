@@ -332,10 +332,19 @@ private
 
     # the next 3 formats allow writing to both a file and stdout
 
+
+    if output
+      if output.is_a?(String)
+        tempfile = "#{output}.tmp"
+      else # File or Tempfile
+        tempfile = "#{output.path}.tmp"
+      end
+    end
+
     case format
     when 'json'
       require 'yajl'
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         f.write "["
         n_rows = 0
         unless output.nil?
@@ -359,7 +368,7 @@ private
       require 'yajl'
       require 'csv'
 
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         writer = CSV.new(f)
         # output headers
         if render_opts[:header] && job.hive_result_schema
@@ -392,7 +401,7 @@ private
     when 'tsv'
       require 'yajl'
 
-      open_file(output, "w") {|f|
+      open_file(tempfile || output, "w") {|f|
         # output headers
         if render_opts[:header] && job.hive_result_schema
           f.write job.hive_result_schema.map {|name, type| name}.join("\t") + "\n"
@@ -424,7 +433,7 @@ private
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      open_file(output, "wb") {|f|
+      open_file(tempfile || output, "wb") {|f|
         indicator = Command::SizeBasedDownloadProgressIndicator.new(
           "NOTE: the job result is being written to #{output} in msgpack format",
           job.result_size, 0.1, 1)
@@ -439,7 +448,7 @@ private
         raise ParameterConfigurationError,
               "Format 'msgpack' does not support writing to stdout"
       end
-      open_file(output, "wb") {|f|
+      open_file(tempfile || output, "wb") {|f|
         indicator = Command::SizeBasedDownloadProgressIndicator.new(
           "NOTE: the job result is being written to #{output} in msgpack.gz format",
           job.result_size, 0.1, 1)
@@ -451,6 +460,10 @@ private
 
     else
       raise "Unknown format #{format.inspect}"
+    end
+
+    if tempfile && File.exists?(tempfile)
+      FileUtils.mv(tempfile, output.respond_to?(:path) ? output.path : output)
     end
   end
 
