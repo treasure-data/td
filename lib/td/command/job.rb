@@ -86,12 +86,13 @@ module Command
         :CPUTime => cpu_time.rjust(17),
         :ResultSize => (job.result_size ? Command.humanize_bytesize(job.result_size, 2) : ""),
         :Priority => priority,
-        :Result => job.result_url
+        :Result => job.result_url,
+        :Duration => Time.at(job.duration).utc.strftime("%X")
       }
     }
 
     puts cmd_render_table(rows,
-      :fields => [:JobID, :Status, :Start, :Elapsed, :CPUTime, :ResultSize, :Priority, :Result, :Type, :Database, :Query],
+      :fields => [:JobID, :Status, :Start, :Elapsed, :CPUTime, :ResultSize, :Priority, :Result, :Type, :Database, :Query, :Duration],
       :max_width => 1000,
       :render_format => op.render_format
     )
