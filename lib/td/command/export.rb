@@ -12,6 +12,7 @@ module Command
     aws_secret_access_key = nil
     file_prefix = nil
     file_format = "json.gz" # default
+    pool_name = nil
 
     op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
       wait = b
@@ -37,6 +38,9 @@ module Command
     op.on('-F', '--file-format FILE_FORMAT', 'file format for exported data, either json.gz (default) or line-json.gz') { |s|
       raise ArgumentError, "#{s} is not a supported file format" unless SUPPORTED_FORMATS.include?(s)
       file_format = s
+    }
+    op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
+      pool_name = s
     }
 
     db_name, table_name = op.cmd_parse
@@ -70,6 +74,7 @@ module Command
     s3_opts['bucket'] = s3_bucket
     s3_opts['access_key_id'] = aws_access_key_id
     s3_opts['secret_access_key'] = aws_secret_access_key
+    s3_opts['pool_name'] = pool_name if pool_name
 
     job = client.export(db_name, table_name, "s3", s3_opts)
 
