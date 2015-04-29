@@ -15,8 +15,8 @@ module Command
       exit 1
     end
 
-    puts "Name : #{r.name}"
-    puts "URL  : #{r.url}"
+    $stdout.puts "Name : #{r.name}"
+    $stdout.puts "URL  : #{r.url}"
   end
 
   def result_list(op)
@@ -36,7 +36,7 @@ module Command
       map[:Name]
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :URL], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :URL], :render_format => op.render_format)
 
     if rs.empty?
       $stderr.puts "There are no result URLs."
@@ -93,7 +93,7 @@ module Command
     if ask_password
       begin
         system "stty -echo"  # TODO termios
-        print "Password (typing will be hidden): "
+        $stdout.print "Password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -101,7 +101,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
     end
 

@@ -57,9 +57,9 @@ module Command
     x4, y4 = status_render(x3+2, y3, "[Results]", results, :fields => [:Name, :URL])
 
     (y3-y4-1).times do
-      print "\eD"
+      $stdout.print "\eD"
     end
-    print "\eE"
+    $stdout.print "\eE"
   end
 
   private
@@ -69,13 +69,13 @@ module Command
     lines.unshift(msg)
     #lines.unshift("")
 
-    print "\e[#{movey}A" if movey > 0
+    $stdout.print "\e[#{movey}A" if movey > 0
 
     max_width = 0
     height = 0
     lines.each {|line|
-      print "\e[#{movex}C" if movex > 0
-      puts line
+      $stdout.print "\e[#{movex}C" if movex > 0
+      $stdout.puts line
       width = line.length
       max_width = width if max_width < width
       height += 1

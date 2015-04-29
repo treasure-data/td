@@ -10,7 +10,7 @@ module Command
 
     begin
       system "stty -echo"  # TODO termios
-      print "Old password (typing will be hidden): "
+      $stdout.print "Old password (typing will be hidden): "
       old_password = STDIN.gets || ""
       old_password = old_password[0..-2]  # strip \n
     rescue Interrupt
@@ -18,7 +18,7 @@ module Command
       exit 1
     ensure
       system "stty echo"   # TODO termios
-      print "\n"
+      $stdout.print "\n"
     end
 
     if old_password.empty?
@@ -29,7 +29,7 @@ module Command
     3.times do
       begin
         system "stty -echo"  # TODO termios
-        print "New password (typing will be hidden): "
+        $stdout.print "New password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -37,7 +37,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password.empty?
@@ -47,7 +47,7 @@ module Command
 
       begin
         system "stty -echo"  # TODO termios
-        print "Retype new password: "
+        $stdout.print "Retype new password: "
         password2 = STDIN.gets || ""
         password2 = password2[0..-2]  # strip \n
       rescue Interrupt
@@ -55,14 +55,14 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password == password2
         break
       end
 
-      puts "Doesn't match."
+      $stdout.puts "Doesn't match."
     end
 
     client = get_client(:ssl => true)

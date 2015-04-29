@@ -12,11 +12,11 @@ module Command
     end
 
     start_time = Time.now
-    puts "Updating 'td' from #{TOOLBELT_VERSION}..."
+    $stdout.puts "Updating 'td' from #{TOOLBELT_VERSION}..."
     if new_version = Updater.update
-      puts "Successfully updated to #{new_version} in #{Command.humanize_time((Time.now - start_time).to_i)}."
+      $stdout.puts "Successfully updated to #{new_version} in #{Command.humanize_time((Time.now - start_time).to_i)}."
     else
-      puts "Nothing to update."
+      $stdout.puts "Nothing to update."
     end
   end
 

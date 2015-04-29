@@ -33,7 +33,7 @@ module Command
       rows << {:Name => user.name, :Email => user.email}
     }
 
-    puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :Email], :render_format => op.render_format)
 
     if rows.empty?
       $stderr.puts "There are no users."
@@ -73,13 +73,13 @@ module Command
       1.times { r << symbol.sort_by{rand}.first }
       password = r.sort_by{rand}.join
 
-      puts "Password: #{password}"
+      $stdout.puts "Password: #{password}"
 
     else
       3.times do
         begin
           system "stty -echo"  # TODO termios
-          print "Password (typing will be hidden): "
+          $stdout.print "Password (typing will be hidden): "
           password = STDIN.gets || ""
           password = password[0..-2]  # strip \n
         rescue Interrupt
@@ -87,7 +87,7 @@ module Command
           exit 1
         ensure
           system "stty echo"   # TODO termios
-          print "\n"
+          $stdout.print "\n"
         end
 
         if password.empty?
@@ -97,7 +97,7 @@ module Command
 
         begin
           system "stty -echo"  # TODO termios
-          print "Retype password: "
+          $stdout.print "Retype password: "
           password2 = STDIN.gets || ""
           password2 = password2[0..-2]  # strip \n
         rescue Interrupt
@@ -105,14 +105,14 @@ module Command
           exit 1
         ensure
           system "stty echo"   # TODO termios
-          print "\n"
+          $stdout.print "\n"
         end
 
         if password == password2
           break
         end
 
-        puts "Doesn't match."
+        $stdout.puts "Doesn't match."
       end
     end
 
@@ -185,7 +185,7 @@ module Command
       rows << {:Key => key}
     }
 
-    puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Key], :render_format => op.render_format)
   end
 
   def user_password_change(op)
@@ -196,7 +196,7 @@ module Command
     3.times do
       begin
         system "stty -echo"  # TODO termios
-        print "New password (typing will be hidden): "
+        $stdout.print "New password (typing will be hidden): "
         password = STDIN.gets || ""
         password = password[0..-2]  # strip \n
       rescue Interrupt
@@ -204,7 +204,7 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password.empty?
@@ -214,7 +214,7 @@ module Command
 
       begin
         system "stty -echo"  # TODO termios
-        print "Retype new password: "
+        $stdout.print "Retype new password: "
         password2 = STDIN.gets || ""
         password2 = password2[0..-2]  # strip \n
       rescue Interrupt
@@ -222,14 +222,14 @@ module Command
         exit 1
       ensure
         system "stty echo"   # TODO termios
-        print "\n"
+        $stdout.print "\n"
       end
 
       if password == password2
         break
       end
 
-      puts "Doesn't match."
+      $stdout.puts "Doesn't match."
     end
 
     client = get_client(:ssl => true)

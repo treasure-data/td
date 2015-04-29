@@ -67,9 +67,9 @@ module Command
       type = s.to_sym
     }
     op.on('--sampling DENOMINATOR', 'OBSOLETE - enable random sampling to reduce records 1/DENOMINATOR', Integer) {|i|
-      puts "WARNING: the random sampling feature enabled through the '--sampling' option was removed and does no longer"
-      puts "         have any effect. It is left for backwards compatibility with older scripts using 'td'."
-      puts
+      $stdout.puts "WARNING: the random sampling feature enabled through the '--sampling' option was removed and does no longer"
+      $stdout.puts "         have any effect. It is left for backwards compatibility with older scripts using 'td'."
+      $stdout.puts
     }
     op.on('-l', '--limit ROWS', 'limit the number of result rows shown when not outputting to file') {|s|
       unless s.to_i > 0
@@ -137,15 +137,15 @@ module Command
     opts['pool_name'] = pool_name if pool_name
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
-    puts "Job #{job.job_id} is queued."
-    puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
+    $stdout.puts "Job #{job.job_id} is queued."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
     #puts "See #{job.url} to see the progress."
 
     if wait
       wait_job(job, true)
-      puts "Status     : #{job.status}"
+      $stdout.puts "Status     : #{job.status}"
       if job.success? && !exclude
-        puts "Result     :"
+        $stdout.puts "Result     :"
         begin
           show_result(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e

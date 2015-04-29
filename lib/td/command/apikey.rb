@@ -4,7 +4,7 @@ module Command
 
   def apikey_show(op)
     if Config.apikey
-      puts Config.apikey
+      $stdout.puts Config.apikey
       return
     end
 
@@ -20,7 +20,7 @@ module Command
       exit 1
     end
 
-    puts conf['account.apikey']
+    $stdout.puts conf['account.apikey']
   end
 
   def apikey_set(op)
@@ -55,8 +55,8 @@ module Command
     conf["account.apikey"] = apikey
     conf.save
 
-    puts "API key is set."
-    puts "Use '#{$prog} db:create <db_name>' to create a database."
+    $stdout.puts "API key is set."
+    $stdout.puts "Use '#{$prog} db:create <db_name>' to create a database."
   end
 
 end

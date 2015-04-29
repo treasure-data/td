@@ -191,7 +191,7 @@ module Command
     else
       fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
     end
-    puts cmd_render_table(rows, :fields => fields, :max_width => 500, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => fields, :max_width => 500, :render_format => op.render_format)
 
     if rows.empty?
       if db_name
@@ -231,16 +231,16 @@ module Command
 
     table = get_table(client, db_name, table_name)
 
-    puts "Name        : #{table.db_name}.#{table.name}"
-    puts "Type        : #{table.type}"
-    puts "Count       : #{table.count}"
-    # p table.methods.each {|m| puts m}
-    puts "Primary key : #{table.primary_key}:#{table.primary_key_type}" if table.type == :item
-    puts "Schema      : ("
+    $stdout.puts "Name        : #{table.db_name}.#{table.name}"
+    $stdout.puts "Type        : #{table.type}"
+    $stdout.puts "Count       : #{table.count}"
+    # p table.methods.each {|m| $stdout.puts m}
+    $stdout.puts "Primary key : #{table.primary_key}:#{table.primary_key_type}" if table.type == :item
+    $stdout.puts "Schema      : ("
     table.schema.fields.each {|f|
-      puts "    #{f.name}:#{f.type}"
+      $stdout.puts "    #{f.name}:#{f.type}"
     }
-    puts ")"
+    $stdout.puts ")"
   end
 
   def table_tail(op)
@@ -288,11 +288,11 @@ module Command
         :space => ' '
       }
       rows.each {|row|
-        puts row.to_json(opts)
+        $stdout.puts row.to_json(opts)
       }
     else
       rows.each {|row|
-        puts row.to_json
+        $stdout.puts row.to_json
       }
     end
   end
@@ -362,7 +362,7 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      puts "Status     : #{job.status}"
+      $stdout.puts "Status     : #{job.status}"
     end
   end
 
@@ -379,9 +379,9 @@ module Command
     client.update_expire(db_name, table_name, expire_days)
 
     if expire_days == 0
-      puts "Data expiration disabled for this table."
+      $stdout.puts "Data expiration disabled for this table."
     else
-      puts "Table set to expire data older than #{expire_days} days."
+      $stdout.puts "Table set to expire data older than #{expire_days} days."
     end
   end
 
@@ -493,12 +493,12 @@ module Command
     begin
       db = client.database(db_name)
     rescue ForbiddenError => e
-      puts "Warning: database and table validation skipped - #{e.message}"
+      $stdout.puts "Warning: database and table validation skipped - #{e.message}"
     else
       begin
         table = db.table(table_name)
       rescue ForbiddenError => e
-        puts "Warning: table validation skipped - #{e.message}"
+        $stdout.puts "Warning: table validation skipped - #{e.message}"
       end
     end
 
@@ -527,12 +527,12 @@ module Command
       import_log_file(file, path, client, db_name, table_name, parser)
     }
 
-    puts "done."
+    $stdout.puts "done."
   end
 
   private
   def import_log_file(file, path, client, db_name, table_name, parser)
-    puts "importing #{path}..."
+    $stdout.puts "importing #{path}..."
 
     out = Tempfile.new('td-import')
     out.binmode if out.respond_to?(:binmode)
@@ -554,17 +554,17 @@ module Command
       n += 1
       x += 1
       if n % 10000 == 0   # by records imported
-        puts "  imported #{n} entries from #{path}..."
+        $stdout.puts "  imported #{n} entries from #{path}..."
 
       # TODO size
       elsif out.pos > 1024 * 1024   # by 1 MB chunks
-        puts "  imported #{n} entries from #{path}..."
+        $stdout.puts "  imported #{n} entries from #{path}..."
         begin
           writer.finish
           size = out.pos
           out.pos = 0
 
-          puts "  uploading #{size} bytes..."
+          $stdout.puts "  uploading #{size} bytes..."
           client.import(db_name, table_name, "msgpack.gz", out, size)
 
           out.truncate(0)
@@ -584,7 +584,7 @@ module Command
       size = out.pos
       out.pos = 0
 
-      puts "  uploading #{size} bytes..."
+      $stdout.puts "  uploading #{size} bytes..."
       # TODO upload on background thread
       client.import(db_name, table_name, "msgpack.gz", out, size)
     end
@@ -594,7 +594,7 @@ module Command
       raise ImportError, "no valid record to import from #{path}"
     end
 
-    puts "  imported #{n} entries from #{path}."
+    $stdout.puts "  imported #{n} entries from #{path}."
     $stderr.puts normalized_message if has_bignum
   ensure
     out.close rescue nil

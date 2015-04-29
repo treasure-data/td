@@ -32,9 +32,9 @@ EOF
     (class << self;self;end).module_eval do
       define_method(:usage) do |errmsg|
         require 'td/command/list'
-        puts op.to_s
-        puts ""
-        puts <<EOF
+        $stdout.puts op.to_s
+        $stdout.puts ""
+        $stdout.puts <<EOF
 Basic commands:
 
   db             # create/delete/list databases
@@ -59,7 +59,7 @@ Additional commands:
 Type 'td help COMMAND' for more information on a specific command.
 EOF
         if errmsg
-          puts "Error: #{errmsg}"
+          $stdout.puts "Error: #{errmsg}"
           return 1
         else
           return 0
@@ -116,7 +116,7 @@ EOF
     }
 
     op.on('--version', "show version") {
-      puts op.version
+      $stdout.puts op.version
       return 0
     }
 
@@ -191,13 +191,13 @@ EOF
         $!.backtrace.each {|bt|
           $stderr.puts "  #{bt}"
         }
-        puts ""
+        $stdout.puts ""
       end
-      print "Error: "
+      $stdout.print "Error: "
       if [ForbiddenError, NotFoundError, AuthError].include?(e.class)
-        print "#{e.class} - "
+        $stdout.print "#{e.class} - "
       end
-      puts $!.to_s
+      $stdout.puts $!.to_s
 
       require 'socket'
       if e.is_a?(::SocketError)

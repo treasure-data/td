@@ -8,11 +8,11 @@ module Command
     client = get_client
     table = get_table(client, db_name, table_name)
 
-    puts "#{db_name}.#{table_name} ("
+    $stdout.puts "#{db_name}.#{table_name} ("
     table.schema.fields.each {|f|
-      puts "  #{f.name}:#{f.type}"
+      $stdout.puts "  #{f.name}:#{f.type}"
     }
-    puts ")"
+    $stdout.puts ")"
   end
 
   def schema_set(op)

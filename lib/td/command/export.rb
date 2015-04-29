@@ -83,7 +83,7 @@ module Command
 
     if wait && !job.finished?
       wait_job(job)
-      puts "Status     : #{job.status}"
+      $stdout.puts "Status     : #{job.status}"
     end
   end
 

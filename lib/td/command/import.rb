@@ -27,7 +27,7 @@ module Command
   def import_jar_version(op)
     op.cmd_parse
     version = find_version_file
-    puts "td-import-java #{File.open(version, 'r').read}"
+    $stdout.puts "td-import-java #{File.open(version, 'r').read}"
   end
 
   def import_jar_update(op)
@@ -90,7 +90,7 @@ module Command
       if op.cmd_requires_connectivity
         raise e
       else
-        puts "Warning: JAR update skipped for connectivity issues"
+        $stdout.puts "Warning: JAR update skipped for connectivity issues"
       end
     end
 
@@ -303,7 +303,7 @@ module Command
     installed_path = File.join(File.expand_path('../../..', File.dirname(__FILE__)), 'java')
     config = Command.find_files("logging.properties", [Updater.jarfile_dest_path, installed_path])
     if config.empty?
-      puts "Cannot find 'logging.properties' file in '#{Updater.jarfile_dest_path}' or " +
+      $stdout.puts "Cannot find 'logging.properties' file in '#{Updater.jarfile_dest_path}' or " +
            "'#{installed_path}'." unless ENV['TD_TOOLBELT_DEBUG'].nil?
       []
     else

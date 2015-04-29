@@ -22,7 +22,7 @@ module Command
       [map[:Type].size, map[:Table]]
     }
 
-    puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Table, :Type, :Count, :Schema], :render_format => op.render_format)
   end
 
   def db_list(op)
@@ -37,7 +37,7 @@ module Command
     dbs.each {|db|
       rows << {:Name=>db.name, :Count=>db.count}
     }
-    puts cmd_render_table(rows, :fields => [:Name, :Count], :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => [:Name, :Count], :render_format => op.render_format)
 
     if dbs.empty?
       $stderr.puts "There are no databases."

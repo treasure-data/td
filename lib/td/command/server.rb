@@ -6,7 +6,7 @@ module Command
   def server_status(op)
     op.cmd_parse
 
-    puts Client.server_status
+    $stdout.puts Client.server_status
   end
 
   def server_endpoint(op)
