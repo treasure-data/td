@@ -25,7 +25,7 @@ module TreasureData::Command
       let(:tempfile) do
         File.join("spec", "td", "fixture", "bulk_load.yml")
       end
-      let :preview_result do
+      let(:preview_result) do
         {
           "schema" => [
             {"index" => 0, "name" => "c0_too_l#{'o' * 60}ng_column_name", "type" => "string"},
