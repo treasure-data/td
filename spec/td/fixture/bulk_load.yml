@@ -1,0 +1,24 @@
+---
+config:
+  type: s3
+  access_key_id: ACCESS_KEY
+  secret_access_key: SECRET_ACCESS
+  bucket: test-bucket
+  path_prefix: dummy.csv.gz
+  parser:
+    charset: ISO-8859-9
+    newline: CRLF
+    type: csv
+    delimiter: ","
+    quote: ''
+    escape: ''
+    skip_header_lines: 1
+    columns:
+    - name: foo
+      type: long
+    - name: bar
+      type: long
+    - name: baz
+      type: long
+  decoders:
+  - type: gzip
