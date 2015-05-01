@@ -21,10 +21,10 @@ module TreasureData::Command
         end
       end
 
-
       let(:tempfile) do
         File.join("spec", "td", "fixture", "bulk_load.yml")
       end
+
       let(:preview_result) do
         {
           "schema" => [
