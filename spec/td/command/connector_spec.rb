@@ -42,7 +42,7 @@ module TreasureData::Command
       end
 
       before do
-        TreasureData::Client.any_instance.stub(:bulk_load_preview).and_return(TreasureData::API::BulkLoad::BulkLoadPreview.from_json(preview_result.to_json))
+        TreasureData::Client.any_instance.stub(:bulk_load_preview).and_return(preview_result)
       end
 
       it 'should include too_long_column_name without truncated' do
