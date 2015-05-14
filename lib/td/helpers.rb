@@ -3,12 +3,7 @@ module TreasureData
     module_function
 
     def format_with_delimiter(number, delimiter = ',')
-      num = number.to_s
-      if formatted = num.gsub!(/(\d)(?=(?:\d{3})+(?!\d))/, "\\1#{delimiter}")
-        formatted
-      else
-        num
-      end
+      number.to_s.gsub(/(\d)(?=(?:\d{3})+(?!\d))/, "\\1#{delimiter}")
     end
 
     def home_directory
