@@ -65,6 +65,10 @@ module Command
       f << config_str
     end
 
+    $stdout.puts "Guessed configuration:"
+    $stdout.puts
+    $stdout.puts config_str
+    $stdout.puts
     $stdout.puts "Created #{out} file."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:preview #{out}' to see bulk load preview."
   end
