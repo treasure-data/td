@@ -40,7 +40,7 @@ module Command
       bucket = path_components.shift.sub(/\//, '')
       path_prefix = path_components.join.sub(/\//, '')
 
-      job = API::BulkLoad::BulkLoad.from_hash(
+      job = {
         :config => {
           :type => type,
           :access_key_id => id,
@@ -49,7 +49,7 @@ module Command
           :bucket => bucket,
           :path_prefix => path_prefix,
         }
-      ).validate
+      }
     end
 
     client = get_client
@@ -65,6 +65,10 @@ module Command
       f << config_str
     end
 
+    $stdout.puts "Guessed configuration:"
+    $stdout.puts
+    $stdout.puts config_str
+    $stdout.puts
     $stdout.puts "Created #{out} file."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:preview #{out}' to see bulk load preview."
   end
@@ -76,12 +80,12 @@ module Command
     client = get_client()
     preview = client.bulk_load_preview(job)
 
-    cols = preview.schema.sort_by { |col|
+    cols = preview['schema'].sort_by { |col|
       col['index']
     }
     fields = cols.map { |col| col['name'] + ':' + col['type'] }
     types = cols.map { |col| col['type'] }
-    rows = preview.records.map { |row|
+    rows = preview['records'].map { |row|
       cols = {}
       row.each_with_index do |col, idx|
         cols[fields[idx]] = col.inspect
@@ -263,7 +267,7 @@ private
     if file_type(config_str) == :yaml
       config_str = JSON.pretty_generate(YAML.load(config_str))
     end
-    API::BulkLoad::BulkLoad.from_json(config_str)
+    JSON.load(config_str)
   end
 
   def create_bulkload_job_file_backup(out)
