@@ -1,3 +1,16 @@
+== 2015-05-19 version 0.11.10
+
+* Updated 'td-client' gem dependency to 0.8.70. The new gem removed client
+  side validation for connector commands to allow additional plugin configs
+  we're going to add in the future.
+* connector:guess dumps configuration file to stdout that is guessed by the
+  server to check the config file easier.
+* connector:preview shows full column name (not truncated) in the table.
+* add --pool-name option to job registration.
+* add sched:result command to show job results for a saved query.
+* save to temporary file while downloading job result in job:show.
+* show job duration in job list.
+
 == 2015-04-17 version 0.11.9
 
 * add connector commands.
