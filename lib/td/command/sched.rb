@@ -328,8 +328,15 @@ module Command
 
   def sched_result(op)
     options = job_show_options(op)
+    back_number = 1
+    op.on('--last [Number]', Integer, "show the result before N from the last. default: 1") do |n|
+      back_number = n ? n : 1
+    end
 
-    op          = options[:op]
+    # save argv before calling cmd_parse, which removes flags from the argv array
+    argv_saved = op.argv.dup
+    name = op.cmd_parse
+
     verbose     = options[:verbose]
     wait        = options[:wait]
     output      = options[:output]
@@ -337,15 +344,6 @@ module Command
     render_opts = options[:render_opts]
     limit       = options[:limit]
     exclude     = options[:exclude]
-
-    back_number = 1
-    op.on('--last [Number]', Integer, "show the result before N from the last. default: 1") do |n|
-      back_number = n ?  n : 1
-    end
-
-    # save argv before calling cmd_parse, which removes flags from the argv array
-    argv_saved = op.argv.dup
-    name = op.cmd_parse
 
     client = get_client
     history = get_history(client, name, (back_number - 1), back_number)

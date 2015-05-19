@@ -104,8 +104,8 @@ module Command
 
   def job_show(op)
     options = job_show_options(op)
+    job_id = op.cmd_parse
 
-    op          = options[:op]
     verbose     = options[:verbose]
     wait        = options[:wait]
     output      = options[:output]
@@ -113,8 +113,6 @@ module Command
     render_opts = options[:render_opts]
     limit       = options[:limit]
     exclude     = options[:exclude]
-
-    job_id = op.cmd_parse
 
     if output.nil? && format
       unless ['tsv', 'csv', 'json'].include?(format)
