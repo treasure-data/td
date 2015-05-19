@@ -57,9 +57,9 @@ module Command
 
     create_bulkload_job_file_backup(out)
     if /\.json\z/ =~ out
-      config_str = JSON.pretty_generate(job.to_h)
+      config_str = JSON.pretty_generate(job)
     else
-      config_str = YAML.dump(job.to_h)
+      config_str = YAML.dump(job)
     end
     File.open(out, 'w') do |f|
       f << config_str
@@ -139,7 +139,7 @@ module Command
     rows = client.bulk_load_list().sort_by { |e|
       e['name']
     }.map { |e|
-      Hash[fields.zip(e.to_h.values_at(*keys))]
+      Hash[fields.zip(e.values_at(*keys))]
     }
 
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
@@ -290,7 +290,7 @@ private
     $stdout.puts "Database : #{session.database}"
     $stdout.puts "Table    : #{session.table}"
     $stdout.puts "Config"
-    $stdout.puts YAML.dump(session.config.to_h)
+    $stdout.puts YAML.dump(session.config)
   end
 
   def wait_connector_job(client, job_id, exclude)
