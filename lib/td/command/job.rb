@@ -91,7 +91,7 @@ module Command
         :ResultSize => (job.result_size ? Command.humanize_bytesize(job.result_size, 2) : ""),
         :Priority => priority,
         :Result => job.result_url,
-        :Duration => Time.at(job.duration).utc.strftime("%X")
+        :Duration => job.duration ? Time.at(job.duration).utc.strftime("%X") : nil
       }
     }
 
