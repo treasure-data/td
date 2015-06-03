@@ -283,14 +283,14 @@ private
   end
 
   def dump_connector_session(session)
-    $stdout.puts "Name     : #{session.name}"
-    $stdout.puts "Cron     : #{session.cron}"
-    $stdout.puts "Timezone : #{session.timezone}"
-    $stdout.puts "Delay    : #{session.delay}"
-    $stdout.puts "Database : #{session.database}"
-    $stdout.puts "Table    : #{session.table}"
+    $stdout.puts "Name     : #{session["name"]}"
+    $stdout.puts "Cron     : #{session["cron"]}"
+    $stdout.puts "Timezone : #{session["timezone"]}"
+    $stdout.puts "Delay    : #{session["delay"]}"
+    $stdout.puts "Database : #{session["database"]}"
+    $stdout.puts "Table    : #{session["table"]}"
     $stdout.puts "Config"
-    $stdout.puts YAML.dump(session.config)
+    $stdout.puts YAML.dump(session["config"])
   end
 
   def wait_connector_job(client, job_id, exclude)
