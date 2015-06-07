@@ -18,9 +18,9 @@ module Command
     primary_key = nil
     primary_key_type = nil
 
-    op.on('-T', '--type TYPE', 'set table type (log or item)') {|s|
+    op.on('-T', '--type TYPE', 'set table type (log)') {|s|
       unless ['item', 'log'].include?(s)
-        raise "Unknown table type #{s.dump}. Supported types: log and item"
+        raise "Unknown table type #{s.dump}. Supported types: log"
       end
       type = s.to_sym
     }
