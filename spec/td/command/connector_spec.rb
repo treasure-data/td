@@ -17,7 +17,7 @@ module TreasureData::Command
         begin
           $stdout = buf
 
-          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [tempfile], true)
+          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [File.join("spec", "td", "fixture", "bulk_load.yml")], true)
           command.connector_preview(op)
 
           buf.string
@@ -40,10 +40,6 @@ module TreasureData::Command
             ["19881022", 26114, "06960", "00175"]
           ]
         }
-      end
-
-      let(:tempfile) do
-        File.join("spec", "td", "fixture", "bulk_load.yml")
       end
 
       before do
