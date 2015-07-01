@@ -6,6 +6,10 @@ require 'td/command/connector'
 module TreasureData::Command
   describe 'connector commands' do
     describe '#connector_preview' do
+      let :command do
+        Class.new { include TreasureData::Command }.new
+      end
+
       subject do
         backup = $stdout.dup
         buf = StringIO.new
@@ -13,16 +17,13 @@ module TreasureData::Command
         begin
           $stdout = buf
 
-          TreasureData::Command::Runner.new.run ["connector:preview", tempfile]
+          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [tempfile], true)
+          command.connector_preview(op)
 
           buf.string
         ensure
           $stdout = backup
         end
-      end
-
-      let(:tempfile) do
-        File.join("spec", "td", "fixture", "bulk_load.yml")
       end
 
       let(:preview_result) do
@@ -41,8 +42,13 @@ module TreasureData::Command
         }
       end
 
+      let(:tempfile) do
+        File.join("spec", "td", "fixture", "bulk_load.yml")
+      end
+
       before do
-        TreasureData::Client.any_instance.stub(:bulk_load_preview).and_return(preview_result)
+        client = double(:client, bulk_load_preview: preview_result)
+        command.stub(:get_client).and_return(client)
       end
 
       it 'should include too_long_column_name without truncated' do
