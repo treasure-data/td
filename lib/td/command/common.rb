@@ -388,11 +388,11 @@ EOS
       require 'ruby-progressbar'
 
       @total_size = total_size
-      @total_byte_size = Command.humanize_bytesize(@total_size) if @total_size
+      @total_byte_size = Command.humanize_bytesize(@total_size) unless unknown_progress_mode?
 
       @progress_bar = ProgressBar.create(
         title: msg,
-        total: total_size == 0 ? nil : total_size,
+        total: unknown_progress_mode? ? nil : @total_size,
         format: formated_title(0),
         output: $stdout,
       )
@@ -410,7 +410,7 @@ EOS
     end
 
     def update(curr_size)
-      if @total_size.nil? || @total_size == 0
+      if unknown_progress_mode?
         update_progress_bar(curr_size)
         true
       else
@@ -429,7 +429,7 @@ EOS
     end
 
     def finish
-      if @total_size.nil? || @total_size == 0
+      if unknown_progress_mode?
         @progress_bar.format = "%t : #{Command.humanize_bytesize(@progress_bar.progress)} Done"
         @progress_bar.progress = 0
       else
@@ -439,13 +439,17 @@ EOS
 
     private
 
+    def unknown_progress_mode?
+      @total_size.nil? || @total_size == 0
+    end
+
     def update_progress_bar(curr_size)
       @progress_bar.format = formated_title(curr_size)
       @progress_bar.progress = curr_size
     end
 
     def formated_title(curr_size)
-      if @total_size.nil? || @total_size == 0
+      if unknown_progress_mode?
         "%t : #{Command.humanize_bytesize(curr_size).rjust(10)}"
       else
         rjust_size = @total_byte_size.size + 1
