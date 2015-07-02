@@ -384,8 +384,8 @@ EOS
   end
 
   class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
-    def initialize(msg, size, perc_step = 1, min_periodicity = nil)
-      @size = size
+    def initialize(msg, total_size, perc_step = 1, min_periodicity = nil)
+      @total_size = total_size
 
       # perc_step is how small a percentage increment can be shown
       @perc_step = perc_step
@@ -402,12 +402,12 @@ EOS
     end
 
     def update(curr_size)
-      if @size.nil? || @size == 0
+      if @total_size.nil? || @total_size == 0
         msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)}"
         $stdout.print msg
         true
       else
-        ratio = (curr_size.to_f * 100 / @size).round(1)
+        ratio = (curr_size.to_f * 100 / @total_size).round(1)
         if ratio >= (@last_perc_step + @perc_step) &&
            (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
           msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
