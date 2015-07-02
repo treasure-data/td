@@ -144,7 +144,7 @@ module TreasureData::Command
       size_increments = 2
       curr_size = 0
       while (curr_size += size_increments) < size do
-        indicator.update(size_increments)
+        indicator.update(curr_size)
         sleep(0.05)
       end
       indicator.finish
