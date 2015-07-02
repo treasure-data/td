@@ -360,17 +360,26 @@ EOS
 
   class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
     def initialize(msg, start_time, periodicity = 2)
+      require 'ruby-progressbar'
+
       @start_time = start_time
       @last_time = start_time
       @periodicity = periodicity
-      super(msg)
+
+      @progress_bar = ProgressBar.create(
+        title: msg,
+        total: nil,
+        format: formated_with_elasped_time(0),
+        output: $stdout,
+        unknown_progress_animation_steps: [' '],
+      )
+
+      update_progress_bar(formated_with_elasped_time(Command.humanize_elapsed_time(@start_time, @start_time)))
     end
 
     def update
       if (time = Time.now.to_i) - @last_time >= @periodicity
-        msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
-        $stdout.print "\r" + " " * (msg.length + 10)
-        $stdout.print msg
+        update_progress_bar(formated_with_elasped_time(Command.humanize_elapsed_time(@start_time, time)))
         @last_time = time
         true
       else
@@ -379,7 +388,20 @@ EOS
     end
 
     def finish
-      $stdout.puts "\r#{@base_msg}...done" + " " * 20
+      # NOTE %B is for clear terminal line
+      update_progress_bar("%t: done %B")
+    end
+
+    private
+
+    def formated_with_elasped_time(elasped_time)
+      # NOTE %B is for clear terminal line
+      "%t: #{elasped_time} elapsed %B"
+    end
+
+    def update_progress_bar(format)
+      @progress_bar.format = format
+      @progress_bar.refresh
     end
   end
 
