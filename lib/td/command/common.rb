@@ -385,7 +385,17 @@ EOS
 
   class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
     def initialize(msg, total_size, perc_step = 1, min_periodicity = nil)
+      require 'ruby-progressbar'
+
       @total_size = total_size
+      @total_byte_size = Command.humanize_bytesize(@total_size) if @total_size
+
+      @progress_bar = ProgressBar.create(
+        title: msg,
+        total: total_size == 0 ? nil : total_size,
+        format: formated_title(0),
+        output: $stdout,
+      )
 
       # perc_step is how small a percentage increment can be shown
       @perc_step = perc_step
@@ -397,22 +407,18 @@ EOS
       # track progress
       @last_perc_step = 0
       @last_time = @start_time
-
-      super(msg)
     end
 
     def update(curr_size)
       if @total_size.nil? || @total_size == 0
-        msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)}"
-        $stdout.print msg
+        update_progress_bar(curr_size)
         true
       else
         ratio = (curr_size.to_f * 100 / @total_size).round(1)
         if ratio >= (@last_perc_step + @perc_step) &&
            (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
-          msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
-          $stdout.print "\r" + " " * (msg.length + 10)
-          $stdout.print msg
+          update_progress_bar(curr_size)
+
           @last_perc_step = ratio
           @last_time = time
           true
@@ -423,7 +429,28 @@ EOS
     end
 
     def finish
-      $stdout.print "\r#{@base_msg}...done" + " " * 20
+      if @total_size.nil? || @total_size == 0
+        @progress_bar.format = "%t : #{Command.humanize_bytesize(@progress_bar.progress)} Done"
+        @progress_bar.progress = 0
+      else
+        update_progress_bar(@progress_bar.total)
+      end
+    end
+
+    private
+
+    def update_progress_bar(curr_size)
+      @progress_bar.format = formated_title(curr_size)
+      @progress_bar.progress = curr_size
+    end
+
+    def formated_title(curr_size)
+      if @total_size.nil? || @total_size == 0
+        "%t : #{Command.humanize_bytesize(curr_size).rjust(10)}"
+      else
+        rjust_size = @total_byte_size.size + 1
+        "%t #{Command.humanize_bytesize(curr_size).rjust(rjust_size)} / #{@total_byte_size.rjust(rjust_size)} : %w "
+      end
     end
   end
 
