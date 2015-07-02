@@ -446,7 +446,7 @@ EOS
 
     def finish
       if unknown_progress_mode?
-        @progress_bar.format = "%t : #{Command.humanize_bytesize(@progress_bar.progress)} Done"
+        @progress_bar.format = "%t : #{Command.humanize_bytesize(@progress_bar.progress).rjust(10)} Done"
         @progress_bar.progress = 0
       else
         update_progress_bar(@progress_bar.total)
