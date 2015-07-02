@@ -411,6 +411,7 @@ EOS
         format: formated_title(0),
         output: $stdout,
       )
+      @progress_bar.refresh
 
       # perc_step is how small a percentage increment can be shown
       @perc_step = perc_step
