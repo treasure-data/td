@@ -351,14 +351,7 @@ EOS
     files
   end
 
-  class DownloadProgressIndicator
-    def initialize(msg)
-      @base_msg = msg
-      $stdout.print @base_msg + " " * 10
-    end
-  end
-
-  class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
+  class TimeBasedDownloadProgressIndicator
     def initialize(msg, start_time, periodicity = 2)
       require 'ruby-progressbar'
 
@@ -405,7 +398,7 @@ EOS
     end
   end
 
-  class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
+  class SizeBasedDownloadProgressIndicator
     def initialize(msg, total_size, perc_step = 1, min_periodicity = nil)
       require 'ruby-progressbar'
 
