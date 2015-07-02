@@ -149,6 +149,28 @@ module TreasureData::Command
       end
       indicator.finish
     end
+
+    it "shows in only current byte size if total is nil" do
+      indicator = TreasureData::Command::SizeBasedDownloadProgressIndicator.new("Downloading", nil)
+      size_increments = 2
+      curr_size = 0
+      while (curr_size += size_increments) < 200 do
+        indicator.update(curr_size)
+        sleep(0.05)
+      end
+      indicator.finish
+    end
+
+    it "shows in only current byte size if total is 0" do
+      indicator = TreasureData::Command::SizeBasedDownloadProgressIndicator.new("Downloading", 0)
+      size_increments = 2
+      curr_size = 0
+      while (curr_size += size_increments) < 200 do
+        indicator.update(curr_size)
+        sleep(0.05)
+      end
+      indicator.finish
+    end
   end
 
   describe 'TimeBasedDownloadProgressIndicator' do
