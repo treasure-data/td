@@ -264,10 +264,15 @@ private
       raise ParameterConfigurationError, "configuration file: #{config_file} not found"
     end
     config_str = File.read(config_file)
-    if file_type(config_str) == :yaml
-      config_str = JSON.pretty_generate(YAML.load(config_str))
+
+    begin
+      if file_type(config_str) == :yaml
+        config_str = JSON.pretty_generate(YAML.load(config_str))
+      end
+      JSON.load(config_str)
+    rescue
+      raise ParameterConfigurationError, "configuration file: #{config_file} is a deficiency in content"
     end
-    JSON.load(config_str)
   end
 
   def create_bulkload_job_file_backup(out)
