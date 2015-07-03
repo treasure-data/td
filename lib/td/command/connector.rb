@@ -270,8 +270,8 @@ private
         config_str = JSON.pretty_generate(YAML.load(config_str))
       end
       JSON.load(config_str)
-    rescue
-      raise ParameterConfigurationError, "configuration file: #{config_file} is a deficiency in content"
+    rescue => e
+      raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
   end
 
