@@ -244,27 +244,9 @@ module Command
   end
 
   def table_tail(op)
-    from = nil
-    to = nil
     count = 10
     pretty = nil
 
-    op.on('-t', '--to TIME', 'end time of logs to get') {|s|
-      if s.to_i.to_s == s
-        to = s.to_i
-      else
-        require 'time'
-        to = Time.parse(s).to_i
-      end
-    }
-    op.on('-f', '--from TIME', 'start time of logs to get') {|s|
-      if s.to_i.to_s == s
-        from = s.to_i
-      else
-        require 'time'
-        from = Time.parse(s).to_i
-      end
-    }
     op.on('-n', '--count N', 'number of logs to get', Integer) {|i|
       count = i
     }
@@ -278,7 +260,7 @@ module Command
 
     table = get_table(client, db_name, table_name)
 
-    rows = table.tail(count, to, from)
+    rows = table.tail(count)
 
     require 'json'
     if pretty
