@@ -2,15 +2,17 @@
 desc "build Windows exe package"
 task 'exe:build' => :build do
   create_build_dir('exe') do |dir|
+    install_ruby_version = '2.2.2'
     # create ./installers/
     FileUtils.mkdir_p "installers"
-    installer_path = download_resource('http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-2.2.2.exe?direct')
+    installer_path = download_resource("http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-#{install_ruby_version}.exe?direct")
     FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
     variables = {
       :version => version,
       :basename => "td-#{version}",
       :outdir => ".",
+      :install_ruby_version => install_ruby_version,
     }
 
     # create ./td/
