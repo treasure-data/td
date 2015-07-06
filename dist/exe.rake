@@ -21,7 +21,7 @@ task 'exe:build' => :build do
         install_use_gems(Dir.pwd)
       end
       install_resource 'exe/td', 'bin/td', 0755
-      install_resource 'exe/td.bat', 'bin/td.bat', 0755
+      install_erb_resource 'exe/td.bat', 'bin/td.bat', 0755, variables
       install_resource 'exe/td-cmd.bat', 'td-cmd.bat', 0755
     end
 
