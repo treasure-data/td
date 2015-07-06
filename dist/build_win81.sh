@@ -7,4 +7,4 @@ fi
 
 bundle install
 rake exe:clean
-TD_TOOLBELT_LOCAL_CLIENT_GEM=$0 rake exe:build
+TD_TOOLBELT_LOCAL_CLIENT_GEM=$1 rake exe:build
