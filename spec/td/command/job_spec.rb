@@ -395,6 +395,14 @@ ACTUAL
         [multibyte_string, 2.0, {multibyte_string => multibyte_string}]
       end
 
+      let(:line_separator) {
+        if RUBY_PLATFORM =~ /mswin32|mingw32/
+          "\r\n"
+        else
+          "\n"
+        end
+      }
+
       let :job do
         row = multibyte_row
         job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
@@ -416,14 +424,14 @@ ACTUAL
         row = multibyte_row
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'json')
-        File.read(file.path).should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",\n") + ']'
+        File.read(file.path).should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",#{line_separator}") + ']'
       end
 
       it 'supports csv output' do
         row = multibyte_row.map { |e| dump_column(e) }
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'csv')
-        File.binread(file.path).should == [row, row].map { |e| CSV.generate_line(e) }.join
+        File.binread(file.path).should == [row, row].map { |e| CSV.generate_line(e, :row_sep => line_separator) }.join
         File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split.first.should == 'メール,2.0,"{""メール"":""メール""}"'
       end
 
@@ -431,7 +439,7 @@ ACTUAL
         row = multibyte_row.map { |e| dump_column(e) }
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'tsv')
-        File.binread(file.path).should == [row, row].map { |e| e.join("\t") + "\n" }.join
+        File.binread(file.path).should == [row, row].map { |e| e.join("\t") + line_separator }.join
         File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split("\n").first.should == "メール\t2.0\t{\"メール\":\"メール\"}"
       end
     end
