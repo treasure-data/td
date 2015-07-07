@@ -4,22 +4,22 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'json'
 
-# XXX skip coverage setting if run appveyor. Because, fail to push coveralls in appveyor.
-unless ENV['APPVEYOR']
-  if ENV['SIMPLE_COV']
-    # SimpleCov
-    # https://github.com/colszowka/simplecov
-    require 'simplecov'
-    SimpleCov.start do
-      add_filter 'spec/'
-      add_filter 'pkg/'
-      add_filter 'vendor/'
-    end
+if ENV['SIMPLE_COV']
+  # SimpleCov
+  # https://github.com/colszowka/simplecov
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter 'spec/'
+    add_filter 'pkg/'
+    add_filter 'vendor/'
   end
 end
 
-require 'coveralls'
-Coveralls.wear!('rails')
+# XXX skip coverage setting if run appveyor. Because, fail to push coveralls in appveyor.
+unless ENV['APPVEYOR']
+  require 'coveralls'
+  Coveralls.wear!('rails')
+end
 
 require 'td/command/runner'
 
