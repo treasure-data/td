@@ -13,7 +13,7 @@ module TreasureData::Command
     end
 
     describe 'write_result' do
-      let(:file) { Tempfile.new("job_spec") }
+      let(:file) { Tempfile.new("job_spec").tap {|s| s.close } }
 
       let :job do
         job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
@@ -414,14 +414,14 @@ ACTUAL
 
       it 'supports json output' do
         row = multibyte_row
-        file = Tempfile.new("job_spec")
+        file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'json')
         File.read(file.path).should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",\n") + ']'
       end
 
       it 'supports csv output' do
         row = multibyte_row.map { |e| dump_column(e) }
-        file = Tempfile.new("job_spec")
+        file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'csv')
         File.binread(file.path).should == [row, row].map { |e| CSV.generate_line(e) }.join
         File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split.first.should == 'メール,2.0,"{""メール"":""メール""}"'
@@ -429,7 +429,7 @@ ACTUAL
 
       it 'supports tsv output' do
         row = multibyte_row.map { |e| dump_column(e) }
-        file = Tempfile.new("job_spec")
+        file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'tsv')
         File.binread(file.path).should == [row, row].map { |e| e.join("\t") + "\n" }.join
         File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split("\n").first.should == "メール\t2.0\t{\"メール\":\"メール\"}"
