@@ -36,8 +36,8 @@ module Command
         required('--out', out)
       rescue ParameterConfigurationError
         if id == nil && secret == nil && source == nil
-          puts op.to_s
-          puts ""
+          $stdout.puts op.to_s
+          $stdout.puts ""
           raise ParameterConfigurationError, "path to configuration file is required"
         else
           raise
