@@ -262,10 +262,17 @@ private
       raise ParameterConfigurationError, "configuration file: #{config_file} not found"
     end
     config_str = File.read(config_file)
-    if file_type(config_str) == :yaml
-      config_str = JSON.pretty_generate(YAML.load(config_str))
+
+    config = nil
+    begin
+      if file_type(config_str) == :yaml
+        config_str = JSON.pretty_generate(YAML.load(config_str))
+      end
+      config = JSON.load(config_str)
+    rescue => e
+      raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
-    config = JSON.load(config_str)
+
     if config['config']
       if config.size != 1
         raise "Setting #{(config.keys - ['config']).inspect} keys in a configuration file is not supported. Please set options to the command line argument."

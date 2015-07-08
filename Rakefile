@@ -145,3 +145,14 @@ Dir[File.expand_path("../dist/**/*.rake", __FILE__)].each do |rake|
   import rake
 end
 
+require 'rspec/core'
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
+end
+
+task :coverage do |t|
+  ENV['SIMPLE_COV'] = '1'
+  Rake::Task["spec"].invoke
+end

@@ -8,12 +8,15 @@ if ENV['SIMPLE_COV']
   # SimpleCov
   # https://github.com/colszowka/simplecov
   require 'simplecov'
-  SimpleCov.start do 
+  SimpleCov.start do
     add_filter 'spec/'
     add_filter 'pkg/'
     add_filter 'vendor/'
   end
 end
+
+require 'coveralls'
+Coveralls.wear!('rails')
 
 require 'td/command/runner'
 
