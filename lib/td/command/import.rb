@@ -150,11 +150,15 @@ module Command
         begin
           Timeout.timeout(@timeout) do
             pid = Process.spawn(*@cmd)
-            Process.waitpid(pid)
-            return $?
+            waitpid(pid)
           end
         rescue Timeout::Error
           if pid
+            # NOTE last check has not been completed the process during sleep
+            if Process.waitpid(pid, Process::WNOHANG)
+              return $?
+            end
+
             require 'rbconfig'
             # win32 ruby does not support QUIT and TERM
             if RbConfig::CONFIG['host_os'] !~ /mswin|mingw|cygwin/
@@ -170,6 +174,17 @@ module Command
       else
         system(*@cmd)
         return $?
+      end
+    end
+
+    def waitpid(pid)
+      # NOTE Use nonblocking mode, because Process.waitpid is block other thread at Windows.
+      loop do
+        if Process.waitpid(pid, Process::WNOHANG)
+          return $?
+        end
+
+        sleep 1
       end
     end
   end
