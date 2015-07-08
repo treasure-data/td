@@ -424,7 +424,7 @@ ACTUAL
         row = multibyte_row
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'json')
-        File.read(file.path).should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",#{line_separator}") + ']'
+        File.read(file.path, encoding: 'UTF-8').should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",\n") + ']'
       end
 
       it 'supports csv output' do
