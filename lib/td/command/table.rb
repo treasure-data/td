@@ -135,10 +135,6 @@ module Command
       databases = client.databases
     end
 
-    has_item = databases.select {|db|
-      db.permission != :import_only ? (db.tables.select {|table| table.type == :item}.length > 0) : false
-    }.length > 0
-
     # ref. https://github.com/treasure-data/td/issues/26
     should_number_format = [nil, "table"].include?(op.render_format)
     rows = []
@@ -159,9 +155,7 @@ module Command
             'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,
             :Schema => pschema
           }
-          if has_item and table.type == :item
-            new_row['Primary key'] = "#{table.primary_key}:#{table.primary_key_type}"
-          end
+
           rows << new_row
         }
       rescue APIError => e
@@ -176,12 +170,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    fields = []
-    if has_item
-      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', 'Primary key', :Schema]
-    else
-      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
-    end
+    fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
     $stdout.puts cmd_render_table(rows, :fields => fields, :max_width => 500, :render_format => op.render_format)
 
     if rows.empty?
