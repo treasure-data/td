@@ -19,7 +19,7 @@ module Command
     primary_key_type = nil
 
     op.on('-T', '--type TYPE', 'set table type (log)') {|s|
-      unless ['item', 'log'].include?(s)
+      unless s == 'log'
         raise "Unknown table type #{s.dump}. Supported types: log"
       end
       type = s.to_sym
@@ -49,19 +49,10 @@ module Command
       $stderr.puts "  For a list of all reserved keywords, see our FAQ: http://docs.treasure-data.com/articles/faq"
     end
 
-    if type == :item && (primary_key.nil? || primary_key_type.nil?)
-      $stderr.puts "for TYPE 'item', the primary-key is required"
-      exit 1
-    end
-
     client = get_client
 
     begin
-      if type == :item
-        client.create_item_table(db_name, table_name, primary_key, primary_key_type)
-      else
-        client.create_log_table(db_name, table_name)
-      end
+      client.create_log_table(db_name, table_name)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
