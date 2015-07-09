@@ -18,9 +18,9 @@ module Command
     primary_key = nil
     primary_key_type = nil
 
-    op.on('-T', '--type TYPE', 'set table type (log or item)') {|s|
-      unless ['item', 'log'].include?(s)
-        raise "Unknown table type #{s.dump}. Supported types: log and item"
+    op.on('-T', '--type TYPE', 'set table type (log)') {|s|
+      unless s == 'log'
+        raise "Unknown table type #{s.dump}. Supported types: log"
       end
       type = s.to_sym
     }
@@ -49,19 +49,10 @@ module Command
       $stderr.puts "  For a list of all reserved keywords, see our FAQ: http://docs.treasure-data.com/articles/faq"
     end
 
-    if type == :item && (primary_key.nil? || primary_key_type.nil?)
-      $stderr.puts "for TYPE 'item', the primary-key is required"
-      exit 1
-    end
-
     client = get_client
 
     begin
-      if type == :item
-        client.create_item_table(db_name, table_name, primary_key, primary_key_type)
-      else
-        client.create_log_table(db_name, table_name)
-      end
+      client.create_log_table(db_name, table_name)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -144,10 +135,6 @@ module Command
       databases = client.databases
     end
 
-    has_item = databases.select {|db|
-      db.permission != :import_only ? (db.tables.select {|table| table.type == :item}.length > 0) : false
-    }.length > 0
-
     # ref. https://github.com/treasure-data/td/issues/26
     should_number_format = [nil, "table"].include?(op.render_format)
     rows = []
@@ -168,9 +155,7 @@ module Command
             'Last log timestamp' => table.last_log_timestamp ? table.last_log_timestamp.localtime : nil,
             :Schema => pschema
           }
-          if has_item and table.type == :item
-            new_row['Primary key'] = "#{table.primary_key}:#{table.primary_key_type}"
-          end
+
           rows << new_row
         }
       rescue APIError => e
@@ -185,12 +170,7 @@ module Command
       [map[:Database], map[:Type].size, map[:Table]]
     }
 
-    fields = []
-    if has_item
-      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', 'Primary key', :Schema]
-    else
-      fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
-    end
+    fields = [:Database, :Table, :Type, :Count, :Size, 'Last import', 'Last log timestamp', :Schema]
     $stdout.puts cmd_render_table(rows, :fields => fields, :max_width => 500, :render_format => op.render_format)
 
     if rows.empty?
@@ -235,7 +215,6 @@ module Command
     $stdout.puts "Type        : #{table.type}"
     $stdout.puts "Count       : #{table.count}"
     # p table.methods.each {|m| $stdout.puts m}
-    $stdout.puts "Primary key : #{table.primary_key}:#{table.primary_key_type}" if table.type == :item
     $stdout.puts "Schema      : ("
     table.schema.fields.each {|f|
       $stdout.puts "    #{f.name}:#{f.type}"
