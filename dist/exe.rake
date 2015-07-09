@@ -2,15 +2,17 @@
 desc "build Windows exe package"
 task 'exe:build' => :build do
   create_build_dir('exe') do |dir|
+    install_ruby_version = '2.2.2'
     # create ./installers/
     FileUtils.mkdir_p "installers"
-    installer_path = download_resource('http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.9.3-p545.exe?direct')
+    installer_path = download_resource("http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-#{install_ruby_version}.exe?direct")
     FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
     variables = {
       :version => version,
       :basename => "td-#{version}",
       :outdir => ".",
+      :install_ruby_version => install_ruby_version,
     }
 
     # create ./td/
@@ -19,7 +21,7 @@ task 'exe:build' => :build do
         install_use_gems(Dir.pwd)
       end
       install_resource 'exe/td', 'bin/td', 0755
-      install_resource 'exe/td.bat', 'bin/td.bat', 0755
+      install_erb_resource 'exe/td.bat', 'bin/td.bat', 0755, variables
       install_resource 'exe/td-cmd.bat', 'td-cmd.bat', 0755
     end
 

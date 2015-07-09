@@ -15,8 +15,11 @@ if ENV['SIMPLE_COV']
   end
 end
 
-require 'coveralls'
-Coveralls.wear!('rails')
+# XXX skip coverage setting if run appveyor. Because, fail to push coveralls in appveyor.
+unless ENV['APPVEYOR']
+  require 'coveralls'
+  Coveralls.wear!('rails')
+end
 
 require 'td/command/runner'
 
