@@ -215,7 +215,6 @@ module Command
     $stdout.puts "Type        : #{table.type}"
     $stdout.puts "Count       : #{table.count}"
     # p table.methods.each {|m| $stdout.puts m}
-    $stdout.puts "Primary key : #{table.primary_key}:#{table.primary_key_type}" if table.type == :item
     $stdout.puts "Schema      : ("
     table.schema.fields.each {|f|
       $stdout.puts "    #{f.name}:#{f.type}"
