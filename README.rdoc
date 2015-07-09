@@ -1,4 +1,6 @@
 = Treasure Data command line tool
+{<img src="https://travis-ci.org/treasure-data/td.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/treasure-data/td]
+{<img src="https://coveralls.io/repos/treasure-data/td/badge.svg?branch=master&service=github" alt="Coverage Status" />}[https://coveralls.io/github/treasure-data/td?branch=master]
 
 This CUI utility wraps the {Ruby Client Library td-client-ruby}[https://github.com/treasure-data/td-client-ruby]
 to interact with the REST API in managing databases and jobs on the Treasure Data Cloud.
