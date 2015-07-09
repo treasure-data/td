@@ -24,10 +24,10 @@ module Command
     op.on('--source SOURCE', "(obsoleted)") { |s| source = s }
     op.on('-o', '--out FILE_NAME', "output file name for connector:preview") { |s| out = s }
 
-    config = op.cmd_parse
-    if config
-      job = prepare_bulkload_job_config(config)
-      out ||= config
+    config_file = op.cmd_parse
+    if config_file
+      config = prepare_bulkload_job_config(config_file)
+      out ||= config_file
     else
       begin
         required('--access-id', id)
@@ -50,26 +50,24 @@ module Command
       bucket = path_components.shift.sub(/\//, '')
       path_prefix = path_components.join.sub(/\//, '')
 
-      job = {
-        :config => {
-          :type => type,
-          :access_key_id => id,
-          :secret_access_key => secret,
-          :endpoint => endpoint,
-          :bucket => bucket,
-          :path_prefix => path_prefix,
-        }
+      config = {
+        :type => type,
+        :access_key_id => id,
+        :secret_access_key => secret,
+        :endpoint => endpoint,
+        :bucket => bucket,
+        :path_prefix => path_prefix,
       }
     end
 
     client = get_client
-    job = client.bulk_load_guess(job)
+    job = client.bulk_load_guess(config: config)
 
     create_bulkload_job_file_backup(out)
     if /\.json\z/ =~ out
-      config_str = JSON.pretty_generate(job)
+      config_str = JSON.pretty_generate(job['config'])
     else
-      config_str = YAML.dump(job)
+      config_str = YAML.dump(job['config'])
     end
     File.open(out, 'w') do |f|
       f << config_str
@@ -86,9 +84,9 @@ module Command
   def connector_preview(op)
     set_render_format_option(op)
     config_file = op.cmd_parse
-    job = prepare_bulkload_job_config(config_file)
+    config = prepare_bulkload_job_config(config_file)
     client = get_client()
-    preview = client.bulk_load_preview(job)
+    preview = client.bulk_load_preview(config: config)
 
     cols = preview['schema'].sort_by { |col|
       col['index']
@@ -115,7 +113,7 @@ module Command
     wait = exclude = false
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
-    op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }
+    op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
@@ -124,11 +122,11 @@ module Command
     required('--database', database)
     required('--table', table)
 
-    job = prepare_bulkload_job_config(config_file)
-    job['time_column'] = time_column if time_column
+    config = prepare_bulkload_job_config(config_file)
+    (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
 
     client = get_client()
-    job_id = client.bulk_load_issue(database, table, job)
+    job_id = client.bulk_load_issue(database, table, config: job)
 
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
@@ -176,13 +174,13 @@ module Command
 
     name, cron, database, table, config_file = op.cmd_parse
 
-    job = prepare_bulkload_job_config(config_file)
+    config = prepare_bulkload_job_config(config_file)
     opts[:cron] = cron
 
     client = get_client()
     get_table(client, database, table)
 
-    session = client.bulk_load_create(name, database, table, job, opts)
+    session = client.bulk_load_create(name, database, table, opts.merge(config: config))
     dump_connector_session(session)
   end
 
@@ -197,10 +195,10 @@ module Command
   def connector_update(op)
     name, config_file = op.cmd_parse
 
-    job = prepare_bulkload_job_config(config_file)
+    config = prepare_bulkload_job_config(config_file)
 
     client = get_client()
-    session = client.bulk_load_update(name, job)
+    session = client.bulk_load_update(name, config: config)
     dump_connector_session(session)
   end
 
@@ -275,14 +273,23 @@ private
     end
     config_str = File.read(config_file)
 
+    config = nil
     begin
       if file_type(config_str) == :yaml
         config_str = JSON.pretty_generate(YAML.load(config_str))
       end
-      JSON.load(config_str)
+      config = JSON.load(config_str)
     rescue => e
       raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
+
+    if config['config']
+      if config.size != 1
+        raise "Setting #{(config.keys - ['config']).inspect} keys in a configuration file is not supported. Please set options to the command line argument."
+      end
+      config = config['config']
+    end
+    config
   end
 
   def create_bulkload_job_file_backup(out)
