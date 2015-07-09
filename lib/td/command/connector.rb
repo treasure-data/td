@@ -18,21 +18,31 @@ module Command
     id = secret = source = nil
     out = 'td-bulkload.yml'
 
-    op.on('--type[=TYPE]', "connector type; only 's3' is supported") { |s| type = s }
-    op.on('--access-id ID', "access ID (S3 access key id for type: s3)") { |s| id = s }
-    op.on('--access-secret SECRET', "access secret (S3 secret access key for type: s3)") { |s| secret = s }
-    op.on('--source SOURCE', "resource(s) URI to be imported (e.g. https://s3-us-west-1.amazonaws.com/bucketname/path/prefix/to/import/)") { |s| source = s }
-    op.on('--out FILE_NAME', "configuration file") { |s| out = s }
+    op.on('--type[=TYPE]', "(obsoleted)") { |s| type = s }
+    op.on('--access-id ID', "(obsoleted)") { |s| id = s }
+    op.on('--access-secret SECRET', "(obsoleted)") { |s| secret = s }
+    op.on('--source SOURCE', "(obsoleted)") { |s| source = s }
+    op.on('-o', '--out FILE_NAME', "output file name for connector:preview") { |s| out = s }
 
     config = op.cmd_parse
     if config
       job = prepare_bulkload_job_config(config)
       out ||= config
     else
-      required('--access-id', id)
-      required('--access-secret', secret)
-      required('--source', source)
-      required('--out', out)
+      begin
+        required('--access-id', id)
+        required('--access-secret', secret)
+        required('--source', source)
+        required('--out', out)
+      rescue ParameterConfigurationError
+        if id == nil && secret == nil && source == nil
+          $stdout.puts op.to_s
+          $stdout.puts ""
+          raise ParameterConfigurationError, "path to configuration file is required"
+        else
+          raise
+        end
+      end
 
       uri = URI.parse(source)
       endpoint = uri.host

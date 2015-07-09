@@ -332,7 +332,17 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
-  add_list 'connector:guess', %w[config?], 'Run guess to generate connector config file', ['connector:guess td-bulkload.yml', 'connector:guess --access-id s3accessId --access-secret s3AccessKey --source https://s3.amazonaws.com/bucketname/path/prefix --database connector_database --table connector_table']
+  connector_guess_example_config = "
+  in:
+    type: s3
+    bucket: my-s3-bucket
+    endpoint: s3-us-west-1.amazonaws.com
+    path_prefix: path/prefix/to/import/
+    access_key_id: ABCXYZ123ABCXYZ123
+    secret_access_key: AbCxYz123aBcXyZ123
+  out:
+    mode: append"
+  add_list 'connector:guess', %w[config?], 'Run guess to generate connector config file', ["connector:guess config.yml -o td-bulkload.yml\n\nexample config.yml:#{connector_guess_example_config}"]
   add_list 'connector:preview', %w[config], 'Show preview of connector execution', ['connector:preview td-bulkload.yml']
 
   add_list 'connector:issue', %w[config], 'Run one time connector execution', ['connector:issue td-bulkload.yml']
