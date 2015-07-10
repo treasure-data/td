@@ -1,3 +1,13 @@
+== 2015-07-10 version 0.11.11
+
+* Updated 'td-client' gem dependency to 0.8.71. The new gem removed to/from
+  parameter from table/tail API.
+* Version up bundled Ruby for Mac and Windows.
+* Remove -t (to) and -f (from) from table:tail command.
+* connector:guess shows help message if no arguments are set.
+* table:* unsupported 'item' table.
+* upgrade rubyzip
+
 == 2015-05-19 version 0.11.10
 
 * Updated 'td-client' gem dependency to 0.8.70. The new gem removed client
