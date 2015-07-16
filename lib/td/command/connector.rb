@@ -126,7 +126,7 @@ module Command
     (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
 
     client = get_client()
-    job_id = client.bulk_load_issue(database, table, config: job)
+    job_id = client.bulk_load_issue(database, table, config: config)
 
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
