@@ -247,6 +247,17 @@ EOS
     table
   end
 
+  def exist_table?(client, db_name, table_name)
+    db = get_database(client, db_name)
+    begin
+      db.table(table_name)
+
+      true
+    rescue TreasureData::NotFoundError
+      false
+    end
+  end
+
   def ask_password(max=3, &block)
     3.times do
       begin

@@ -126,6 +126,12 @@ module Command
     (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
 
     client = get_client()
+
+    unless exist_table?(client, database, table)
+      client.create_log_table(database, table)
+      $stderr.puts "Table '#{database}.#{table}' is created."
+    end
+
     job_id = client.bulk_load_issue(database, table, config: config)
 
     $stdout.puts "Job #{job_id} is queued."
