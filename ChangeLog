@@ -1,3 +1,8 @@
+== 2015-07-16 version 0.11.11.1
+
+* fix: broken the connector:issue command.
+* Version Down bundled Ruby for Mac.
+
 == 2015-07-10 version 0.11.11
 
 * Updated 'td-client' gem dependency to 0.8.71. The new gem removed to/from
