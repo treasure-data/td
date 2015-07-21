@@ -94,6 +94,11 @@ def install_erb_resource(resource_name, target_path, mode, variables)
   File.chmod(mode, target_path)
 end
 
+def install_directory(source_directory, target_path)
+  FileUtils.mkdir_p target_path
+  FileUtils.copy_entry(source_directory, target_path)
+end
+
 def mkchdir(dir, &block)
   FileUtils.mkdir_p dir
   Dir.chdir(dir) do |dir|

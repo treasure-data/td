@@ -23,6 +23,7 @@ task 'exe:build' => :build do
       install_resource 'exe/td', 'bin/td', 0755
       install_erb_resource 'exe/td.bat', 'bin/td.bat', 0755, variables
       install_resource 'exe/td-cmd.bat', 'td-cmd.bat', 0755
+      install_directory ENV['UPDATE_RUBY_DIR'], "ruby-#{install_ruby_version}" if ENV['UPDATE_RUBY_DIR']
     end
 
     zip_files(project_root_path("pkg/td-update-exe-#{version}.zip"), 'td')
