@@ -309,5 +309,49 @@ module TreasureData::Command
         end
       end
     end
+
+    describe '#connector_list' do
+      let(:stdout_io) { StringIO.new }
+      let(:stderr_io) { StringIO.new }
+      let(:option) {
+        List::CommandParser.new("connector:list", [], [], nil, [], true)
+      }
+      let(:response) {
+        [{
+          'name'     => 'daily_mysql_import',
+          'cron'     => '10 0 * * *',
+          'timezone' => 'UTC',
+          'delay'    => 0,
+          'database' => 'td_sample_db',
+          'table'    => 'td_sample_table',
+          'config'   => {'type' => 'mysql'},
+        }]
+      }
+      let(:client) {
+        double(:client, bulk_load_list: response)
+      }
+
+      before do
+        stdout = $stdout.dup
+        stderr = $stderr.dup
+
+        begin
+          $stdout = stdout_io
+          $stderr = stderr_io
+
+          command.stub(:get_client).and_return(client)
+          command.connector_list(option)
+        ensure
+          $stdout = stdout
+          $stderr = stderr
+        end
+      end
+
+      it 'show list use table format' do
+        expect(stdout_io.string).to include <<-EOL
+| daily_mysql_import | 10 0 * * * | UTC      | 0     | td_sample_db | td_sample_table | {"type"=>"mysql"} |
+        EOL
+      end
+    end
   end
 end
