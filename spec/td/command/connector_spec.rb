@@ -5,11 +5,11 @@ require 'td/command/connector'
 
 module TreasureData::Command
   describe 'connector commands' do
-    describe '#connector_guess' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
+    let :command do
+      Class.new { include TreasureData::Command }.new
+    end
 
+    describe '#connector_guess' do
       describe 'guess plugins' do
         let(:guess_plugins) { %w(json query_string) }
 
@@ -49,10 +49,6 @@ module TreasureData::Command
     end
 
     describe '#connector_preview' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
-
       subject do
         backup = $stdout.dup
         buf = StringIO.new
@@ -97,10 +93,6 @@ module TreasureData::Command
     end
 
     describe '#connector_issue' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
-
       let(:stderr_io) do
         StringIO.new
       end
@@ -176,9 +168,6 @@ module TreasureData::Command
     describe '#connector_run' do
       include_context 'quiet_out'
 
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
       let(:client) { double(:client) }
       let(:job_name) { 'job_1' }
 
@@ -218,9 +207,6 @@ module TreasureData::Command
     describe 'connector history' do
       include_context 'quiet_out'
 
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
       let(:name) { 'connector_test' }
 
       subject do
