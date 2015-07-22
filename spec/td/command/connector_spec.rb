@@ -46,6 +46,42 @@ module TreasureData::Command
           command.connector_guess(option)
         end
       end
+
+      describe 'output config' do
+        let(:stdout_io) { StringIO.new }
+        let(:stderr_io) { StringIO.new }
+        let(:out_file)  { Tempfile.new('out.yml') }
+        let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
+        let(:option) {
+          List::CommandParser.new("connector:guess", ['config'], %w(access-id access-secret source out), nil, [bulk_load_yaml, '-o', out_file.path], true)
+        }
+        let(:response) {
+          {'config' => {'in' => {}, 'out' => {}}}
+        }
+        let(:client) {
+          double(:client, bulk_load_guess: response)
+        }
+
+        before do
+          stdout = $stdout.dup
+          stderr = $stderr.dup
+
+          begin
+            $stdout = stdout_io
+            $stderr = stderr_io
+
+            command.stub(:get_client).and_return(client)
+            command.connector_guess(option)
+          ensure
+            $stdout = stdout
+            $stderr = stderr
+          end
+        end
+
+        it 'output yaml has [in, out] key' do
+          expect(YAML.load_file(out_file.path).keys).to eq(%w(in out))
+        end
+      end
     end
 
     describe '#connector_preview' do
