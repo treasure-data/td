@@ -9,9 +9,25 @@ module TreasureData::Command
       Class.new { include TreasureData::Command }.new
     end
     let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
+    let(:stdout_io) { StringIO.new }
+    let(:stderr_io) { StringIO.new }
+
+    around do |example|
+      stdout = $stdout.dup
+      stderr = $stderr.dup
+
+      begin
+        $stdout = stdout_io
+        $stderr = stderr_io
+
+        example.run
+      ensure
+        $stdout = stdout
+        $stderr = stderr
+      end
+    end
 
     describe '#connector_guess' do
-
       describe 'guess plugins' do
         let(:guess_plugins) { %w(json query_string) }
         let(:stdout_io) { StringIO.new }
@@ -53,8 +69,6 @@ module TreasureData::Command
       end
 
       describe 'output config' do
-        let(:stdout_io) { StringIO.new }
-        let(:stderr_io) { StringIO.new }
         let(:out_file)  { Tempfile.new('out.yml') }
         let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
         let(:option) {
@@ -68,19 +82,8 @@ module TreasureData::Command
         }
 
         before do
-          stdout = $stdout.dup
-          stderr = $stderr.dup
-
-          begin
-            $stdout = stdout_io
-            $stderr = stderr_io
-
             command.stub(:get_client).and_return(client)
             command.connector_guess(option)
-          ensure
-            $stdout = stdout
-            $stderr = stderr
-          end
         end
 
         it 'output yaml has [in, out] key' do
@@ -91,19 +94,10 @@ module TreasureData::Command
 
     describe '#connector_preview' do
       subject do
-        backup = $stdout.dup
-        buf = StringIO.new
+        op = List::CommandParser.new("connector:preview", ["config"], [], nil, [bulk_load_yaml], true)
+        command.connector_preview(op)
 
-        begin
-          $stdout = buf
-
-          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [bulk_load_yaml], true)
-          command.connector_preview(op)
-
-          buf.string
-        ensure
-          $stdout = backup
-        end
+        stdout_io.string
       end
 
       let(:preview_result) do
@@ -134,26 +128,10 @@ module TreasureData::Command
     end
 
     describe '#connector_issue' do
-      let(:stderr_io) do
-        StringIO.new
-      end
-
       subject do
-        backup = $stdout.dup
-        stderr_backup = $stderr.dup
-        buf = StringIO.new
-
-        begin
-          $stdout = buf
-          $stderr = stderr_io
-
           command.connector_issue(option)
 
-          buf.string
-        ensure
-          $stdout = backup
-          $stderr = stderr_backup
-        end
+          stdout_io.string
       end
 
       describe 'queueing job' do
@@ -311,8 +289,6 @@ module TreasureData::Command
     end
 
     describe '#connector_list' do
-      let(:stdout_io) { StringIO.new }
-      let(:stderr_io) { StringIO.new }
       let(:option) {
         List::CommandParser.new("connector:list", [], [], nil, [], true)
       }
@@ -332,24 +308,13 @@ module TreasureData::Command
       }
 
       before do
-        stdout = $stdout.dup
-        stderr = $stderr.dup
-
-        begin
-          $stdout = stdout_io
-          $stderr = stderr_io
-
-          command.stub(:get_client).and_return(client)
-          command.connector_list(option)
-        ensure
-          $stdout = stdout
-          $stderr = stderr
-        end
+        command.stub(:get_client).and_return(client)
+        command.connector_list(option)
       end
 
       it 'show list use table format' do
         expect(stdout_io.string).to include <<-EOL
-| daily_mysql_import | 10 0 * * * | UTC      | 0     | td_sample_db | td_sample_table | {"type"=>"mysql"} |
+| daily_mysql_import | 10 0 * * * | UTC      | 0     | td_sample_db | td_sample_table |
         EOL
       end
     end
