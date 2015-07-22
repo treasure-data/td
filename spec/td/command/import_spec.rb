@@ -156,5 +156,27 @@ module TreasureData::Command
         end
       end
     end
+
+    describe '#import_create' do
+      let(:import_name) { 'bulk_import' }
+      let(:database) { 'database' }
+      let(:table) { 'table' }
+      let(:option) {
+        List::CommandParser.new("import:create", %w(name, db_name, table_name), [], nil, [import_name, database, table], true)
+      }
+      let(:client) { double(:client) }
+
+      before do
+        command.stub(:get_client).and_return(client)
+      end
+
+      it 'create bulk import' do
+        client.should_receive(:create_bulk_import).with(import_name, database, table, {})
+
+        command.import_create(option)
+
+        expect(stderr_io.string).to include import_name
+      end
+    end
   end
 end
