@@ -318,5 +318,40 @@ module TreasureData::Command
         EOL
       end
     end
+
+    describe '#connector_create' do
+      let(:name)     { 'daily_mysql_import' }
+      let(:cron)     { '10 0 * * *' }
+      let(:database) { 'td_sample_db' }
+      let(:table)    { 'td_sample_table' }
+      let(:config_file) {
+        Tempfile.new('config.json').tap {|tf|
+          tf.puts({}.to_json)
+          tf.close
+        }
+      }
+      let(:option) {
+        List::CommandParser.new("connector:create", %w(name cron database table config_file), [], nil, [name, cron, database, table, config_file.path], true)
+      }
+      let(:response) {
+        {'name' => name, 'cron' => cron, 'timezone' => 'UTC', 'delay' => 0, 'database' => database, 'table' => table, 'config' => ''}
+      }
+      let(:client) {
+        double(:client, bulk_load_create: response)
+      }
+
+      before do
+        command.stub(:get_table)
+        command.stub(:get_client).and_return(client)
+        command.connector_create(option)
+      end
+
+      it 'show create result' do
+        expect(stdout_io.string).to include name
+        expect(stdout_io.string).to include cron
+        expect(stdout_io.string).to include database
+        expect(stdout_io.string).to include table
+      end
+    end
   end
 end
