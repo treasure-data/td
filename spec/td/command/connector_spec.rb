@@ -8,18 +8,23 @@ module TreasureData::Command
     let :command do
       Class.new { include TreasureData::Command }.new
     end
+    let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
 
     describe '#connector_guess' do
+
       describe 'guess plugins' do
         let(:guess_plugins) { %w(json query_string) }
-
-        let(:in_file)  { Tempfile.new('in.yml').tap{|f| f.close } }
-        let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
-
+        let(:stdout_io) { StringIO.new }
+        let(:stderr_io) { StringIO.new }
         let(:option) {
           List::CommandParser.new("connector:guess", ["config"], [], nil, [in_file.path, '-o', out_file.path, '--guess', guess_plugins.join(',')], true)
         }
-        let(:client) { double(:client) }
+        let(:response) {
+          {'config' => {'in' => {}, 'out' => {}}}
+        }
+        let(:client)   { double(:client) }
+        let(:in_file)  { Tempfile.new('in.yml').tap{|f| f.close } }
+        let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
 
         before do
           command.stub(:get_client).and_return(client)
@@ -92,7 +97,7 @@ module TreasureData::Command
         begin
           $stdout = buf
 
-          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [File.join("spec", "td", "fixture", "bulk_load.yml")], true)
+          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [bulk_load_yaml], true)
           command.connector_preview(op)
 
           buf.string
