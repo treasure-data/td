@@ -1,5 +1,10 @@
 == 2015-07-16 version 0.11.11.1
 
+* downgrade bundle ruby version for windows(2.2.2 -> 1.9.3).
+* downgrade dependency td-client version (0.8.71 -> 0.8.70).
+
+== 2015-07-16 version 0.11.11.1
+
 * fix: broken the connector:issue command.
 * Version Down bundled Ruby for Mac.
 
