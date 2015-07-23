@@ -1,4 +1,4 @@
-== 2015-07-16 version 0.11.11.1
+== 2015-07-23 version 0.11.11.2
 
 * downgrade bundle ruby version for windows(2.2.2 -> 1.9.3).
 * downgrade dependency td-client version (0.8.71 -> 0.8.70).
