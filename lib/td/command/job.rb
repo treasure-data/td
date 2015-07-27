@@ -415,7 +415,7 @@ private
         indicator = Command::SizeBasedDownloadProgressIndicator.new(
           "NOTE: the job result is being written to #{output} in msgpack.gz format",
           job.result_size, 0.1, 1)
-        job.result_format('msgpack.gz', f) {|compr_size|
+        job.result_raw('msgpack.gz', f) {|compr_size|
           indicator.update(compr_size)
         }
         indicator.finish

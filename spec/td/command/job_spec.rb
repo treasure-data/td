@@ -22,7 +22,6 @@ module TreasureData::Command
           @result_size = 3
           @status = 'success'
         end
-        job.stub(:result_format) # for msgpack, msgpack.gz
         job
       end
 
@@ -73,6 +72,10 @@ module TreasureData::Command
         context "format: msgpack" do
           let(:format) { "msgpack" }
 
+          before do
+            job.stub(:result_format) # for msgpack
+          end
+
           it do
             FileUtils.should_receive(:mv).with(tempfile, file.path)
             subject
@@ -85,6 +88,10 @@ module TreasureData::Command
 
         context "format: msgpack.gz" do
           let(:format) { "msgpack.gz" }
+
+          before do
+            job.stub(:result_raw)    # for msgpack.gz
+          end
 
           it do
             FileUtils.should_receive(:mv).with(tempfile, file.path)
