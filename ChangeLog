@@ -1,3 +1,12 @@
+== 2015-07-27 version 0.11.12
+
+* query command support msgpack.gz format save
+* fix `--format msgpack.gz` save gz format.
+  If you want the operation up to this, please use `--format msgpack`.
+* update td-client version.
+  This update is required in order to be able to save in gz format.
+  And, include update httpclient dependency version.
+
 == 2015-07-23 version 0.11.11.2
 
 * downgrade bundle ruby version for windows(2.2.2 -> 1.9.3).
