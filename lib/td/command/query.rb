@@ -1,3 +1,5 @@
+require 'td/command/options'
+
 module TreasureData
 module Command
 
@@ -34,12 +36,9 @@ module Command
       output = s
       format = 'tsv' if format.nil?
     }
-    op.on('-f', '--format FORMAT', 'format of the result to write to the file (tsv, csv, json or msgpack)') {|s|
-      unless ['tsv', 'csv', 'json', 'msgpack'].include?(s)
-        raise "Unknown format #{s.dump}. Supported format: tsv, csv, json, msgpack"
-      end
-      format = s
-    }
+
+    TreasureData::Command::Options.write_format_option(op) {|s| format = s }
+
     op.on('-r', '--result RESULT_URL', 'write result to the URL (see also result:create subcommand)',
                                        ' It is suggested for this option to be used with the -x / --exclude option to suppress printing',
                                        ' of the query result to stdout or -o / --output to dump the query result into a file.') {|s|

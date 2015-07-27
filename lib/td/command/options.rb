@@ -61,6 +61,7 @@ module Options
       yield(s)
     }
   end
+  module_function :write_format_option
 end # module Options
 end # module Command
 end # module TreasureData
