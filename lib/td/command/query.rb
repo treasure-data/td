@@ -144,9 +144,8 @@ module Command
       wait_job(job, true)
       $stdout.puts "Status     : #{job.status}"
       if job.success? && !exclude
-        $stdout.puts "Result     :"
         begin
-          show_result(job, output, limit, format, render_opts)
+          show_result_with_retry(job, output, limit, format, render_opts)
         rescue TreasureData::NotFoundError => e
         end
       end
