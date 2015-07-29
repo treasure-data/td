@@ -191,6 +191,107 @@ module TreasureData::Command
     }
   end
 
+  describe '#create_database_and_table_if_not_exist' do
+    let(:command_class) { Class.new { include TreasureData::Command } }
+    let(:command)       { command_class.new }
+    let(:client)        { double(:client) }
+    let(:database_name) { 'database' }
+    let(:table_name)    { 'table1' }
+
+    let(:stderr_io) { StringIO.new }
+
+    subject(:call_create_database_and_table_if_not_exist) {
+      stderr = $stderr.dup
+      begin
+        $stderr = stderr_io
+
+        command.__send__(:create_database_and_table_if_not_exist, client, database_name, table_name)
+      ensure
+        $stderr = stderr
+      end
+    }
+
+    describe 'create database' do
+      before do
+        client.stub(:create_log_table)
+      end
+
+      context 'client.database success' do
+        it 'not call client.create_database' do
+          client.should_receive(:database).with(database_name)
+          client.should_not_receive(:create_database)
+
+          call_create_database_and_table_if_not_exist
+          expect(stderr_io.string).not_to include "Database '#{database_name}'"
+        end
+      end
+
+      context 'client.database raise NotFoundError' do
+        before do
+          client.should_receive(:database).with(database_name).and_return { raise TreasureData::NotFoundError }
+        end
+
+        context 'craet_database success' do
+          it 'call client.create_database' do
+            client.should_receive(:create_database).with(database_name)
+
+            call_create_database_and_table_if_not_exist
+            expect(stderr_io.string).to include "Database '#{database_name}'"
+          end
+        end
+
+        context 'craet_database raise AlreadyExistsError' do
+          it 'resuce in method' do
+            client.should_receive(:create_database).with(database_name).and_return { raise TreasureData::AlreadyExistsError }
+
+            expect {
+              call_create_database_and_table_if_not_exist
+            }.not_to raise_error
+
+            expect(stderr_io.string).not_to include "Database '#{database_name}'"
+          end
+        end
+      end
+
+      context 'client.database raise ForbiddenError' do
+        it 'not call client.create_database' do
+          client.should_receive(:database).with(database_name).and_return { raise TreasureData::ForbiddenError }
+          client.should_not_receive(:create_database)
+
+          call_create_database_and_table_if_not_exist
+          expect(stderr_io.string).not_to include "Database '#{database_name}'"
+        end
+      end
+    end
+
+    describe 'create table' do
+      before do
+        client.stub(:database)
+      end
+
+      context 'create_log_table success' do
+        it 'show message' do
+          client.should_receive(:create_log_table).with(database_name, table_name)
+
+          call_create_database_and_table_if_not_exist
+          expect(stderr_io.string).to include "Table '#{database_name}.#{table_name}'"
+        end
+      end
+
+      context 'create_log_table raise AlreadyExistsError' do
+        it 'resuce in method' do
+          client.should_receive(:create_log_table).with(database_name, table_name).and_return { raise TreasureData::AlreadyExistsError }
+
+          expect {
+            call_create_database_and_table_if_not_exist
+          }.not_to raise_error
+
+          expect(stderr_io.string).not_to include "Table '#{database_name}.#{table_name}'"
+        end
+      end
+    end
+  end
+
   describe '#exist_table?' do
     let(:command_class) { Class.new { include TreasureData::Command } }
     let(:command)       { command_class.new }
