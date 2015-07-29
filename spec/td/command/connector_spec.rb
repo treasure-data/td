@@ -71,8 +71,7 @@ module TreasureData::Command
           $stdout = buf
           $stderr = stderr_io
 
-          op = List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
-          command.connector_issue(op)
+          command.connector_issue(option)
 
           buf.string
         ensure
@@ -82,6 +81,10 @@ module TreasureData::Command
       end
 
       describe 'queueing job' do
+        let(:option) {
+          List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
+        }
+
         before do
           client = double(:client, bulk_load_issue: 1234)
           command.stub(:get_client).and_return(client)
@@ -101,21 +104,27 @@ module TreasureData::Command
           client.stub(:database)
         end
 
-        context 'table is exist' do
-          it 'should not create table' do
-            client.should_receive(:create_log_table).and_return { raise TreasureData::AlreadyExistsError }
+        context 'set auto crate table option' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table', '--auto-create-table'], true)
+          }
+
+          it 'call create_database_and_table_if_not_exist' do
+            command.should_receive(:create_database_and_table_if_not_exist)
 
             subject
-            expect(stderr_io.string).to be_empty
           end
         end
 
-        context 'table is not exist' do
-          it 'should not create table' do
-            client.should_receive(:create_log_table).with('database', 'table')
+        context 'not set auto crate table option' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
+          }
+
+          it 'call create_database_and_table_if_not_exist' do
+            command.should_not_receive(:create_database_and_table_if_not_exist)
 
             subject
-            expect(stderr_io.string).to include "'database.table' is created."
           end
         end
       end
