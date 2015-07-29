@@ -85,7 +85,7 @@ module TreasureData::Command
         before do
           client = double(:client, bulk_load_issue: 1234)
           command.stub(:get_client).and_return(client)
-          command.stub(:exist_table?).and_return(true)
+          command.stub(:create_database_and_table_if_not_exist)
         end
 
         it 'should include too_long_column_name without truncated' do
@@ -98,15 +98,12 @@ module TreasureData::Command
 
         before do
           command.stub(:get_client).and_return(client)
+          client.stub(:database)
         end
 
         context 'table is exist' do
-          before do
-            command.stub(:exist_table?).and_return(true)
-          end
-
           it 'should not create table' do
-            client.should_not_receive(:create_log_table)
+            client.should_receive(:create_log_table).and_return { raise TreasureData::AlreadyExistsError }
 
             subject
             expect(stderr_io.string).to be_empty
@@ -114,10 +111,6 @@ module TreasureData::Command
         end
 
         context 'table is not exist' do
-          before do
-            command.stub(:exist_table?).and_return(false)
-          end
-
           it 'should not create table' do
             client.should_receive(:create_log_table).with('database', 'table')
 

@@ -127,10 +127,7 @@ module Command
 
     client = get_client()
 
-    unless exist_table?(client, database, table)
-      client.create_log_table(database, table)
-      $stderr.puts "Table '#{database}.#{table}' is created."
-    end
+    create_database_and_table_if_not_exist(client, database, table)
 
     job_id = client.bulk_load_issue(database, table, config: config)
 
