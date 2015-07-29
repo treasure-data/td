@@ -372,28 +372,30 @@ module Command
     time_key = 'time'
     auto_create = false
 
+    import_params = {}
+
     op.on('--format FORMAT', "file format (default: #{format})") {|s|
-      format = s
+      import_params[:format] = s
     }
 
     op.on('--apache', "same as --format apache; apache common log format") {
-      format = 'apache'
+      import_params[:format] = 'apache'
     }
 
     op.on('--syslog', "same as --format syslog; syslog") {
-      format = 'syslog'
+      import_params[:format] = 'syslog'
     }
 
     op.on('--msgpack', "same as --format msgpack; msgpack stream format") {
-      format = 'msgpack'
+      import_params[:format] = 'msgpack'
     }
 
     op.on('--json', "same as --format json; LF-separated json format") {
-      format = 'json'
+      import_params[:format] = 'json'
     }
 
     op.on('-t', '--time-key COL_NAME', "time key name for json and msgpack format (e.g. 'created_at')") {|s|
-      time_key = s
+      import_params[:time_key] = s
     }
 
     op.on('--auto-create-table', "Create table and database if doesn't exist", TrueClass) { |b|
@@ -401,63 +403,51 @@ module Command
     }
 
     db_name, table_name, *paths = op.cmd_parse
+    import_params[:db_name] = db_name
+    import_params[:table_name] = table_name
+    import_params[:paths] = paths
 
     client = get_client
 
     if auto_create
-      # Merge with db_create and table_create after refactoring
-      API.validate_database_name(db_name)
-      begin
-        client.database(db_name)
-      rescue NotFoundError
-        begin
-          client.create_database(db_name)
-          $stderr.puts "Database '#{db_name}' is created."
-        rescue AlreadyExistsError
-          # do nothing
-        end
-      rescue ForbiddenError
-        # do nothing
-      end
-
-      API.validate_table_name(table_name)
-      begin
-        client.create_log_table(db_name, table_name)
-        $stderr.puts "Table '#{db_name}.#{table_name}' is created."
-      rescue AlreadyExistsError
-      end
+      create_database_and_table_if_not_exist(client, db_name, table_name)
     end
 
-    case format
+    do_table_import(client, import_params)
+  end
+
+  private
+  def do_table_import(client, import_params)
+    case import_params[:format]
     when 'json', 'msgpack'
       #unless time_key
       #  $stderr.puts "-t, --time-key COL_NAME (e.g. '-t created_at') parameter is required for #{format} format"
       #  exit 1
       #end
-      if format == 'json'
+      if import_params[:format] == 'json'
         require 'json'
         require 'time'
-        parser = JsonParser.new(time_key)
+        parser = JsonParser.new(import_params[:time_key])
       else
-        parser = MessagePackParser.new(time_key)
+        parser = MessagePackParser.new(import_params[:time_key])
       end
 
     else  # apache, syslog
-      regexp, names, time_format = IMPORT_TEMPLATES[format]
+      regexp, names, time_format = IMPORT_TEMPLATES[import_params[:format]]
       if !regexp || !names || !time_format
-        $stderr.puts "Unknown format '#{format}'"
+        $stderr.puts "Unknown format '#{import_params[:format]}'"
         exit 1
       end
       parser = TextParser.new(names, regexp, time_format)
     end
 
     begin
-      db = client.database(db_name)
+      db = client.database(import_params[:db_name])
     rescue ForbiddenError => e
       $stdout.puts "Warning: database and table validation skipped - #{e.message}"
     else
       begin
-        table = db.table(table_name)
+        table = db.table(import_params[:table_name])
       rescue ForbiddenError => e
         $stdout.puts "Warning: table validation skipped - #{e.message}"
       end
@@ -466,7 +456,7 @@ module Command
     require 'zlib'
 
     begin
-      files = paths.map {|path|
+      files = import_params[:paths].map {|path|
         if path == '-'
           $stdin
         elsif path =~ /\.gz$/
@@ -484,14 +474,13 @@ module Command
     require 'tempfile'
     #require 'thread'
 
-    files.zip(paths).each {|file, path|
-      import_log_file(file, path, client, db_name, table_name, parser)
+    files.zip(import_params[:paths]).each {|file, path|
+      import_log_file(file, path, client, import_params[:db_name], import_params[:table_name], parser)
     }
 
     $stdout.puts "done."
   end
 
-  private
   def import_log_file(file, path, client, db_name, table_name, parser)
     $stdout.puts "importing #{path}..."
 

@@ -179,5 +179,43 @@ module TreasureData::Command
         end
       end
     end
+
+    describe '#table_import' do
+      let(:db_name)    { 'database' }
+      let(:table_name) { 'table' }
+      let(:client)     { double('client') }
+      let(:command)    { Class.new { include TreasureData::Command }.new }
+
+      describe 'auto create table' do
+        before do
+          command.stub(:get_client) { client }
+          command.stub(:do_table_import)
+        end
+
+        context 'set --auto-create-table' do
+          let(:option) {
+            List::CommandParser.new('table:import', [], %w(db_name table_name path), false, [db_name, table_name, 'path', '--auto-create-table'], true)
+          }
+
+          it 'create table' do
+            command.should_receive(:create_database_and_table_if_not_exist).with(client, db_name, table_name)
+
+            command.table_import(option)
+          end
+        end
+
+        context 'not set --auto-create-table' do
+          let(:option) {
+            List::CommandParser.new('table:import', [], %w(db_name table_name path), false, [db_name, table_name, 'path'], true)
+          }
+
+          it 'not create table' do
+            command.should_not_receive(:create_database_and_table_if_not_exist)
+
+            command.table_import(option)
+          end
+        end
+      end
+    end
   end
 end

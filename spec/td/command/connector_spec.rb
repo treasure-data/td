@@ -58,29 +58,75 @@ module TreasureData::Command
         Class.new { include TreasureData::Command }.new
       end
 
+      let(:stderr_io) do
+        StringIO.new
+      end
+
       subject do
         backup = $stdout.dup
+        stderr_backup = $stderr.dup
         buf = StringIO.new
 
         begin
           $stdout = buf
+          $stderr = stderr_io
 
-          op = List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
-          command.connector_issue(op)
+          command.connector_issue(option)
 
           buf.string
         ensure
           $stdout = backup
+          $stderr = stderr_backup
         end
       end
 
-      before do
-        client = double(:client, bulk_load_issue: 1234)
-        command.stub(:get_client).and_return(client)
+      describe 'queueing job' do
+        let(:option) {
+          List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
+        }
+
+        before do
+          client = double(:client, bulk_load_issue: 1234)
+          command.stub(:get_client).and_return(client)
+          command.stub(:create_database_and_table_if_not_exist)
+        end
+
+        it 'should include too_long_column_name without truncated' do
+          expect(subject).to include "Job 1234 is queued."
+        end
       end
 
-      it 'should include too_long_column_name without truncated' do
-        expect(subject).to include "Job 1234 is queued."
+      describe 'distination table' do
+        let(:client) { double(:client, bulk_load_issue: 1234) }
+
+        before do
+          command.stub(:get_client).and_return(client)
+          client.stub(:database)
+        end
+
+        context 'set auto crate table option' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table', '--auto-create-table'], true)
+          }
+
+          it 'call create_database_and_table_if_not_exist' do
+            command.should_receive(:create_database_and_table_if_not_exist)
+
+            subject
+          end
+        end
+
+        context 'not set auto crate table option' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)
+          }
+
+          it 'call create_database_and_table_if_not_exist' do
+            command.should_not_receive(:create_database_and_table_if_not_exist)
+
+            subject
+          end
+        end
       end
     end
   end

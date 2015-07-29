@@ -247,6 +247,30 @@ EOS
     table
   end
 
+  def create_database_and_table_if_not_exist(client, db_name, table_name)
+    # Merge with db_create and table_create after refactoring
+    API.validate_database_name(db_name)
+    begin
+      client.database(db_name)
+    rescue NotFoundError
+      begin
+        client.create_database(db_name)
+        $stderr.puts "Database '#{db_name}' is created."
+      rescue AlreadyExistsError
+        # do nothing
+      end
+    rescue ForbiddenError
+      # do nothing
+    end
+
+    API.validate_table_name(table_name)
+    begin
+      client.create_log_table(db_name, table_name)
+      $stderr.puts "Table '#{db_name}.#{table_name}' is created."
+    rescue AlreadyExistsError
+    end
+  end
+
   def ask_password(max=3, &block)
     3.times do
       begin
