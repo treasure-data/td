@@ -109,9 +109,9 @@ module Command
 
   def connector_issue(op)
     database = table = nil
-    time_column = nil
-    wait = exclude = false
-    auto_create = false
+    time_column      = nil
+    wait = exclude   = false
+    auto_create      = false
 
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
