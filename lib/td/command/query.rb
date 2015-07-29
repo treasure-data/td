@@ -142,7 +142,7 @@ module Command
 
     if wait
       wait_job(job, true)
-      $stdout.puts "Status     : #{job.status}"
+      $stdout.puts "Status      : #{job.status}"
       if job.success? && !exclude
         begin
           show_result_with_retry(job, output, limit, format, render_opts)
