@@ -291,33 +291,4 @@ module TreasureData::Command
       end
     end
   end
-
-  describe '#exist_table?' do
-    let(:command_class) { Class.new { include TreasureData::Command } }
-    let(:command)       { command_class.new }
-    let(:client)        { double(:client) }
-    let(:database)      { double(:database) }
-    let(:database_name) { 'database' }
-    let(:table_name)    { 'table1' }
-
-    before do
-      command.stub(:get_database).with(client, database_name) { database }
-    end
-
-    context 'table exist' do
-      it 'should return true' do
-        database.should_receive(:table).with(table_name) { double('table') }
-
-        expect(command.__send__(:exist_table?, client, database_name, table_name)).to be
-      end
-    end
-
-    context 'table does not exist' do
-      it 'should return true' do
-        database.should_receive(:table).with(table_name) { raise TreasureData::NotFoundError }
-
-        expect(command.__send__(:exist_table?, client, database_name, table_name)).not_to be
-      end
-    end
-  end
 end

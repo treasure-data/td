@@ -247,17 +247,6 @@ EOS
     table
   end
 
-  def exist_table?(client, db_name, table_name)
-    db = get_database(client, db_name)
-    begin
-      db.table(table_name)
-
-      true
-    rescue TreasureData::NotFoundError
-      false
-    end
-  end
-
   def create_database_and_table_if_not_exist(client, db_name, table_name)
     # Merge with db_create and table_create after refactoring
     API.validate_database_name(db_name)
