@@ -17,7 +17,7 @@ module TreasureData::Command
         create_tables = lambda {|db_name|
           (1..6).map {|i|
             schema = TreasureData::Schema.new.from_json(JSON.parse('[]'))
-            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil, nil, nil)
+            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil)
           }
         }
         db_tables = create_tables.call(db.name)
@@ -44,7 +44,7 @@ module TreasureData::Command
         create_tables = lambda {|db_name|
           (1..6).map {|i|
             schema = TreasureData::Schema.new.from_json(JSON.parse('[]'))
-            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil, nil, nil)
+            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil)
           }
         }
         qo_db_tables = create_tables.call(qo_db.name)
@@ -92,7 +92,7 @@ module TreasureData::Command
         create_tables = lambda {|db_name|
           (1..6).map {|i|
             schema = TreasureData::Schema.new.from_json(JSON.parse('[]'))
-            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil, nil, nil)
+            TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, 500, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil)
           }
         }
         qo_db_tables = create_tables.call(qo_db.name)
@@ -131,7 +131,7 @@ module TreasureData::Command
           create_tables = lambda {|db_name|
             (1..6).map {|i|
               schema = TreasureData::Schema.new.from_json(JSON.parse('[]'))
-              TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, number_raw, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil, nil, nil)
+              TreasureData::Table.new(client, db_name, db_name + "_table_#{i}", 'log', schema, number_raw, Time.now.to_i, Time.now.to_i, 0, nil, nil, nil)
             }
           }
           db_tables = create_tables.call(db.name)
