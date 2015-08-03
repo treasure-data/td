@@ -47,3 +47,5 @@ def execute_td(command_line)
 
   [captured_stderr.string, captured_stdout.string]
 end
+
+class CallSystemExitError < RuntimeError; end
