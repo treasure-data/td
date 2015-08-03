@@ -230,15 +230,15 @@ module Command
     client = get_client()
     rows = client.bulk_load_history(name).map { |e|
       {
-        :JobID => e.job_id,
-        :Status => e.status,
-        :Records => e.records,
+        :JobID => e['job_id'],
+        :Status => e['status'],
+        :Records => e['records'],
         # TODO: td-client-ruby should retuan only name
-        :Database => e.database['name'],
-        :Table => e.table['name'],
-        :Priority => e.priority,
-        :Started => Time.at(e.start_at),
-        :Duration => (e.end_at.nil? ? Time.now.to_i : e.end_at) - e.start_at,
+        :Database => e['database']['name'],
+        :Table => e['table']['name'],
+        :Priority => e['priority'],
+        :Started => Time.at(e['start_at']),
+        :Duration => (e['end_at'].nil? ? Time.now.to_i : e['end_at']) - e['start_at'],
       }
     }
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
