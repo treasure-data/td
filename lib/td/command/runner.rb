@@ -187,12 +187,13 @@ EOF
       if ![ParameterConfigurationError, BulkImportExecutionError, UpdateError, ImportError,
             APIError, ForbiddenError, NotFoundError, AuthError].include?(e.class) ||
          !ENV['TD_TOOLBELT_DEBUG'].nil? || $verbose
-        $stderr.puts "Error #{$!.class}: backtrace:"
-        $!.backtrace.each {|bt|
-          $stderr.puts "  #{bt}"
-        }
-        $stdout.puts ""
+        show_backtrace "Error #{$!.class}: backtrace:", $!.backtrace
       end
+
+      if $!.respond_to? :api_backtrace
+        show_backtrace "Error backtrace from server:", $!.api_backtrace.split("\n")
+      end
+
       $stdout.print "Error: "
       if [ForbiddenError, NotFoundError, AuthError].include?(e.class)
         $stdout.print "#{e.class} - "
@@ -211,6 +212,16 @@ EOS
       return 1
     end
     return 0
+  end
+
+  private
+
+  def show_backtrace(message, backtrace)
+    $stderr.puts message
+    backtrace.each {|bt|
+      $stderr.puts "  #{bt}"
+    }
+    $stdout.puts ""
   end
 end # class Runner
 
