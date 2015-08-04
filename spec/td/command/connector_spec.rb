@@ -5,6 +5,47 @@ require 'td/command/connector'
 
 module TreasureData::Command
   describe 'connector commands' do
+    describe '#connector_guess' do
+      let :command do
+        Class.new { include TreasureData::Command }.new
+      end
+
+      describe 'guess plugins' do
+        let(:guess_plugins) { %w(json query_string) }
+        let(:in_file)  { Tempfile.new('in.yml') }
+        let(:out_file) { Tempfile.new('out.yml') }
+        let(:option) {
+          List::CommandParser.new("connector:guess", ["config"], [], nil, [in_file.path, '-o', out_file.path, '--guess', guess_plugins.join(',')], true)
+        }
+        let(:client) { double(:client) }
+
+        before do
+          command.stub(:get_client).and_return(client)
+        end
+
+        let(:config) {
+          {
+            'in' => {'type' => 's3'}
+          }
+        }
+        let(:expect_config) {
+          config.merge('out' => {}, 'exec' => {'guess_plugins' => guess_plugins})
+        }
+
+        include_context 'quiet_out'
+
+        before do
+          command.stub(:prepare_bulkload_job_config).and_return(config)
+        end
+
+        it 'guess_plugins passed td-client' do
+          client.should_receive(:bulk_load_guess).with({config: expect_config}).and_return({})
+
+          command.connector_guess(option)
+        end
+      end
+    end
+
     describe '#connector_preview' do
       let :command do
         Class.new { include TreasureData::Command }.new
