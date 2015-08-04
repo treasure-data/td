@@ -1,5 +1,6 @@
 require 'td/command/common'
 require 'td/command/job'
+require 'td/connector_config_normalizer'
 require 'json'
 require 'uri'
 require 'yaml'
@@ -293,13 +294,7 @@ private
       raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
 
-    if config['config']
-      if config.size != 1
-        raise "Setting #{(config.keys - ['config']).inspect} keys in a configuration file is not supported. Please set options to the command line argument."
-      end
-      config = config['config']
-    end
-    config
+    TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
   end
 
   def create_bulkload_job_file_backup(out)
