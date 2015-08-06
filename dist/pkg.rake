@@ -36,8 +36,9 @@ task 'pkg:build' => :build do
     # create ./bundle/Distribution
     install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
-    sh "pkgutil --expand #{project_root_path('dist/resources/pkg/ruby-2.0.0-p0.pkg')} ruby"
-    mv "ruby/ruby-2.0.0-p0.pkg", "bundle/ruby.pkg"
+    ruby_version = '2.2.2'
+    sh "pkgutil --expand #{project_root_path("dist/resources/pkg/ruby-#{ruby_version}.pkg")} ruby"
+    mv "ruby/ruby-#{ruby_version}.pkg", "bundle/ruby.pkg"
 
     # create td-a.b.c.pkg
     sh "pkgutil --flatten bundle td-#{version}.pkg"
