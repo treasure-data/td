@@ -345,7 +345,7 @@ module List
   add_list 'connector:guess', %w[config?], 'Run guess to generate connector config file', ["connector:guess config.yml -o td-bulkload.yml\n\nexample config.yml:#{connector_guess_example_config}"]
   add_list 'connector:preview', %w[config], 'Show preview of connector execution', ['connector:preview td-bulkload.yml']
 
-  add_list 'connector:issue', %w[config], 'Run one time connector execution', ['connector:issue td-bulkload.yml']
+  add_list 'connector:issue', %w[config database table], 'Run one time connector execution', ['connector:issue example_db event_logs td-bulkload.yml']
 
   add_list 'connector:list', %w[], 'Show list of connector sessions', ['connector:list']
   add_list 'connector:create', %w[name cron database table config], 'Create new connector session', ['connector:create connector1 "0 * * * *" connector_database connector_table td-bulkload.yml']

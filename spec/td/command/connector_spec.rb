@@ -80,6 +80,44 @@ module TreasureData::Command
         end
       end
 
+      describe 'database and table arguments' do
+        let(:database) { 'database' }
+        let(:table)    { 'table' }
+        let(:config)   { {} }
+
+        before do
+          client = double(:client)
+          command.stub(:get_client).and_return(client)
+          command.stub(:create_database_and_table_if_not_exist)
+          command.stub(:prepare_bulkload_job_config).and_return(config)
+          client.should_receive(:bulk_load_issue).with(database, table, {config: config}).and_return(1234)
+
+          subject
+        end
+
+        context 'set --database and --table' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', database, '--table', table], true)
+          }
+
+          it 'show warning' do
+            expect(stderr_io.string).to include '--database is obsolete option'
+            expect(stderr_io.string).to include '--table is obsolete option'
+          end
+        end
+
+        context 'set arguments' do
+          let(:option) {
+            List::CommandParser.new("connector:issue", ["config", 'database', 'table'], [], nil, [database, table, File.join("spec", "td", "fixture", "bulk_load.yml")], true)
+          }
+
+          it 'no warning' do
+            expect(stderr_io.string).not_to include '--database is obsolete option'
+            expect(stderr_io.string).not_to include '--table is obsolete option'
+          end
+        end
+      end
+
       describe 'queueing job' do
         let(:option) {
           List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', 'database', '--table', 'table'], true)

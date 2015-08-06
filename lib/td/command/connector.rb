@@ -104,17 +104,23 @@ module Command
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format, :resize => false)
 
     $stdout.puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
-    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run Server-side bulk load."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue database_name table_name #{config_file}' to run Server-side bulk load."
   end
 
   def connector_issue(op)
-    database = table = nil
-    time_column      = nil
-    wait = exclude   = false
-    auto_create      = false
+    option_database = option_table = nil
+    time_column     = nil
+    wait = exclude  = false
+    auto_create     = false
 
-    op.on('--database DB_NAME', "destination database") { |s| database = s }
-    op.on('--table TABLE_NAME', "destination table") { |s| table = s }
+    op.on('--database DB_NAME', "(obsoleted)") { |s|
+      $stderr.puts '--database is obsolete option'
+      option_database = s
+    }
+    op.on('--table TABLE_NAME', "(obsoleted)") { |s|
+      $stderr.puts '--table is obsolete option'
+      option_table = s
+    }
     op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
@@ -122,10 +128,19 @@ module Command
       auto_create = b
     }
 
-    config_file = op.cmd_parse
+    database, table, config_file = nil
+    args = op.cmd_parse
 
-    required('--database', database)
-    required('--table', table)
+    if args.instance_of? String
+      config_file = args
+      database    = option_database
+      table       = option_table
+    else
+      database, table, config_file = args
+    end
+
+    required('database', database)
+    required('table', table)
 
     config = prepare_bulkload_job_config(config_file)
     (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
