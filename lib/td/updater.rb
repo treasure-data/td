@@ -142,7 +142,7 @@ module ModuleDefinition
   end
 
   def version_endpoint
-    "#{endpoint_root}/lataest_version.#{package_category}"
+    "#{endpoint_root}/latest_version.#{package_category}"
   end
 
   def update_package_endpoint

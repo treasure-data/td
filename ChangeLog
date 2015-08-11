@@ -1,3 +1,11 @@
+== 2015-08-10 version 0.12.0
+
+* Improve error message from APIError
+  split API backtrace from error message
+* Update Toolbelt Ruby version to 2.2.2.
+  So, can't `td update` from td version 0.11.14.
+  Please, re-install.
+
 == 2015-08-03 version 0.11.14
 
 * fix connector:history was broken.
