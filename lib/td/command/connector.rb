@@ -38,8 +38,9 @@ module Command
     end
 
     config = generate_seed_confing(type, arg, options)
-
     config_str = YAML.dump(config)
+
+    create_bulkload_job_file_backup(out)
     File.open(out, 'w') {|f| f << config_str }
 
     $stdout.puts "initialize configuration:"
