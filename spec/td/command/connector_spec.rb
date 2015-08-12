@@ -5,6 +5,74 @@ require 'td/command/connector'
 
 module TreasureData::Command
   describe 'connector commands' do
+    describe '#connector_init' do
+      include_context 'quiet_out'
+
+      let :command do
+        Class.new { include TreasureData::Command }.new
+      end
+      let :option do
+        List::CommandParser.new("connector:init", ["url"], [], nil, arguments, true)
+      end
+      let :out_file do
+        Tempfile.new("seed.yml").tap {|s| s.close }
+      end
+
+      before do
+        command.connector_init(option)
+      end
+
+      subject(:generated_config) { YAML.load_file(out_file.path) }
+
+      %w(csv tsv).each do |format|
+        context "--format #{format}" do
+          context 'use path' do
+            let(:path_prefix)   { 'path/to/prefix_' }
+            let(:arguments)     { ["#{path_prefix}*.#{format}", '--format', format, '-o', out_file.path] }
+
+            it 'generate configuration file' do
+              expect(generated_config).to eq({
+                'in' => {
+                  'type'              => 's3',
+                  'access_key_id'     => '',
+                  'secret_access_key' => '',
+                  'bucket'            => '',
+                  'path_prefix'       => path_prefix,
+                },
+                'out' => {
+                  'mode' => 'append'
+                }
+              })
+            end
+          end
+
+          context 'use s3 scheme' do
+            let(:s3_access_key) { 'ABCDEFGHIJKLMN' }
+            let(:s3_secret_key) { '1234ABCDEFGHIJKLMN' }
+            let(:buckt_name)    { 'my_bucket' }
+            let(:path_prefix)   { 'path/to/prefix_' }
+            let(:s3_url)        { "s3://#{s3_access_key}:#{s3_secret_key}@/#{buckt_name}/#{path_prefix}*.#{format}" }
+            let(:arguments)     { [s3_url, '--format', format, '-o', out_file.path] }
+
+            it 'generate configuration file' do
+              expect(generated_config).to eq({
+                'in' => {
+                  'type'              => 's3',
+                  'access_key_id'     => s3_access_key,
+                  'secret_access_key' => s3_secret_key,
+                  'bucket'            => buckt_name,
+                  'path_prefix'       => path_prefix,
+                },
+                'out' => {
+                  'mode' => 'append'
+                }
+              })
+            end
+          end
+        end
+      end
+    end
+
     describe '#connector_guess' do
       let :command do
         Class.new { include TreasureData::Command }.new

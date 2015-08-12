@@ -332,6 +332,7 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
+  add_list 'connector:init', %w[files_], 'create guess config from arguments', ['connector:init "s3://<s3_access_key>:<s3_secret_key>@/my_bucket/path/to/*.csv" -o seed.yml']
   connector_guess_example_config = "
   in:
     type: s3

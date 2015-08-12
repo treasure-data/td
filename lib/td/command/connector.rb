@@ -14,6 +14,74 @@ module Command
     end
   end
 
+  def connector_init(op)
+    out = 'td-bulkload.yml'
+    options = {
+      'format' => 'csv'
+    }
+    op.on('-o', '--out FILE_NAME', "output file name for connector:guess") { |s| out = s }
+    op.on('-f', '--format FORMAT', "source file format [csv, tsv, mysql]; default=csv") { |s| options['format'] = s }
+
+    arg = op.cmd_parse
+
+    type = case options['format']
+    when 'mysql'
+      'mysql'
+    when 'csv', 'tsv'
+      's3'
+    else
+      # TODO raise
+    end
+
+    config = generate_seed_confing(type, arg, options)
+
+    config_str = YAML.dump(config)
+    File.open(out, 'w') {|f| f << config_str }
+
+    $stdout.puts "initialize configuration:"
+    $stdout.puts
+    $stdout.puts config_str
+    $stdout.puts
+    $stdout.puts "Created #{out} file."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:guess #{out}' to create bulk load configuration."
+  end
+
+  def generate_seed_confing(type, arg, options)
+    config = {'in' => {'type' => type}, 'out' => {'mode' => 'append'}}
+
+    case type
+    when 's3'
+      config['in'].merge! parse_s3_arg(arg)
+    when 'mysql'
+    else
+      # TODO raise
+    end
+
+    config
+  end
+
+  def parse_s3_arg(arg)
+    if match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
+      {
+        'access_key_id'     => match[1],
+        'secret_access_key' => match[2],
+        'bucket'            => match[3],
+        'path_prefix'       => normalize_path_prefix(match[4])
+      }
+    else
+      {
+        'access_key_id'     => '',
+        'secret_access_key' => '',
+        'bucket'            => '',
+        'path_prefix'       => normalize_path_prefix(arg)
+      }
+    end
+  end
+
+  def normalize_path_prefix(path)
+    path.gsub(/\*.*/, '')
+  end
+
   def connector_guess(op)
     type = 's3'
     id = secret = source = nil
