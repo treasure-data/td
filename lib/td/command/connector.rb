@@ -51,68 +51,6 @@ module Command
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:guess #{out}' to create bulk load configuration."
   end
 
-  def generate_seed_confing(type, arg, options)
-    config = {'in' => {'type' => type}, 'out' => {'mode' => 'append'}}
-
-    case type
-    when 's3'
-      config['in'].merge! parse_s3_arg(arg)
-    when 'mysql'
-      arg = arg[1] unless arg.class == String
-      config['in'].merge! parse_mysql_args(arg, options)
-    else
-      # NOOP
-    end
-
-    config
-  end
-
-  def parse_s3_arg(arg)
-    if match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
-      {
-        'access_key_id'     => match[1],
-        'secret_access_key' => match[2],
-        'bucket'            => match[3],
-        'path_prefix'       => normalize_path_prefix(match[4])
-      }
-    else
-      {
-        'access_key_id'     => '',
-        'secret_access_key' => '',
-        'bucket'            => '',
-        'path_prefix'       => normalize_path_prefix(arg)
-      }
-    end
-  end
-
-  def normalize_path_prefix(path)
-    path.gsub(/\*.*/, '')
-  end
-
-  def parse_mysql_args(arg, options)
-    mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
-    config = if (match = mysql_url_regexp.match(options['db_url']))
-      {
-        'host'     => match['host'],
-        'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
-        'database' => match['db_name'],
-      }
-    else
-      {
-        'host'     => '',
-        'port'     => 3306,
-        'database' => '',
-      }
-    end
-
-    config.merge(
-      'user'     => options['db_user'],
-      'password' => options['db_password'],
-      'table'    => arg,
-      'select'   => '*',
-    )
-  end
-
   def connector_guess(op)
     type = 's3'
     id = secret = source = nil
@@ -369,6 +307,69 @@ module Command
   end
 
 private
+
+  def generate_seed_confing(type, arg, options)
+    config = {'in' => {'type' => type}, 'out' => {'mode' => 'append'}}
+
+    case type
+    when 's3'
+      config['in'].merge! parse_s3_arg(arg)
+    when 'mysql'
+      arg = arg[1] unless arg.class == String
+      config['in'].merge! parse_mysql_args(arg, options)
+    else
+      # NOOP
+    end
+
+    config
+  end
+
+  def parse_s3_arg(arg)
+    if match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
+      {
+        'access_key_id'     => match[1],
+        'secret_access_key' => match[2],
+        'bucket'            => match[3],
+        'path_prefix'       => normalize_path_prefix(match[4])
+      }
+    else
+      {
+        'access_key_id'     => '',
+        'secret_access_key' => '',
+        'bucket'            => '',
+        'path_prefix'       => normalize_path_prefix(arg)
+      }
+    end
+  end
+
+  def normalize_path_prefix(path)
+    path.gsub(/\*.*/, '')
+  end
+
+  def parse_mysql_args(arg, options)
+    mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
+    config = if (match = mysql_url_regexp.match(options['db_url']))
+      {
+        'host'     => match['host'],
+        'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
+        'database' => match['db_name'],
+      }
+    else
+      {
+        'host'     => '',
+        'port'     => 3306,
+        'database' => '',
+      }
+    end
+
+    config.merge(
+      'user'     => options['db_user'],
+      'password' => options['db_password'],
+      'table'    => arg,
+      'select'   => '*',
+    )
+  end
+
 
   def file_type(str)
     begin
