@@ -49,3 +49,21 @@ def execute_td(command_line)
 end
 
 class CallSystemExitError < RuntimeError; end
+
+shared_context 'quiet_out' do
+  let(:stdout_io) { StringIO.new }
+  let(:stderr_io) { StringIO.new }
+
+  around do |example|
+    out = $stdout.dup
+    err= $stdout.dup
+    begin
+      $stdout = stdout_io
+      $stderr = stderr_io
+      example.call
+    ensure
+      $stdout = out
+      $stderr = err
+    end
+  end
+end
