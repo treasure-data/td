@@ -48,6 +48,7 @@ module Command
     $stdout.puts config_str
     $stdout.puts
     $stdout.puts "Created #{out} file."
+    $stdout.puts "If you need to change, please modify #{out}."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:guess #{out}' to create bulk load configuration."
   end
 
