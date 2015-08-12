@@ -12,7 +12,7 @@ module TreasureData::Command
         Class.new { include TreasureData::Command }.new
       end
       let :option do
-        List::CommandParser.new("connector:init", ["url"], [], nil, arguments, true)
+        List::CommandParser.new("connector:init", args, [], nil, arguments, true)
       end
       let :out_file do
         Tempfile.new("seed.yml").tap {|s| s.close }
@@ -26,6 +26,7 @@ module TreasureData::Command
 
       %w(csv tsv).each do |format|
         context "--format #{format}" do
+          let(:args) { ['url'] }
           context 'use path' do
             let(:path_prefix)   { 'path/to/prefix_' }
             let(:arguments)     { ["#{path_prefix}*.#{format}", '--format', format, '-o', out_file.path] }
@@ -68,6 +69,78 @@ module TreasureData::Command
                 }
               })
             end
+          end
+        end
+      end
+
+      context 'format is mysql' do
+        let(:format)   { 'mysql' }
+        let(:host)     { 'localhost' }
+        let(:database) { 'database' }
+        let(:user)     { 'my_user' }
+        let(:password) { 'my_password' }
+        let(:table)    { 'my_table' }
+
+        let(:expected_config) {
+          {
+            'in' => {
+              'type'     => 'mysql',
+              'host'     => host,
+              'port'     => port,
+              'database' => database,
+              'user'     => user,
+              'password' => password,
+              'table'    => table,
+              'select'   => "*",
+            },
+            'out' => {
+              'mode' => 'append'
+            }
+          }
+        }
+
+        context 'like import:prepare arguments' do
+          let(:args) { ['url'] }
+          let(:arguments) { [table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
+
+          context 'scheme is jdbc' do
+            let(:port)      { 3333 }
+            let(:mysql_url) { "jdbc:mysql://#{host}:#{port}/#{database}" }
+
+            it 'generate configuration file' do
+              expect(generated_config).to eq expected_config
+            end
+          end
+
+          context 'scheme is mysql' do
+            context 'with port' do
+              let(:port)      { 3333 }
+              let(:mysql_url) { "mysql://#{host}:#{port}/#{database}" }
+
+              it 'generate configuration file' do
+                expect(generated_config).to eq expected_config
+              end
+            end
+
+            context 'without port' do
+              let(:mysql_url) { "mysql://#{host}/#{database}" }
+              let(:port) { 3306 }
+
+              it 'generate configuration file' do
+                expect(generated_config).to eq expected_config
+              end
+            end
+          end
+        end
+
+        context 'like import:upload arguments' do
+          let(:args)      { ['session', 'url'] }
+          let(:arguments) { ['session', table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
+          let(:mysql_url) { "jdbc:mysql://#{host}/#{database}" }
+          let(:port)      { 3306 }
+
+          it 'generate configuration file' do
+            expect(generated_config).to eq expected_config
           end
         end
       end

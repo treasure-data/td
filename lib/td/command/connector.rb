@@ -22,6 +22,10 @@ module Command
     op.on('-o', '--out FILE_NAME', "output file name for connector:guess") { |s| out = s }
     op.on('-f', '--format FORMAT', "source file format [csv, tsv, mysql]; default=csv") { |s| options['format'] = s }
 
+    op.on('--db-url URL',           "Database Connection URL") { |s| options['db_url']      = s }
+    op.on('--db-user NAME',         "user name for database")  { |s| options['db_user']     = s }
+    op.on('--db-password PASSWORD', "password for database")   { |s| options['db_password'] = s }
+
     arg = op.cmd_parse
 
     type = case options['format']
@@ -53,6 +57,8 @@ module Command
     when 's3'
       config['in'].merge! parse_s3_arg(arg)
     when 'mysql'
+      arg = arg[1] unless arg.class == String
+      config['in'].merge! parse_mysql_args(arg, options)
     else
       # TODO raise
     end
@@ -80,6 +86,30 @@ module Command
 
   def normalize_path_prefix(path)
     path.gsub(/\*.*/, '')
+  end
+
+  def parse_mysql_args(arg, options)
+    mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
+    config = if (match = mysql_url_regexp.match(options['db_url']))
+      {
+        'host'     => match['host'],
+        'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
+        'database' => match['db_name'],
+      }
+    else
+      {
+        'host'     => '',
+        'port'     => 3306,
+        'database' => '',
+      }
+    end
+
+    config.merge(
+      'user'     => options['db_user'],
+      'password' => options['db_password'],
+      'table'    => arg,
+      'select'   => '*',
+    )
   end
 
   def connector_guess(op)
