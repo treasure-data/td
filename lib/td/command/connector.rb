@@ -34,7 +34,7 @@ module Command
     when 'csv', 'tsv'
       's3'
     else
-      # TODO raise
+      raise ParameterConfigurationError, "#{options['format']} is unknown format. Support format is csv, tsv and mysql."
     end
 
     config = generate_seed_confing(type, arg, options)
@@ -61,7 +61,7 @@ module Command
       arg = arg[1] unless arg.class == String
       config['in'].merge! parse_mysql_args(arg, options)
     else
-      # TODO raise
+      # NOOP
     end
 
     config

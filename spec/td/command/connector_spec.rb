@@ -18,129 +18,142 @@ module TreasureData::Command
         Tempfile.new("seed.yml").tap {|s| s.close }
       end
 
-      before do
-        command.connector_init(option)
-      end
+      context 'unknown format' do
+        let(:args) { ['url'] }
+        let(:arguments) { ['localhost', '--format', 'msgpack', '-o', out_file.path] }
 
-      subject(:generated_config) { YAML.load_file(out_file.path) }
-
-      %w(csv tsv).each do |format|
-        context "--format #{format}" do
-          let(:args) { ['url'] }
-          context 'use path' do
-            let(:path_prefix)   { 'path/to/prefix_' }
-            let(:arguments)     { ["#{path_prefix}*.#{format}", '--format', format, '-o', out_file.path] }
-
-            it 'generate configuration file' do
-              expect(generated_config).to eq({
-                'in' => {
-                  'type'              => 's3',
-                  'access_key_id'     => '',
-                  'secret_access_key' => '',
-                  'bucket'            => '',
-                  'path_prefix'       => path_prefix,
-                },
-                'out' => {
-                  'mode' => 'append'
-                }
-              })
-            end
-          end
-
-          context 'use s3 scheme' do
-            let(:s3_access_key) { 'ABCDEFGHIJKLMN' }
-            let(:s3_secret_key) { '1234ABCDEFGHIJKLMN' }
-            let(:buckt_name)    { 'my_bucket' }
-            let(:path_prefix)   { 'path/to/prefix_' }
-            let(:s3_url)        { "s3://#{s3_access_key}:#{s3_secret_key}@/#{buckt_name}/#{path_prefix}*.#{format}" }
-            let(:arguments)     { [s3_url, '--format', format, '-o', out_file.path] }
-
-            it 'generate configuration file' do
-              expect(generated_config).to eq({
-                'in' => {
-                  'type'              => 's3',
-                  'access_key_id'     => s3_access_key,
-                  'secret_access_key' => s3_secret_key,
-                  'bucket'            => buckt_name,
-                  'path_prefix'       => path_prefix,
-                },
-                'out' => {
-                  'mode' => 'append'
-                }
-              })
-            end
-          end
+        it 'exit command' do
+          expect {
+            command.connector_init(option)
+          }.to raise_error TreasureData::Command::ParameterConfigurationError
         end
       end
 
-      context 'format is mysql' do
-        let(:format)   { 'mysql' }
-        let(:host)     { 'localhost' }
-        let(:database) { 'database' }
-        let(:user)     { 'my_user' }
-        let(:password) { 'my_password' }
-        let(:table)    { 'my_table' }
+      context 'support format' do
+        before do
+          command.connector_init(option)
+        end
 
-        let(:expected_config) {
-          {
-            'in' => {
-              'type'     => 'mysql',
-              'host'     => host,
-              'port'     => port,
-              'database' => database,
-              'user'     => user,
-              'password' => password,
-              'table'    => table,
-              'select'   => "*",
-            },
-            'out' => {
-              'mode' => 'append'
+        subject(:generated_config) { YAML.load_file(out_file.path) }
+
+        %w(csv tsv).each do |format|
+          context "--format #{format}" do
+            let(:args) { ['url'] }
+            context 'use path' do
+              let(:path_prefix)   { 'path/to/prefix_' }
+              let(:arguments)     { ["#{path_prefix}*.#{format}", '--format', format, '-o', out_file.path] }
+
+              it 'generate configuration file' do
+                expect(generated_config).to eq({
+                  'in' => {
+                    'type'              => 's3',
+                    'access_key_id'     => '',
+                    'secret_access_key' => '',
+                    'bucket'            => '',
+                    'path_prefix'       => path_prefix,
+                  },
+                  'out' => {
+                    'mode' => 'append'
+                  }
+                })
+              end
+            end
+
+            context 'use s3 scheme' do
+              let(:s3_access_key) { 'ABCDEFGHIJKLMN' }
+              let(:s3_secret_key) { '1234ABCDEFGHIJKLMN' }
+              let(:buckt_name)    { 'my_bucket' }
+              let(:path_prefix)   { 'path/to/prefix_' }
+              let(:s3_url)        { "s3://#{s3_access_key}:#{s3_secret_key}@/#{buckt_name}/#{path_prefix}*.#{format}" }
+              let(:arguments)     { [s3_url, '--format', format, '-o', out_file.path] }
+
+              it 'generate configuration file' do
+                expect(generated_config).to eq({
+                  'in' => {
+                    'type'              => 's3',
+                    'access_key_id'     => s3_access_key,
+                    'secret_access_key' => s3_secret_key,
+                    'bucket'            => buckt_name,
+                    'path_prefix'       => path_prefix,
+                  },
+                  'out' => {
+                    'mode' => 'append'
+                  }
+                })
+              end
+            end
+          end
+        end
+
+        context 'format is mysql' do
+          let(:format)   { 'mysql' }
+          let(:host)     { 'localhost' }
+          let(:database) { 'database' }
+          let(:user)     { 'my_user' }
+          let(:password) { 'my_password' }
+          let(:table)    { 'my_table' }
+
+          let(:expected_config) {
+            {
+              'in' => {
+                'type'     => 'mysql',
+                'host'     => host,
+                'port'     => port,
+                'database' => database,
+                'user'     => user,
+                'password' => password,
+                'table'    => table,
+                'select'   => "*",
+              },
+              'out' => {
+                'mode' => 'append'
+              }
             }
           }
-        }
 
-        context 'like import:prepare arguments' do
-          let(:args) { ['url'] }
-          let(:arguments) { [table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
+          context 'like import:prepare arguments' do
+            let(:args) { ['url'] }
+            let(:arguments) { [table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
 
-          context 'scheme is jdbc' do
-            let(:port)      { 3333 }
-            let(:mysql_url) { "jdbc:mysql://#{host}:#{port}/#{database}" }
+            context 'scheme is jdbc' do
+              let(:port)      { 3333 }
+              let(:mysql_url) { "jdbc:mysql://#{host}:#{port}/#{database}" }
+
+              it 'generate configuration file' do
+                expect(generated_config).to eq expected_config
+              end
+            end
+
+            context 'scheme is mysql' do
+              context 'with port' do
+                let(:port)      { 3333 }
+                let(:mysql_url) { "mysql://#{host}:#{port}/#{database}" }
+
+                it 'generate configuration file' do
+                  expect(generated_config).to eq expected_config
+                end
+              end
+
+              context 'without port' do
+                let(:mysql_url) { "mysql://#{host}/#{database}" }
+                let(:port) { 3306 }
+
+                it 'generate configuration file' do
+                  expect(generated_config).to eq expected_config
+                end
+              end
+            end
+          end
+
+          context 'like import:upload arguments' do
+            let(:args)      { ['session', 'url'] }
+            let(:arguments) { ['session', table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
+            let(:mysql_url) { "jdbc:mysql://#{host}/#{database}" }
+            let(:port)      { 3306 }
 
             it 'generate configuration file' do
               expect(generated_config).to eq expected_config
             end
-          end
-
-          context 'scheme is mysql' do
-            context 'with port' do
-              let(:port)      { 3333 }
-              let(:mysql_url) { "mysql://#{host}:#{port}/#{database}" }
-
-              it 'generate configuration file' do
-                expect(generated_config).to eq expected_config
-              end
-            end
-
-            context 'without port' do
-              let(:mysql_url) { "mysql://#{host}/#{database}" }
-              let(:port) { 3306 }
-
-              it 'generate configuration file' do
-                expect(generated_config).to eq expected_config
-              end
-            end
-          end
-        end
-
-        context 'like import:upload arguments' do
-          let(:args)      { ['session', 'url'] }
-          let(:arguments) { ['session', table, '--db-url', mysql_url, '--db-user', user, '--db-password', password, '--format', 'mysql', '-o', out_file.path] }
-          let(:mysql_url) { "jdbc:mysql://#{host}/#{database}" }
-          let(:port)      { 3306 }
-
-          it 'generate configuration file' do
-            expect(generated_config).to eq expected_config
           end
         end
       end
