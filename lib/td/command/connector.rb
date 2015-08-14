@@ -1,5 +1,6 @@
 require 'td/command/common'
 require 'td/command/job'
+require 'td/connector_config_normalizer'
 require 'json'
 require 'uri'
 require 'yaml'
@@ -17,12 +18,16 @@ module Command
     type = 's3'
     id = secret = source = nil
     out = 'td-bulkload.yml'
+    guess_plugins = {}
 
     op.on('--type[=TYPE]', "(obsoleted)") { |s| type = s }
     op.on('--access-id ID', "(obsoleted)") { |s| id = s }
     op.on('--access-secret SECRET', "(obsoleted)") { |s| secret = s }
     op.on('--source SOURCE', "(obsoleted)") { |s| source = s }
     op.on('-o', '--out FILE_NAME', "output file name for connector:preview") { |s| out = s }
+    op.on('-g', '--guess NAME,NAME,...', 'specify list of guess plugins that users want to use') {|s|
+      guess_plugins['guess_plugins'] = s.split(',')
+    }
 
     config_file = op.cmd_parse
     if config_file
@@ -59,6 +64,9 @@ module Command
         :path_prefix => path_prefix,
       }
     end
+
+    config = TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
+    config['exec'].merge!(guess_plugins)
 
     client = get_client
     job = client.bulk_load_guess(config: config)
@@ -293,13 +301,7 @@ private
       raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
 
-    if config['config']
-      if config.size != 1
-        raise "Setting #{(config.keys - ['config']).inspect} keys in a configuration file is not supported. Please set options to the command line argument."
-      end
-      config = config['config']
-    end
-    config
+    TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
   end
 
   def create_bulkload_job_file_backup(out)
