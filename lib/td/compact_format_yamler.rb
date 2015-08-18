@@ -4,6 +4,13 @@ module TreasureData
   module CompactFormatYamler
     module Visitors
       class YAMLTree < Psych::Visitors::YAMLTree
+        # NOTE support 2.0 following
+        unless self.respond_to? :create
+          class << self
+            alias :create :new
+          end
+        end
+
         def visit_Hash o
           if o.class == ::Hash && o.values.all? {|v| v.kind_of?(Numeric) || v.kind_of?(String) || v.kind_of?(Symbol) }
             register(o, @emitter.start_mapping(nil, nil, true, Psych::Nodes::Mapping::FLOW))
