@@ -351,26 +351,28 @@ EOS
     files
   end
 
-  class DownloadProgressIndicator
-    def initialize(msg)
-      @base_msg = msg
-      $stdout.print @base_msg + " " * 10
-    end
-  end
-
-  class TimeBasedDownloadProgressIndicator < DownloadProgressIndicator
+  class TimeBasedDownloadProgressIndicator
     def initialize(msg, start_time, periodicity = 2)
+      require 'ruby-progressbar'
+
       @start_time = start_time
       @last_time = start_time
       @periodicity = periodicity
-      super(msg)
+
+      @progress_bar = ProgressBar.create(
+        title: msg,
+        total: nil,
+        format: formated_with_elasped_time(0),
+        output: $stdout,
+        unknown_progress_animation_steps: [' '],
+      )
+
+      update_progress_bar(formated_with_elasped_time(Command.humanize_elapsed_time(@start_time, @start_time)))
     end
 
     def update
       if (time = Time.now.to_i) - @last_time >= @periodicity
-        msg = "\r#{@base_msg}: #{Command.humanize_elapsed_time(@start_time, time)} elapsed"
-        $stdout.print "\r" + " " * (msg.length + 10)
-        $stdout.print msg
+        update_progress_bar(formated_with_elasped_time(Command.humanize_elapsed_time(@start_time, time)))
         @last_time = time
         true
       else
@@ -379,13 +381,37 @@ EOS
     end
 
     def finish
-      $stdout.puts "\r#{@base_msg}...done" + " " * 20
+      # NOTE %B is for clear terminal line
+      update_progress_bar("%t: done %B")
+    end
+
+    private
+
+    def formated_with_elasped_time(elasped_time)
+      # NOTE %B is for clear terminal line
+      "%t: #{elasped_time} elapsed %B"
+    end
+
+    def update_progress_bar(format)
+      @progress_bar.format = format
+      @progress_bar.refresh
     end
   end
 
-  class SizeBasedDownloadProgressIndicator < DownloadProgressIndicator
-    def initialize(msg, size, perc_step = 1, min_periodicity = nil)
-      @size = size
+  class SizeBasedDownloadProgressIndicator
+    def initialize(msg, total_size, perc_step = 1, min_periodicity = nil)
+      require 'ruby-progressbar'
+
+      @total_size = total_size
+      @total_byte_size = Command.humanize_bytesize(@total_size) unless unknown_progress_mode?
+
+      @progress_bar = ProgressBar.create(
+        title: msg,
+        total: unknown_progress_mode? ? nil : @total_size,
+        format: formated_title(0),
+        output: $stdout,
+      )
+      @progress_bar.refresh
 
       # perc_step is how small a percentage increment can be shown
       @perc_step = perc_step
@@ -397,22 +423,18 @@ EOS
       # track progress
       @last_perc_step = 0
       @last_time = @start_time
-
-      super(msg)
     end
 
     def update(curr_size)
-      if @size.nil? || @size == 0
-        msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)}"
-        $stdout.print msg
+      if unknown_progress_mode?
+        update_progress_bar(curr_size)
         true
       else
-        ratio = (curr_size.to_f * 100 / @size).round(1)
+        ratio = (curr_size.to_f * 100 / @total_size).round(1)
         if ratio >= (@last_perc_step + @perc_step) &&
            (!@min_periodicity || (time = Time.now.to_i) - @last_time >= @min_periodicity)
-          msg = "\r#{@base_msg}: #{Command.humanize_bytesize(curr_size)} / #{ratio}%"
-          $stdout.print "\r" + " " * (msg.length + 10)
-          $stdout.print msg
+          update_progress_bar(curr_size)
+
           @last_perc_step = ratio
           @last_time = time
           true
@@ -423,7 +445,32 @@ EOS
     end
 
     def finish
-      $stdout.print "\r#{@base_msg}...done" + " " * 20
+      if unknown_progress_mode?
+        @progress_bar.format = "%t : #{Command.humanize_bytesize(@progress_bar.progress).rjust(10)} Done"
+        @progress_bar.progress = 0
+      else
+        update_progress_bar(@progress_bar.total)
+      end
+    end
+
+    private
+
+    def unknown_progress_mode?
+      @total_size.nil? || @total_size == 0
+    end
+
+    def update_progress_bar(curr_size)
+      @progress_bar.format = formated_title(curr_size)
+      @progress_bar.progress = curr_size
+    end
+
+    def formated_title(curr_size)
+      if unknown_progress_mode?
+        "%t : #{Command.humanize_bytesize(curr_size).rjust(10)}"
+      else
+        rjust_size = @total_byte_size.size + 1
+        "%t #{Command.humanize_bytesize(curr_size).rjust(rjust_size)} / #{@total_byte_size.rjust(rjust_size)} : %w "
+      end
     end
   end
 
