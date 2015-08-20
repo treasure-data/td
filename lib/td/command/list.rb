@@ -269,6 +269,7 @@ module List
   add_list 'import:delete', %w[name], 'Delete a bulk import session', ['import:delete logs_201201']
   add_list 'import:freeze', %w[name], 'Reject succeeding uploadings to a bulk import session', ['import:freeze logs_201201']
   add_list 'import:unfreeze', %w[name], 'Unfreeze a frozen bulk import session', ['import:unfreeze logs_201201']
+  add_list 'import:config', %w[files_], 'create guess config from arguments', ['import:config "s3://<s3_access_key>:<s3_secret_key>@/my_bucket/path/to/*.csv" -o seed.yml']
 
   add_list 'result:list', %w[], 'Show list of result URLs', ['result:list', 'results']
   add_list 'result:show', %w[name], 'Describe information of a result URL', ['result name']
@@ -332,7 +333,6 @@ module List
 
   add_list 'update', %w[], 'Update td and related libraries for TreasureData toolbelt'
 
-  add_list 'connector:init', %w[files_], 'create guess config from arguments', ['connector:init "s3://<s3_access_key>:<s3_secret_key>@/my_bucket/path/to/*.csv" -o seed.yml']
   connector_guess_example_config = "
   in:
     type: s3
@@ -442,4 +442,3 @@ module List
 end # module List
 end # module Command
 end # module TreasureData
-
