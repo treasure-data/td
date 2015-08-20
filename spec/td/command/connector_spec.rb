@@ -12,8 +12,8 @@ module TreasureData::Command
 
       describe 'guess plugins' do
         let(:guess_plugins) { %w(json query_string) }
-        let(:in_file)  { Tempfile.new('in.yml') }
-        let(:out_file) { Tempfile.new('out.yml') }
+        let(:in_file)  { Tempfile.new('in.yml').tap{|f| f.close } }
+        let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
         let(:option) {
           List::CommandParser.new("connector:guess", ["config"], [], nil, [in_file.path, '-o', out_file.path, '--guess', guess_plugins.join(',')], true)
         }

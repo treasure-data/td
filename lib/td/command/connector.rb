@@ -75,7 +75,7 @@ module Command
     if /\.json\z/ =~ out
       config_str = JSON.pretty_generate(job['config'])
     else
-      config_str = YAML.dump(job['config'])
+      config_str = config_to_yaml(job['config'])
     end
     File.open(out, 'w') do |f|
       f << config_str
@@ -284,6 +284,19 @@ private
     end
     nil
   end
+
+  def config_to_yaml(config)
+    config_str = ''
+    begin
+      require 'td/compact_format_yamler'
+      config_str = TreasureData::CompactFormatYamler.dump(config)
+    rescue
+      # NOTE fail back
+      config_str = YAML.dump(config)
+    end
+    config_str
+  end
+
 
   def prepare_bulkload_job_config(config_file)
     unless File.exist?(config_file)
