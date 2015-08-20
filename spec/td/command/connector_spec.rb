@@ -90,7 +90,7 @@ module TreasureData::Command
           command.stub(:get_client).and_return(client)
           command.stub(:create_database_and_table_if_not_exist)
           command.stub(:prepare_bulkload_job_config).and_return(config)
-          client.should_receive(:bulk_load_issue).with(database, table, {config: config}).and_return(1234)
+          client.should_receive(:bulk_load_issue).with(database, table, {config: expect_config}).and_return(1234)
 
           subject
         end
@@ -98,6 +98,9 @@ module TreasureData::Command
         context 'set --database and --table' do
           let(:option) {
             List::CommandParser.new("connector:issue", ["config"], ['database', 'table'], nil, [File.join("spec", "td", "fixture", "bulk_load.yml"), '--database', database, '--table', table], true)
+          }
+          let(:expect_config) {
+            {'out' => {'database' => database, 'table' => table}}
           }
 
           it 'show warning' do
@@ -109,6 +112,9 @@ module TreasureData::Command
         context 'set arguments' do
           let(:option) {
             List::CommandParser.new("connector:issue", ["config", 'database', 'table'], [], nil, [database, table, File.join("spec", "td", "fixture", "bulk_load.yml")], true)
+          }
+          let(:expect_config) {
+            {'out' => {'database' => database, 'table' => table}}
           }
 
           it 'no warning' do
