@@ -113,14 +113,9 @@ module Command
     wait = exclude  = false
     auto_create     = false
 
-    op.on('--database DB_NAME', "(obsoleted)") { |s|
-      $stderr.puts '--database is obsolete option'
-      option_database = s
-    }
-    op.on('--table TABLE_NAME', "(obsoleted)") { |s|
-      $stderr.puts '--table is obsolete option'
-      option_table = s
-    }
+    on_with_obsolute_and_overwrite_config_warning(op, '--database DB_NAME') { |s| option_database = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--table TABLE_NAME') { |s| option_table = s }
+
     op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
@@ -158,6 +153,19 @@ module Command
 
     if wait
       wait_connector_job(client, job_id, exclude)
+    end
+  end
+
+  def on_with_obsolute_and_overwrite_config_warning(op, *args, &block)
+    options = args.each_with_object([]) do |arg, o|
+      arg.split("\s").each do |word|
+        o << word if word =~ /\A-/
+      end
+    end
+
+    op.on(*args, '(obsoleted)') do |s|
+      $stderr.puts "#{options.join(',')} #{options.size > 1 ? 'are' : 'is'} obsolete option. Even if you wrote in the configuration file, #{s} is used."
+      block.call(s)
     end
   end
 

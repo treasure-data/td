@@ -116,7 +116,11 @@ module TreasureData::Command
               {'out' => {'database' => 'config_database', 'table' => 'config_table'}}
             }
 
-            it { expect { subject }.not_to raise_error }
+            it {
+              expect { subject }.not_to raise_error
+              expect(stderr_io.string).to include "#{database} is used."
+              expect(stderr_io.string).to include "#{table} is used."
+            }
           end
         end
 
