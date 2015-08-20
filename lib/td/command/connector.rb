@@ -139,25 +139,34 @@ module Command
       database, table, config_file = args
     end
 
-    required('database', database)
-    required('table', table)
-
     config = prepare_bulkload_job_config(config_file)
-    (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
+    overwrite_out_config(config, 'database' => database, 'table' => table, 'time_column' => time_column)
 
     client = get_client()
 
+    required('database', config['out']['database'])
+    required('table', config['out']['table'])
+
     if auto_create
-      create_database_and_table_if_not_exist(client, database, table)
+      create_database_and_table_if_not_exist(client, config['out']['database'], config['out']['table'])
     end
 
-    job_id = client.bulk_load_issue(database, table, config: config)
+    job_id = client.bulk_load_issue(config['out']['database'], config['out']['table'], config: config)
 
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
       wait_connector_job(client, job_id, exclude)
+    end
+  end
+
+  def overwrite_out_config(config, out_args)
+    # TODO will not work once embulk implements multi-job
+    config['out'] ||= {}
+
+    out_args.each do |key, value|
+      config['out'][key] = value if value
     end
   end
 
