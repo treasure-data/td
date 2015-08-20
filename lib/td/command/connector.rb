@@ -108,34 +108,30 @@ module Command
   end
 
   def connector_issue(op)
-    option_database = option_table = nil
-    time_column     = nil
-    wait = exclude  = false
-    auto_create     = false
+    wait = exclude = false
+    auto_create    = false
+    config_option  = {}
 
-    on_with_obsolute_and_overwrite_config_warning(op, '--database DB_NAME') { |s| option_database = s }
-    on_with_obsolute_and_overwrite_config_warning(op, '--table TABLE_NAME') { |s| option_table = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--database DB_NAME') { |s| config_option['database'] = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--table TABLE_NAME') { |s| config_option['table'] = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--time-column COLUMN_NAME') { |s| config_option['time_column'] = s }
 
-    op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
     op.on('--auto-create-table', "Create table and database if doesn't exist", TrueClass) { |b|
       auto_create = b
     }
 
-    database, table, config_file = nil
     args = op.cmd_parse
 
     if args.instance_of? String
       config_file = args
-      database    = option_database
-      table       = option_table
     else
-      database, table, config_file = args
+      config_option['database'], config_option['table'], config_file = args
     end
 
     config = prepare_bulkload_job_config(config_file)
-    overwrite_out_config(config, 'database' => database, 'table' => table, 'time_column' => time_column)
+    overwrite_out_config(config, config_option)
 
     client = get_client()
 
