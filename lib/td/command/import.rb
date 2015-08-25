@@ -95,19 +95,19 @@ module Command
       raise ParameterConfigurationError, "#{options['format']} is unknown format. Support format is csv, tsv and mysql."
     end
 
+    $stdout.puts "Generating #{out}..."
+
     config = generate_seed_confing(options['format'], arg, options)
     config_str = YAML.dump(config)
 
     create_bulkload_job_file_backup(out)
     File.open(out, 'w') {|f| f << config_str }
 
-    $stdout.puts "initialize configuration:"
-    $stdout.puts
-    $stdout.puts config_str
-    $stdout.puts
-    $stdout.puts "Created #{out} file."
-    $stdout.puts "If you need to change, please modify #{out}."
-    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:guess #{out}' to create bulk load configuration."
+    if config['out']['type'] == 'td'
+      show_message_for_td_output_plugin(out)
+    else
+      show_message_for_td_data_connector(out)
+    end
   end
 
   #
@@ -394,6 +394,10 @@ module Command
   end
 
   def generate_s3_config(format, arg)
+    puts_with_indent('Using S3 input')
+    puts_with_indent('Using CSV parser plugin')
+    puts_with_indent('Using Treasure Data data connector')
+
     match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
 
     {
@@ -409,6 +413,10 @@ module Command
   end
 
   def generate_csv_config(format, arg)
+    puts_with_indent('Using local file input')
+    puts_with_indent('Using CSV parser plugin')
+    puts_with_indent('Using Treasure Data output')
+
     {
       'in' => {
         'type'        => 'file',
@@ -434,6 +442,10 @@ module Command
   end
 
   def generate_mysql_config(arg, options)
+    puts_with_indent('Using MySQL input')
+    puts_with_indent('Using MySQL parser plugin')
+    puts_with_indent('Using Treasure Data output')
+
     mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
 
     config = if (match = mysql_url_regexp.match(options['db_url']))
@@ -461,6 +473,25 @@ module Command
       'out' => td_output_config,
     }
   end
+
+    def show_message_for_td_output_plugin(out)
+      $stdout.puts 'Done. Please use embulk to load the files.'
+      $stdout.puts 'Next steps:'
+      $stdout.puts
+      puts_with_indent '# install embulk'
+      puts_with_indent "$ embulk gem install embulk-output-td"
+      puts_with_indent '$ embulk guess seed.yml -o config.yml'
+      puts_with_indent '$ embulk preview config.yml'
+      puts_with_indent '$ embulk run config.yml'
+    end
+
+    def show_message_for_td_data_connector(out)
+      $stdout.puts 'Done. Please use connector:guess and connector:run to load the files.'
+      $stdout.puts 'Next steps:'
+      puts_with_indent "$ td connector:guess #{out} -o config.yml"
+      puts_with_indent '$ td connector:preview config.yml'
+      puts_with_indent '$ td connector:run config.yml'
+    end
 
 end
 end

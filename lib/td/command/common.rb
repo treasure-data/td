@@ -295,6 +295,10 @@ EOS
     end
   end
 
+  def puts_with_indent(message, indent_size = 4, io = $stdout)
+    io.puts "#{' ' * indent_size}#{message}"
+  end
+
   def self.validate_api_endpoint(endpoint)
     require 'uri'
 
