@@ -140,23 +140,6 @@ module TreasureData::Command
             expect(stderr_io.string).to include '--table is obsolete option'
           end
         end
-
-        context 'set arguments' do
-          let(:option) {
-            List::CommandParser.new("connector:issue", ["config", 'database', 'table'], [], nil, [database, table, File.join("spec", "td", "fixture", "bulk_load.yml")], true)
-          }
-          let(:config)   { {} }
-          let(:expect_config) {
-            {'out' => {'database' => database, 'table' => table}}
-          }
-
-          it 'no warning' do
-            subject
-
-            expect(stderr_io.string).not_to include '--database is obsolete option'
-            expect(stderr_io.string).not_to include '--table is obsolete option'
-          end
-        end
       end
 
       describe 'queueing job' do

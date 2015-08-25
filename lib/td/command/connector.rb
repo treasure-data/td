@@ -122,13 +122,7 @@ module Command
       auto_create = b
     }
 
-    args = op.cmd_parse
-
-    if args.instance_of? String
-      config_file = args
-    else
-      config_option['database'], config_option['table'], config_file = args
-    end
+    config_file = op.cmd_parse
 
     config = prepare_bulkload_job_config(config_file)
     overwrite_out_config(config, config_option)
