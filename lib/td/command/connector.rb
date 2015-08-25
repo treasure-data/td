@@ -17,7 +17,7 @@ module Command
   def connector_guess(op)
     type = 's3'
     id = secret = source = nil
-    out = 'td-bulkload.yml'
+    out = 'config.yml'
     guess_plugins = {}
 
     op.on('--type[=TYPE]', "(obsoleted)") { |s| type = s }
