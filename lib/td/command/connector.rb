@@ -138,6 +138,7 @@ module Command
     required('database', config['out']['database'])
     required('table', config['out']['table'])
 
+    # TODO need fix if embulk support multi-job
     if auto_create
       create_database_and_table_if_not_exist(client, config['out']['database'], config['out']['table'])
     end
