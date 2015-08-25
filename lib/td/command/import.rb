@@ -91,16 +91,11 @@ module Command
 
     arg = op.cmd_parse
 
-    type = case options['format']
-    when 'mysql'
-      'mysql'
-    when 'csv', 'tsv'
-      's3'
-    else
+    unless %w(mysql csv tsv).include?(options['format'])
       raise ParameterConfigurationError, "#{options['format']} is unknown format. Support format is csv, tsv and mysql."
     end
 
-    config = generate_seed_confing(type, arg, options)
+    config = generate_seed_confing(options['format'], arg, options)
     config_str = YAML.dump(config)
 
     create_bulkload_job_file_backup(out)
@@ -308,7 +303,7 @@ module Command
           port = 80 if port == 0
           ssl = false
         end
-        end
+      end
 
       sysprops << "-Dtd.api.server.scheme=#{ssl ? 'https' : 'http'}://"
       sysprops << "-Dtd.api.server.host=#{host}"
@@ -382,38 +377,56 @@ module Command
     version.first
   end
 
-  def generate_seed_confing(type, arg, options)
-    config = {'in' => {'type' => type}, 'out' => {'mode' => 'append'}}
-
-    case type
-    when 's3'
-      config['in'].merge! parse_s3_arg(arg)
+  def generate_seed_confing(format, arg, options)
+    case format
+    when 'csv', 'tsv'
+      if arg =~ /^s3:/
+        generate_s3_config(format, arg)
+      else
+        generate_csv_config(format, arg)
+      end
     when 'mysql'
       arg = arg[1] unless arg.class == String
-      config['in'].merge! parse_mysql_args(arg, options)
+      {'in' => parse_mysql_args(arg, options), 'out' => {'mode' => 'append'}}
     else
       # NOOP
     end
-
-    config
   end
 
-  def parse_s3_arg(arg)
-    if match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
-      {
+  def generate_s3_config(format, arg)
+    match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
+
+    {
+      'in' => {
+        'type' => 's3',
         'access_key_id'     => match[1],
         'secret_access_key' => match[2],
         'bucket'            => match[3],
         'path_prefix'       => normalize_path_prefix(match[4])
-      }
-    else
-      {
-        'access_key_id'     => '',
-        'secret_access_key' => '',
-        'bucket'            => '',
-        'path_prefix'       => normalize_path_prefix(arg)
-      }
-    end
+      },
+      'out' => {'mode' => 'append'}
+    }
+  end
+
+  def generate_csv_config(format, arg)
+    {
+      'in' => {
+        'type'        => 'file',
+        'path_prefix' => normalize_path_prefix(arg),
+        'decorders'   => [{'type' => 'gzip'}],
+      },
+      'out' => td_output_config,
+    }
+  end
+
+  def td_output_config
+    {
+      'type' => 'td',
+      'endpoint' => Config.cl_endpoint || Config.endpoint,
+      'apikey' => Config.cl_apikey || Config.apikey,
+      'database' => '',
+      'table' => '',
+    }
   end
 
   def normalize_path_prefix(path)
@@ -424,12 +437,14 @@ module Command
     mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
     config = if (match = mysql_url_regexp.match(options['db_url']))
       {
+        'type'     => 'mysql',
         'host'     => match['host'],
         'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
         'database' => match['db_name'],
       }
     else
       {
+        'type'     => 'mysql',
         'host'     => '',
         'port'     => 3306,
         'database' => '',

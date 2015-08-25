@@ -220,14 +220,16 @@ module TreasureData::Command
               it 'generate configuration file' do
                 expect(generated_config).to eq({
                   'in' => {
-                    'type'              => 's3',
-                    'access_key_id'     => '',
-                    'secret_access_key' => '',
-                    'bucket'            => '',
-                    'path_prefix'       => path_prefix,
+                    'type'        => 'file',
+                    'decorders'   => [{'type' => 'gzip'}],
+                    'path_prefix' => path_prefix,
                   },
                   'out' => {
-                    'mode' => 'append'
+                    'type' => 'td',
+                    'endpoint' => Config.endpoint,
+                    'apikey' =>  Config.apikey,
+                    'database' => '',
+                    'table' => '',
                   }
                 })
               end
