@@ -104,7 +104,7 @@ module Command
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format, :resize => false)
 
     $stdout.puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
-    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue database_name table_name #{config_file}' to run Server-side bulk load."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run data connector."
   end
 
   def connector_issue(op)
