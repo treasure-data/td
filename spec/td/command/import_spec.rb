@@ -195,8 +195,8 @@ module TreasureData::Command
       let(:apikey) { '1234ABCDEFGHIJKLMN' }
 
       before do
-        Config.stub(:endpoint).and_return(endpoint)
-        Config.stub(:apikey).and_return(apikey)
+        TreasureData::Config.stub(:endpoint).and_return(endpoint)
+        TreasureData::Config.stub(:apikey).and_return(apikey)
       end
 
       context 'unknown format' do
@@ -214,12 +214,13 @@ module TreasureData::Command
         let(:td_output_config) {
           {
             'type' => 'td',
-            'endpoint' => Config.endpoint,
-            'apikey' =>  Config.apikey,
+            'endpoint' => TreasureData::Config.endpoint,
+            'apikey' =>  TreasureData::Config.apikey,
             'database' => '',
             'table' => '',
           }
         }
+
         before do
           command.import_config(option)
         end
