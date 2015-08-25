@@ -155,7 +155,7 @@ module Command
     end
 
     op.on(*args, '(obsoleted)') do |s|
-      $stderr.puts "#{options.join(',')} #{options.size > 1 ? 'are' : 'is'} obsolete option. Even if you wrote in the configuration file, #{s} is used."
+      $stderr.puts "#{options.join(',')} #{options.size > 1 ? 'are' : 'is'} obsolete option. You should write to configuration file. Even if you wrote in the configuration file, #{s} is used."
       block.call(s)
     end
   end
