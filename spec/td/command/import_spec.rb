@@ -204,6 +204,15 @@ module TreasureData::Command
       end
 
       context 'support format' do
+        let(:td_output_config) {
+          {
+            'type' => 'td',
+            'endpoint' => Config.endpoint,
+            'apikey' =>  Config.apikey,
+            'database' => '',
+            'table' => '',
+          }
+        }
         before do
           command.import_config(option)
         end
@@ -224,13 +233,7 @@ module TreasureData::Command
                     'decorders'   => [{'type' => 'gzip'}],
                     'path_prefix' => path_prefix,
                   },
-                  'out' => {
-                    'type' => 'td',
-                    'endpoint' => Config.endpoint,
-                    'apikey' =>  Config.apikey,
-                    'database' => '',
-                    'table' => '',
-                  }
+                  'out' => td_output_config
                 })
               end
             end
@@ -281,9 +284,7 @@ module TreasureData::Command
                 'table'    => table,
                 'select'   => "*",
               },
-              'out' => {
-                'mode' => 'append'
-              }
+              'out' => td_output_config
             }
           }
 

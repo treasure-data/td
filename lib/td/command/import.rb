@@ -387,7 +387,7 @@ module Command
       end
     when 'mysql'
       arg = arg[1] unless arg.class == String
-      {'in' => parse_mysql_args(arg, options), 'out' => {'mode' => 'append'}}
+      generate_mysql_config(arg, options)
     else
       # NOOP
     end
@@ -433,30 +433,33 @@ module Command
     path.gsub(/\*.*/, '')
   end
 
-  def parse_mysql_args(arg, options)
+  def generate_mysql_config(arg, options)
     mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
+
     config = if (match = mysql_url_regexp.match(options['db_url']))
       {
-        'type'     => 'mysql',
         'host'     => match['host'],
         'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
         'database' => match['db_name'],
       }
     else
       {
-        'type'     => 'mysql',
         'host'     => '',
         'port'     => 3306,
         'database' => '',
       }
     end
 
-    config.merge(
-      'user'     => options['db_user'],
-      'password' => options['db_password'],
-      'table'    => arg,
-      'select'   => '*',
-    )
+    {
+      'in' => config.merge(
+        'type'     => 'mysql',
+        'user'     => options['db_user'],
+        'password' => options['db_password'],
+        'table'    => arg,
+        'select'   => '*',
+      ),
+      'out' => td_output_config,
+    }
   end
 
 end
