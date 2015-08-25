@@ -299,6 +299,18 @@ EOS
     io.puts "#{' ' * indent_size}#{message}"
   end
 
+  def create_file_backup(out)
+    return unless File.exist?(out)
+    0.upto(100) do |idx|
+      backup = "#{out}.#{idx}"
+      unless File.exist?(backup)
+        FileUtils.mv(out, backup)
+        return
+      end
+    end
+    raise "backup file creation failed"
+  end
+
   def self.validate_api_endpoint(endpoint)
     require 'uri'
 

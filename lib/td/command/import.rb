@@ -100,7 +100,8 @@ module Command
     config = generate_seed_confing(options['format'], arg, options)
     config_str = YAML.dump(config)
 
-    create_bulkload_job_file_backup(out)
+
+    create_file_backup(out)
     File.open(out, 'w') {|f| f << config_str }
 
     if config['out']['type'] == 'td'
