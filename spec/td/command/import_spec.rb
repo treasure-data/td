@@ -191,6 +191,13 @@ module TreasureData::Command
       let :out_file do
         Tempfile.new("seed.yml").tap {|s| s.close }
       end
+      let(:endpoint) { 'http://example.com' }
+      let(:apikey) { '1234ABCDEFGHIJKLMN' }
+
+      before do
+        Config.stub(:endpoint).and_return(endpoint)
+        Config.stub(:apikey).and_return(apikey)
+      end
 
       context 'unknown format' do
         let(:args) { ['url'] }
