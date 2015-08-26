@@ -146,7 +146,7 @@ module TreasureData::Command
 
           it 'supports json output' do
             command.send(:show_result, job, file, nil, 'json', { header: true })
-            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+            File.read(file.path).should == %Q([{"c0":null,"c1":2.0,"v":{"key":3},"c3":null}])
           end
 
           it 'supports csv output' do

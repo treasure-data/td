@@ -306,7 +306,15 @@ private
 
     case format
     when 'json'
-      write_result_for_json(job, output, tempfile, limit, render_opts) {|row| row }
+      if render_opts[:header] && job.hive_result_schema
+        headers = job.hive_result_schema.map {|name, _| name }
+
+        write_result_for_json(job, output, tempfile, limit, render_opts) {|row|
+          Hash[headers.zip(row)]
+        }
+      else
+        write_result_for_json(job, output, tempfile, limit, render_opts) {|row| row }
+      end
     when 'csv'
       require 'yajl'
       require 'csv'
