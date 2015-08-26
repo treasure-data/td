@@ -122,9 +122,9 @@ module Command
     end
 
     if render_opts[:header]
-      unless ['tsv', 'csv'].include?(format)
+      unless ['json', 'tsv', 'csv'].include?(format)
         raise ParameterConfigurationError,
-              "Option -c / --column-header is only supported with tsv and csv formats"
+              "Option -c / --column-header is only supported with json, tsv and csv formats"
       end
     end
 
