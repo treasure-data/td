@@ -306,27 +306,7 @@ private
 
     case format
     when 'json'
-      require 'yajl'
-      open_file(tempfile || output, "w") {|f|
-        f.write "["
-        n_rows = 0
-        unless output.nil?
-          indicator = Command::SizeBasedDownloadProgressIndicator.new(
-            "NOTE: the job result is being written to #{output} in json format",
-            job.result_size, 0.1, 1)
-        end
-        job.result_each_with_compr_size {|row, compr_size|
-          indicator.update(compr_size) unless output.nil?
-          f.write ",\n" if n_rows > 0
-          f.write Yajl.dump(row)
-          n_rows += 1
-          break if output.nil? and !limit.nil? and n_rows == limit
-        }
-        f.write "]"
-        indicator.finish unless output.nil?
-      }
-      $stdout.puts if output.nil?
-
+      write_result_for_json(job, output, tempfile, limit, render_opts) {|row| row }
     when 'csv'
       require 'yajl'
       require 'csv'
@@ -444,6 +424,29 @@ private
     end
   end
 
+  def write_result_for_json(job, output, tempfile, limit, render_opts)
+    require 'yajl'
+    open_file(tempfile || output, "w") {|f|
+      f.write "["
+      n_rows = 0
+      unless output.nil?
+        indicator = Command::SizeBasedDownloadProgressIndicator.new(
+          "NOTE: the job result is being written to #{output} in json format",
+          job.result_size, 0.1, 1)
+      end
+      job.result_each_with_compr_size {|row, compr_size|
+        indicator.update(compr_size) unless output.nil?
+        f.write ",\n" if n_rows > 0
+        f.write Yajl.dump(yield(row))
+        n_rows += 1
+        break if output.nil? and !limit.nil? and n_rows == limit
+      }
+      f.write "]"
+      indicator.finish unless output.nil?
+    }
+    $stdout.puts if output.nil?
+  end
+
   def render_result(job, limit, format=nil, render_opts={})
     require 'yajl'
 
@@ -515,4 +518,3 @@ private
 
 end # module Command
 end # module TrasureData
-
