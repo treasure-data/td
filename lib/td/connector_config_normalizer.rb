@@ -8,9 +8,10 @@ module TreasureData
       case
       when @config['in']
         {
-          'in'   => @config['in'],
-          'out'  => @config['out']  || {},
-          'exec' => @config['exec'] || {}
+          'in'      => @config['in'],
+          'out'     => @config['out']  || {},
+          'exec'    => @config['exec'] || {},
+          'filters' => @config['filters'] || []
         }
       when @config['config']
         if @config.size != 1
@@ -22,7 +23,8 @@ module TreasureData
         {
           'in'   => @config,
           'out'  => {},
-          'exec' => {}
+          'exec' => {},
+          'filters' => []
         }
       end
     end

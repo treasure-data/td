@@ -11,15 +11,16 @@ module TreasureData
         context 'without :out, :exec' do
           let(:config) { {'in' => {'type' => 's3'}} }
 
-          it { expect(subject).to eq config.merge('out' => {}, 'exec' => {}) }
+          it { expect(subject).to eq config.merge('out' => {}, 'exec' => {}, 'filters' => []) }
         end
 
-        context 'with :out, :exec' do
+        context 'with :out, :exec, :filters' do
           let(:config) {
             {
-              'in'   => {'type' => 's3'},
-              'out'  => {'mode' => 'append'},
-              'exec' => {'guess_plugins' => ['json', 'query_string']}
+              'in'      => {'type' => 's3'},
+              'out'     => {'mode' => 'append'},
+              'exec'    => {'guess_plugins' => ['json', 'query_string']},
+              'filters' => [{'type' => 'speedometer'}]
             }
           }
 
@@ -34,7 +35,8 @@ module TreasureData
               {
                 'in'   => {'type' => 's3'},
                 'out'  => {'mode' => 'append'},
-                'exec' => {'guess_plugins' => ['json', 'query_string']}
+                'exec' => {'guess_plugins' => ['json', 'query_string']},
+                'filters' => [{'type' => 'speedometer'}]
               }
             }
           }
@@ -46,15 +48,14 @@ module TreasureData
         context 'without :in' do
           let(:config) { {'config' => {'type' => 's3'}} }
 
-          it { expect(subject).to eq({'in' => config['config'], 'out' => {}, 'exec' => {}}) }
-
+          it { expect(subject).to eq({'in' => config['config'], 'out' => {}, 'exec' => {}, 'filters' => []}) }
         end
       end
 
       context 'does not have key :in or :config' do
         let(:config) { {'type' => 's3'} }
 
-        it { expect(subject).to eq({'in' => config, 'out' => {}, 'exec' => {}}) }
+        it { expect(subject).to eq({'in' => config, 'out' => {}, 'exec' => {}, 'filters' => []}) }
       end
     end
   end

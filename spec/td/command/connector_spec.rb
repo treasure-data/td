@@ -29,7 +29,7 @@ module TreasureData::Command
           }
         }
         let(:expect_config) {
-          config.merge('out' => {}, 'exec' => {'guess_plugins' => guess_plugins})
+          config.merge('out' => {}, 'exec' => {'guess_plugins' => guess_plugins}, 'filters' => [])
         }
 
         include_context 'quiet_out'
