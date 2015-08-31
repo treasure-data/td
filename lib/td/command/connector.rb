@@ -4,6 +4,7 @@ require 'td/connector_config_normalizer'
 require 'json'
 require 'uri'
 require 'yaml'
+require 'time'
 
 module TreasureData
 module Command
@@ -258,9 +259,10 @@ module Command
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
     name, scheduled_time = op.cmd_parse
-
+    time = Time.parse(scheduled_time).to_i
     client = get_client()
-    job_id = client.bulk_load_run(name)
+    job_id = client.bulk_load_run(name, time)
+
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
