@@ -259,7 +259,12 @@ module Command
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
     name, scheduled_time = op.cmd_parse
-    time = Time.parse(scheduled_time).to_i
+    time = if scheduled_time
+      Time.parse(scheduled_time).to_i
+    else
+      current_time.to_i
+    end
+
     client = get_client()
     job_id = client.bulk_load_run(name, time)
 
@@ -348,5 +353,8 @@ private
     $stdout.puts "Status     : #{job.status}"
   end
 
+  def current_time
+    Time.now
+  end
 end
 end

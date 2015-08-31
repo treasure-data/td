@@ -353,7 +353,7 @@ module List
   add_list 'connector:update', %w[name config], 'Modify connector session', ['connector:update connector1 td-bulkload.yml']
   add_list 'connector:delete', %w[name], 'Delete connector session', ['connector:delete connector1']
   add_list 'connector:history', %w[name], 'Show job history of connector session', ['connector:history connector1']
-  add_list 'connector:run', %w[name time], 'Run connector session for the specified time', ['connector:run connector1 "2016-01-01 00:00:00"']
+  add_list 'connector:run', %w[name time?], 'Run connector with session for the specified time option', ['connector:run connector1 "2016-01-01 00:00:00"']
 
   # aliases
   add_alias 'db', 'db:show'
@@ -441,4 +441,3 @@ module List
 end # module List
 end # module Command
 end # module TreasureData
-

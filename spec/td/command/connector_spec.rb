@@ -170,5 +170,47 @@ module TreasureData::Command
         end
       end
     end
+
+    describe '#connector_run' do
+      include_context 'quiet_out'
+
+      let :command do
+        Class.new { include TreasureData::Command }.new
+      end
+      let(:client) { double(:client) }
+      let(:job_name) { 'job_1' }
+
+      before do
+        command.stub(:get_client).and_return(client)
+        client.stub(:database)
+      end
+
+      context 'with scheduled_time' do
+        let(:scheduled_time) { Time.now + 60 }
+        let(:option) {
+          List::CommandParser.new('connector:run', ['name'], ['time'], nil, [job_name, scheduled_time.strftime("%Y-%m-%d %H:%M:%S")], true)
+        }
+
+        it 'client call with unix time' do
+          client.should_receive(:bulk_load_run).with(job_name, scheduled_time.to_i).and_return(123)
+
+          command.connector_run(option)
+        end
+      end
+
+      context 'without scheduled_time' do
+        let(:option) {
+          List::CommandParser.new('connector:run', ['name'], ['time'], nil, [job_name], true)
+        }
+        let(:current_time) { Time.now }
+
+        it 'client call with unix time' do
+          client.should_receive(:bulk_load_run).with(job_name, current_time.to_i).and_return(123)
+          command.stub(:current_time).and_return(current_time.to_i)
+
+          command.connector_run(option)
+        end
+      end
+    end
   end
 end
