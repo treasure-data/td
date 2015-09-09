@@ -82,17 +82,27 @@ module Command
     options = {
       'format' => 'csv'
     }
+    not_migrate_options = []
     op.on('-o', '--out FILE_NAME', "output file name for connector:guess") { |s| out = s }
     op.on('-f', '--format FORMAT', "source file format [csv, tsv, mysql]; default=csv") { |s| options['format'] = s }
 
     op.on('--db-url URL',           "Database Connection URL") { |s| options['db_url']      = s }
     op.on('--db-user NAME',         "user name for database")  { |s| options['db_user']     = s }
     op.on('--db-password PASSWORD', "password for database")   { |s| options['db_password'] = s }
+    %w(--columns --column-header).each do |not_migrate_option|
+      opt_arg_name = not_migrate_option.gsub('--', '').upcase
+      op.on("#{not_migrate_option} #{opt_arg_name}", 'not supported') { |s| not_migrate_options << not_migrate_option }
+    end
 
     arg = op.cmd_parse
 
     unless %w(mysql csv tsv).include?(options['format'])
       raise ParameterConfigurationError, "#{options['format']} is unknown format. Support format is csv, tsv and mysql."
+    end
+
+    unless not_migrate_options.empty?
+      be = not_migrate_options.size == 1 ? 'is' : 'are'
+      $stderr.puts "`#{not_migrate_options.join(', ')}` #{be} not migrate. Please, edit config file after execute guess commands."
     end
 
     $stdout.puts "Generating #{out}..."

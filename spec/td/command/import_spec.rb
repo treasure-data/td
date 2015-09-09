@@ -342,6 +342,20 @@ module TreasureData::Command
           end
         end
       end
+
+      context 'not migrate options' do
+        %w(--columns --column-header).each do |opt|
+          context "with #{opt}" do
+            let(:args) { ['url'] }
+            let(:arguments)     { ["path/to/prefix_*.csv", '--format', 'csv', opt, 'col1,col2'] }
+
+            it "#{opt} is not migrate" do
+              expect { command.import_config(option) }.not_to raise_error
+              expect(stderr_io.string).to include 'not migrate. Please, edit config file after execute guess commands.'
+            end
+          end
+        end
+      end
     end
   end
 end
