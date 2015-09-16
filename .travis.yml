@@ -16,3 +16,8 @@ script: bundle exec rake spec
 matrix:
   allow_failures:
     - rvm: ruby-head
+
+sudo: false
+
+notifications:
+  webhooks: http://td-beda.herokuapp.com/travisci_callback
