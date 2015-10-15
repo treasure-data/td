@@ -160,7 +160,7 @@ module Command
 
     client = get_client()
     # TODO database and table is empty at present. Fix API or Client.
-    keys = ['name', 'cron', 'timezone', 'delay', 'database', 'table', 'config']
+    keys = ['name', 'cron', 'timezone', 'delay', 'database', 'table', 'config', 'config_diff']
     fields = keys.map { |e| e.capitalize.to_sym }
     rows = client.bulk_load_list().sort_by { |e|
       e['name']
@@ -338,6 +338,9 @@ private
     $stdout.puts "Table    : #{session["table"]}"
     $stdout.puts "Config"
     $stdout.puts YAML.dump(session["config"])
+    $stdout.puts
+    $stdout.puts "Config Diff"
+    $stdout.puts YAML.dump(session["config_diff"])
   end
 
   def wait_connector_job(client, job_id, exclude)
