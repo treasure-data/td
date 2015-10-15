@@ -217,5 +217,118 @@ module TreasureData::Command
         end
       end
     end
+
+    describe '#table_rename' do
+      include_context 'quiet_out'
+
+      let(:db_name)         { 'database' }
+      let(:from_table_name) { 'from_table' }
+      let(:dest_table_name) { 'dest_table' }
+      let(:client)          { double('client') }
+      let(:database)        { double('database') }
+      let(:command)         { Class.new { include TreasureData::Command }.new }
+      let(:option) {
+        List::CommandParser.new('table:rename', [], %w(db_name from_table_name dest_table_name), false, cmd_args, true)
+      }
+
+      before do
+        command.stub(:get_client) { client }
+        command.stub(:get_database).with(client, db_name).and_return(database)
+      end
+
+      context "from table isn't exists" do
+        let(:cmd_args) { [db_name, from_table_name, dest_table_name] }
+
+        before do
+          database.stub(:table).with(from_table_name).and_return { raise }
+        end
+
+        it "can't rename table" do
+          command.should_receive(:exit).with(1).and_return { raise CallSystemExitError }
+
+          expect { command.table_rename(option) }.to raise_error
+          expect(stderr_io.string).to     include(from_table_name)
+          expect(stderr_io.string).not_to include(dest_table_name)
+        end
+      end
+
+      context 'overwrite is false' do
+        let(:cmd_args) { [db_name, from_table_name, dest_table_name] }
+
+        before do
+          database.stub(:table).with(from_table_name).and_return
+        end
+
+        context "dest_table isn't exists" do
+          before do
+            database.stub(:table).with(dest_table_name).and_return { raise }
+          end
+
+          it 'create dest table and rename table' do
+            client.should_receive(:create_log_table).with(db_name, dest_table_name)
+            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            client.should_receive(:delete_table).with(db_name, from_table_name)
+
+            command.table_rename(option)
+
+            expect(stderr_io.string).to include(from_table_name)
+            expect(stderr_io.string).to include(dest_table_name)
+          end
+        end
+
+        context "dest_tableis is exist" do
+          before do
+            database.stub(:table).with(dest_table_name).and_return
+          end
+
+          it "can't rename table" do
+            command.should_receive(:exit).with(1).and_return { raise CallSystemExitError }
+
+            expect { command.table_rename(option) }.to raise_error
+            expect(stderr_io.string).not_to include(from_table_name)
+            expect(stderr_io.string).to     include(dest_table_name)
+          end
+        end
+      end
+
+      context 'overwrite is true' do
+        let(:cmd_args) { [db_name, from_table_name, dest_table_name, '--overwrite'] }
+
+        before do
+          database.stub(:table).with(from_table_name).and_return
+        end
+
+        context "dest_table isn't exists" do
+          before do
+            database.stub(:table).with(dest_table_name).and_return { raise }
+          end
+
+          it 'create dest table and rename table' do
+            client.should_receive(:create_log_table).with(db_name, dest_table_name)
+            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            client.should_receive(:delete_table).with(db_name, from_table_name)
+
+            command.table_rename(option)
+            expect(stderr_io.string).to include(from_table_name)
+            expect(stderr_io.string).to include(dest_table_name)
+          end
+        end
+
+        context "dest_tableis is exist" do
+          before do
+            database.stub(:table).with(dest_table_name).and_return
+          end
+
+          it 'overwrite dest table' do
+            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            client.should_receive(:delete_table).with(db_name, from_table_name)
+
+            command.table_rename(option)
+            expect(stderr_io.string).to include(from_table_name)
+            expect(stderr_io.string).to include(dest_table_name)
+          end
+        end
+      end
+    end
   end
 end
