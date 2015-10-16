@@ -190,7 +190,7 @@ EOF
         show_backtrace "Error #{$!.class}: backtrace:", $!.backtrace
       end
 
-      if $!.respond_to? :api_backtrace
+      if $!.respond_to?(:api_backtrace) && $!.api_backtrace
         show_backtrace "Error backtrace from server:", $!.api_backtrace.split("\n")
       end
 
