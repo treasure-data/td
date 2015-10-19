@@ -251,8 +251,8 @@ module Command
         :Status => e['status'],
         :Records => e['records'],
         # TODO: td-client-ruby should retuan only name
-        :Database => e['database']['name'],
-        :Table => e['table']['name'],
+        :Database => e['database'] ? e['database']['name'] : '',
+        :Table    => e['table']    ? e['table']['name']    : '',
         :Priority => e['priority'],
       }.merge(time_property)
     }
