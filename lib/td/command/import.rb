@@ -89,7 +89,7 @@ module Command
     op.on('--db-url URL',           "Database Connection URL") { |s| options['db_url']      = s }
     op.on('--db-user NAME',         "user name for database")  { |s| options['db_user']     = s }
     op.on('--db-password PASSWORD', "password for database")   { |s| options['db_password'] = s }
-    %w(--columns --column-header).each do |not_migrate_option|
+    %w(--columns --column-header --time-column --time-format).each do |not_migrate_option|
       opt_arg_name = not_migrate_option.gsub('--', '').upcase
       op.on("#{not_migrate_option} #{opt_arg_name}", 'not supported') { |s| not_migrate_options << not_migrate_option }
     end
