@@ -1,5 +1,6 @@
 require 'td/updater'
 require 'time'
+require 'yaml'
 
 module TreasureData
 module Command
