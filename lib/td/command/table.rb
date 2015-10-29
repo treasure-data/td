@@ -204,6 +204,35 @@ module Command
     $stderr.puts "'#{db_name}.#{table_name1}' and '#{db_name}.#{table_name2}' are swapped."
   end
 
+  def table_rename(op)
+    overwrite = false
+    op.on('--overwrite', 'replace existing dest table') { overwrite = true }
+    database_name, from_table_name, dest_table_name = op.cmd_parse
+
+    client = get_client
+    database = get_database(client, database_name)
+
+    unless table_exist?(database, from_table_name)
+      raise ParameterConfigurationError, "From table `#{from_table_name}` isn't exist."
+    end
+
+    if table_exist?(database, dest_table_name)
+      unless overwrite
+        raise ParameterConfigurationError, "Dest table `#{dest_table_name}` is exist. If you want to overwrite dest table, you should set `overwrite` option."
+      end
+    else
+      client.create_log_table(database_name, dest_table_name)
+    end
+
+    client.swap_table(database_name, from_table_name, dest_table_name)
+    client.delete_table(database_name, from_table_name)
+
+    $stderr.puts "'renamed from '#{database_name}.#{from_table_name}' to '#{database_name}.#{dest_table_name}'."
+  rescue ParameterConfigurationError => e
+    $stderr.puts e.message
+    exit 1
+  end
+
   def table_show(op)
     db_name, table_name = op.cmd_parse
 
@@ -673,4 +702,3 @@ module Command
   require 'td/command/job'  # wait_job
 end
 end
-

@@ -247,6 +247,13 @@ EOS
     table
   end
 
+  def table_exist?(database, table_name)
+    database.table(table_name)
+    true
+  rescue
+    false
+  end
+
   def create_database_and_table_if_not_exist(client, db_name, table_name)
     # Merge with db_create and table_create after refactoring
     API.validate_database_name(db_name)

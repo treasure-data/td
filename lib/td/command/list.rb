@@ -236,6 +236,7 @@ module List
   add_list 'table:import', %w[db table files_], 'Parse and import files to a table', ['table:import example_db table1 --apache access.log', 'table:import example_db table1 --json -t time - < test.json']
   add_list 'table:export', %w[db table], 'Dump logs in a table to the specified storage', ['table:export example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY']
   add_list 'table:swap', %w[db table1 table2], 'Swap names of two tables', ['table:swap example_db table1 table2']
+  add_list 'table:rename', %w[db from_table dest_table], 'rename exist table', ['table:rename example_db table1 table2']
   add_list 'table:tail', %w[db table], 'Get recently imported logs', ['table:tail example_db table1', 'table:tail example_db table1 -n 30']
   add_list 'table:partial_delete', %w[db table], 'Delete logs from the table within the specified time range', ['table:partial_delete example_db table1 --from 1341000000 --to 1341003600']
   add_list 'table:expire', %w[db table expire_days], 'Expire data in table after specified number of days. Set to 0 to disable the expiration.', ['table:expire example_db table1 30']
