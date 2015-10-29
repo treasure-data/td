@@ -76,7 +76,7 @@ module Command
       end
       limit = s.to_i
     }
-    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to tsv and csv formats)', TrueClass) {|b|
+    op.on('-c', '--column-header', 'output of the columns\' header when the schema is available for the table (only applies to json, tsv and csv formats)', TrueClass) {|b|
       render_opts[:header] = b
     }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) {|b|
@@ -115,9 +115,9 @@ module Command
     end
 
     if render_opts[:header]
-      unless ['tsv', 'csv'].include?(format)
+      unless ['tsv', 'csv', 'json'].include?(format)
         raise ParameterConfigurationError,
-              "Option -c / --column-header is only supported with tsv and csv formats"
+              "Option -c / --column-header is only supported with json, tsv and csv formats"
       end
     end
 
@@ -155,5 +155,3 @@ module Command
   require 'td/command/job'  # wait_job, job_priority_id_of
 end
 end
-
-
