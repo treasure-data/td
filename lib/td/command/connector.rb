@@ -112,18 +112,18 @@ module Command
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format, :resize => false)
 
     $stdout.puts "Update #{config_file} and use '#{$prog} " + Config.cl_options_string + "connector:preview #{config_file}' to preview again."
-    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run Server-side bulk load."
+    $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "connector:issue #{config_file}' to run data connector."
   end
 
   def connector_issue(op)
-    database = table = nil
-    time_column      = nil
-    wait = exclude   = false
-    auto_create      = false
+    wait = exclude = false
+    auto_create    = false
+    config_option  = {}
 
-    op.on('--database DB_NAME', "destination database") { |s| database = s }
-    op.on('--table TABLE_NAME', "destination table") { |s| table = s }
-    op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
+    on_with_obsolute_and_overwrite_config_warning(op, '--database DB_NAME') { |s| config_option['database'] = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--table TABLE_NAME') { |s| config_option['table'] = s }
+    on_with_obsolute_and_overwrite_config_warning(op, '--time-column COLUMN_NAME') { |s| config_option['time_column'] = s }
+
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
     op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
     op.on('--auto-create-table', "Create table and database if doesn't exist", TrueClass) { |b|
@@ -132,25 +132,48 @@ module Command
 
     config_file = op.cmd_parse
 
-    required('--database', database)
-    required('--table', table)
-
     config = prepare_bulkload_job_config(config_file)
-    (config['out'] ||= {})['time_column'] = time_column if time_column  # TODO will not work once embulk implements multi-job
+    overwrite_out_config(config, config_option)
 
     client = get_client()
 
+    required('database', config['out']['database'])
+    required('table', config['out']['table'])
+
+    # TODO need fix if embulk support multi-job
     if auto_create
-      create_database_and_table_if_not_exist(client, database, table)
+      create_database_and_table_if_not_exist(client, config['out']['database'], config['out']['table'])
     end
 
-    job_id = client.bulk_load_issue(database, table, config: config)
+    job_id = client.bulk_load_issue(config['out']['database'], config['out']['table'], config: config)
 
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
       wait_connector_job(client, job_id, exclude)
+    end
+  end
+
+  def on_with_obsolute_and_overwrite_config_warning(op, *args, &block)
+    options = args.each_with_object([]) do |arg, o|
+      arg.split("\s").each do |word|
+        o << word if word =~ /\A-/
+      end
+    end
+
+    op.on(*args, '(obsoleted)') do |s|
+      $stderr.puts "#{options.join(',')} #{options.size > 1 ? 'are' : 'is'} obsolete option. You should write to configuration file. Even if you wrote in the configuration file, #{s} is used."
+      block.call(s)
+    end
+  end
+
+  def overwrite_out_config(config, out_args)
+    # TODO will not work once embulk implements multi-job
+    config['out'] ||= {}
+
+    out_args.each do |key, value|
+      config['out'][key] = value if value
     end
   end
 
