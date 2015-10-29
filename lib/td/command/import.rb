@@ -1,5 +1,6 @@
 require 'td/updater'
 require 'time'
+require 'yaml'
 
 module TreasureData
 module Command
@@ -75,6 +76,50 @@ module Command
   def import_unfreeze(op)
     require 'td/command/bulk_import'
     bulk_import_unfreeze(op)
+  end
+
+  def import_config(op)
+    out = 'td-bulkload.yml'
+    options = {
+      'format' => 'csv'
+    }
+    not_migrate_options = []
+    op.on('-o', '--out FILE_NAME', "output file name for connector:guess") { |s| out = s }
+    op.on('-f', '--format FORMAT', "source file format [csv, tsv, mysql]; default=csv") { |s| options['format'] = s }
+
+    op.on('--db-url URL',           "Database Connection URL") { |s| options['db_url']      = s }
+    op.on('--db-user NAME',         "user name for database")  { |s| options['db_user']     = s }
+    op.on('--db-password PASSWORD', "password for database")   { |s| options['db_password'] = s }
+    %w(--columns --column-header --time-column --time-format).each do |not_migrate_option|
+      opt_arg_name = not_migrate_option.gsub('--', '').upcase
+      op.on("#{not_migrate_option} #{opt_arg_name}", 'not supported') { |s| not_migrate_options << not_migrate_option }
+    end
+
+    arg = op.cmd_parse
+
+    unless %w(mysql csv tsv).include?(options['format'])
+      raise ParameterConfigurationError, "#{options['format']} is unknown format. Support format is csv, tsv and mysql."
+    end
+
+    unless not_migrate_options.empty?
+      be = not_migrate_options.size == 1 ? 'is' : 'are'
+      $stderr.puts "`#{not_migrate_options.join(', ')}` #{be} not migrate. Please, edit config file after execute guess commands."
+    end
+
+    $stdout.puts "Generating #{out}..."
+
+    config = generate_seed_confing(options['format'], arg, options)
+    config_str = YAML.dump(config)
+
+
+    create_file_backup(out)
+    File.open(out, 'w') {|f| f << config_str }
+
+    if config['out']['type'] == 'td'
+      show_message_for_td_output_plugin(out)
+    else
+      show_message_for_td_data_connector(out)
+    end
   end
 
   #
@@ -270,7 +315,7 @@ module Command
           port = 80 if port == 0
           ssl = false
         end
-        end
+      end
 
       sysprops << "-Dtd.api.server.scheme=#{ssl ? 'https' : 'http'}://"
       sysprops << "-Dtd.api.server.host=#{host}"
@@ -343,6 +388,122 @@ module Command
     end
     version.first
   end
+
+  def generate_seed_confing(format, arg, options)
+    case format
+    when 'csv', 'tsv'
+      if arg =~ /^s3:/
+        generate_s3_config(format, arg)
+      else
+        generate_csv_config(format, arg)
+      end
+    when 'mysql'
+      arg = arg[1] unless arg.class == String
+      generate_mysql_config(arg, options)
+    else
+      # NOOP
+    end
+  end
+
+  def generate_s3_config(format, arg)
+    puts_with_indent('Using S3 input')
+    puts_with_indent('Using CSV parser plugin')
+    puts_with_indent('Using Treasure Data data connector')
+
+    match = Regexp.new("^s3://(.*):(.*)@/([^/]*)/(.*)").match(arg)
+
+    {
+      'in' => {
+        'type' => 's3',
+        'access_key_id'     => match[1],
+        'secret_access_key' => match[2],
+        'bucket'            => match[3],
+        'path_prefix'       => normalize_path_prefix(match[4])
+      },
+      'out' => {'mode' => 'append'}
+    }
+  end
+
+  def generate_csv_config(format, arg)
+    puts_with_indent('Using local file input')
+    puts_with_indent('Using CSV parser plugin')
+    puts_with_indent('Using Treasure Data output')
+
+    {
+      'in' => {
+        'type'        => 'file',
+        'path_prefix' => normalize_path_prefix(arg),
+        'decorders'   => [{'type' => 'gzip'}],
+      },
+      'out' => td_output_config,
+    }
+  end
+
+  def td_output_config
+    {
+      'type' => 'td',
+      'endpoint' => Config.cl_endpoint || Config.endpoint,
+      'apikey' => Config.cl_apikey || Config.apikey,
+      'database' => '',
+      'table' => '',
+    }
+  end
+
+  def normalize_path_prefix(path)
+    path.gsub(/\*.*/, '')
+  end
+
+  def generate_mysql_config(arg, options)
+    puts_with_indent('Using MySQL input')
+    puts_with_indent('Using MySQL parser plugin')
+    puts_with_indent('Using Treasure Data output')
+
+    mysql_url_regexp = Regexp.new("[jdbc:]*mysql://(?<host>[^:/]*)[:]*(?<port>[^/]*)/(?<db_name>.*)")
+
+    config = if (match = mysql_url_regexp.match(options['db_url']))
+      {
+        'host'     => match['host'],
+        'port'     => match['port'] == '' ? 3306 : match['port'].to_i,
+        'database' => match['db_name'],
+      }
+    else
+      {
+        'host'     => '',
+        'port'     => 3306,
+        'database' => '',
+      }
+    end
+
+    {
+      'in' => config.merge(
+        'type'     => 'mysql',
+        'user'     => options['db_user'],
+        'password' => options['db_password'],
+        'table'    => arg,
+        'select'   => '*',
+      ),
+      'out' => td_output_config,
+    }
+  end
+
+    def show_message_for_td_output_plugin(out)
+      $stdout.puts 'Done. Please use embulk to load the files.'
+      $stdout.puts 'Next steps:'
+      $stdout.puts
+      puts_with_indent '# install embulk'
+      puts_with_indent "$ embulk gem install embulk-output-td"
+      puts_with_indent '$ embulk guess seed.yml -o config.yml'
+      puts_with_indent '$ embulk preview config.yml'
+      puts_with_indent '$ embulk run config.yml'
+    end
+
+    def show_message_for_td_data_connector(out)
+      $stdout.puts 'Done. Please use connector:guess and connector:run to load the files.'
+      $stdout.puts 'Next steps:'
+      puts_with_indent "$ td connector:guess #{out} -o config.yml"
+      puts_with_indent '$ td connector:preview config.yml'
+      puts_with_indent '$ td connector:run config.yml'
+    end
 
 end
 end

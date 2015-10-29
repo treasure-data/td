@@ -71,7 +71,7 @@ module Command
     client = get_client
     job = client.bulk_load_guess(config: config)
 
-    create_bulkload_job_file_backup(out)
+    create_file_backup(out)
     if /\.json\z/ =~ out
       config_str = JSON.pretty_generate(job['config'])
     else
@@ -315,18 +315,6 @@ private
     end
 
     TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
-  end
-
-  def create_bulkload_job_file_backup(out)
-    return unless File.exist?(out)
-    0.upto(100) do |idx|
-      backup = "#{out}.#{idx}"
-      unless File.exist?(backup)
-        FileUtils.mv(out, backup)
-        return
-      end
-    end
-    raise "backup file creation failed"
   end
 
   def dump_connector_session(session)
