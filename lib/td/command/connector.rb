@@ -4,6 +4,7 @@ require 'td/connector_config_normalizer'
 require 'json'
 require 'uri'
 require 'yaml'
+require 'time'
 
 module TreasureData
 module Command
@@ -256,9 +257,15 @@ module Command
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
 
     name, scheduled_time = op.cmd_parse
+    time = if scheduled_time
+      Time.parse(scheduled_time).to_i
+    else
+      current_time.to_i
+    end
 
     client = get_client()
-    job_id = client.bulk_load_run(name)
+    job_id = client.bulk_load_run(name, time)
+
     $stdout.puts "Job #{job_id} is queued."
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
@@ -332,5 +339,8 @@ private
     $stdout.puts "Status     : #{job.status}"
   end
 
+  def current_time
+    Time.now
+  end
 end
 end
