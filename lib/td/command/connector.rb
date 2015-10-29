@@ -238,17 +238,24 @@ module Command
     fields = [:JobID, :Status, :Records, :Database, :Table, :Priority, :Started, :Duration]
     client = get_client()
     rows = client.bulk_load_history(name).map { |e|
+      time_property = if e['start_at']
+        {
+          :Started => Time.at(e['start_at']),
+          :Duration => (e['end_at'].nil? ? Time.now.to_i : e['end_at']) - e['start_at'],
+        }
+      else
+        {:Started => '', :Duration => ''}
+      end
+
       {
         :JobID => e['job_id'],
         :Status => e['status'],
         :Records => e['records'],
         # TODO: td-client-ruby should retuan only name
-        :Database => e['database']['name'],
-        :Table => e['table']['name'],
+        :Database => e['database'] ? e['database']['name'] : '',
+        :Table    => e['table']    ? e['table']['name']    : '',
         :Priority => e['priority'],
-        :Started => Time.at(e['start_at']),
-        :Duration => (e['end_at'].nil? ? Time.now.to_i : e['end_at']) - e['start_at'],
-      }
+      }.merge(time_property)
     }
     $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
   end

@@ -214,5 +214,73 @@ module TreasureData::Command
         end
       end
     end
+
+    describe 'connector history' do
+      include_context 'quiet_out'
+
+      let :command do
+        Class.new { include TreasureData::Command }.new
+      end
+      let(:name) { 'connector_test' }
+
+      subject do
+        op = List::CommandParser.new("connector:history", ["name"], [], nil, [name], true)
+        command.connector_history(op)
+      end
+
+      before do
+        client = double(:client)
+        client.stub(:bulk_load_history).with(name).and_return(history)
+        command.stub(:get_client).and_return(client)
+      end
+
+      context 'history is empty' do
+        let(:history) { [] }
+
+        it { expect { subject }.not_to raise_error }
+      end
+
+      context 'history in not empty' do
+        let(:history) { [column] }
+        let(:column) {
+          # TODO set real value
+          {
+            'job_id'   => '',
+            'status'   => '',
+            'records'  => '',
+            'database' => {'name' => ''},
+            'table'    => {'name' => ''},
+            'priority' =>  ''
+          }
+        }
+
+        context 'job is queueing' do
+          before do
+            column['start_at'] = nil
+            column['end_at']   = nil
+          end
+
+          it { expect { subject }.not_to raise_error }
+        end
+
+        context 'job is running' do
+          before do
+            column['start_at'] = Time.now.to_i
+            column['end_at']   = nil
+          end
+
+          it { expect { subject }.not_to raise_error }
+        end
+
+        context 'jobi is finished' do
+          before do
+            column['start_at'] = Time.now.to_i
+            column['end_at']   = (Time.now + 60).to_i
+          end
+
+          it { expect { subject }.not_to raise_error }
+        end
+      end
+    end
   end
 end
