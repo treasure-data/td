@@ -118,14 +118,13 @@ module Command
   def connector_issue(op)
     database = table = nil
     time_column      = nil
-    wait = exclude   = false
+    wait             = false
     auto_create      = false
 
     op.on('--database DB_NAME', "destination database") { |s| database = s }
     op.on('--table TABLE_NAME', "destination table") { |s| table = s }
     op.on('--time-column COLUMN_NAME', "data partitioning key") { |s| time_column = s }  # unnecessary but for backward compatibility
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
-    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
     op.on('--auto-create-table', "Create table and database if doesn't exist", TrueClass) { |b|
       auto_create = b
     }
@@ -150,7 +149,7 @@ module Command
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_connector_job(client, job_id, exclude)
+      wait_connector_job(client, job_id)
     end
   end
 
@@ -253,9 +252,8 @@ module Command
   end
 
   def connector_run(op)
-    wait = exclude = false
+    wait = false
     op.on('-w', '--wait', 'wait for finishing the job', TrueClass) { |b| wait = b }
-    op.on('-x', '--exclude', 'do not automatically retrieve the job result', TrueClass) { |b| exclude = b }
 
     name, scheduled_time = op.cmd_parse
 
@@ -265,7 +263,7 @@ module Command
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job_id}' to show the status."
 
     if wait
-      wait_connector_job(client, job_id, exclude)
+      wait_connector_job(client, job_id)
     end
   end
 
@@ -328,7 +326,7 @@ private
     $stdout.puts YAML.dump(session["config"])
   end
 
-  def wait_connector_job(client, job_id, exclude)
+  def wait_connector_job(client, job_id)
     job = client.job(job_id)
     wait_job(job, true)
     $stdout.puts "Status     : #{job.status}"
