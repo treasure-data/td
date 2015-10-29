@@ -36,6 +36,7 @@ module Command
       out ||= config_file
     else
       begin
+        $stdout.puts 'Command line option is obsoleted. You should use configuration file.'
         required('--access-id', id)
         required('--access-secret', secret)
         required('--source', source)
