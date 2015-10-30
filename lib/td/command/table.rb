@@ -15,8 +15,6 @@ module Command
 
   def table_create(op)
     type = nil
-    primary_key = nil
-    primary_key_type = nil
 
     op.on('-T', '--type TYPE', 'set table type (log)') {|s|
       unless s == 'log'
@@ -24,21 +22,6 @@ module Command
       end
       type = s.to_sym
     }
-    op.on('--primary-key PRIMARY_KEY_AND_TYPE', '[primary key]:[primary key type(int or string)]') {|s|
-      unless /\A[\w]+:(string|int)\z/ =~ s
-        $stderr.puts "--primary-key PRIMARY_KEY_AND_TYPE is required, and should be in the format [primary key]:[primary key type]"
-        exit 1
-      end
-
-      args = s.split(':')
-      if args.length != 2
-        # this really shouldn't happen with the above regex
-        exit 1
-      end
-      primary_key = args[0]
-      primary_key_type = args[1]
-    }
-
     db_name, table_name = op.cmd_parse
 
     API.validate_table_name(table_name)
