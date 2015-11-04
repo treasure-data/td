@@ -1,3 +1,18 @@
+== 2015-10-29 version 0.13.0
+
+* fix command error when recive 40X errror from server
+* support show config_diff in connector:[list,show,create,delete]
+* add new command `table:rename`. This command can rename table.
+* fix connector:history crash if history has queueing state.
+* fix connector:run time argument bug.
+* support query, job:show write Hash format JSON. If you use it, you set --column-header and -f json options.
+* change default file name create by connector:guess rename to `config.yml`.
+* remove --exclude option from connector:issue
+* support --g option for connector:config. It can specified guess plugin.
+* improve progressbar
+* support filter section for config file.
+* remove --primary-key option from table:create
+
 == 2015-08-10 version 0.12.0
 
 * Improve error message from APIError
