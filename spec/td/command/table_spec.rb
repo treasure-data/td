@@ -199,7 +199,6 @@ module TreasureData::Command
 
           it 'create table' do
             command.should_receive(:create_database_and_table_if_not_exist).with(client, db_name, table_name)
-
             command.table_import(option)
           end
         end
@@ -211,7 +210,50 @@ module TreasureData::Command
 
           it 'not create table' do
             command.should_not_receive(:create_database_and_table_if_not_exist)
+            command.table_import(option)
+          end
+        end
+      end
 
+      describe 'time key' do
+        before do
+          command.stub(:get_client) { client }
+          command.stub(:do_table_import)
+        end
+        let(:input_params) {{
+          db_name: "database",
+          table_name: "table",
+          paths: ["path"]
+        }}
+
+        context 'should specify the custom time key' do
+          ['-t', '--time-key'].each do |tk_option|
+            let(:option) {
+              List::CommandParser.new('table:import', [], %w(db_name table_name path), false, [db_name, table_name, 'path', tk_option, 'created_at'], true)
+            }
+
+            before do
+              input_params[:time_key] = 'created_at'
+            end
+
+            it "with '#{tk_option}' option" do
+              command.should_receive(:do_table_import).with(client, input_params)
+              command.table_import(option)
+            end
+          end
+        end
+
+        context 'should use default time key \'time\'' do
+          let(:option) {
+            List::CommandParser.new('table:import', [], %w(db_name table_name path), false, [db_name, table_name, 'path'], true)
+          }
+
+          before do
+            input_params[:time_key] = 'time'
+          end
+
+          it 'without \'-t / --time-key\' option' do
+            command.should_receive(:do_table_import).with(client, input_params)
             command.table_import(option)
           end
         end

@@ -384,7 +384,7 @@ module Command
     time_key = 'time'
     auto_create = false
 
-    import_params = {}
+    import_params = {time_key: time_key}
 
     op.on('--format FORMAT', "file format (default: #{format})") {|s|
       import_params[:format] = s
