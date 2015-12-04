@@ -161,7 +161,7 @@ module Command
 
     client = get_client()
     # TODO database and table is empty at present. Fix API or Client.
-    keys = ['name', 'cron', 'timezone', 'delay', 'database', 'table', 'config', 'config_diff']
+    keys = ['name', 'cron', 'timezone', 'delay', 'database', 'table']
     fields = keys.map { |e| e.capitalize.to_sym }
     rows = client.bulk_load_list().sort_by { |e|
       e['name']
@@ -169,7 +169,7 @@ module Command
       Hash[fields.zip(e.values_at(*keys))]
     }
 
-    $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format)
+    $stdout.puts cmd_render_table(rows, :fields => fields, :render_format => op.render_format, resize: false)
   end
 
   def connector_create(op)
