@@ -1,3 +1,9 @@
+== 2015-12-14 version 0.13.1
+
+* fix table:import with no '-t' or '--time-key' option
+* fix show names on connector:list
+* fix create unnecessary file in spec
+
 == 2015-10-29 version 0.13.0
 
 * fix command error when recive 40X errror from server
