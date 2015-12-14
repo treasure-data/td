@@ -1,5 +1,5 @@
 #!/bin/sh
-ln -sf /usr/local/td/bin/td /usr/bin/td
+ln -sf /usr/local/td/bin/td /usr/local/bin/td
 osascript -e '
 tell application "Terminal"
     activate
