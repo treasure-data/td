@@ -347,7 +347,7 @@ module TreasureData::Command
         %w(--columns --column-header).each do |opt|
           context "with #{opt}" do
             let(:args) { ['url'] }
-            let(:arguments)     { ["path/to/prefix_*.csv", '--format', 'csv', opt, 'col1,col2'] }
+            let(:arguments)     { ["path/to/prefix_*.csv", '--format', 'csv', opt, 'col1,col2', '-o', out_file.path] }
 
             it "#{opt} is not migrate" do
               expect { command.import_config(option) }.not_to raise_error
