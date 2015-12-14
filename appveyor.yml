@@ -5,8 +5,7 @@ install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - ruby --version
   - gem --version
-  - gem install bundler --quiet --no-ri --no-rdoc
-  - bundler --version
+  - bundle --version
   - bundle install
 build_script:
   - bundle exec rake build
