@@ -47,7 +47,7 @@ namespace 'pkg' do
   end
 
   desc "clean Mac OS X pkg package"
-  task "pkg:clean" do
+  task "clean" do
     FileUtils.rm_rf build_dir_path('pkg')
     FileUtils.rm_rf project_root_path("pkg/td-#{version}.pkg")
     FileUtils.rm_rf project_root_path("pkg/td-update-pkg-#{version}.zip")
