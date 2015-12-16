@@ -69,7 +69,7 @@ module TreasureData::Command
       end
 
       describe 'output config' do
-        let(:out_file)  { Tempfile.new('out.yml') }
+        let(:out_file)  { Tempfile.new('out.yml').tap(&:close)  }
         let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
         let(:option) {
           List::CommandParser.new("connector:guess", ['config'], %w(access-id access-secret source out), nil, [bulk_load_yaml, '-o', out_file.path], true)
