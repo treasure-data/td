@@ -1,4 +1,5 @@
 #!/bin/sh
+mkdir -p /usr/local/bin
 ln -sf /usr/local/td/bin/td /usr/local/bin/td
 osascript -e '
 tell application "Terminal"
