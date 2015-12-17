@@ -53,7 +53,7 @@ module ModuleDefinition
   def get_client_version_file(path)
     td_gems = Dir[File.join(path, "vendor/gems/td-*")]
     td_gems.each { |td_gem|
-      if td_gem =~ /#{"#{Regexp.escape(path)}\/vendor\/gems\/td-\\d*.\\d*.\\d*"}/
+      if /[\/\\]td-\d+.\d+.\d+\z/ =~ td_gem
         return File.join(td_gem, "/lib/td/version.rb")
       end
     }
