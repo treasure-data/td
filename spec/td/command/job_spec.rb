@@ -232,7 +232,13 @@ module TreasureData::Command
         let :job do
           job = TreasureData::Job.new(nil, 12345, 'hive', 'select * from employee')
           job.instance_eval do
-            @result = [[[0.0/0.0, 1.0/0.0, 1.0/-0.0], 1], [["4", 5.0, {key:6}], 2], [["7", 8.0, {key:9}], 3]]
+            inf = Float::INFINITY
+            nan = Float::NAN
+            @result = [
+              [[nan, inf, -inf], 1],
+              [[[nan, inf, -inf], 5.0, {key:6}], 2],
+              [["7", 8.0, {key:9}], 3],
+            ]
             @result_size = 3
             @status = 'success'
           end
@@ -245,12 +251,20 @@ module TreasureData::Command
 
         it 'supports csv output' do
           command.send(:show_result, job, file, nil, 'csv')
-          File.read(file.path).should == %Q("""NaN""","""Infinity""","""-Infinity"""\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
+          File.read(file.path).should == <<text
+"""NaN""","""Infinity""","""-Infinity"""
+"[""NaN"",""Infinity"",""-Infinity""]",5.0,"{""key"":6}"
+7,8.0,"{""key"":9}"
+text
         end
 
         it 'supports tsv output' do
           command.send(:show_result, job, file, nil, 'tsv')
-          File.read(file.path).should == %Q("NaN"\t"Infinity"\t"-Infinity"\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
+          File.read(file.path).should == <<text
+"NaN"\t"Infinity"\t"-Infinity"
+["NaN","Infinity","-Infinity"]\t5.0\t{"key":6}
+7\t8.0\t{"key":9}
+text
         end
       end
     end

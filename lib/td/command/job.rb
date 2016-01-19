@@ -510,7 +510,14 @@ private
   end
 
   def sanitize_infinite_value(v)
-    (v.is_a?(Float) && !v.finite?) ? v.to_s : v
+    case v
+    when Float
+      v.finite? ? v : v.to_s
+    when Hash, Array
+      Marshal.load(Marshal.dump(v), ->(x){(x.is_a?(Float) && !x.finite?) ? x.to_s : x})
+    else
+      v
+    end
   end
 
   def job_priority_name_of(id)
