@@ -5,21 +5,42 @@ require 'td/command/connector'
 
 module TreasureData::Command
   describe 'connector commands' do
-    describe '#connector_guess' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
+    let :command do
+      Class.new { include TreasureData::Command }.new
+    end
+    let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
+    let(:stdout_io) { StringIO.new }
+    let(:stderr_io) { StringIO.new }
 
+    around do |example|
+      stdout = $stdout.dup
+      stderr = $stderr.dup
+
+      begin
+        $stdout = stdout_io
+        $stderr = stderr_io
+
+        example.run
+      ensure
+        $stdout = stdout
+        $stderr = stderr
+      end
+    end
+
+    describe '#connector_guess' do
       describe 'guess plugins' do
         let(:guess_plugins) { %w(json query_string) }
-
-        let(:in_file)  { Tempfile.new('in.yml').tap{|f| f.close } }
-        let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
-
+        let(:stdout_io) { StringIO.new }
+        let(:stderr_io) { StringIO.new }
         let(:option) {
           List::CommandParser.new("connector:guess", ["config"], [], nil, [in_file.path, '-o', out_file.path, '--guess', guess_plugins.join(',')], true)
         }
-        let(:client) { double(:client) }
+        let(:response) {
+          {'config' => {'in' => {}, 'out' => {}}}
+        }
+        let(:client)   { double(:client) }
+        let(:in_file)  { Tempfile.new('in.yml').tap{|f| f.close } }
+        let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
 
         before do
           command.stub(:get_client).and_return(client)
@@ -46,27 +67,37 @@ module TreasureData::Command
           command.connector_guess(option)
         end
       end
+
+      describe 'output config' do
+        let(:out_file)  { Tempfile.new('out.yml').tap(&:close)  }
+        let(:bulk_load_yaml) { File.join("spec", "td", "fixture", "bulk_load.yml") }
+        let(:option) {
+          List::CommandParser.new("connector:guess", ['config'], %w(access-id access-secret source out), nil, [bulk_load_yaml, '-o', out_file.path], true)
+        }
+        let(:response) {
+          {'config' => {'in' => {}, 'out' => {}}}
+        }
+        let(:client) {
+          double(:client, bulk_load_guess: response)
+        }
+
+        before do
+            command.stub(:get_client).and_return(client)
+            command.connector_guess(option)
+        end
+
+        it 'output yaml has [in, out] key' do
+          expect(YAML.load_file(out_file.path).keys).to eq(%w(in out))
+        end
+      end
     end
 
     describe '#connector_preview' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
-
       subject do
-        backup = $stdout.dup
-        buf = StringIO.new
+        op = List::CommandParser.new("connector:preview", ["config"], [], nil, [bulk_load_yaml], true)
+        command.connector_preview(op)
 
-        begin
-          $stdout = buf
-
-          op = List::CommandParser.new("connector:preview", ["config"], [], nil, [File.join("spec", "td", "fixture", "bulk_load.yml")], true)
-          command.connector_preview(op)
-
-          buf.string
-        ensure
-          $stdout = backup
-        end
+        stdout_io.string
       end
 
       let(:preview_result) do
@@ -97,30 +128,10 @@ module TreasureData::Command
     end
 
     describe '#connector_issue' do
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
-
-      let(:stderr_io) do
-        StringIO.new
-      end
-
       subject do
-        backup = $stdout.dup
-        stderr_backup = $stderr.dup
-        buf = StringIO.new
-
-        begin
-          $stdout = buf
-          $stderr = stderr_io
-
           command.connector_issue(option)
 
-          buf.string
-        ensure
-          $stdout = backup
-          $stderr = stderr_backup
-        end
+          stdout_io.string
       end
 
       describe 'queueing job' do
@@ -176,9 +187,6 @@ module TreasureData::Command
     describe '#connector_run' do
       include_context 'quiet_out'
 
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
       let(:client) { double(:client) }
       let(:job_name) { 'job_1' }
 
@@ -218,9 +226,6 @@ module TreasureData::Command
     describe 'connector history' do
       include_context 'quiet_out'
 
-      let :command do
-        Class.new { include TreasureData::Command }.new
-      end
       let(:name) { 'connector_test' }
 
       subject do
@@ -280,6 +285,72 @@ module TreasureData::Command
 
           it { expect { subject }.not_to raise_error }
         end
+      end
+    end
+
+    describe '#connector_list' do
+      let(:option) {
+        List::CommandParser.new("connector:list", [], [], nil, [], true)
+      }
+      let(:response) {
+        [{
+          'name'     => 'daily_mysql_import',
+          'cron'     => '10 0 * * *',
+          'timezone' => 'UTC',
+          'delay'    => 0,
+          'database' => 'td_sample_db',
+          'table'    => 'td_sample_table',
+          'config'   => {'type' => 'mysql'},
+        }]
+      }
+      let(:client) {
+        double(:client, bulk_load_list: response)
+      }
+
+      before do
+        command.stub(:get_client).and_return(client)
+        command.connector_list(option)
+      end
+
+      it 'show list use table format' do
+        expect(stdout_io.string).to include <<-EOL
+| daily_mysql_import | 10 0 * * * | UTC      | 0     | td_sample_db | td_sample_table |
+        EOL
+      end
+    end
+
+    describe '#connector_create' do
+      let(:name)     { 'daily_mysql_import' }
+      let(:cron)     { '10 0 * * *' }
+      let(:database) { 'td_sample_db' }
+      let(:table)    { 'td_sample_table' }
+      let(:config_file) {
+        Tempfile.new('config.json').tap {|tf|
+          tf.puts({}.to_json)
+          tf.close
+        }
+      }
+      let(:option) {
+        List::CommandParser.new("connector:create", %w(name cron database table config_file), [], nil, [name, cron, database, table, config_file.path], true)
+      }
+      let(:response) {
+        {'name' => name, 'cron' => cron, 'timezone' => 'UTC', 'delay' => 0, 'database' => database, 'table' => table, 'config' => ''}
+      }
+      let(:client) {
+        double(:client, bulk_load_create: response)
+      }
+
+      before do
+        command.stub(:get_table)
+        command.stub(:get_client).and_return(client)
+        command.connector_create(option)
+      end
+
+      it 'show create result' do
+        expect(stdout_io.string).to include name
+        expect(stdout_io.string).to include cron
+        expect(stdout_io.string).to include database
+        expect(stdout_io.string).to include table
       end
     end
   end
