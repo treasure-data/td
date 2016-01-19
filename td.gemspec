@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.require_paths         = ['lib']
   gem.required_ruby_version = '>= 1.9'
 
-  gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.5.12"]
+  gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.8.0"]
   gem.add_dependency "yajl-ruby", "~> 1.1"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 0.6.1"
