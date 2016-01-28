@@ -366,7 +366,11 @@ end # module ModuleDefinition
   end
 
   def check_n_update_jar(hourly = false)
-    if hourly
+    if !File.exist?(File.join(Updater.jarfile_dest_path, 'td-import.jar')) ||
+      !File.exist?(File.join(Updater.jarfile_dest_path, 'VERSION'))
+      # remove all file to install cleanly if a file is missing
+      FileUtils.rm_rf(Updater.jarfile_dest_path)
+    elsif hourly
       if !ENV['TD_TOOLBELT_JAR_UPDATE'].nil?
         # also validates the TD_TOOLBELT_JAR_UPDATE environment variable value
         if ENV['TD_TOOLBELT_JAR_UPDATE'] == "0"
