@@ -331,17 +331,6 @@ end # module ModuleDefinition
     if updated > last_updated
       FileUtils.mkdir_p(Updater.jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
       Dir.chdir(Updater.jarfile_dest_path) do
-        File.open('VERSION', 'w') {|f|
-          if hourly
-            f.print "#{version} via hourly jar auto-update"
-          else
-            f.print "#{version} via import:jar_update command"
-          end
-        }
-        File.open('td-import-java.version', 'w') {|f|
-          f.print "#{version} #{updated}"
-        }
-
         status = nil
         indicator = Command::TimeBasedDownloadProgressIndicator.new(
           "Updating td-import.jar", Time.new.to_i, 2)
@@ -355,6 +344,17 @@ end # module ModuleDefinition
         if status
           $stdout.puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
           File.rename 'td-import.jar.new', 'td-import.jar'
+
+          File.open('VERSION', 'w') {|f|
+            if hourly
+              f.print "#{version} via hourly jar auto-update"
+            else
+              f.print "#{version} via import:jar_update command"
+            end
+          }
+          File.open('td-import-java.version', 'w') {|f|
+            f.print "#{version} #{updated}"
+          }
         else
           $stdout.puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
           File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
