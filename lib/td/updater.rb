@@ -331,17 +331,6 @@ end # module ModuleDefinition
     if updated > last_updated
       FileUtils.mkdir_p(Updater.jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
       Dir.chdir(Updater.jarfile_dest_path) do
-        File.open('VERSION', 'w') {|f|
-          if hourly
-            f.print "#{version} via hourly jar auto-update"
-          else
-            f.print "#{version} via import:jar_update command"
-          end
-        }
-        File.open('td-import-java.version', 'w') {|f|
-          f.print "#{version} #{updated}"
-        }
-
         status = nil
         indicator = Command::TimeBasedDownloadProgressIndicator.new(
           "Updating td-import.jar", Time.new.to_i, 2)
@@ -355,8 +344,20 @@ end # module ModuleDefinition
         if status
           $stdout.puts "Installed td-import.jar v#{version} in '#{Updater.jarfile_dest_path}'.\n"
           File.rename 'td-import.jar.new', 'td-import.jar'
+
+          File.open('VERSION', 'w') {|f|
+            if hourly
+              f.print "#{version} via hourly jar auto-update"
+            else
+              f.print "#{version} via import:jar_update command"
+            end
+          }
+          File.open('td-import-java.version', 'w') {|f|
+            f.print "#{version} #{updated}"
+          }
         else
-          $stdout.puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          $stdout.puts "Update of td-import.jar failed."
+          $stdout.puts "Please execute 'td import:jar_update' later to update td-import.jar correctly."
           File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
         end
       end
@@ -366,7 +367,11 @@ end # module ModuleDefinition
   end
 
   def check_n_update_jar(hourly = false)
-    if hourly
+    if !File.exist?(File.join(Updater.jarfile_dest_path, 'td-import.jar')) ||
+      !File.exist?(File.join(Updater.jarfile_dest_path, 'VERSION'))
+      # remove all file to install cleanly if a file is missing
+      FileUtils.rm_rf(Updater.jarfile_dest_path)
+    elsif hourly
       if !ENV['TD_TOOLBELT_JAR_UPDATE'].nil?
         # also validates the TD_TOOLBELT_JAR_UPDATE environment variable value
         if ENV['TD_TOOLBELT_JAR_UPDATE'] == "0"
