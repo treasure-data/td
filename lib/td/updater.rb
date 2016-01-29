@@ -356,7 +356,8 @@ end # module ModuleDefinition
             f.print "#{version} #{updated}"
           }
         else
-          $stdout.puts "Update of td-import.jar failed." unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          $stdout.puts "Update of td-import.jar failed."
+          $stdout.puts "Please execute 'td import:jar_update' later to update td-import.jar correctly."
           File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
         end
       end
