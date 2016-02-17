@@ -180,6 +180,9 @@ private
       $stdout.puts "Query       : #{job.query}"
     elsif job.type == :bulk_import_perform
       $stdout.puts "Destination : #{job.query}"
+    elsif job.type == :bulkload
+      require 'yaml'
+      $stdout.puts "Config      :\n#{YAML.dump(job.query)}"
     end
     # if the job is done and is of type hive, show the Map-Reduce cumulated CPU time
     if job.finished?
