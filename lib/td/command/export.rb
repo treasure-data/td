@@ -1,7 +1,7 @@
 
 module TreasureData
 module Command
-  SUPPORTED_FORMATS = %W[json.gz line-json.gz tsv.gz]
+  SUPPORTED_FORMATS = %W[json.gz line-json.gz tsv.gz jsonl.gz]
   SUPPORTED_ENCRYPT_METHOD = %W[s3]
 
   def export_result(op)
