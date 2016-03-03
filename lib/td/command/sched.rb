@@ -116,7 +116,11 @@ module Command
       exit 1
     end
 
-    $stderr.puts "Schedule '#{name}' is created. It starts at #{first_time.localtime}."
+    if first_time
+      $stderr.puts "Schedule '#{name}' is created. It starts at #{first_time.localtime}."
+    else
+      $stderr.puts "Schedule '#{name}' is created, which never runs."
+    end
   end
 
   def sched_delete(op)
