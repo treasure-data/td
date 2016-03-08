@@ -212,12 +212,14 @@ module Command
   end
 
   def connector_update(op)
+    op.on('--config-diff CONFIG_DIFF', "config_diff") { |s| config_diff_file = s }
     name, config_file = op.cmd_parse
 
     config = prepare_bulkload_job_config(config_file)
+    config_diff = prepare_bulkload_job_config(config_diff_file)
 
     client = get_client()
-    session = client.bulk_load_update(name, config: config)
+    session = client.bulk_load_update(name, config: config, config_diff: config_diff_file)
     dump_connector_session(session)
   end
 
