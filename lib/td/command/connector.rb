@@ -212,15 +212,46 @@ module Command
   end
 
   def connector_update(op)
-    config_diff_file = nil
-    op.on('--config-diff CONFIG_DIFF', "config_diff") { |s| config_diff_file = s }
-    name, config_file = op.cmd_parse
+    settings = {}
 
-    config = prepare_bulkload_job_config(config_file)
-    config_diff = prepare_bulkload_job_config(config_diff_file)
+    op.on('-n', '--newname NAME', 'change the schedule\'s name', String) {|n|
+      settings['name'] = n
+    }
+    op.on('-d', '--database DB_NAME', 'change the database', String) {|s|
+      settings['database'] = s
+    }
+    op.on('-t', '--table TABLE_NAME', 'change the table', String) {|s|
+      settings['table'] = s
+    }
+    op.on('-s', '--schedule [CRON]', 'change the schedule or leave blank to remove the schedule', String) {|s|
+      settings['cron'] = s || ''
+    }
+    op.on('-z', '--timezone TZ', "name of the timezone.",
+                                 "  Only extended timezones like 'Asia/Tokyo', 'America/Los_Angeles' are supported,",
+                                 "  (no 'PST', 'PDT', etc...).",
+                                 "  When a timezone is specified, the cron schedule is referred to that timezone.",
+                                 "  Otherwise, the cron schedule is referred to the UTC timezone.",
+                                 "  E.g. cron schedule '0 12 * * *' will execute daily at 5 AM without timezone option",
+                                 "  and at 12PM with the -t / --timezone 'America/Los_Angeles' timezone option", String) {|s|
+      settings['timezone'] = s
+    }
+    op.on('-D', '--delay SECONDS', 'change the delay time of the schedule', Integer) {|i|
+      settings['delay'] = i
+    }
+    op.on('-T', '--time-column COLUMN_NAME', 'change the name of the time column', String) {|s|
+      settings['time_column'] = s
+    }
+    op.on('-c', '--config CONFIG_FILE', 'update the connector configuration', String) {|s|
+      settings['config'] = s
+    }
+    op.on('--config-diff CONFIG_DIFF_FILE', "update the connector config_diff", String) { |s| settings['config_diff'] = s }
 
+    name = op.cmd_parse
+    op.cmd_usage 'nothing to update' if settings.empty?
+    settings['config'] = prepare_bulkload_job_config(settings['config']) unless settings.key?('config')
+    settings['config_diff'] = prepare_bulkload_job_config(settings['config_diff']) unless settings.key?('config_diff')
     client = get_client()
-    session = client.bulk_load_update(name, {config: config, config_diff: config_diff})
+    session = client.bulk_load_update(name, settings)
     dump_connector_session(session)
   end
 
