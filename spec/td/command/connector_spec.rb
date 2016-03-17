@@ -351,7 +351,128 @@ module TreasureData::Command
         expect(stdout_io.string).to include cron
         expect(stdout_io.string).to include database
         expect(stdout_io.string).to include table
+    end
+  end
+
+    describe '#connector_update' do
+      let(:name)        { 'daily_mysql_import' }
+      let(:newname)     { name + '_suffix' }
+      let(:cron)        { '10 0 * * *' }
+      let(:timezone)    { 'Asia/Tokyo' }
+      let(:delay)       { 600.to_s }
+      let(:database)    { 'td_sample_db' }
+      let(:table)       { 'td_sample_table' }
+      let(:config_file) {
+        Tempfile.new('config.json').tap {|tf|
+          tf.puts({}.to_json)
+          tf.close
+        }
+      }
+
+      before do
+        command.stub(:get_table)
       end
+
+      describe 'show update result' do
+        it 'with no session rename' do
+          options = List::CommandParser.new("connector:update",
+            %w(name), ['newname', 'cron', 'timezone', 'database', 'table', 'delay'], nil,
+            [name, '-s', cron, '-z', timezone, '-d', database, '-t', table, '-D', delay], true)
+          response = {'name' => name, 'cron' => cron, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+
+          client = double(:client, bulk_load_update: response)
+          command.stub(:get_client).and_return(client)
+          command.connector_update(options)
+          STDOUT.puts stdout_io.string
+
+          expect(stdout_io.string).to include response['name'].to_s
+          expect(stdout_io.string).to include response['cron'].to_s
+          expect(stdout_io.string).to include response['timezone'].to_s
+          expect(stdout_io.string).to include response['delay'].to_s
+          expect(stdout_io.string).to include response['database'].to_s
+          expect(stdout_io.string).to include response['table'].to_s
+        end
+
+        it 'with session rename' do
+          options = List::CommandParser.new("connector:update",
+            %w(name), ['newname', 'cron', 'timezone', 'database', 'table', 'delay'], nil,
+            [name, '-n', newname, '-s', cron, '-z', timezone, '-d', database, '-t', table, '-D', delay], true)
+          response = {'name' => newname, 'cron' => cron, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+
+          client = double(:client, bulk_load_update: response)
+          command.stub(:get_client).and_return(client)
+          command.connector_update(options)
+          STDOUT.puts stdout_io.string
+
+          expect(stdout_io.string).to include response['name'].to_s
+          expect(stdout_io.string).to include response['cron'].to_s
+          expect(stdout_io.string).to include response['timezone'].to_s
+          expect(stdout_io.string).to include response['delay'].to_s
+          expect(stdout_io.string).to include response['database'].to_s
+          expect(stdout_io.string).to include response['table'].to_s
+        end
+
+        it 'with empty cron' do
+          options = List::CommandParser.new("connector:update", %w(name), ['newname', 'cron'], nil, [name, '-n', newname, '-s'], true)
+          response = {'name' => newname, 'cron' => nil, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+
+          client = double(:client, bulk_load_update: response)
+          command.stub(:get_client).and_return(client)
+          command.connector_update(options)
+          STDOUT.puts stdout_io.string
+
+          expect(stdout_io.string).to include response['name'].to_s
+          expect(stdout_io.string).to include response['cron'].to_s
+          expect(stdout_io.string).to include response['timezone'].to_s
+          expect(stdout_io.string).to include response['delay'].to_s
+          expect(stdout_io.string).to include response['database'].to_s
+          expect(stdout_io.string).to include response['table'].to_s
+        end
+      end
+
+      # let(:command_response) {
+      #   [
+      #     [
+      #       # no rename
+      #       List::CommandParser.new("connector:update", %w(name), ['newname', 'cron', 'timezone', 'database', 'table', 'delay'], nil,
+      #         [name, '-s', cron, '-z', timezone, '-d', database, '-t', table, '-D', delay], true),
+      #       {'name' => newname, 'cron' => cron, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+      #     ],
+      #     [
+      #       # with rename
+      #       List::CommandParser.new("connector:update", %w(name), ['newname', 'cron', 'timezone', 'database', 'table', 'delay'], nil,
+      #         [name, '-n', newname, '-s', cron, '-z', timezone, '-d', database, '-t', table, '-D', delay], true),
+      #       {'name' => newname, 'cron' => cron, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+      #     ],
+      #     [
+      #       # empty cron
+      #       List::CommandParser.new("connector:update", %w(name), ['newname', 'cron', 'timezone', 'database', 'table', 'delay'], nil,
+      #         [name, '-s', '-z', timezone, '-d', database, '-t', table, '-D', delay], true),
+      #       {'name' => name, 'cron' => nil, 'timezone' => timezone, 'delay' => delay, 'database' => database, 'table' => table, 'config' => ''}
+      #     ]
+      #   ]
+      # }
+
+
+
+      # it 'show update result' do
+      #   command_response.each do |options, response|
+      #     stdout_io.rewind
+      #     client = double(:client, bulk_load_update: response)
+      #     command.stub(:get_client).and_return(client)
+
+      #     command.connector_update(options)
+      #     STDOUT.puts stdout_io.string
+
+      #     expect(stdout_io.string).to include response['name']
+      #     expect(stdout_io.string).to include response['cron'].to_s
+      #     expect(stdout_io.string).to include response['timezone']
+      #     expect(stdout_io.string).to include response['delay']
+      #     expect(stdout_io.string).to include response['database']
+      #     expect(stdout_io.string).to include response['table']
+      #     # expect(stdout_io.string).to include config
+      #   end
+      # end
     end
 
     describe '#connector_update' do
