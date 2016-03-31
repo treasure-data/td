@@ -19,6 +19,7 @@ module Command
     limit = nil
     exclude = false
     pool_name = nil
+    domain_key = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -85,6 +86,9 @@ module Command
     op.on('-O', '--pool-name NAME', 'specify resource pool by name') {|s|
       pool_name = s
     }
+    op.on('--domain-key DOMAIN_KEY', 'optional user-provided unique ID. You can include this ID with your `create` request to ensure idempotence') {|s|
+      domain_key = s
+    }
 
     sql = op.cmd_parse
 
@@ -134,6 +138,7 @@ module Command
     opts = {}
     opts['type'] = type if type
     opts['pool_name'] = pool_name if pool_name
+    opts['domain_key'] = domain_key if domain_key
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stdout.puts "Job #{job.job_id} is queued."
