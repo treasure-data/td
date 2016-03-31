@@ -51,7 +51,7 @@ module TreasureData::Command
 
       before do
         client = double(:client, bulk_imports: response)
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
 
         command.import_list(option)
       end
@@ -86,7 +86,7 @@ module TreasureData::Command
 
       before do
         client = double(:client, bulk_imports: response)
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
 
         command.import_list(option)
       end
@@ -104,13 +104,13 @@ module TreasureData::Command
       let(:client) { double(:client) }
 
       before do
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       context 'not exists import' do
         it 'should be error' do
-          client.should_receive(:bulk_import).with(import_name).and_return(nil)
-          command.should_receive(:exit).with(1).and_return { raise CallSystemExitError }
+          expect(client).to receive(:bulk_import).with(import_name).and_return(nil)
+          expect(command).to receive(:exit).with(1) { raise CallSystemExitError }
 
           expect {
             command.import_show(option)
@@ -139,8 +139,8 @@ module TreasureData::Command
         }
 
         before do
-          client.should_receive(:bulk_import).with(import_name).and_return(bulk_import)
-          client.should_receive(:list_bulk_import_parts).with(import_name).and_return(bulk_import_parts)
+          expect(client).to receive(:bulk_import).with(import_name).and_return(bulk_import)
+          expect(client).to receive(:list_bulk_import_parts).with(import_name).and_return(bulk_import_parts)
 
           command.import_show(option)
         end
@@ -167,11 +167,11 @@ module TreasureData::Command
       let(:client) { double(:client) }
 
       before do
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       it 'create bulk import' do
-        client.should_receive(:create_bulk_import).with(import_name, database, table, {})
+        expect(client).to receive(:create_bulk_import).with(import_name, database, table, {})
 
         command.import_create(option)
 
@@ -195,8 +195,8 @@ module TreasureData::Command
       let(:apikey) { '1234ABCDEFGHIJKLMN' }
 
       before do
-        TreasureData::Config.stub(:endpoint).and_return(endpoint)
-        TreasureData::Config.stub(:apikey).and_return(apikey)
+        allow(TreasureData::Config).to receive(:endpoint).and_return(endpoint)
+        allow(TreasureData::Config).to receive(:apikey).and_return(apikey)
       end
 
       context 'unknown format' do

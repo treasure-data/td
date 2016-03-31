@@ -42,7 +42,7 @@ describe 'FileReader filters' do
 
     it 'initialize' do
       filter = FileReader::AutoTypeConvertParserFilter.new(parser, error, options)
-      filter.should_not be_nil
+      expect(filter).not_to be_nil
     end
 
     context 'after initialization' do
@@ -51,14 +51,14 @@ describe 'FileReader filters' do
       end
 
       it 'forward returns one converted line' do
-        filter.forward.should == dataset[0]
+        expect(filter.forward).to eq(dataset[0])
       end
 
       it 'feeds all lines' do
         begin
           i = 0
           while line = filter.forward
-            line.should == dataset[i]
+            expect(line).to eq(dataset[i])
             i += 1
           end
         rescue
@@ -79,7 +79,7 @@ describe 'FileReader filters' do
 
     it 'initialize' do
       builder = FileReader::HashBuilder.new(parser, error, columns)
-      builder.should_not be_nil
+      expect(builder).not_to be_nil
     end
 
     context 'after initialization' do
@@ -88,14 +88,14 @@ describe 'FileReader filters' do
       end
 
       it 'forward returns one converted line' do
-        builder.forward.should == built_dataset[0]
+        expect(builder.forward).to eq(built_dataset[0])
       end
 
       it 'feeds all lines' do
         begin
           i = 0
           while line = builder.forward
-            line.should == built_dataset[i]
+            expect(line).to eq(built_dataset[i])
             i += 1
           end
         rescue
@@ -111,7 +111,7 @@ describe 'FileReader filters' do
 
         it 'initialize' do
           filter = FileReader::TimeParserFilter.new(builder, error, :time_column => 'log_at')
-          filter.should_not be_nil
+          expect(filter).not_to be_nil
         end
 
         context 'after initialization' do
@@ -125,14 +125,14 @@ describe 'FileReader filters' do
           end
 
           it 'forward returns one parse line with parsed log_at' do
-            filter.forward.should == timed_dataset[0]
+            expect(filter.forward).to eq(timed_dataset[0])
           end
 
           it 'feeds all lines' do
             begin
               i = 0
               while line = filter.forward
-                line.should == timed_dataset[i]
+                expect(line).to eq(timed_dataset[i])
                 i += 1
               end
             rescue
@@ -157,7 +157,7 @@ describe 'FileReader filters' do
               rescue RSpec::Expectations::ExpectationNotMetError => e
                 fail
               rescue
-                i.should == 0
+                expect(i).to eq(0)
               end
             end
           end
@@ -182,7 +182,7 @@ describe 'FileReader filters' do
                 rescue RSpec::Expectations::ExpectationNotMetError => e
                   fail
                 rescue
-                  i.should == 0
+                  expect(i).to eq(0)
                 end
               end
             }
@@ -199,7 +199,7 @@ describe 'FileReader filters' do
 
         it 'initialize' do
           filter = FileReader::SetTimeParserFilter.new(builder, error, :time_value => Time.now.to_i)
-          filter.should_not be_nil
+          expect(filter).not_to be_nil
         end
 
         context 'after initialization' do
@@ -216,14 +216,14 @@ describe 'FileReader filters' do
           end
 
           it 'forward returns one converted line with time' do
-            filter.forward.should == timed_dataset[0]
+            expect(filter.forward).to eq(timed_dataset[0])
           end
 
           it 'feeds all lines' do
             begin
               i = 0
               while line = filter.forward
-                line.should == timed_dataset[i]
+                expect(line).to eq(timed_dataset[i])
                 i += 1
               end
             rescue

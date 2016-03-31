@@ -21,9 +21,9 @@ module TreasureData::Updater
 
         describe 'endpoints methods' do
           it 'use the default root path' do
-            TreasureData::Updater.endpoint_root.should == default_toolbelt_url
-            TreasureData::Updater.version_endpoint.should =~ Regexp.new(default_toolbelt_url)
-            TreasureData::Updater.update_package_endpoint.should =~ Regexp.new(default_toolbelt_url)
+            expect(TreasureData::Updater.endpoint_root).to eq(default_toolbelt_url)
+            expect(TreasureData::Updater.version_endpoint).to match(Regexp.new(default_toolbelt_url))
+            expect(TreasureData::Updater.update_package_endpoint).to match(Regexp.new(default_toolbelt_url))
           end
         end
       end
@@ -34,9 +34,9 @@ module TreasureData::Updater
         end
         describe 'endpoints methods' do
           it 'use the custom root path' do
-            TreasureData::Updater.endpoint_root.should == ENV['TD_TOOLBELT_UPDATE_ROOT']
-            TreasureData::Updater.version_endpoint.should =~ Regexp.new(ENV['TD_TOOLBELT_UPDATE_ROOT'])
-            TreasureData::Updater.update_package_endpoint.should =~ Regexp.new(ENV['TD_TOOLBELT_UPDATE_ROOT'])
+            expect(TreasureData::Updater.endpoint_root).to eq(ENV['TD_TOOLBELT_UPDATE_ROOT'])
+            expect(TreasureData::Updater.version_endpoint).to match(Regexp.new(ENV['TD_TOOLBELT_UPDATE_ROOT']))
+            expect(TreasureData::Updater.update_package_endpoint).to match(Regexp.new(ENV['TD_TOOLBELT_UPDATE_ROOT']))
           end
         end
         after do
@@ -137,13 +137,13 @@ module TreasureData::Updater
       subject { updater.kick }
 
       context "not updated" do
-        before { updater.stub(:existent_jar_updated_time).and_return(Time.now) }
+        before { allow(updater).to receive(:existent_jar_updated_time).and_return(Time.now) }
 
         it_behaves_like "jar_update behavior"
       end
 
       context "updated" do
-        before { updater.stub(:existent_jar_updated_time).and_return(Time.at(0)) }
+        before { allow(updater).to receive(:existent_jar_updated_time).and_return(Time.at(0)) }
 
         it_behaves_like "jar_update behavior"
       end

@@ -13,20 +13,20 @@ describe 'FileReader parsing readers' do
 
   shared_examples_for 'forward basics' do
     it 'forward returns one data' do
-      reader.forward.should == dataset[0]
+      expect(reader.forward).to eq(dataset[0])
     end
 
     it 'feeds all dataset' do
       begin
         i = 0
         while line = reader.forward
-          line.should == dataset[i]
+          expect(line).to eq(dataset[i])
           i += 1
         end
       rescue RSpec::Expectations::ExpectationNotMetError => e
           fail
       rescue => e
-        io.eof?.should be_true
+        expect(io.eof?).to be_truthy
       end
     end
   end
@@ -46,7 +46,7 @@ describe 'FileReader parsing readers' do
 
     it 'initialize' do
       reader = FileReader::MessagePackParsingReader.new(io, error, {})
-      reader.should_not be_nil
+      expect(reader).not_to be_nil
     end
 
     context 'after initialization' do
@@ -102,7 +102,7 @@ describe 'FileReader parsing readers' do
 
       it "initialize #{format}" do
         reader = FileReader::SeparatedValueParsingReader.new(io, error, opts)
-        reader.should_not be_nil
+        expect(reader).not_to be_nil
       end
 
       context "after #{format} initialization" do
