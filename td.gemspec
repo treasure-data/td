@@ -27,7 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "zip-zip", "~> 0.3"
   gem.add_dependency "ruby-progressbar", "~> 1.7.5"
   gem.add_development_dependency "rake", "~> 0.9"
-  gem.add_development_dependency "rspec", "~> 2.11.0"
+  gem.add_development_dependency "rspec", "~> 2.99"
   gem.add_development_dependency "simplecov", "~> 0.10.0"
   gem.add_development_dependency 'coveralls'
 end
