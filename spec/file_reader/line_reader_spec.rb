@@ -27,7 +27,7 @@ describe FileReader::LineReader do
     end
     FileReader::LineReader.new(io, error, {})
     if io.respond_to?(:external_encoding)
-      io.external_encoding.should == ee
+      expect(io.external_encoding).to eq(ee)
     end
   end
 
@@ -46,8 +46,8 @@ describe FileReader::LineReader do
 
     FileReader::LineReader.new(io, error, {:encoding => specified_encoding})
     if io.respond_to?(:external_encoding)
-      io.external_encoding.should_not == original_encoding
-      io.external_encoding.should == Encoding.find(specified_encoding)
+      expect(io.external_encoding).not_to eq(original_encoding)
+      expect(io.external_encoding).to eq(Encoding.find(specified_encoding))
     end
   end
 
@@ -57,7 +57,7 @@ describe FileReader::LineReader do
     end
 
     it 'forward_row returns one line' do
-      reader.forward_row.should == lines[0]
+      expect(reader.forward_row).to eq(lines[0])
     end
 
     # TODO: integrate with following shared_examples_for
@@ -65,13 +65,13 @@ describe FileReader::LineReader do
       begin
         i = 0
         while line = reader.forward_row
-          line.should == lines[i]
+          expect(line).to eq(lines[i])
           i += 1
         end
       rescue RSpec::Expectations::ExpectationNotMetError => e
         fail
       rescue
-        io.eof?.should be_true
+        expect(io.eof?).to be_truthy
       end
     end
 
@@ -82,13 +82,13 @@ describe FileReader::LineReader do
         begin
           i = 0
           while line = parser.forward
-            line.should == get_expected.call(i)
+            expect(line).to eq(get_expected.call(i))
             i += step
           end
         rescue RSpec::Expectations::ExpectationNotMetError => e
           fail
         rescue
-          io.eof?.should be_true
+          expect(io.eof?).to be_truthy
         end
       end
     end
@@ -96,7 +96,7 @@ describe FileReader::LineReader do
     describe FileReader::JSONParser do
       it 'initialize with LineReader' do
         parser = FileReader::JSONParser.new(reader, error, {})
-        parser.should_not be_nil
+        expect(parser).not_to be_nil
       end
 
       context 'after initialization' do
@@ -105,7 +105,7 @@ describe FileReader::LineReader do
         end
 
         it 'forward returns one line' do
-          parser.forward.should == JSON.parse(lines[0])
+          expect(parser.forward).to eq(JSON.parse(lines[0]))
         end
 
         let :get_expected do
@@ -144,7 +144,7 @@ describe FileReader::LineReader do
 
         it "initialize with LineReader and #{pattern} delimiter" do
           parser = FileReader::DelimiterParser.new(reader, error, {:delimiter_expr => Regexp.new(pattern)})
-          parser.should_not be_nil
+          expect(parser).not_to be_nil
         end
 
         context 'after initialization' do
@@ -153,7 +153,7 @@ describe FileReader::LineReader do
           end
 
           it 'forward returns one line' do
-            parser.forward.should == lines[0].split(pattern)
+            expect(parser.forward).to eq(lines[0].split(pattern))
           end
 
           let :get_expected do
@@ -198,7 +198,7 @@ describe FileReader::LineReader do
 
         it "initialize with LineReader" do
           parser = parser_class.new(reader, error, {})
-          parser.should_not be_nil
+          expect(parser).not_to be_nil
         end
 
         context 'after initialization' do
@@ -207,7 +207,7 @@ describe FileReader::LineReader do
           end
 
           it 'forward returns one line' do
-            parser.forward.should == output[0]
+            expect(parser.forward).to eq(output[0])
           end
 
           let :get_expected do

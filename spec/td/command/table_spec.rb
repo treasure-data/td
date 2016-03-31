@@ -22,11 +22,11 @@ module TreasureData::Command
         }
         db_tables = create_tables.call(db.name)
 
-        client.stub(:tables).with(db.name).and_return(db_tables)
+        allow(client).to receive(:tables).with(db.name).and_return(db_tables)
 
         command = Class.new { include TreasureData::Command }.new
-        command.stub(:get_client).and_return(client)
-        command.stub(:get_database).and_return(db)
+        allow(command).to receive(:get_client).and_return(client)
+        allow(command).to receive(:get_database).and_return(db)
 
         op = List::CommandParser.new('table:list', %w[], %w[db], false, %w(full_access_db), true)
         expect {
@@ -51,14 +51,14 @@ module TreasureData::Command
         fa_db_tables = create_tables.call(fa_db.name)
         own_db_tables = create_tables.call(own_db.name)
 
-        client.stub(:databases).and_return([qo_db, fa_db, own_db])
+        allow(client).to receive(:databases).and_return([qo_db, fa_db, own_db])
 
-        client.stub(:tables).with(qo_db.name).and_return(qo_db_tables)
-        client.stub(:tables).with(fa_db.name).and_return(fa_db_tables)
-        client.stub(:tables).with(own_db.name).and_return(own_db_tables)
+        allow(client).to receive(:tables).with(qo_db.name).and_return(qo_db_tables)
+        allow(client).to receive(:tables).with(fa_db.name).and_return(fa_db_tables)
+        allow(client).to receive(:tables).with(own_db.name).and_return(own_db_tables)
 
         command = Class.new { include TreasureData::Command }.new
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
 
         op = List::CommandParser.new('table:list', %w[], %w[db], false, %w(), true)
         expect {
@@ -72,8 +72,8 @@ module TreasureData::Command
         db = TreasureData::Database.new(client, 'import_only_db', nil, 1234, Time.now.to_i, Time.now.to_i, nil, 'import_only')
 
         command = Class.new { include TreasureData::Command }.new
-        command.stub(:get_client).and_return(client)
-        command.stub(:get_database).and_return(db)
+        allow(command).to receive(:get_client).and_return(client)
+        allow(command).to receive(:get_database).and_return(db)
 
         op = List::CommandParser.new('table:list', %w[], %w[db], false, %w(import_only_db), true)
         expect {
@@ -99,15 +99,15 @@ module TreasureData::Command
         fa_db_tables = create_tables.call(fa_db.name)
         own_db_tables = create_tables.call(own_db.name)
 
-        client.stub(:databases).and_return([io_db, qo_db, fa_db, own_db])
+        allow(client).to receive(:databases).and_return([io_db, qo_db, fa_db, own_db])
 
-        client.stub(:tables).with(io_db.name).and_raise("not permitted")
-        client.stub(:tables).with(qo_db.name).and_return(qo_db_tables)
-        client.stub(:tables).with(fa_db.name).and_return(fa_db_tables)
-        client.stub(:tables).with(own_db.name).and_return(own_db_tables)
+        allow(client).to receive(:tables).with(io_db.name).and_raise("not permitted")
+        allow(client).to receive(:tables).with(qo_db.name).and_return(qo_db_tables)
+        allow(client).to receive(:tables).with(fa_db.name).and_return(fa_db_tables)
+        allow(client).to receive(:tables).with(own_db.name).and_return(own_db_tables)
 
         command = Class.new { include TreasureData::Command }.new
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
 
         op = List::CommandParser.new('table:list', %w[], %w[db], false, %w(), true)
         expect {
@@ -122,8 +122,8 @@ module TreasureData::Command
         let(:db) { TreasureData::Database.new(client, 'full_access_db', nil, 1000, Time.now.to_i, Time.now.to_i, nil, 'full_access') }
         let(:command) do
           command = Class.new { include TreasureData::Command }.new
-          command.stub(:get_client).and_return(client)
-          command.stub(:get_database).and_return(db)
+          allow(command).to receive(:get_client).and_return(client)
+          allow(command).to receive(:get_database).and_return(db)
           command
         end
 
@@ -135,7 +135,7 @@ module TreasureData::Command
             }
           }
           db_tables = create_tables.call(db.name)
-          client.stub(:tables).with(db.name).and_return(db_tables)
+          allow(client).to receive(:tables).with(db.name).and_return(db_tables)
         end
 
         subject do
@@ -156,26 +156,26 @@ module TreasureData::Command
 
         context "without --format" do
           let(:options) { [] }
-          it { should include(number_format) }
-          it { should_not include(number_raw) }
+          it { is_expected.to include(number_format) }
+          it { is_expected.not_to include(number_raw) }
         end
 
         context "with --format table" do
           let(:options) { %w(--format table) }
-          it { should include(number_format) }
-          it { should_not include(number_raw) }
+          it { is_expected.to include(number_format) }
+          it { is_expected.not_to include(number_raw) }
         end
 
         context "with --format csv" do
           let(:options) { %w(--format csv) }
-          it { should_not include(number_format) }
-          it { should include(number_raw) }
+          it { is_expected.not_to include(number_format) }
+          it { is_expected.to include(number_raw) }
         end
 
         context "with --format tsv" do
           let(:options) { %w(--format tsv) }
-          it { should_not include(number_format) }
-          it { should include(number_raw) }
+          it { is_expected.not_to include(number_format) }
+          it { is_expected.to include(number_raw) }
         end
       end
     end
@@ -188,8 +188,8 @@ module TreasureData::Command
 
       describe 'auto create table' do
         before do
-          command.stub(:get_client) { client }
-          command.stub(:do_table_import)
+          allow(command).to receive(:get_client) { client }
+          allow(command).to receive(:do_table_import)
         end
 
         context 'set --auto-create-table' do
@@ -198,7 +198,7 @@ module TreasureData::Command
           }
 
           it 'create table' do
-            command.should_receive(:create_database_and_table_if_not_exist).with(client, db_name, table_name)
+            expect(command).to receive(:create_database_and_table_if_not_exist).with(client, db_name, table_name)
             command.table_import(option)
           end
         end
@@ -209,7 +209,7 @@ module TreasureData::Command
           }
 
           it 'not create table' do
-            command.should_not_receive(:create_database_and_table_if_not_exist)
+            expect(command).not_to receive(:create_database_and_table_if_not_exist)
             command.table_import(option)
           end
         end
@@ -217,8 +217,8 @@ module TreasureData::Command
 
       describe 'time key' do
         before do
-          command.stub(:get_client) { client }
-          command.stub(:do_table_import)
+          allow(command).to receive(:get_client) { client }
+          allow(command).to receive(:do_table_import)
         end
         let(:input_params) {{
           db_name: "database",
@@ -237,7 +237,7 @@ module TreasureData::Command
             end
 
             it "with '#{tk_option}' option" do
-              command.should_receive(:do_table_import).with(client, input_params)
+              expect(command).to receive(:do_table_import).with(client, input_params)
               command.table_import(option)
             end
           end
@@ -253,7 +253,7 @@ module TreasureData::Command
           end
 
           it 'without \'-t / --time-key\' option' do
-            command.should_receive(:do_table_import).with(client, input_params)
+            expect(command).to receive(:do_table_import).with(client, input_params)
             command.table_import(option)
           end
         end
@@ -274,19 +274,19 @@ module TreasureData::Command
       }
 
       before do
-        command.stub(:get_client) { client }
-        command.stub(:get_database).with(client, db_name).and_return(database)
+        allow(command).to receive(:get_client) { client }
+        allow(command).to receive(:get_database).with(client, db_name).and_return(database)
       end
 
       context "from table isn't exists" do
         let(:cmd_args) { [db_name, from_table_name, dest_table_name] }
 
         before do
-          database.stub(:table).with(from_table_name).and_return { raise }
+          allow(database).to receive(:table).with(from_table_name) { raise }
         end
 
         it "can't rename table" do
-          command.should_receive(:exit).with(1).and_return { raise CallSystemExitError }
+          expect(command).to receive(:exit).with(1) { raise CallSystemExitError }
 
           expect { command.table_rename(option) }.to raise_error
           expect(stderr_io.string).to     include(from_table_name)
@@ -298,18 +298,18 @@ module TreasureData::Command
         let(:cmd_args) { [db_name, from_table_name, dest_table_name] }
 
         before do
-          database.stub(:table).with(from_table_name).and_return
+          allow(database).to receive(:table).with(from_table_name)
         end
 
         context "dest_table isn't exists" do
           before do
-            database.stub(:table).with(dest_table_name).and_return { raise }
+            allow(database).to receive(:table).with(dest_table_name) { raise }
           end
 
           it 'create dest table and rename table' do
-            client.should_receive(:create_log_table).with(db_name, dest_table_name)
-            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
-            client.should_receive(:delete_table).with(db_name, from_table_name)
+            expect(client).to receive(:create_log_table).with(db_name, dest_table_name)
+            expect(client).to receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            expect(client).to receive(:delete_table).with(db_name, from_table_name)
 
             command.table_rename(option)
 
@@ -320,11 +320,11 @@ module TreasureData::Command
 
         context "dest_tableis is exist" do
           before do
-            database.stub(:table).with(dest_table_name).and_return
+            allow(database).to receive(:table).with(dest_table_name)
           end
 
           it "can't rename table" do
-            command.should_receive(:exit).with(1).and_return { raise CallSystemExitError }
+            expect(command).to receive(:exit).with(1) { raise CallSystemExitError }
 
             expect { command.table_rename(option) }.to raise_error
             expect(stderr_io.string).not_to include(from_table_name)
@@ -337,18 +337,18 @@ module TreasureData::Command
         let(:cmd_args) { [db_name, from_table_name, dest_table_name, '--overwrite'] }
 
         before do
-          database.stub(:table).with(from_table_name).and_return
+          allow(database).to receive(:table).with(from_table_name)
         end
 
         context "dest_table isn't exists" do
           before do
-            database.stub(:table).with(dest_table_name).and_return { raise }
+            allow(database).to receive(:table).with(dest_table_name) { raise }
           end
 
           it 'create dest table and rename table' do
-            client.should_receive(:create_log_table).with(db_name, dest_table_name)
-            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
-            client.should_receive(:delete_table).with(db_name, from_table_name)
+            expect(client).to receive(:create_log_table).with(db_name, dest_table_name)
+            expect(client).to receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            expect(client).to receive(:delete_table).with(db_name, from_table_name)
 
             command.table_rename(option)
             expect(stderr_io.string).to include(from_table_name)
@@ -358,12 +358,12 @@ module TreasureData::Command
 
         context "dest_tableis is exist" do
           before do
-            database.stub(:table).with(dest_table_name).and_return
+            allow(database).to receive(:table).with(dest_table_name)
           end
 
           it 'overwrite dest table' do
-            client.should_receive(:swap_table).with(db_name, from_table_name, dest_table_name)
-            client.should_receive(:delete_table).with(db_name, from_table_name)
+            expect(client).to receive(:swap_table).with(db_name, from_table_name, dest_table_name)
+            expect(client).to receive(:delete_table).with(db_name, from_table_name)
 
             command.table_rename(option)
             expect(stderr_io.string).to include(from_table_name)

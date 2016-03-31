@@ -34,11 +34,11 @@ module TreasureData::Command
           let(:format) { "json" }
 
           it do
-            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            expect(FileUtils).to receive(:mv).with(tempfile, file.path)
             subject
           end
           it do
-            command.should_receive(:open_file).with(tempfile, "w")
+            expect(command).to receive(:open_file).with(tempfile, "w")
             subject
           end
         end
@@ -47,11 +47,11 @@ module TreasureData::Command
           let(:format) { "csv" }
 
           it do
-            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            expect(FileUtils).to receive(:mv).with(tempfile, file.path)
             subject
           end
           it do
-            command.should_receive(:open_file).with(tempfile, "w")
+            expect(command).to receive(:open_file).with(tempfile, "w")
             subject
           end
         end
@@ -60,11 +60,11 @@ module TreasureData::Command
           let(:format) { "tsv" }
 
           it do
-            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            expect(FileUtils).to receive(:mv).with(tempfile, file.path)
             subject
           end
           it do
-            command.should_receive(:open_file).with(tempfile, "w")
+            expect(command).to receive(:open_file).with(tempfile, "w")
             subject
           end
         end
@@ -73,15 +73,15 @@ module TreasureData::Command
           let(:format) { "msgpack" }
 
           before do
-            job.stub(:result_format) # for msgpack
+            allow(job).to receive(:result_format) # for msgpack
           end
 
           it do
-            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            expect(FileUtils).to receive(:mv).with(tempfile, file.path)
             subject
           end
           it do
-            command.should_receive(:open_file).with(tempfile, "wb")
+            expect(command).to receive(:open_file).with(tempfile, "wb")
             subject
           end
         end
@@ -90,15 +90,15 @@ module TreasureData::Command
           let(:format) { "msgpack.gz" }
 
           before do
-            job.stub(:result_raw)    # for msgpack.gz
+            allow(job).to receive(:result_raw)    # for msgpack.gz
           end
 
           it do
-            FileUtils.should_receive(:mv).with(tempfile, file.path)
+            expect(FileUtils).to receive(:mv).with(tempfile, file.path)
             subject
           end
           it do
-            command.should_receive(:open_file).with(tempfile, "wb")
+            expect(command).to receive(:open_file).with(tempfile, "wb")
             subject
           end
         end
@@ -107,17 +107,17 @@ module TreasureData::Command
       context 'result without nil' do
         it 'supports json output' do
           command.send(:show_result, job, file, nil, 'json')
-          File.read(file.path).should == %Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]])
+          expect(File.read(file.path)).to eq(%Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]]))
         end
 
         it 'supports csv output' do
           command.send(:show_result, job, file, nil, 'csv')
-          File.read(file.path).should == %Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
+          expect(File.read(file.path)).to eq(%Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n))
         end
 
         it 'supports tsv output' do
           command.send(:show_result, job, file, nil, 'tsv')
-          File.read(file.path).should == %Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
+          expect(File.read(file.path)).to eq(%Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n))
         end
       end
 
@@ -138,49 +138,49 @@ module TreasureData::Command
 
         context 'with --column-header option' do
           before do
-            job.stub(:hive_result_schema).and_return([['c0', 'time'], ['c1', 'double'], ['v', nil], ['c3', 'long']])
+            allow(job).to receive(:hive_result_schema).and_return([['c0', 'time'], ['c1', 'double'], ['v', nil], ['c3', 'long']])
             client = Object.new
-            client.stub(:job).with(job_id).and_return(job)
-            command.stub(:get_client).and_return(client)
+            allow(client).to receive(:job).with(job_id).and_return(job)
+            allow(command).to receive(:get_client).and_return(client)
           end
 
           it 'supports json output' do
             command.send(:show_result, job, file, nil, 'json', { header: true })
-            File.read(file.path).should == %Q([{"c0":null,"c1":2.0,"v":{"key":3},"c3":null}])
+            expect(File.read(file.path)).to eq(%Q([{"c0":null,"c1":2.0,"v":{"key":3},"c3":null}]))
           end
 
           it 'supports csv output' do
             command.send(:show_result, job, file, nil, 'csv', { header: true })
-            File.read(file.path).should == %Q(c0,c1,v,c3\nnull,2.0,"{""key"":3}"\n)
+            expect(File.read(file.path)).to eq(%Q(c0,c1,v,c3\nnull,2.0,"{""key"":3}"\n))
           end
 
           it 'supports tsv output' do
             command.send(:show_result, job, file, nil, 'tsv', { header: true })
-            File.read(file.path).should == %Q(c0\tc1\tv\tc3\nnull\t2.0\t{"key":3}\n)
+            expect(File.read(file.path)).to eq(%Q(c0\tc1\tv\tc3\nnull\t2.0\t{"key":3}\n))
           end
         end
 
         context 'without --null option' do
           it 'supports json output' do
             command.send(:show_result, job, file, nil, 'json')
-            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+            expect(File.read(file.path)).to eq(%Q([[null,2.0,{"key":3}]]))
           end
 
           it 'supports csv output' do
             command.send(:show_result, job, file, nil, 'csv')
-            File.read(file.path).should == %Q(null,2.0,"{""key"":3}"\n)
+            expect(File.read(file.path)).to eq(%Q(null,2.0,"{""key"":3}"\n))
           end
 
           it 'supports tsv output' do
             command.send(:show_result, job, file, nil, 'tsv')
-            File.read(file.path).should == %Q(null\t2.0\t{"key":3}\n)
+            expect(File.read(file.path)).to eq(%Q(null\t2.0\t{"key":3}\n))
           end
         end
 
         context 'with --null option' do
           it 'dose not effect json output (nil will be shown as null)' do
             command.send(:show_result, job, file, nil, 'json', { null_expr: "NULL" })
-            File.read(file.path).should == %Q([[null,2.0,{"key":3}]])
+            expect(File.read(file.path)).to eq(%Q([[null,2.0,{"key":3}]]))
           end
 
           context 'csv format' do
@@ -189,7 +189,7 @@ module TreasureData::Command
 
               it 'shows nill as specified string' do
                 command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
-                File.read(file.path).should == %Q(NULL,2.0,"{""key"":3}"\n)
+                expect(File.read(file.path)).to eq(%Q(NULL,2.0,"{""key"":3}"\n))
               end
             end
 
@@ -198,14 +198,14 @@ module TreasureData::Command
 
               it 'shows nill as empty string' do
                 command.send(:show_result, job, file, nil, 'csv', { null_expr: null_expr })
-                File.read(file.path).should == %Q("",2.0,"{""key"":3}"\n)
+                expect(File.read(file.path)).to eq(%Q("",2.0,"{""key"":3}"\n))
               end
             end
           end
 
           it 'supports tsv output' do
             command.send(:show_result, job, file, nil, 'tsv', { null_expr: "\"\"" })
-            File.read(file.path).should == %Q(""\t2.0\t{"key":3}\n)
+            expect(File.read(file.path)).to eq(%Q(""\t2.0\t{"key":3}\n))
           end
         end
       end
@@ -214,17 +214,17 @@ module TreasureData::Command
 
         it 'supports json output' do
           command.send(:show_result, job, file, nil, 'json')
-          File.read(file.path).should == %Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]])
+          expect(File.read(file.path)).to eq(%Q([["1",2.0,{"key":3}],\n["4",5.0,{"key":6}],\n["7",8.0,{"key":9}]]))
         end
 
         it 'supports csv output' do
           command.send(:show_result, job, file, nil, 'csv')
-          File.read(file.path).should == %Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n)
+          expect(File.read(file.path)).to eq(%Q(1,2.0,"{""key"":3}"\n4,5.0,"{""key"":6}"\n7,8.0,"{""key"":9}"\n))
         end
 
         it 'supports tsv output' do
           command.send(:show_result, job, file, nil, 'tsv')
-          File.read(file.path).should == %Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n)
+          expect(File.read(file.path)).to eq(%Q(1\t2.0\t{"key":3}\n4\t5.0\t{"key":6}\n7\t8.0\t{"key":9}\n))
         end
       end
 
@@ -251,7 +251,7 @@ module TreasureData::Command
 
         it 'supports csv output' do
           command.send(:show_result, job, file, nil, 'csv')
-          File.read(file.path).should == <<text
+          expect(File.read(file.path)).to eq <<text
 """NaN""","""Infinity""","""-Infinity"""
 "[""NaN"",""Infinity"",""-Infinity""]",5.0,"{""key"":6}"
 7,8.0,"{""key"":9}"
@@ -260,7 +260,7 @@ text
 
         it 'supports tsv output' do
           command.send(:show_result, job, file, nil, 'tsv')
-          File.read(file.path).should == <<text
+          expect(File.read(file.path)).to eq <<text
 "NaN"\t"Infinity"\t"-Infinity"
 ["NaN","Infinity","-Infinity"]\t5.0\t{"key":6}
 7\t8.0\t{"key":9}
@@ -301,16 +301,16 @@ text
       end
 
       before do
-        job.stub(:finished?).and_return(true)
+        allow(job).to receive(:finished?).and_return(true)
 
         client = Object.new
-        client.stub(:job).with(job_id).and_return(job)
-        command.stub(:get_client).and_return(client)
+        allow(client).to receive(:job).with(job_id).and_return(job)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       context 'without --null option' do
         it 'calls #show_result without null_expr option' do
-          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false})
+          allow(command).to receive(:show_result).with(job, nil, nil, nil, {:header=>false})
           op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345"], true)
           command.job_show(op)
         end
@@ -318,13 +318,13 @@ text
 
       context 'with --null option' do
         it 'calls #show_result with null_expr option' do
-          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>"NULL"} )
+          allow(command).to receive(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>"NULL"} )
           op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", "NULL"], true)
           command.job_show(op)
         end
 
         it 'calls #show_result with null_expr option' do
-          command.stub(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>'""'} )
+          allow(command).to receive(:show_result).with(job, nil, nil, nil, {:header=>false, :null_expr=>'""'} )
           op = List::CommandParser.new("job:show", %w[job_id], %w[], nil, ["12345", "--null", '""'], true)
           command.job_show(op)
         end
@@ -388,8 +388,8 @@ text
 
       before do
         client = Object.new
-        client.stub(:jobs).and_return(jobs)
-        command.stub(:get_client).and_return(client)
+        allow(client).to receive(:jobs).and_return(jobs)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       it 'should display all job list' do
@@ -437,31 +437,31 @@ ACTUAL
 
       it 'assumes test setting is correct' do
         # the String is actually in Windows-31J but encoding is UTF-8 msgpack-ruby reports
-        multibyte_string.encoding.should == Encoding::UTF_8
-        multibyte_string.force_encoding('Windows-31J').encode('UTF-8').should == 'メール'
+        expect(multibyte_string.encoding).to eq(Encoding::UTF_8)
+        expect(multibyte_string.force_encoding('Windows-31J').encode('UTF-8')).to eq('メール')
       end
 
       it 'supports json output' do
         row = multibyte_row
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'json')
-        File.read(file.path, encoding: 'UTF-8').should == '[' + [row, row].map { |e| Yajl.dump(e) }.join(",\n") + ']'
+        expect(File.read(file.path, encoding: 'UTF-8')).to eq('[' + [row, row].map { |e| Yajl.dump(e) }.join(",\n") + ']')
       end
 
       it 'supports csv output' do
         row = multibyte_row.map { |e| dump_column(e) }
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'csv')
-        File.binread(file.path).should == [row, row].map { |e| CSV.generate_line(e, :row_sep => line_separator) }.join
-        File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split.first.should == 'メール,2.0,"{""メール"":""メール""}"'
+        expect(File.binread(file.path)).to eq([row, row].map { |e| CSV.generate_line(e, :row_sep => line_separator) }.join)
+        expect(File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split.first).to eq('メール,2.0,"{""メール"":""メール""}"')
       end
 
       it 'supports tsv output' do
         row = multibyte_row.map { |e| dump_column(e) }
         file = Tempfile.new("job_spec").tap {|s| s.close }
         command.send(:show_result, job, file, nil, 'tsv')
-        File.binread(file.path).should == [row, row].map { |e| e.join("\t") + line_separator }.join
-        File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split("\n").first.should == "メール\t2.0\t{\"メール\":\"メール\"}"
+        expect(File.binread(file.path)).to eq([row, row].map { |e| e.join("\t") + line_separator }.join)
+        expect(File.open(file.path, 'r:Windows-31J').read.encode('UTF-8').split("\n").first).to eq("メール\t2.0\t{\"メール\":\"メール\"}")
       end
     end
 

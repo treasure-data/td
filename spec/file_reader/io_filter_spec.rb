@@ -47,12 +47,12 @@ describe 'FileReader io filters' do
 
       it 'returns Zlib::GzipReader with :gzip' do
         wrapped = FileReader::DecompressIOFilter.filter(gzipped_io, error, :compress => 'gzip')
-        wrapped.should be_an_instance_of(Zlib::GzipReader)
+        expect(wrapped).to be_an_instance_of(Zlib::GzipReader)
       end
 
       it 'returns Zlib::GzipReader with auto detection' do
         wrapped = FileReader::DecompressIOFilter.filter(gzipped_io, error, {})
-        wrapped.should be_an_instance_of(Zlib::GzipReader)
+        expect(wrapped).to be_an_instance_of(Zlib::GzipReader)
       end
 
       context 'after initialization' do
@@ -63,18 +63,18 @@ describe 'FileReader io filters' do
           end
 
           it 'forward_row returns one line' do
-            reader.forward_row.should == lines[0]
+            expect(reader.forward_row).to eq(lines[0])
           end
 
           it 'feeds all lines' do
             begin
               i = 0
               while line = reader.forward_row
-                line.should == lines[i]
+                expect(line).to eq(lines[i])
                 i += 1
               end
             rescue
-              gzipped_io.eof?.should be_true
+              expect(gzipped_io.eof?).to be_truthy
             end
           end
         }
@@ -84,12 +84,12 @@ describe 'FileReader io filters' do
     describe 'plain' do
       it 'returns passed io with :plain' do
         wrapped = FileReader::DecompressIOFilter.filter(io, error, :compress => 'plain')
-        wrapped.should be_an_instance_of(StringIO)
+        expect(wrapped).to be_an_instance_of(StringIO)
       end
 
       it 'returns passed io with auto detection' do
         wrapped = FileReader::DecompressIOFilter.filter(io, error, {})
-        wrapped.should be_an_instance_of(StringIO)
+        expect(wrapped).to be_an_instance_of(StringIO)
       end
     end
   end

@@ -46,11 +46,11 @@ module TreasureData::Command
       before do
         client = double(:client)
         job = double(:job, job_id: job_id)
-        client.stub(:export).and_return(job)
+        allow(client).to receive(:export).and_return(job)
         table = double(:table)
 
-        command.stub(:get_client).and_return(client)
-        command.stub(:get_table).and_return(table)
+        allow(command).to receive(:get_client).and_return(client)
+        allow(command).to receive(:get_table).and_return(table)
       end
 
       it 'export table without encryption' do

@@ -43,7 +43,7 @@ module TreasureData::Command
         let(:out_file) { Tempfile.new('out.yml').tap{|f| f.close } }
 
         before do
-          command.stub(:get_client).and_return(client)
+          allow(command).to receive(:get_client).and_return(client)
         end
 
         let(:config) {
@@ -58,11 +58,11 @@ module TreasureData::Command
         include_context 'quiet_out'
 
         before do
-          command.stub(:prepare_bulkload_job_config).and_return(config)
+          allow(command).to receive(:prepare_bulkload_job_config).and_return(config)
         end
 
         it 'guess_plugins passed td-client' do
-          client.should_receive(:bulk_load_guess).with({config: expect_config}).and_return({})
+          expect(client).to receive(:bulk_load_guess).with({config: expect_config}).and_return({})
 
           command.connector_guess(option)
         end
@@ -82,7 +82,7 @@ module TreasureData::Command
         }
 
         before do
-            command.stub(:get_client).and_return(client)
+            allow(command).to receive(:get_client).and_return(client)
             command.connector_guess(option)
         end
 
@@ -118,7 +118,7 @@ module TreasureData::Command
 
       before do
         client = double(:client, bulk_load_preview: preview_result)
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       it 'should include too_long_column_name without truncated' do
@@ -141,8 +141,8 @@ module TreasureData::Command
 
         before do
           client = double(:client, bulk_load_issue: 1234)
-          command.stub(:get_client).and_return(client)
-          command.stub(:create_database_and_table_if_not_exist)
+          allow(command).to receive(:get_client).and_return(client)
+          allow(command).to receive(:create_database_and_table_if_not_exist)
         end
 
         it 'should include too_long_column_name without truncated' do
@@ -154,8 +154,8 @@ module TreasureData::Command
         let(:client) { double(:client, bulk_load_issue: 1234) }
 
         before do
-          command.stub(:get_client).and_return(client)
-          client.stub(:database)
+          allow(command).to receive(:get_client).and_return(client)
+          allow(client).to receive(:database)
         end
 
         context 'set auto crate table option' do
@@ -164,7 +164,7 @@ module TreasureData::Command
           }
 
           it 'call create_database_and_table_if_not_exist' do
-            command.should_receive(:create_database_and_table_if_not_exist)
+            expect(command).to receive(:create_database_and_table_if_not_exist)
 
             subject
           end
@@ -176,7 +176,7 @@ module TreasureData::Command
           }
 
           it 'call create_database_and_table_if_not_exist' do
-            command.should_not_receive(:create_database_and_table_if_not_exist)
+            expect(command).not_to receive(:create_database_and_table_if_not_exist)
 
             subject
           end
@@ -191,8 +191,8 @@ module TreasureData::Command
       let(:job_name) { 'job_1' }
 
       before do
-        command.stub(:get_client).and_return(client)
-        client.stub(:database)
+        allow(command).to receive(:get_client).and_return(client)
+        allow(client).to receive(:database)
       end
 
       context 'with scheduled_time' do
@@ -202,7 +202,7 @@ module TreasureData::Command
         }
 
         it 'client call with unix time' do
-          client.should_receive(:bulk_load_run).with(job_name, scheduled_time.to_i).and_return(123)
+          expect(client).to receive(:bulk_load_run).with(job_name, scheduled_time.to_i).and_return(123)
 
           command.connector_run(option)
         end
@@ -215,8 +215,8 @@ module TreasureData::Command
         let(:current_time) { Time.now }
 
         it 'client call with unix time' do
-          client.should_receive(:bulk_load_run).with(job_name, current_time.to_i).and_return(123)
-          command.stub(:current_time).and_return(current_time.to_i)
+          expect(client).to receive(:bulk_load_run).with(job_name, current_time.to_i).and_return(123)
+          allow(command).to receive(:current_time).and_return(current_time.to_i)
 
           command.connector_run(option)
         end
@@ -235,8 +235,8 @@ module TreasureData::Command
 
       before do
         client = double(:client)
-        client.stub(:bulk_load_history).with(name).and_return(history)
-        command.stub(:get_client).and_return(client)
+        allow(client).to receive(:bulk_load_history).with(name).and_return(history)
+        allow(command).to receive(:get_client).and_return(client)
       end
 
       context 'history is empty' do
@@ -308,7 +308,7 @@ module TreasureData::Command
       }
 
       before do
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_client).and_return(client)
         command.connector_list(option)
       end
 
@@ -341,8 +341,8 @@ module TreasureData::Command
       }
 
       before do
-        command.stub(:get_table)
-        command.stub(:get_client).and_return(client)
+        allow(command).to receive(:get_table)
+        allow(command).to receive(:get_client).and_return(client)
         command.connector_create(option)
       end
 

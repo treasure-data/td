@@ -23,13 +23,13 @@ module TreasureData::Command
     let(:op) { List::CommandParser.new('sched:last_job', %w[], %w[], false, argv, []) }
 
     before do
-      client.stub(:schedules).and_return(schedules)
-      command.stub(:get_client).and_return(client)
+      allow(client).to receive(:schedules).and_return(schedules)
+      allow(command).to receive(:get_client).and_return(client)
     end
 
     describe 'sched_history' do
       before do
-        client.stub(:history).and_return(history)
+        allow(client).to receive(:history).and_return(history)
       end
 
       let(:history) { [job1, job2] }
@@ -45,12 +45,12 @@ module TreasureData::Command
       subject { command.sched_result(op) }
 
       before do
-        command.stub(:get_history).with(client, nil, (back_number - 1), back_number).and_return(history)
+        allow(command).to receive(:get_history).with(client, nil, (back_number - 1), back_number).and_return(history)
       end
 
       shared_examples_for("passing argv and job_id to job:show") do
         it "invoke 'job:show [original argv] [job id]'" do
-          TreasureData::Command::Runner.any_instance.should_receive(:run).with(["job:show", *show_arg, job_id])
+          expect_any_instance_of(TreasureData::Command::Runner).to receive(:run).with(["job:show", *show_arg, job_id])
           subject
         end
       end
@@ -135,7 +135,7 @@ module TreasureData::Command
       context "history dose not exists" do
         let(:back_number) { 1 }
         let(:history) { [] }
-        before { client.stub(:history) { raise TreasureData::NotFoundError } }
+        before { allow(client).to receive(:history) { raise TreasureData::NotFoundError } }
 
         it "exit with 1" do
           begin

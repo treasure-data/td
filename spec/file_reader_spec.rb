@@ -12,10 +12,20 @@ describe FileReader do
   describe 'initialize' do
     subject { FileReader.new }
 
-    its(:parser_class) { should be_nil }
-    its(:opts) { should be_empty }
+    describe '#parser_class' do
+      subject { super().parser_class }
+      it { is_expected.to be_nil }
+    end
+
+    describe '#opts' do
+      subject { super().opts }
+      it { is_expected.to be_empty }
+    end
     [:delimiter_expr, :null_expr, :true_expr, :false_expr].each { |key|
-      its(:default_opts) { should have_key(key); }
+      describe '#default_opts' do
+        subject { super().default_opts }
+        it { is_expected.to have_key(key); }
+      end
     }
   end
 
@@ -26,36 +36,36 @@ describe FileReader do
   describe 'set_format_template' do
     it 'can set csv' do
       reader.set_format_template('csv')
-      reader.instance_variable_get(:@format).should == 'text'
-      reader.opts.should include(:delimiter_expr => /,/)
+      expect(reader.instance_variable_get(:@format)).to eq('text')
+      expect(reader.opts).to include(:delimiter_expr => /,/)
     end
 
     it 'can set tsv' do
       reader.set_format_template('tsv')
-      reader.instance_variable_get(:@format).should == 'text'
-      reader.opts.should include(:delimiter_expr => /\t/)
+      expect(reader.instance_variable_get(:@format)).to eq('text')
+      expect(reader.opts).to include(:delimiter_expr => /\t/)
     end
 
     it 'can set apache' do
       reader.set_format_template('apache')
-      reader.instance_variable_get(:@format).should == 'apache'
-      reader.opts.should include(:time_column => 'time')
+      expect(reader.instance_variable_get(:@format)).to eq('apache')
+      expect(reader.opts).to include(:time_column => 'time')
     end
 
     it 'can set syslog' do
       reader.set_format_template('syslog')
-      reader.instance_variable_get(:@format).should == 'syslog'
-      reader.opts.should include(:time_column => 'time')
+      expect(reader.instance_variable_get(:@format)).to eq('syslog')
+      expect(reader.opts).to include(:time_column => 'time')
     end
 
     it 'can set msgpack' do
       reader.set_format_template('msgpack')
-      reader.instance_variable_get(:@format).should == 'msgpack'
+      expect(reader.instance_variable_get(:@format)).to eq('msgpack')
     end
 
     it 'can set json' do
       reader.set_format_template('json')
-      reader.instance_variable_get(:@format).should == 'json'
+      expect(reader.instance_variable_get(:@format)).to eq('json')
     end
 
     it 'raises when set unknown format' do
@@ -77,7 +87,7 @@ describe FileReader do
       ['-f', '--format'].each { |opt|
         ['csv', 'tsv', 'apache', 'syslog', 'msgpack', 'json'].each { |format|
           it "#{opt} option with #{format}" do
-            reader.should_receive(:set_format_template).with(format)
+            expect(reader).to receive(:set_format_template).with(format)
             parse_opt([opt, format]) { }
           end
         }
@@ -89,7 +99,7 @@ describe FileReader do
         it "#{opt} option" do
           columns = 'A,B,C'
           parse_opt([opt, columns]) {
-            reader.opts.should include(:column_names => columns.split(','))
+            expect(reader.opts).to include(:column_names => columns.split(','))
           }
         end
       }
@@ -99,7 +109,7 @@ describe FileReader do
       ['-H', '--column-header'].each { |opt|
         it "#{opt} option" do
           parse_opt([opt]) {
-            reader.opts.should include(:column_header => true)
+            expect(reader.opts).to include(:column_header => true)
           }
         end
       }
@@ -110,7 +120,7 @@ describe FileReader do
         it "#{opt} option" do
           pattern = '!'
           parse_opt([opt, pattern]) {
-            reader.opts.should include(:delimiter_expr => Regexp.new(pattern))
+            expect(reader.opts).to include(:delimiter_expr => Regexp.new(pattern))
           }
         end
       }
@@ -120,7 +130,7 @@ describe FileReader do
       it "--null REGEX option" do
         pattern = 'null'
         parse_opt(['--null', pattern]) {
-          reader.opts.should include(:null_expr => Regexp.new(pattern))
+          expect(reader.opts).to include(:null_expr => Regexp.new(pattern))
         }
       end
     end
@@ -129,7 +139,7 @@ describe FileReader do
       it "--true REGEX option" do
         pattern = 'true'
         parse_opt(['--true', pattern]) {
-          reader.opts.should include(:true_expr => Regexp.new(pattern))
+          expect(reader.opts).to include(:true_expr => Regexp.new(pattern))
         }
       end
     end
@@ -138,7 +148,7 @@ describe FileReader do
       it "--false REGEX option" do
         pattern = 'false'
         parse_opt(['--false', pattern]) {
-          reader.opts.should include(:false_expr => Regexp.new(pattern))
+          expect(reader.opts).to include(:false_expr => Regexp.new(pattern))
         }
       end
     end
@@ -147,7 +157,7 @@ describe FileReader do
       ['-S', '--all-string'].each { |opt|
         it "#{opt} option" do
           parse_opt([opt]) {
-            reader.opts.should include(:all_string => true)
+            expect(reader.opts).to include(:all_string => true)
           }
         end
       }
@@ -158,7 +168,7 @@ describe FileReader do
         it "#{opt} option" do
           name = 'created_at'
           parse_opt([opt, name]) {
-            reader.opts.should include(:time_column => name)
+            expect(reader.opts).to include(:time_column => name)
           }
         end
       }
@@ -169,7 +179,7 @@ describe FileReader do
         it "#{opt} option" do
           format = '%Y'
           parse_opt([opt, format]) {
-            reader.opts.should include(:time_format => format)
+            expect(reader.opts).to include(:time_format => format)
           }
         end
       }
@@ -180,7 +190,7 @@ describe FileReader do
         it "--time-value option with #{value_type}" do
           time = Time.now
           parse_opt(['--time-value', converter.call(time)]) {
-            reader.opts.should include(:time_value => time.to_i)
+            expect(reader.opts).to include(:time_value => time.to_i)
           }
         end
       }
@@ -191,7 +201,7 @@ describe FileReader do
         it "#{opt} option" do
           enc = 'utf-8'
           parse_opt([opt, enc]) {
-            reader.opts.should include(:encoding => enc)
+            expect(reader.opts).to include(:encoding => enc)
           }
         end
       }
@@ -202,7 +212,7 @@ describe FileReader do
         it "#{opt} option" do
           format = 'gzip'
           parse_opt([opt, format]) {
-            reader.opts.should include(:compress => format)
+            expect(reader.opts).to include(:compress => format)
           }
         end
       }
@@ -212,7 +222,7 @@ describe FileReader do
   describe 'compose_factory' do
     it 'returns Proc object' do
       factory = reader.compose_factory
-      factory.should be_an_instance_of(Proc)
+      expect(factory).to be_an_instance_of(Proc)
     end
 
     # other specs in parse spec
@@ -254,7 +264,7 @@ describe FileReader do
         parse_opt(%W(-f #{format} --time-value #{@time}) + (args || [])) {
           i = 0
           reader.parse(io, error) { |record|
-            record.should == dataset[i].merge('time' => @time)
+            expect(record).to eq(dataset[i].merge('time' => @time))
             i += 1
           }
         }
@@ -266,7 +276,7 @@ describe FileReader do
           reader.parse(io, error) { |record|
             time = record[time_column]
             time = Time.parse(time).to_i if time.is_a?(String)
-            record.should == dataset[i].merge('time' => time)
+            expect(record).to eq(dataset[i].merge('time' => time))
             i += 1
           }
         }

@@ -8,14 +8,14 @@ module TreasureData::Command
       values = [0, 1, 10, 1023]
       values.each {|v|
         it "uses B as label and has no suffix (#{v})" do
-          TreasureData::Command::humanize_bytesize(v, 1).should == "#{v} B"
+          expect(TreasureData::Command::humanize_bytesize(v, 1)).to eq("#{v} B")
         end
       }
     end
 
     describe 'for 1024' do
       it 'uses kB and does not have a suffix' do
-        TreasureData::Command::humanize_bytesize(1024).should == "1 kB"
+        expect(TreasureData::Command::humanize_bytesize(1024)).to eq("1 kB")
       end
     end
     describe 'for values between 1025 and (1024^2 - 1)' do
@@ -35,7 +35,7 @@ module TreasureData::Command
 
     describe 'for 1024^2' do
       it 'uses MB and does not have a suffix' do
-        TreasureData::Command::humanize_bytesize(1024 ** 2).should == "1 MB"
+        expect(TreasureData::Command::humanize_bytesize(1024 ** 2)).to eq("1 MB")
       end
     end
     describe 'for values between (1024^2 + 1) and (1024^3 - 1)' do
@@ -55,7 +55,7 @@ module TreasureData::Command
 
     describe 'for 1024^3' do
       it 'uses GB and does not have a suffix' do
-        TreasureData::Command::humanize_bytesize(1024 ** 3).should == "1 GB"
+        expect(TreasureData::Command::humanize_bytesize(1024 ** 3)).to eq("1 GB")
       end
     end
     describe 'for values between (1024^3 + 1) and (1024^4 - 1)' do
@@ -75,7 +75,7 @@ module TreasureData::Command
 
     describe 'for 1024^4' do
       it 'uses TB and does not have a suffix' do
-        TreasureData::Command::humanize_bytesize(1024 ** 4).should == "1 TB"
+        expect(TreasureData::Command::humanize_bytesize(1024 ** 4)).to eq("1 TB")
       end
     end
     describe 'for values between (1024^4 + 1) and (1024^5 - 1)' do
@@ -95,7 +95,7 @@ module TreasureData::Command
 
     describe 'for 1024^5' do
       it 'uses TB and does not have a suffix' do
-        TreasureData::Command::humanize_bytesize(1024 ** 5).should == "1024 TB"
+        expect(TreasureData::Command::humanize_bytesize(1024 ** 5)).to eq("1024 TB")
       end
     end
     describe 'for values between (1024^5 + 1) and (1024^6 - 1)' do
@@ -183,8 +183,8 @@ module TreasureData::Command
         ret = indicator.update
         if ret == true
           diff = curr_time - last_time
-          diff.should be >= 2
-          diff.should be < 3
+          expect(diff).to be >= 2
+          expect(diff).to be < 3
           last_time = curr_time
         end
         sleep(0.5)
@@ -202,8 +202,8 @@ module TreasureData::Command
         while (curr_time = Time.now.to_i) < end_time do
           ret = indicator.update
           if ret == true
-            (curr_time - last_time).should be >= periodicity
-            (curr_time - last_time).should be < (periodicity + 1)
+            expect(curr_time - last_time).to be >= periodicity
+            expect(curr_time - last_time).to be < (periodicity + 1)
             last_time = curr_time
           end
           sleep(0.5)
@@ -235,13 +235,13 @@ module TreasureData::Command
 
     describe 'create database' do
       before do
-        client.stub(:create_log_table)
+        allow(client).to receive(:create_log_table)
       end
 
       context 'client.database success' do
         it 'not call client.create_database' do
-          client.should_receive(:database).with(database_name)
-          client.should_not_receive(:create_database)
+          expect(client).to receive(:database).with(database_name)
+          expect(client).not_to receive(:create_database)
 
           call_create_database_and_table_if_not_exist
           expect(stderr_io.string).not_to include "Database '#{database_name}'"
@@ -250,12 +250,12 @@ module TreasureData::Command
 
       context 'client.database raise NotFoundError' do
         before do
-          client.should_receive(:database).with(database_name).and_return { raise TreasureData::NotFoundError }
+          expect(client).to receive(:database).with(database_name) { raise TreasureData::NotFoundError }
         end
 
         context 'craet_database success' do
           it 'call client.create_database' do
-            client.should_receive(:create_database).with(database_name)
+            expect(client).to receive(:create_database).with(database_name)
 
             call_create_database_and_table_if_not_exist
             expect(stderr_io.string).to include "Database '#{database_name}'"
@@ -264,7 +264,7 @@ module TreasureData::Command
 
         context 'craet_database raise AlreadyExistsError' do
           it 'resuce in method' do
-            client.should_receive(:create_database).with(database_name).and_return { raise TreasureData::AlreadyExistsError }
+            expect(client).to receive(:create_database).with(database_name) { raise TreasureData::AlreadyExistsError }
 
             expect {
               call_create_database_and_table_if_not_exist
@@ -277,8 +277,8 @@ module TreasureData::Command
 
       context 'client.database raise ForbiddenError' do
         it 'not call client.create_database' do
-          client.should_receive(:database).with(database_name).and_return { raise TreasureData::ForbiddenError }
-          client.should_not_receive(:create_database)
+          expect(client).to receive(:database).with(database_name) { raise TreasureData::ForbiddenError }
+          expect(client).not_to receive(:create_database)
 
           call_create_database_and_table_if_not_exist
           expect(stderr_io.string).not_to include "Database '#{database_name}'"
@@ -288,12 +288,12 @@ module TreasureData::Command
 
     describe 'create table' do
       before do
-        client.stub(:database)
+        allow(client).to receive(:database)
       end
 
       context 'create_log_table success' do
         it 'show message' do
-          client.should_receive(:create_log_table).with(database_name, table_name)
+          expect(client).to receive(:create_log_table).with(database_name, table_name)
 
           call_create_database_and_table_if_not_exist
           expect(stderr_io.string).to include "Table '#{database_name}.#{table_name}'"
@@ -302,7 +302,7 @@ module TreasureData::Command
 
       context 'create_log_table raise AlreadyExistsError' do
         it 'resuce in method' do
-          client.should_receive(:create_log_table).with(database_name, table_name).and_return { raise TreasureData::AlreadyExistsError }
+          expect(client).to receive(:create_log_table).with(database_name, table_name) { raise TreasureData::AlreadyExistsError }
 
           expect {
             call_create_database_and_table_if_not_exist
