@@ -73,7 +73,6 @@ module Command
     client = get_ssl_client
 
     s3_opts = {}
-    upload_opts = {}
     s3_opts['from'] = from.to_s if from
     s3_opts['to'] = to.to_s if to
     s3_opts['file_prefix'] = file_prefix if file_prefix
@@ -82,8 +81,7 @@ module Command
     s3_opts['access_key_id'] = aws_access_key_id
     s3_opts['secret_access_key'] = aws_secret_access_key
     s3_opts['pool_name'] = pool_name if pool_name
-    upload_opts['encryption'] = encryption if encryption
-    s3_opts['upload_opts'] = upload_opts
+    s3_opts['encryption'] = encryption if encryption
 
     job = client.export(db_name, table_name, "s3", s3_opts)
 
