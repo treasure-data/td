@@ -28,11 +28,21 @@ module TreasureData::Command
 
     describe '#table_export' do
       let(:option) {
-        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, [database, table, "-b", bucket, "-p", path, "-k", key, "-s", pass, "-F", format], true)
+        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, option_list, true)
       }
       let(:option_with_encryption) {
-        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, [database, table, "-b", bucket, "-p", path, "-k", key, "-s", pass, "-F", format, "--encryption", encryption], true)
+        ops = option_list
+        ops.push "-e"
+        ops.push encryption
+        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, ops, true)
       }
+      let(:option_with_wrong_encryption) {
+        ops = option_list
+        ops.push "-e"
+        ops.push wrong_encryption
+        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, ops, true)
+      }
+      let(:option_list) { [database, table, "-b", bucket, "-p", path, "-k", key, "-s", pass, "-F", format] }
       let(:database) { 'database' }
       let(:table)    { 'table' }
       let(:bucket)    { 'bucket' }
@@ -41,6 +51,7 @@ module TreasureData::Command
       let(:pass)    { 'pass' }
       let(:format)    { 'tsv.gz' }
       let(:encryption)    { 's3' }
+      let(:wrong_encryption)    { 's3s3' }
       let(:job_id)    { 111 }
 
       before do
@@ -63,6 +74,12 @@ module TreasureData::Command
         expect {
           command.table_export(option_with_encryption)
         }.to_not raise_exception
+      end
+
+      it 'fail to export table with wrong encryption' do
+        expect {
+          command.table_export(option_with_wrong_encryption)
+        }.to raise_exception
       end
     end
   end
