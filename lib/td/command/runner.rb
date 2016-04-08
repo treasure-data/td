@@ -185,7 +185,7 @@ EOF
       #   => NotFoundError
       #   => AuthError
       if ![ParameterConfigurationError, BulkImportExecutionError, UpdateError, ImportError,
-            APIError, ForbiddenError, NotFoundError, AuthError].include?(e.class) ||
+            APIError, ForbiddenError, NotFoundError, AuthError, AlreadyExistsError].include?(e.class) ||
          !ENV['TD_TOOLBELT_DEBUG'].nil? || $verbose
         show_backtrace "Error #{$!.class}: backtrace:", $!.backtrace
       end
