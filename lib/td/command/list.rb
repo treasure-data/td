@@ -304,6 +304,10 @@ module List
   add_list 'job:list', %w[max?], 'Show list of jobs', ['jobs', 'jobs --page 1']
   add_list 'job:kill', %w[job_id], 'Kill or cancel a job', ['job:kill 1461']
 
+  add_list 'wf:version', %w[], 'Show workflow server version', []
+  add_list 'wf:projects', %w[], 'Show list of workflow projects', []
+  add_list 'wf:workflows', %w[project_name], 'Show list of workflows in a project', []
+
   add_list 'account', %w[user_name?], 'Setup a Treasure Data account'
   add_list 'account:usage', %w[user_name?], 'Show resource usage information'
   add_list 'password:change', %w[], 'Change password'
