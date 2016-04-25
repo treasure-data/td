@@ -1,3 +1,12 @@
+== 2016-04-25 version 0.14.0
+
+* Use parallel v1.8.0 #161
+* Support `td query --domain-key=KEY` #157
+* Add encryption of export worker #156 #159
+* Support dummy schedule #152
+* output bulkload config with `td job:show` #151
+* fix: make jar_update more solid #150
+
 == 2016-01-25 version 0.13.2
 
 * Replace Infinity and NaN inside Array or Hash
