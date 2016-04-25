@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.8.0"]
   gem.add_dependency "yajl-ruby", "~> 1.1"
   gem.add_dependency "hirb", ">= 0.4.5"
-  gem.add_dependency "parallel", "~> 0.6.1"
+  gem.add_dependency "parallel", "~> 1.8.0"
   gem.add_dependency "td-client", "~> 0.8.78"
   gem.add_dependency "td-logger", "~> 0.3.21"
   gem.add_dependency "rubyzip", "~> 1.1.7"
