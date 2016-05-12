@@ -42,6 +42,12 @@ module TreasureData::Command
         ops.push wrong_encryption
         List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, ops, true)
       }
+      let(:option_with_assume_role) {
+        ops = option_list
+        ops.push "-a"
+        ops.push assume_role
+        List::CommandParser.new("table:export", ["db_name", "table_name"], [], nil, ops, true)
+      }
       let(:option_list) { [database, table, "-b", bucket, "-p", path, "-k", key, "-s", pass, "-F", format] }
       let(:database) { 'database' }
       let(:table)    { 'table' }
@@ -51,6 +57,7 @@ module TreasureData::Command
       let(:pass)    { 'pass' }
       let(:format)    { 'tsv.gz' }
       let(:encryption)    { 's3' }
+      let(:assume_role)    { 'arn:aws:iam::000:role/assume' }
       let(:wrong_encryption)    { 's3s3' }
       let(:job_id)    { 111 }
 
@@ -80,6 +87,18 @@ module TreasureData::Command
         expect {
           command.table_export(option_with_wrong_encryption)
         }.to raise_exception
+      end
+
+      it 'export table without assume role' do
+        expect {
+          command.table_export(option_with_assume_role)
+        }.to_not raise_exception
+      end
+
+      it 'export table with assume role' do
+        expect {
+          command.table_export(option_with_assume_role)
+        }.to_not raise_exception
       end
     end
   end

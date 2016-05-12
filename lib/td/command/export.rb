@@ -15,6 +15,7 @@ module Command
     file_format = "json.gz" # default
     pool_name = nil
     encryption = nil
+    assume_role = nil
 
     op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
       wait = b
@@ -47,6 +48,9 @@ module Command
     op.on('-e', '--encryption ENCRYPT_METHOD', 'export with server side encryption with the ENCRYPT_METHOD') {|s|
       raise ArgumentError, "#{s} is not a supported encryption method" unless SUPPORTED_ENCRYPT_METHOD.include?(s)
       encryption = s
+    }
+    op.on('-a', '--assume-role ASSUME_ROLE_ARN', 'export with assume role with ASSUME_ROLE_ARN as role arn') {|s|
+      assume_role = s
     }
 
     db_name, table_name = op.cmd_parse
@@ -82,6 +86,7 @@ module Command
     s3_opts['secret_access_key'] = aws_secret_access_key
     s3_opts['pool_name'] = pool_name if pool_name
     s3_opts['encryption'] = encryption if encryption
+    s3_opts['assume_role'] = assume_role if assume_role
 
     job = client.export(db_name, table_name, "s3", s3_opts)
 
