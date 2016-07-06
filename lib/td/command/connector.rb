@@ -220,7 +220,7 @@ module Command
     config_diff = prepare_bulkload_job_config(config_diff_file)
 
     client = get_client()
-    session = client.bulk_load_update(name, config: config, config_diff: config_diff)
+    session = client.bulk_load_update(name, {config: config, config_diff: config_diff})
     dump_connector_session(session)
   end
 
@@ -315,6 +315,11 @@ private
 
 
   def prepare_bulkload_job_config(config_file)
+    config = prepare_bulkload_job_config_diff(config_file)
+    TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
+  end
+
+  def prepare_bulkload_job_config_diff(config_file)
     unless File.exist?(config_file)
       raise ParameterConfigurationError, "configuration file: #{config_file} not found"
     end
@@ -329,8 +334,7 @@ private
     rescue => e
       raise ParameterConfigurationError, "configuration file: #{config_file} #{e.message}"
     end
-
-    TreasureData::ConnectorConfigNormalizer.new(config).normalized_config
+    config
   end
 
   def dump_connector_session(session)
