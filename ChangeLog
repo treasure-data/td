@@ -1,3 +1,9 @@
+== 2016-07-11 version 0.14.1
+
+* Use td-client-ruby v0.8.82
+  * Add conflicts_with to AlreadyExistError (treasure-data/td-client-ruby#84)
+  * Rewrite job_result_download logic (treasure-data/td-client-ruby#85)
+
 == 2016-04-25 version 0.14.0
 
 * Use parallel v1.8.0 #161

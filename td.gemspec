@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "yajl-ruby", "~> 1.1"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 1.8.0"
-  gem.add_dependency "td-client", "~> 0.8.79"
+  gem.add_dependency "td-client", "~> 0.8.82"
   gem.add_dependency "td-logger", "~> 0.3.21"
   gem.add_dependency "rubyzip", "~> 1.1.7"
   gem.add_dependency "zip-zip", "~> 0.3"
