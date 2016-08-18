@@ -357,6 +357,9 @@ module List
   add_list 'connector:history', %w[name], 'Show job history of connector session', ['connector:history connector1']
   add_list 'connector:run', %w[name time?], 'Run connector with session for the specified time option', ['connector:run connector1 "2016-01-01 00:00:00"']
 
+  add_list 'workflow', %w[], 'Run a workflow command'
+  add_list 'workflow:reset', %w[], 'Reset the workflow module'
+
   # aliases
   add_alias 'db', 'db:show'
   add_alias 'dbs', 'db:list'
@@ -416,6 +419,8 @@ module List
   add_alias 's', 'status'
 
   add_alias 'connector', 'connector:guess'
+
+  add_alias 'wf', 'workflow'
 
   # backward compatibility
   add_alias 'show-databases',   'db:list'
