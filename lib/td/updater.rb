@@ -258,6 +258,7 @@ module ModuleDefinition
 
   def stream_fetch(url, binfile, &progress)
     require 'net/http'
+    require 'openssl'
 
     uri = URI(url)
     http_class = Command.get_http_class
@@ -268,7 +269,7 @@ module ModuleDefinition
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
 
-    http.request_get(uri.path) {|response|
+    http.request_get(uri.path + (uri.query ? '?' + uri.query : '')) {|response|
       if response.class == Net::HTTPOK
         # $stdout.print a . every tick_period seconds
         response.read_body do |chunk|
