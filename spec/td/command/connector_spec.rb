@@ -353,5 +353,56 @@ module TreasureData::Command
         expect(stdout_io.string).to include table
       end
     end
+
+    describe '#connector_update' do
+      let(:name)     { 'daily_mysql_import' }
+      let(:cron)     { '10 0 * * *' }
+      let(:database) { 'td_sample_db' }
+      let(:table)    { 'td_sample_table' }
+      let(:config_file) {
+        Tempfile.new('config.yml').tap {|tf|
+          tf.puts({"foo" => "bar"}.to_yaml)
+          tf.close
+        }
+      }
+      let(:config) {
+        h = YAML.load_file(config_file.path)
+        TreasureData::ConnectorConfigNormalizer.new(h).normalized_config
+      }
+      let(:config_diff_file) {
+        Tempfile.new('config_diff.yml').tap {|tf|
+          tf.puts({"hoge" => "fuga"}.to_yaml)
+          tf.close
+        }
+      }
+      let(:config_diff) {
+        YAML.load_file(config_diff_file.path)
+      }
+      let(:option) {
+        List::CommandParser.new("connector:update", %w(name config_file), [], nil, [name, config_file.path, '--config-diff', config_diff_file.path], true)
+      }
+      let(:response) {
+        {'name' => name, 'cron' => cron, 'timezone' => 'UTC', 'delay' => 0, 'database' => database, 'table' => table,
+          'config' => config, 'config_diff' => config_diff}
+      }
+      let(:client) { double(:client) }
+
+      before do
+        allow(command).to receive(:get_client).and_return(client)
+      end
+
+      it 'show update result' do
+        expect(client).to receive(:bulk_load_update).
+          with(name, config: kind_of(Hash), config_diff: kind_of(Hash)).
+          and_return(response)
+        expect{command.connector_update(option)}.not_to raise_error(SystemExit)
+        expect(stdout_io.string).to include name
+        expect(stdout_io.string).to include cron
+        expect(stdout_io.string).to include database
+        expect(stdout_io.string).to include table
+        expect(YAML.load(stdout_io.string[/^Config\n---\n(.*?\n)\n/m, 1])).to eq(config)
+        expect(YAML.load(stdout_io.string[/^Config Diff\n---\n(.*?\n)\Z/m, 1])).to eq(config_diff)
+      end
+    end
   end
 end
