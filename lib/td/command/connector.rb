@@ -246,10 +246,11 @@ module Command
     }
     op.on('--config-diff CONFIG_DIFF_FILE', "update the connector config_diff", String) { |s| settings['config_diff'] = s }
 
-    name = op.cmd_parse
+    name, config_file = op.cmd_parse
+    settings['config'] = config_file if config_file
     op.cmd_usage 'nothing to update' if settings.empty?
-    settings['config'] = prepare_bulkload_job_config(settings['config']) unless settings.key?('config')
-    settings['config_diff'] = prepare_bulkload_job_config(settings['config_diff']) unless settings.key?('config_diff')
+    settings['config'] = prepare_bulkload_job_config(settings['config']) if settings.key?('config')
+    settings['config_diff'] = prepare_bulkload_job_config(settings['config_diff']) if settings.key?('config_diff')
     client = get_client()
     session = client.bulk_load_update(name, settings)
     dump_connector_session(session)
