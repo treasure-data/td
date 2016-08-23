@@ -352,7 +352,7 @@ module List
   add_list 'connector:list', %w[], 'Show list of connector sessions', ['connector:list']
   add_list 'connector:create', %w[name cron database table config], 'Create new connector session', ['connector:create connector1 "0 * * * *" connector_database connector_table td-bulkload.yml']
   add_list 'connector:show', %w[name], 'Show connector session', ['connector:show connector1']
-  add_list 'connector:update', %w[name config], 'Modify connector session', ['connector:update connector1 td-bulkload.yml']
+  add_list 'connector:update', %w[name config?], 'Modify connector session', ['connector:update connector1 -c td-bulkload.yml -s \'@daily\' ...']
   add_list 'connector:delete', %w[name], 'Delete connector session', ['connector:delete connector1']
   add_list 'connector:history', %w[name], 'Show job history of connector session', ['connector:history connector1']
   add_list 'connector:run', %w[name time?], 'Run connector with session for the specified time option', ['connector:run connector1 "2016-01-01 00:00:00"']
