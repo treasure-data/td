@@ -94,8 +94,12 @@ module TreasureData::Command
     }
 
     describe '#workflow' do
-      let(:option) {
+      let(:empty_option) {
         List::CommandParser.new("workflow", [], [], nil, [], true)
+      }
+
+      let(:version_option) {
+        List::CommandParser.new("workflow", [], [], nil, ['version'], true)
       }
 
       let(:init_option) {
@@ -127,7 +131,7 @@ module TreasureData::Command
       it 'complains about 32 bit platform if no usable java on path' do
         allow(TreasureData::Helpers).to receive(:on_64bit_os?) { false }
         with_env('PATH', '') do
-          expect { command.workflow(option, capture_output=true) }.to raise_error(WorkflowError) { |error|
+          expect { command.workflow(empty_option, capture_output=true) }.to raise_error(WorkflowError) { |error|
             expect(error.message).to include(<<EOF
 A suitable installed version of Java could not be found and and Java cannot be
 automatically installed for this OS.
@@ -145,7 +149,7 @@ EOF
 
         allow(TreasureData::Updater).to receive(:stream_fetch).and_call_original
         allow($stdin).to receive(:gets) { 'Y' }
-        status = command.workflow(option, capture_output=true)
+        status = command.workflow(empty_option, capture_output=true)
         expect(status).to be 0
         expect(stdout_io.string).to_not include 'Downloading Java'
         expect(stdout_io.string).to include 'Downloading workflow module'
@@ -161,7 +165,7 @@ EOF
 
         allow(TreasureData::Updater).to receive(:stream_fetch).and_call_original
         allow($stdin).to receive(:gets) { 'Y' }
-        status = command.workflow(option, capture_output=true)
+        status = command.workflow(empty_option, capture_output=true)
         expect(status).to be 0
         if TreasureData::Helpers::on_64bit_os?
           expect(stdout_io.string).to include 'Downloading Java'
@@ -177,7 +181,7 @@ EOF
         # Check that java and digdag is not re-installed
         stdout_io.truncate(0)
         stderr_io.truncate(0)
-        status = command.workflow(option, capture_output=true)
+        status = command.workflow(empty_option, capture_output=true)
         expect(status).to be 0
         expect(stdout_io.string).to_not include 'Downloading Java'
         expect(stdout_io.string).to_not include 'Downloading workflow module'
@@ -212,7 +216,7 @@ EOF
         with_env('TD_WF_JAVA', 'echo') {
           allow(TreasureData::Updater).to receive(:stream_fetch).and_call_original
           allow($stdin).to receive(:gets) { 'Y' }
-          status = command.workflow(option, capture_output=true)
+          status = command.workflow(empty_option, capture_output=true)
           expect(status).to be 0
           expect(stdout_io.string).to_not include 'Downloading Java'
           expect(stdout_io.string).to include 'Downloading workflow module'
@@ -225,7 +229,7 @@ EOF
           # Check that digdag is not re-installed
           stdout_io.truncate(0)
           stderr_io.truncate(0)
-          status = command.workflow(option, capture_output=true)
+          status = command.workflow(empty_option, capture_output=true)
           expect(status).to be 0
           expect(stdout_io.string).to_not include 'Downloading Java'
           expect(stdout_io.string).to_not include 'Downloading workflow module'
@@ -237,7 +241,7 @@ EOF
 
         # First install
         allow($stdin).to receive(:gets) { 'Y' }
-        status = command.workflow(option, capture_output=true)
+        status = command.workflow(empty_option, capture_output=true)
         expect(status).to be 0
         expect(stderr_io.string).to include 'Digdag v'
         expect(File).to exist(File.join(ENV[home_env], '.td', 'digdag'))
@@ -256,7 +260,7 @@ EOF
         allow($stdin).to receive(:gets) { 'Y' }
         stdout_io.truncate(0)
         stderr_io.truncate(0)
-        status = command.workflow(option, capture_output=true)
+        status = command.workflow(empty_option, capture_output=true)
         expect(status).to be 0
         expect(stderr_io.string).to include 'Digdag v'
         expect(File).to exist(File.join(ENV[home_env], '.td', 'digdag'))
@@ -269,9 +273,14 @@ EOF
           stderr_io.truncate(0)
           status = command.workflow(init_option, capture_output=true, check_prereqs=false)
           expect(status).to be 0
-          expect(stdout_io.string).to match(/--config/)
+          expect(stdout_io.string).to include('--config')
           expect(stdout_io.string).to_not include('io.digdag.standards.td.client-configurator.enabled=true')
         }
+      end
+
+      it 'complains if there is no apikey' do
+          allow(TreasureData::Config).to receive(:apikey) { nil}
+          expect{command.workflow(version_option)}.to raise_error(TreasureData::ConfigError)
       end
     end
   end

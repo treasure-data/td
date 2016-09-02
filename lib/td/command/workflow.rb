@@ -11,6 +11,9 @@ module TreasureData
 
     # The workflow entrypoint command. Invokes the digdag cli, passing on any command line arguments.
     def workflow(op, capture_output=false, check_prereqs=true)
+      if Config.apikey.nil?
+        raise ConfigError
+      end
       check_digdag_cli unless not check_prereqs
       cmd = [
           java_cmd,
@@ -103,7 +106,7 @@ module TreasureData
       return url unless url.empty?
       user = Config.read['account.user']
       if user.nil? or user.strip.empty?
-        return digdag_base_url
+        raise ConfigError
       end
       query = URI.encode_www_form('user' => user)
       "#{digdag_base_url}?#{query}"
