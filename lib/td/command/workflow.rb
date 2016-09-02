@@ -46,14 +46,18 @@ module TreasureData
         end
         cmd.concat(op.argv)
 
+        unless ENV['TD_TOOLBELT_DEBUG'].nil?
+          $stderr.puts cmd.to_s
+        end
+
         if capture_output
           # TODO: use popen3 instead?
-          stdout_str, stderr_str, status = Open3.capture3(env, *cmd, :chdir => wd)
+          stdout_str, stderr_str, status = Open3.capture3(env, *cmd)
           $stdout.write(stdout_str)
           $stderr.write(stderr_str)
           return status.exitstatus
         else
-          Kernel::system(env, *cmd, :chdir => wd)
+          Kernel::system(env, *cmd)
           return $?.exitstatus
         end
       }
