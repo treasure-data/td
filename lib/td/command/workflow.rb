@@ -161,7 +161,7 @@ module TreasureData
           return 'lin_x64'
         end
       end
-      raise "Environment not supported: #{RUBY_PLATFORM}"
+      raise 'OS architecture not supported'
     end
 
     private
@@ -174,7 +174,7 @@ module TreasureData
     def fail_system_java
       raise WorkflowError, <<EOF
 A suitable installed version of Java could not be found and and Java cannot be
-automatically installed for this platform: #{RUBY_PLATFORM}
+automatically installed for this OS.
 
 Please install at least Java 8u71.
 EOF

@@ -114,7 +114,7 @@ module TreasureData::Command
           expect{command.workflow(option, capture_output=true)}.to raise_error(WorkflowError) { |error|
             expect(error.message).to include(<<EOF
 A suitable installed version of Java could not be found and and Java cannot be
-automatically installed for this platform: #{RUBY_PLATFORM}
+automatically installed for this OS.
 
 Please install at least Java 8u71.
 EOF
