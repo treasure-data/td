@@ -14,7 +14,7 @@ module TreasureData
       if Config.apikey.nil?
         raise ConfigError
       end
-      check_digdag_cli unless not check_prereqs
+      check_digdag_cli if check_prereqs
       cmd = [
           java_cmd,
           '-Dio.digdag.cli.programName=td workflow',
