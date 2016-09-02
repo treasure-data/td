@@ -20,7 +20,9 @@ module TreasureData
 
     def on_64bit_os?
       if on_windows?
-        return ENV.has_key?('ProgramFiles(x86)')
+        out, status = Open3.capture2('cmd', 'echo', '%PROCESSOR_ARCHITECTURE%')
+        raise 'Failed to detect OS bitness' unless status.exitstatus == 0
+        return out.include? 'amd64'
       else
         require 'open3'
         out, status = Open3.capture2('uname', '-m')
