@@ -187,7 +187,7 @@ EOF
       rescue => e
         return false
       end
-      if status.exitstatus != 0
+      unless status.success?
         return false
       end
       if output =~ /openjdk version/ or output =~ /java version/
