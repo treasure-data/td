@@ -81,6 +81,10 @@ subcommands=(
     "table\:tail":"Get recently imported logs"
     "table\:partial_delete":"Delete logs from the table within the specified time range"
 
+    "wf":"Run a workflow command"
+    "workflow":"Run a workflow command"
+    "workflow:reset":"Reset the workflow module"
+
     # TODO: Add ACL related commands
 )
 
