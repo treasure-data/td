@@ -359,6 +359,7 @@ module List
 
   add_list 'workflow', %w[], 'Run a workflow command'
   add_list 'workflow:reset', %w[], 'Reset the workflow module'
+  add_list 'workflow:version', %w[], 'Show workflow module version'
 
   # aliases
   add_alias 'db', 'db:show'

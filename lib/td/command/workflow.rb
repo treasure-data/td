@@ -74,6 +74,28 @@ module TreasureData
       return 0
     end
 
+    def workflow_version(op)
+      unless File.exists?(digdag_cli_path)
+        $stderr.puts('Workflow module not yet installed.')
+        return 1
+      end
+
+      $stdout.puts("Bundled Java: #{bundled_java?}")
+
+      begin
+        out, status = Open3.capture2e(java_cmd, '-version')
+        raise unless status.success?
+      rescue
+        $stderr.puts('Failed to run java')
+        return 1
+      end
+      $stdout.puts(out)
+
+      version_op = List::CommandParser.new("workflow", [], [], nil, ['--version'], true)
+      $stdout.write('Digdag version: ')
+      workflow(version_op, capture_output=true, check_prereqs=false)
+    end
+
     private
     def system_java_cmd
       if td_wf_java.nil? or td_wf_java.empty?
@@ -374,7 +396,7 @@ EOF
       check_system_java unless bundled_java?
 
       unless File.exists?(digdag_cli_path)
-        $stderr.puts 'td workflow module not yet installed, download now? [Y/n]'
+        $stderr.puts 'Workflow module not yet installed, download now? [Y/n]'
         line = $stdin.gets
         line.strip!
         if (not line.empty?) and (line !~ /^y(?:es)?$/i)

@@ -114,6 +114,10 @@ module TreasureData::Command
         List::CommandParser.new("workflow:reset", [], [], nil, [], true)
       }
 
+      let(:version_option) {
+        List::CommandParser.new("workflow:version", [], [], nil, [], true)
+      }
+
       let (:apikey) {
         '4711/badf00d'
       }
@@ -213,7 +217,7 @@ EOF
       end
 
       it 'uses specified java and installs digdag' do
-        with_env('TD_WF_JAVA', 'echo') {
+        with_env('TD_WF_JAVA', 'java') {
           allow(TreasureData::Updater).to receive(:stream_fetch).and_call_original
           allow($stdin).to receive(:gets) { 'Y' }
           status = command.workflow(empty_option, capture_output=true)
@@ -281,6 +285,29 @@ EOF
       it 'complains if there is no apikey' do
           allow(TreasureData::Config).to receive(:apikey) { nil}
           expect{command.workflow(version_option)}.to raise_error(TreasureData::ConfigError)
+      end
+
+      it 'prints the java and digdag versions' do
+        skip 'Requires 64 bit OS' unless TreasureData::Helpers::on_64bit_os?
+
+        # Not yet installed
+        status = command.workflow_version(version_option)
+        expect(status).to be 1
+        expect(stderr_io.string).to include 'Workflow module not yet installed.'
+
+        # Install
+        allow($stdin).to receive(:gets) { 'Y' }
+        status = command.workflow(empty_option, capture_output=true)
+        expect(status).to be 0
+
+        # Check that version is shown
+        stdout_io.truncate(0)
+        stderr_io.truncate(0)
+        status = command.workflow_version(version_option)
+        expect(status).to be 0
+        expect(stdout_io.string).to include 'Bundled Java: true'
+        expect(stdout_io.string).to include 'openjdk version'
+        expect(stdout_io.string).to include 'Digdag version:'
       end
     end
   end
