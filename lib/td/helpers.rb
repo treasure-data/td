@@ -17,5 +17,19 @@ module TreasureData
     def on_mac?
       RUBY_PLATFORM =~ /-darwin\d/
     end
+
+    def on_64bit_os?
+      if on_windows?
+        if ENV.fetch('PROCESSOR_ARCHITECTURE', '').downcase.include? 'amd64'
+          return true
+        end
+        return ENV.has_key?('PROCESSOR_ARCHITEW6432')
+      else
+        require 'open3'
+        out, status = Open3.capture2('uname', '-m')
+        raise 'Failed to detect OS bitness' unless status.success?
+        return out.downcase.include? 'x86_64'
+      end
+    end
   end
 end

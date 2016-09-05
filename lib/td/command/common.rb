@@ -25,6 +25,9 @@ module Command
   class ImportError < RuntimeError
   end
 
+  class WorkflowError < RuntimeError
+  end
+
   private
   def initialize
     @render_indent = ''

@@ -47,6 +47,7 @@ Basic commands:
   sched          # create/delete/list schedules that run a query periodically
   schema         # create/delete/modify schemas of tables
   connector      # manage connectors
+  workflow       # manage workflows
 
 Additional commands:
 
@@ -162,12 +163,13 @@ EOF
       return 1
     end
 
+    status = nil
     begin
       # test the connectivity with the API endpoint
       if cmd_req_connectivity && Config.cl_endpoint
         Command.test_api_endpoint(Config.endpoint)
       end
-      method.call(argv)
+      status = method.call(argv)
     rescue ConfigError
       $stderr.puts "TreasureData account is not configured yet."
       $stderr.puts "Run '#{$prog} account' first."
@@ -185,7 +187,7 @@ EOF
       #   => NotFoundError
       #   => AuthError
       if ![ParameterConfigurationError, BulkImportExecutionError, UpdateError, ImportError,
-            APIError, ForbiddenError, NotFoundError, AuthError, AlreadyExistsError].include?(e.class) ||
+            APIError, ForbiddenError, NotFoundError, AuthError, AlreadyExistsError, WorkflowError].include?(e.class) ||
          !ENV['TD_TOOLBELT_DEBUG'].nil? || $verbose
         show_backtrace "Error #{$!.class}: backtrace:", $!.backtrace
       end
@@ -211,7 +213,7 @@ EOS
       end
       return 1
     end
-    return 0
+    return (status.is_a? Integer) ? status : 0
   end
 
   private
