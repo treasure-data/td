@@ -25,8 +25,9 @@ module TreasureData
         end
         return ENV.has_key?('PROCESSOR_ARCHITEW6432')
       else
-        out = `uname -m`
-        raise 'Failed to detect OS bitness' unless $?.success?
+        require 'open3'
+        out, status = Open3.capture2('uname', '-m')
+        raise 'Failed to detect OS bitness' unless status.success?
         return out.downcase.include? 'x86_64'
       end
     end
