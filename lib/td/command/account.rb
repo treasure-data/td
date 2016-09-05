@@ -41,7 +41,7 @@ module Command
       end
     end
 
-    $stdout.puts "Enter your Treasure Data credentials."
+    $stdout.puts "Enter your Treasure Data credentials. For Google SSO user, please see https://docs.treasuredata.com/articles/command-line#google-sso-users"
     unless user_name
       begin
         $stdout.print "Email: "
