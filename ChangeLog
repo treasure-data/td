@@ -1,3 +1,8 @@
+== 2016-09-06 version 0.15.0
+
+* Add `td workflows` command. #167
+* Add `td connector:update` options to allow configuring several additional data connector settings. #127 #155
+
 == 2016-07-11 version 0.14.1
 
 * Use td-client-ruby v0.8.82
