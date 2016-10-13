@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.test_files            = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.executables           = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths         = ['lib']
-  gem.required_ruby_version = '>= 2.0'
+  gem.required_ruby_version = '>= 2.1'
 
   gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.8.0"]
   gem.add_dependency "yajl-ruby", "~> 1.1"
