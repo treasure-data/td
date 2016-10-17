@@ -17,17 +17,17 @@ Gem::Specification.new do |gem|
   gem.require_paths         = ['lib']
   gem.required_ruby_version = '>= 2.1'
 
-  gem.add_dependency "msgpack", [">= 0.4.4", "!= 0.5.0", "!= 0.5.1", "!= 0.5.2", "!= 0.5.3", "< 0.8.0"]
+  gem.add_dependency "msgpack"
   gem.add_dependency "yajl-ruby", "~> 1.1"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 1.8.0"
-  gem.add_dependency "td-client", "~> 0.8.83"
-  gem.add_dependency "td-logger", "~> 0.3.21"
+  gem.add_dependency "td-client", "~> 0.8.84"
+  gem.add_dependency "td-logger", ">= 0.3.21", "< 2"
   gem.add_dependency "rubyzip", "~> 1.1.7"
   gem.add_dependency "zip-zip", "~> 0.3"
-  gem.add_dependency "ruby-progressbar", "~> 1.7.5"
-  gem.add_development_dependency "rake", "~> 0.9"
-  gem.add_development_dependency "rspec", "~> 3.4.0"
-  gem.add_development_dependency "simplecov", "~> 0.10.0"
+  gem.add_dependency "ruby-progressbar", "~> 1.7"
+  gem.add_development_dependency "rake"
+  gem.add_development_dependency "rspec"
+  gem.add_development_dependency "simplecov"
   gem.add_development_dependency 'coveralls'
 end
