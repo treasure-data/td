@@ -24,7 +24,7 @@ module Command
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
     }
-    op.on('-w', '--wait', 'wait for finishing the job', TrueClass) {|b|
+    op.on('-w', '--wait[=SECONDS]', 'wait for finishing the job (for seconds)', Integer) {|b|
       wait = b
     }
     op.on('-G', '--vertical', 'use vertical table to show results', TrueClass) {|b|
@@ -145,8 +145,8 @@ module Command
     $stdout.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
     #puts "See #{job.url} to see the progress."
 
-    if wait
-      wait_job(job, true)
+    if wait != false # `wait==nil` means `--wait` is specified
+      wait_job(job, true, wait)
       $stdout.puts "Status      : #{job.status}"
       if job.success? && !exclude
         begin
