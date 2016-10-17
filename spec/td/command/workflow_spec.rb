@@ -195,6 +195,10 @@ EOF
         stdout_io.truncate(0)
         stderr_io.truncate(0)
         status = command.workflow(init_option, capture_output=true)
+
+        STDERR.puts 'DEBUG out: ' + stdout_io.string
+        STDERR.puts 'DEBUG err: ' + stderr_io.string
+
         expect(status).to be 0
         expect(stdout_io.string).to include('Creating')
         expect(Dir.exist? project_dir).to be(true)
