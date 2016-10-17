@@ -10,7 +10,8 @@ install:
 build_script:
   - bundle exec rake build
 test_script:
-  - bundle exec rake spec
+  # - bundle exec rake spec
+  - bundle exec rspec -fd spec/td/command/workflow_spec.rb
 environment:
   matrix:
     - ruby_version: "22"
