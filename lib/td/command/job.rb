@@ -225,26 +225,14 @@ private
     $stdout.puts "\rUse '-v' option to show detailed messages." + " " * 20 unless verbose
   end
 
-  def wait_job(job, first_call = false)
+  def wait_job(job, first_call = false, wait = nil)
     $stderr.puts "queued..."
 
     cmdout_lines = 0
     stderr_lines = 0
     max_error_counts = JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR
 
-    while first_call || !job.finished?
-      first_call = false
-      begin
-        sleep 2
-        job.update_status!
-      rescue Timeout::Error, SystemCallError, EOFError, SocketError
-        if max_error_counts <= 0
-          raise
-        end
-        max_error_counts -= 1
-        retry
-      end
-
+    job.wait(wait, detail: true, verbose: true) do
       cmdout = job.debug['cmdout'].to_s.split("\n")[cmdout_lines..-1] || []
       stderr = job.debug['stderr'].to_s.split("\n")[stderr_lines..-1] || []
       (cmdout + stderr).each {|line|
