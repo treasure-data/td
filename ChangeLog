@@ -1,3 +1,9 @@
+== 2016-10-20 version 0.15.1
+
+* Add --wait[=SECONDS] to query subcommand #171
+* Drop Ruby 2.0.0 support
+* Show sql_alias if exist #170
+
 == 2016-09-06 version 0.15.0
 
 * Add `td workflows` command. #167
