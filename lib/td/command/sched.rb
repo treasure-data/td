@@ -76,7 +76,7 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
-    op.on('-T', '--type TYPE', 'set query type (hive or pig)') {|s|
+    op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
       type = s
     }
 
@@ -190,7 +190,7 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
-    op.on('-T', '--type TYPE', 'set query type (hive or pig)') {|s|
+    op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
       type = s
     }
 
