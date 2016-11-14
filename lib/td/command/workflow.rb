@@ -128,7 +128,7 @@ module TreasureData
       return url unless url.empty?
       user = Config.read['account.user']
       if user.nil? or user.strip.empty?
-        raise ConfigError
+        return digdag_base_url
       end
       query = URI.encode_www_form('user' => user)
       "#{digdag_base_url}?#{query}"
