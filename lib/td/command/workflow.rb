@@ -43,6 +43,10 @@ module TreasureData
           cmd << '-Dio.digdag.standards.td.client-configurator.enabled=true'
         end
 
+        # Provide the digdag cli with a directory that can be used to e.g. store local secrets
+        FileUtils.mkdir_p digdag_config_dir
+        env['DIGDAG_CONFIG_HOME'] = digdag_config_dir
+
         cmd << '-jar' << digdag_cli_path
         unless op.argv.empty?
           cmd << '--config' << digdag_config_path
@@ -53,16 +57,7 @@ module TreasureData
           $stderr.puts cmd.to_s
         end
 
-        if capture_output
-          # TODO: use popen3 instead?
-          stdout_str, stderr_str, status = Open3.capture3(env, *cmd)
-          $stdout.write(stdout_str)
-          $stderr.write(stderr_str)
-          return status.exitstatus
-        else
-          Kernel::system(env, *cmd)
-          return $?.exitstatus
-        end
+        execute(capture_output, env, cmd)
       }
     end
 
@@ -94,6 +89,20 @@ module TreasureData
       version_op = List::CommandParser.new("workflow", [], [], nil, ['--version'], true)
       $stdout.write('Digdag version: ')
       workflow(version_op, capture_output=true, check_prereqs=false)
+    end
+
+    private
+    def execute(capture_output, env, cmd)
+      if capture_output
+        # TODO: use popen3 instead?
+        stdout_str, stderr_str, status = Open3.capture3(env, *cmd)
+        $stdout.write(stdout_str)
+        $stderr.write(stderr_str)
+        return status.exitstatus
+      else
+        Kernel::system(env, *cmd)
+        return $?.exitstatus
+      end
     end
 
     private
@@ -137,6 +146,11 @@ module TreasureData
     private
     def digdag_dir
       File.join(home_directory, '.td', 'digdag')
+    end
+
+    private
+    def digdag_config_dir
+      File.join(home_directory, '.td', 'digdag', 'config')
     end
 
     private

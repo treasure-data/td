@@ -282,6 +282,14 @@ EOF
         }
       end
 
+      it 'provides a config directory' do
+        allow(TreasureData::Config).to receive(:cl_apikey) { true }
+        expect(command).to receive(:execute).with(true, hash_including('DIGDAG_CONFIG_HOME'), anything()) { |_, env, _|
+          expect(File.directory?(env['DIGDAG_CONFIG_HOME'])).to be true
+        }
+        command.workflow(init_option, capture_output=true, check_prereqs=false)
+      end
+
       it 'complains if there is no apikey' do
           allow(TreasureData::Config).to receive(:apikey) { nil}
           expect{command.workflow(version_option)}.to raise_error(TreasureData::ConfigError)
