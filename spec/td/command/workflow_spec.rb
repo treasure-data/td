@@ -240,6 +240,20 @@ EOF
         }
       end
 
+      it 'downloads digdag even if there is no user' do
+        with_env('TD_WF_JAVA', 'java') {
+          allow(TreasureData::Config).to receive(:read) {{}}
+          allow(TreasureData::Updater).to receive(:stream_fetch).and_call_original
+          allow($stdin).to receive(:gets) { 'Y' }
+          status = command.workflow(empty_option, capture_output=true)
+          expect(status).to be 0
+          expect(stdout_io.string).to include 'Downloading workflow module'
+          expect(File).to exist(File.join(ENV[home_env], '.td', 'digdag', 'digdag'))
+          expect(TreasureData::Updater).to have_received(:stream_fetch).with(
+              'http://toolbelt.treasure-data.com/digdag', instance_of(File))
+        }
+      end
+
       it 'reinstalls cleanly after reset' do
         skip 'Requires 64 bit OS or system java' unless (TreasureData::Helpers::on_64bit_os? or java_available?)
 
