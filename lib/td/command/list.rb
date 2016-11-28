@@ -229,6 +229,9 @@ module List
   add_list 'db:create', %w[db], 'Create a database', ['db:create example_db']
   add_list 'db:delete', %w[db], 'Delete a database', ['db:delete example_db']
 
+  add_list 'export:result', %w[id, name], 'Dump logs of a target query to the specified place', ['export:result target_job_id result']
+  add_list 'export:table', %w[db table], 'Dump logs in a table to the specified storage', ['export:table example_db table1 --s3-bucket mybucket -k KEY_ID -s SECRET_KEY']
+
   add_list 'table:list', %w[db?], 'Show list of tables', ['table:list', 'table:list example_db', 'tables']
   add_list 'table:show', %w[db table], 'Describe information of a table', ['table example_db table1']
   add_list 'table:create', %w[db table], 'Create a table', ['table:create example_db table1']

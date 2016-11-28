@@ -4,6 +4,34 @@ module Command
   SUPPORTED_FORMATS = %W[json.gz line-json.gz tsv.gz]
   SUPPORTED_ENCRYPT_METHOD = %W[s3]
 
+  def export_result(op)
+    wait = false
+
+    op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
+      wait = b
+    }
+
+    target_job_id, result = op.cmd_parse
+
+    client = get_ssl_client
+
+    opts = {}
+    opts['result'] = result
+    job = client.result_export(target_job_id, opts)
+
+    $stderr.puts "result export job #{job.job_id} is queued."
+    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
+
+    if wait && !job.finished?
+      wait_job(job)
+      $stdout.puts "status     : #{job.status}"
+    end
+  end
+
+  def export_table(op)
+    table_export(op)
+  end
+
   def table_export(op)
     from = nil
     to = nil

@@ -101,5 +101,58 @@ module TreasureData::Command
         }.to_not raise_exception
       end
     end
+
+    describe '#export_table' do
+      let(:option) {
+        List::CommandParser.new("export:table", ["db_name", "table_name"], [], nil, option_list, true)
+      }
+      let(:option_list) { [database, table, "-b", bucket, "-p", path, "-k", key, "-s", pass, "-F", format] }
+      let(:database) { 'database' }
+      let(:table)    { 'table' }
+      let(:bucket)    { 'bucket' }
+      let(:path)    { 'path' }
+      let(:key)    { 'key' }
+      let(:pass)    { 'pass' }
+      let(:format)    { 'tsv.gz' }
+      let(:job_id)    { 111 }
+
+      before do
+        client = double(:client)
+        job = double(:job, job_id: job_id)
+        allow(client).to receive(:export).and_return(job)
+        table = double(:table)
+
+        allow(command).to receive(:get_client).and_return(client)
+        allow(command).to receive(:get_table).and_return(table)
+      end
+
+      it 'export table successfully like #table_export' do
+        expect {
+          command.table_export(option)
+        }.to_not raise_exception
+      end
+    end
+
+    describe '#export_result' do
+      let(:option) {
+        List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, option_list, true)
+      }
+      let(:option_list) { [110, 'mysql://user:pass@host.com/database/table'] }
+      let(:job_id)    { 111 }
+
+      before do
+        client = double(:client)
+        job = double(:job, job_id: job_id)
+        allow(client).to receive(:result_export).and_return(job)
+
+        allow(command).to receive(:get_client).and_return(client)
+      end
+
+      it 'export result successfully' do
+        expect {
+          command.export_result(option)
+        }.not_to raise_exception
+      end
+    end
   end
 end
