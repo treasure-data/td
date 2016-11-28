@@ -5,6 +5,12 @@ module Command
   SUPPORTED_ENCRYPT_METHOD = %W[s3]
 
   def export_result(op)
+    wait = false
+
+    op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
+      wait = b
+    }
+
     target_job_id, result = op.cmd_parse
 
     client = get_ssl_client
@@ -14,7 +20,7 @@ module Command
     job = client.result_export(target_job_id, opts)
 
     $stderr.puts "result export job #{job.job_id} is queued."
-    $stderr.puts "use '#{$prog} " + config.cl_options_string + "job:show #{job.job_id}' to show the status."
+    $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
 
     if wait && !job.finished?
       wait_job(job)
