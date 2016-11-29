@@ -1,3 +1,8 @@
+== 2016-11-29 version 0.15.2
+
+* Deprecate Pig query engine #172
+* Add export:result and export:table #175
+
 == 2016-10-20 version 0.15.1
 
 * Add --wait[=SECONDS] to query subcommand #171
