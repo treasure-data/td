@@ -68,6 +68,8 @@ module TreasureData
 
     # "Factory reset"
     def workflow_reset(op)
+      op.cmd_parse # to show help
+
       $stdout << 'Removing workflow module...'
       FileUtils.rm_rf digdag_dir
       $stdout.puts ' Done.'
@@ -75,6 +77,8 @@ module TreasureData
     end
 
     def workflow_version(op)
+      op.cmd_parse # to show help
+
       unless File.exists?(digdag_cli_path)
         $stderr.puts('Workflow module not yet installed.')
         return 1
