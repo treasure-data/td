@@ -362,6 +362,7 @@ module List
 
   add_list 'workflow', %w[], 'Run a workflow command'
   add_list 'workflow:reset', %w[], 'Reset the workflow module'
+  add_list 'workflow:update', %w[version?], 'Update the workflow module'
   add_list 'workflow:version', %w[], 'Show workflow module version'
 
   # aliases

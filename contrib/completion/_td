@@ -84,6 +84,7 @@ subcommands=(
     "wf":"Run a workflow command"
     "workflow":"Run a workflow command"
     "workflow:reset":"Reset the workflow module"
+    "workflow:update":"Update the workflow module"
 
     # TODO: Add ACL related commands
 )

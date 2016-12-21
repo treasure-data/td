@@ -66,6 +66,14 @@ module TreasureData
       }
     end
 
+    def workflow_update(op)
+      version = op.cmd_parse
+      $stdout << "Downloading workflow module #{version}..."
+      download_digdag(version)
+      $stdout.puts ' Done.'
+      return 0
+    end
+
     # "Factory reset"
     def workflow_reset(op)
       op.cmd_parse # to show help
@@ -122,12 +130,17 @@ module TreasureData
       ENV.fetch('TD_WF_JAVA', '').strip
     end
 
-    def digdag_base_url
-      'http://toolbelt.treasure-data.com/digdag'
+    def digdag_base_url(version=nil)
+      base = 'http://toolbelt.treasure-data.com/digdag'
+      if version.to_s == ''
+        base
+      else
+        "#{base}-#{version}"
+      end
     end
 
     private
-    def digdag_url
+    def digdag_url(version=nil)
       url = ENV.fetch('TD_DIGDAG_URL', '').strip
       return url unless url.empty?
       user = Config.read['account.user']
@@ -135,7 +148,7 @@ module TreasureData
         return digdag_base_url
       end
       query = URI.encode_www_form('user' => user)
-      "#{digdag_base_url}?#{query}"
+      "#{digdag_base_url(version)}?#{query}"
     end
 
     private
@@ -410,7 +423,7 @@ EOF
       end
     end
 
-    def download_digdag
+    def download_digdag(version=nil)
       require 'net/http'
       require 'openssl'
 
@@ -426,7 +439,7 @@ EOF
         status = nil
         download_path = File.join(download_dir, 'digdag')
         File.open(download_path, 'wb') do |file|
-          status = Updater.stream_fetch(digdag_url, file) {
+          status = Updater.stream_fetch(digdag_url(version), file) {
             indicator.update
           }
         end
