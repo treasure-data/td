@@ -1,4 +1,5 @@
 require 'td/helpers'
+require 'td/command/job'
 
 module TreasureData
 module Command
