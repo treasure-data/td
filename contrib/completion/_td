@@ -16,7 +16,7 @@ subcommands=(
 
     "bulk_import\:list":"List bulk import sessions"
     "bulk_import\:show":"Show list of uploaded parts"
-    "bulk_import\:create":"Create a new bulk import session to the the table"
+    "bulk_import\:create":"Create a new bulk import session to the table"
     "bulk_import\:prepare_parts":"Convert files into part file format"
     #"bulk_import\:prepare_parts2":"Convert files into part file format"
     "bulk_import\:upload_part":"Upload or re-upload a file into a bulk import session"
