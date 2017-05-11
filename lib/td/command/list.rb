@@ -246,7 +246,7 @@ module List
 
   add_list 'bulk_import:list', %w[], 'List bulk import sessions', ['bulk_import:list']
   add_list 'bulk_import:show', %w[name], 'Show list of uploaded parts', ['bulk_import:show']
-  add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the the table', ['bulk_import:create logs_201201 example_db event_logs']
+  add_list 'bulk_import:create', %w[name db table], 'Create a new bulk import session to the table', ['bulk_import:create logs_201201 example_db event_logs']
   add_list 'bulk_import:prepare_parts', %w[files_], 'Convert files into part file format', ['bulk_import:prepare_parts logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/']
   add_list 'bulk_import:upload_part', %w[name id path.msgpack.gz], 'Upload or re-upload a file into a bulk import session', ['bulk_import:upload_part logs_201201 01h data-201201-01.msgpack.gz']
   add_list 'bulk_import:upload_parts', %w[name files_], 'Upload or re-upload files into a bulk import session', ['bulk_import:upload_parts parts/* --parallel 4']
@@ -261,7 +261,7 @@ module List
 
   add_list 'import:list', %w[], 'List bulk import sessions', ['import:list']
   add_list 'import:show', %w[name], 'Show list of uploaded parts', ['import:show']
-  add_list 'import:create', %w[name db table], 'Create a new bulk import session to the the table', ['import:create logs_201201 example_db event_logs']
+  add_list 'import:create', %w[name db table], 'Create a new bulk import session to the table', ['import:create logs_201201 example_db event_logs']
   add_list 'import:jar_version', %w[], 'Show import jar version', ['import:jar_version'], false
   add_list 'import:jar_update', %w[], 'Update import jar to the latest version', ['import:jar_update']
   add_list 'import:prepare', %w[files_], 'Convert files into part file format', ['import:prepare logs/*.csv --format csv --columns time,uid,price,count --time-column "time" -o parts/'], false
