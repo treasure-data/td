@@ -1,3 +1,4 @@
+require 'td/command/job'
 
 module TreasureData
 module Command
@@ -22,7 +23,7 @@ module Command
     $stderr.puts "result export job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
 
-    if wait && !job.finished?
+    if wait
       wait_job(job)
       $stdout.puts "status     : #{job.status}"
     end
@@ -121,7 +122,7 @@ module Command
     $stderr.puts "Export job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
 
-    if wait && !job.finished?
+    if wait
       wait_job(job)
       $stdout.puts "Status     : #{job.status}"
     end

@@ -1,3 +1,4 @@
+require 'td/command/job'
 require 'td/command/options'
 
 module TreasureData
