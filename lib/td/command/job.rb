@@ -29,11 +29,15 @@ module Command
   }
 
   def job_list(op)
+    user = nil
     page = 0
     skip = 0
     status = nil
     slower_than = nil
 
+    op.on('-u', '--user USER', 'show only jobs executed by the specified user', String) {|s|
+      user = s
+    }
     op.on('-p', '--page PAGE', 'skip N pages', Integer) {|i|
       page = i
     }
@@ -65,9 +69,12 @@ module Command
       skip += max * page
     end
 
-    conditions = nil
+    conditions = {}
+    if user
+      conditions[:user] = user
+    end
     if slower_than
-      conditions = {:slower_than => slower_than}
+      conditions[:slower_than] = slower_than
     end
 
     jobs = client.jobs(skip, skip + max - 1, status, conditions)
