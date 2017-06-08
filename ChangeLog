@@ -1,3 +1,8 @@
+== 2017-06-08 version 0.15.3
+
+* add jsonl.gz format #153
+* add workflow:update command #178
+
 == 2016-11-29 version 0.15.2
 
 * Deprecate Pig query engine #172
