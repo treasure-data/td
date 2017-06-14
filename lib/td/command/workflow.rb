@@ -278,8 +278,7 @@ EOF
       http.request_get(uri.path + (uri.query ? '?' + uri.query : '')) {|response|
         if response.class == Net::HTTPOK
           return url
-        elsif response.class == Net::HTTPFound || \
-              response.class == Net::HTTPRedirection
+        elsif response.is_a?(Net::HTTPRedirection)
           unless ENV['TD_TOOLBELT_DEBUG'].nil?
             $stdout.puts "redirect '#{url}' to '#{response['Location']}'... "
           end
