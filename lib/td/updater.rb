@@ -277,8 +277,7 @@ module ModuleDefinition
           progress.call unless progress.nil?
         end
         return true
-      elsif response.class == Net::HTTPFound || \
-            response.class == Net::HTTPRedirection
+      elsif response.is_a?(Net::HTTPRedirection)
         unless ENV['TD_TOOLBELT_DEBUG'].nil?
           $stdout.puts "redirect '#{url}' to '#{response['Location']}'... "
         end
