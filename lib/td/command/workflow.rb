@@ -143,7 +143,7 @@ module TreasureData
     def digdag_url(version=nil)
       url = ENV.fetch('TD_DIGDAG_URL', '').strip
       return url unless url.empty?
-      user = Config.read['account.user']
+      user = Config.read['account.user'] if File.exist?(Config.path)
       if user.nil? or user.strip.empty?
         return digdag_base_url
       end
