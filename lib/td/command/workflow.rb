@@ -284,8 +284,9 @@ EOF
           end
           return resolve_url(response['Location'])
         else
-          raise_error "An error occurred when fetching from '#{uri}' " +
-                          "(#{response.class.to_s}: #{response.message})."
+          raise Command::UpdateError,
+            "An error occurred when fetching from '#{uri}' " \
+            "(#{response.class.to_s}: #{response.message})."
           return false
         end
       }
