@@ -31,8 +31,10 @@ module TreasureData
           # Instead, create a digdag configuration file with the endpoint and the specified apikey.
           env['TD_CONFIG_PATH'] = nil
           apikey = TreasureData::Config.apikey
+          endpoint = TreasureData::Config.endpoint
+          workflow_endpoint = endpoint.sub(/([\W\A])api((?!-workflow)[\-\.])/, "\\1api-workflow\\2")
           File.write(digdag_config_path, [
-              'client.http.endpoint = https://api-workflow.treasuredata.com',
+              "client.http.endpoint = #{workflow_endpoint}",
               "client.http.headers.authorization = TD1 #{apikey}",
               "secrets.td.apikey = #{apikey}"
           ].join($/) + $/)
