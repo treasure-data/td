@@ -64,7 +64,7 @@ module Command
     begin
       unless force
         table = get_table(client, db_name, table_name)
-        $stderr.print "Do you really delete '#{table_name}' in '#{db_name}'? [y/N]: "
+        $stderr.print "Do you really want to delete '#{table_name}' in '#{db_name}'? [y/N]: "
         ok = nil
         while line = $stdin.gets
           line.strip!
