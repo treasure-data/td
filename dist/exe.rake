@@ -5,7 +5,7 @@ namespace 'exe' do
       install_ruby_version = '2.2.8'
       # create ./installers/
       FileUtils.mkdir_p "installers"
-      installer_path = "../../dist/resources/exe/rubyinstaller-2.2.8.exe"
+      installer_path = project_root_path("dist/resources/exe/rubyinstaller-2.2.8.exe")
       FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
       variables = {
