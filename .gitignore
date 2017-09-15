@@ -3,7 +3,7 @@
 build/td-import-java
 Gemfile.lock
 vendor/*
-pkg/
+/pkg/
 build/*
 coverage/
 *~

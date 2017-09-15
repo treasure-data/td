@@ -5,7 +5,6 @@ namespace 'pkg' do
       FileUtils.mkdir_p "bundle"
       FileUtils.mkdir_p "bundle/Resources"
       FileUtils.mkdir_p "bundle/td-client.pkg"
-      FileUtils.mkdir_p "bundle/td-client.pkg"
 
       # create ./bundle/td-client.pkg/Payload
       mkchdir('td-client.build') do
@@ -36,7 +35,7 @@ namespace 'pkg' do
       # create ./bundle/Distribution
       install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
-      ruby_version = '2.2.2'
+      ruby_version = '2.2.8'
       sh "pkgutil --expand #{project_root_path("dist/resources/pkg/ruby-#{ruby_version}.pkg")} ruby"
       mv "ruby/ruby-#{ruby_version}.pkg", "bundle/ruby.pkg"
 
