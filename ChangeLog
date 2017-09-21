@@ -1,3 +1,7 @@
+== 2017-09-21 version 0.15.6
+
+* Update td-client gem dependency to 1.0.4
+
 == 2017-07-26 version 0.15.5
 
 * use Ruby 2.2.8 #193
