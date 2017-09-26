@@ -325,4 +325,84 @@ EOF
       end
     end
   end
+
+  describe 'verify argument with mock' do
+    let(:command) { Class.new { include TreasureData::Command }.new }
+    let(:empty_option) { List::CommandParser.new("workflow", [], [], nil, [], true) }
+    let(:td_config){ TreasureData::Config.new }
+    let(:workflow_config){ Hash.new }
+    let(:digdag_env){ Hash.new }
+    let(:config_path){ nil }
+    let(:apikey){ nil }
+    let(:endpoint){ nil }
+    before do
+      # TreasureData::Command::Runner#run
+      if config_path
+        TreasureData::Config.path = config_path
+      end
+      if apikey
+        TreasureData::Config.apikey = apikey
+        TreasureData::Config.cl_apikey = true
+      end
+      if endpoint
+        TreasureData::Config.endpoint = endpoint
+        TreasureData::Config.cl_endpoint = true
+      end
+
+      allow(Kernel).to receive(:system) do |env, *cmd|
+        digdag_env.replace env
+        cmd = cmd.dup
+        args = {nil => []}
+        while x = cmd.shift
+          case x
+          when /\A--\w+\z/
+            args[x] = cmd.shift
+          when /\A-[a-z]+\z/
+            args[x] = cmd.shift
+          when /\A(-[A-Z][^=]*)(?:=(.*))?\z/
+            args[$1] = $2
+          else
+            args[nil] << x
+          end
+        end
+        if args['--config']
+          File.foreach(args['--config']) do |line|
+            k, v = line.strip.split(/\s*=\s*/, 2)
+            workflow_config[k] = v
+          end
+        end
+        td_config_path =
+          env['TREASURE_DATA_CONFIG_PATH'] ||
+          env['TD_CONFIG_PATH'] ||
+          "#{Dir.home}/.config/.td/td.conf"
+        if File.exist?(td_config_path) && args['-Dio.digdag.standards.td.secrets.enabled'] != 'false'
+          td_config.read(td_config_path)
+        end
+        0
+      end
+    end
+    context 'endpoint: https://api.treasuredata.com' do
+      let (:endpoint){ 'https://api.treasuredata.com' }
+      it 'uses td.conf' do
+        apikey = '1/deadbeaf'
+        TreasureData::Config.apikey = apikey # emulate to load from config file
+        op = List::CommandParser.new("workflow", [], [], nil, ['version'], true)
+        command.workflow(op, false, false)
+        expect(workflow_config).to eq({})
+        expect(digdag_env['TREASURE_DATA_WORKFLOW_ENDPOINT']).to be_nil
+      end
+    end
+    context 'endpoint: https://api.treasuredata.co.jp' do
+      let(:apikey){ '1/deadbeaf' }
+      let (:endpoint){ 'https://api.treasuredata.co.jp' }
+      it 'writes temporary workflow conf' do
+        op = List::CommandParser.new("workflow", [], [], nil, ['version'], true)
+        command.workflow(op, false, false)
+        expect(workflow_config['client.http.endpoint']).to eq 'https://api-workflow.treasuredata.co.jp'
+        expect(workflow_config['client.http.headers.authorization']).to eq "TD1 #{apikey}"
+        expect(workflow_config['secrets.td.apikey']).to eq apikey
+        expect(digdag_env['TREASURE_DATA_WORKFLOW_ENDPOINT']).to eq 'https://api-workflow.treasuredata.co.jp'
+      end
+    end
+  end
 end

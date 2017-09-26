@@ -12,24 +12,24 @@ describe TreasureData::Config do
       end
       context 'works with http schema' do
         let(:api_endpoint){ 'http://api.treasuredata.com' }
-        it { is_expected.to eq 'ahttps://pi-workflow.treasuredata.com' }
+        it { is_expected.to eq 'https://api-workflow.treasuredata.com' }
       end
       context 'works with https schema' do
         let(:api_endpoint){ 'https://api.treasuredata.com' }
-        it { is_expected.to eq 'ahttps://pi-workflow.treasuredata.com' }
+        it { is_expected.to eq 'https://api-workflow.treasuredata.com' }
       end
     end
     context 'api.treasuredata.co.jp' do
       let(:api_endpoint){ 'api.treasuredata.co.jp' }
-      it { is_expected.to eq 'ahttps://pi-workflow.treasuredata.co.jp' }
+      it { is_expected.to eq 'https://api-workflow.treasuredata.co.jp' }
     end
     context 'api-staging.treasuredata.com' do
       let(:api_endpoint){ 'api-staging.treasuredata.com' }
-      it { is_expected.to eq 'ahttps://pi-staging-workflow.treasuredata.com' }
+      it { is_expected.to eq 'https://api-staging-workflow.treasuredata.com' }
     end
     context 'api-staging.treasuredata.co.jp' do
       let(:api_endpoint){ 'api-staging.treasuredata.co.jp' }
-      it { is_expected.to eq 'ahttps://pi-staging-workflow.treasuredata.co.jp' }
+      it { is_expected.to eq 'https://api-staging-workflow.treasuredata.co.jp' }
     end
     context 'ybi.jp-east.idcfcloud.com' do
       let(:api_endpoint){ 'ybi.jp-east.idcfcloud.com' }

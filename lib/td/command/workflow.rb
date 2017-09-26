@@ -26,13 +26,18 @@ module TreasureData
         env = {}
         digdag_config_path = File.join(wd, 'config')
         FileUtils.touch(digdag_config_path)
-        if Config.cl_apikey
+        workflow_endpoint = Config.workflow_endpoint
+
+        # In the future passing config to digdag should use environment variables
+        if Config.cl_apikey || workflow_endpoint != 'https://api-workflow.treasuredata.com'
           # If the user passes the apikey on the command line we cannot use the digdag td.conf plugin.
           # Instead, create a digdag configuration file with the endpoint and the specified apikey.
-          env['TD_CONFIG_PATH'] = nil
           apikey = TreasureData::Config.apikey
+          env['TD_CONFIG_PATH'] = nil
+          env['TREASURE_DATA_WORKFLOW_ENDPOINT'] = workflow_endpoint
+          env['TD_API_KEY'] = apikey
           File.write(digdag_config_path, [
-              'client.http.endpoint = https://api-workflow.treasuredata.com',
+              "client.http.endpoint = #{workflow_endpoint}",
               "client.http.headers.authorization = TD1 #{apikey}",
               "secrets.td.apikey = #{apikey}"
           ].join($/) + $/)
