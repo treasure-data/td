@@ -160,6 +160,21 @@ class Config
     @@cl_endpoint = flag
   end
 
+  def self.workflow_endpoint
+    case self.endpoint.to_s.sub(%r[https?://], '')
+    when '', 'api.treasuredata.com'
+      'https://api-workflow.treasuredata.com'
+    when 'api-staging.treasuredata.com'
+      'https://api-staging-workflow.treasuredata.com'
+    when 'api.treasuredata.co.jp'
+      'https://api-workflow.treasuredata.co.jp'
+    when 'api-staging.treasuredata.co.jp'
+      'https://api-staging-workflow.treasuredata.co.jp'
+    else
+      raise ConfigError, "Workflow is not supported for '#{self.endpoint}'"
+    end
+  end
+
   # renders the apikey and endpoint options as a string for the helper commands
   def self.cl_options_string
     string = ""
