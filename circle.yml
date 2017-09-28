@@ -1,0 +1,10 @@
+machine:
+  ruby:
+    version: 2.4.2
+  xcode:
+    version: 8.2
+test:
+  override:
+    - bundle
+    - bundle exec rake install
+    - dist/build_osx.sh
