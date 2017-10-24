@@ -1,3 +1,7 @@
+== 2017-10-24 version 0.15.7
+
+* Support workflow on aws tokyo #94
+
 == 2017-09-21 version 0.15.6
 
 * Update td-client gem dependency to 1.0.4
