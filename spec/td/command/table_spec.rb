@@ -180,6 +180,124 @@ module TreasureData::Command
       end
     end
 
+    describe '#table_create' do
+      let(:db_name)    { 'database' }
+      let(:table_name) { 'table1' }
+      let(:client)     { double('client') }
+      let(:command)    { Class.new { include TreasureData::Command }.new }
+
+      before do
+        allow(command).to receive(:get_client) { client }
+      end
+
+      context 'normal' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {})
+          command.table_create(option)
+        end
+      end
+
+      context 'with include_v' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--include-v'], false)
+        }
+
+        it 'raises Error' do
+          expect{ command.table_create(option) }.to raise_error(SystemExit)
+        end
+      end
+
+      context 'with include_v=true' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--include-v=true'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {include_v: true})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+
+      context 'with include_v=false' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--include-v=false'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {include_v: false})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+
+      context 'with detect_schema' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--detect-schema'], false)
+        }
+
+        it 'raises Error' do
+          expect{ command.table_create(option) }.to raise_error(SystemExit)
+        end
+      end
+
+      context 'with detect_schema=true' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--detect-schema=true'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {detect_schema: true})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+
+      context 'with detect_schema=false' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--detect-schema=false'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {detect_schema: false})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+
+      context 'with expire_days' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--expire-days'], false)
+        }
+
+        it 'raises Error' do
+          expect{ command.table_create(option) }.to raise_error(SystemExit)
+        end
+      end
+
+      context 'with expire_days=0' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--expire-days=0'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {expire_days: 0})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+
+      context 'with expire_days=365' do
+        let(:option) {
+          List::CommandParser.new('table:create', %w(db_name table_name), [], false, [db_name, table_name, '--expire-days=365'], false)
+        }
+
+        it 'create table' do
+          expect(client).to receive(:create_log_table).with(db_name, table_name, {expire_days: 365})
+          expect{ command.table_create(option) }.not_to raise_error
+        end
+      end
+    end
+
     describe '#table_import' do
       let(:db_name)    { 'database' }
       let(:table_name) { 'table' }
