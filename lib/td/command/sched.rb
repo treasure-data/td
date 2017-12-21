@@ -256,7 +256,7 @@ module Command
     client = get_client
 
     begin
-      history = client.history(name, skip, skip+max-1)
+      history = client.history(name, skip, skip+max)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' does not exist."
