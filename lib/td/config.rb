@@ -152,6 +152,10 @@ class Config
     @@endpoint = endpoint
   end
 
+  def self.endpoint_domain
+    (self.endpoint || 'api.treasuredata.com').sub(%r[https?://], '')
+  end
+
   def self.cl_endpoint
     @@cl_endpoint
   end
@@ -161,8 +165,8 @@ class Config
   end
 
   def self.workflow_endpoint
-    case self.endpoint.to_s.sub(%r[https?://], '')
-    when '', 'api.treasuredata.com'
+    case self.endpoint_domain
+    when 'api.treasuredata.com'
       'https://api-workflow.treasuredata.com'
     when 'api-staging.treasuredata.com'
       'https://api-staging-workflow.treasuredata.com'
