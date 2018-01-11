@@ -42,6 +42,7 @@ module TreasureData
               "secrets.td.apikey = #{apikey}"
           ].join($/) + $/)
           cmd << '-Dio.digdag.standards.td.secrets.enabled=false'
+          cmd << "-Dconfig.td.default_endpoint=#{Config.endpoint_domain}"
         else
           # Use the digdag td.conf plugin to configure wf api and apikey.
           env['TREASURE_DATA_CONFIG_PATH'] = Config.path
