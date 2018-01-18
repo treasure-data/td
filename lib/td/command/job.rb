@@ -74,6 +74,7 @@ module Command
 
     rows = []
     jobs.each {|job|
+      job.auto_update_status = false
       start = job.start_at
       elapsed = Command.humanize_elapsed_time(start, job.end_at)
       cpu_time = Command.humanize_time(job.cpu_time, true)
