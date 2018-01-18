@@ -15,6 +15,7 @@ module Command
   KEY_NUM_LIMIT = 512
 
   def table_create(op)
+    params = {}
     type = nil
 
     op.on('-T', '--type TYPE', 'set table type (log)') {|s|
@@ -23,6 +24,15 @@ module Command
       end
       type = s.to_sym
     }
+    op.on('--expire-days DAYS', Integer, 'set table expire days') do |v|
+      if v < 0
+        $stderr.puts "Table expiration days must be greater or equal to 0."
+        return
+      end
+      params[:expire_days] = v
+    end
+    op.on('--include-v BOOLEAN', TrueClass, 'set include_v flag') {|v| params[:include_v] = v}
+    op.on('--detect-schema BOOLEAN', TrueClass, 'set detect schema flag') {|v| params[:detect_schema] = v}
     db_name, table_name = op.cmd_parse
 
     API.validate_table_name(table_name)
@@ -36,7 +46,7 @@ module Command
     client = get_client
 
     begin
-      client.create_log_table(db_name, table_name)
+      client.create_log_table(db_name, table_name, params)
     rescue NotFoundError
       cmd_debug_error $!
       $stderr.puts "Database '#{db_name}' does not exist."
@@ -218,6 +228,10 @@ module Command
   end
 
   def table_show(op)
+    verbose = nil
+    op.on('-v', 'show more attributes', TrueClass) {|b|
+      verbose = b
+    }
     db_name, table_name = op.cmd_parse
 
     client = get_client
@@ -227,7 +241,10 @@ module Command
     $stdout.puts "Name        : #{table.db_name}.#{table.name}"
     $stdout.puts "Type        : #{table.type}"
     $stdout.puts "Count       : #{table.count}"
-    # p table.methods.each {|m| $stdout.puts m}
+    if verbose
+      $stdout.puts "Expire Days : #{table.expire_days}"
+      $stdout.puts "Include v   : #{table.include_v}"
+    end
     $stdout.puts "Schema      : ("
     table.schema.fields.each {|f|
       $stdout.puts "    #{f.name}:#{f.type}"
@@ -334,6 +351,25 @@ module Command
       wait_job(job)
       $stdout.puts "Status     : #{job.status}"
     end
+  end
+
+  def table_update(op)
+    params = {}
+    op.on('--expire-days DAYS', Integer, 'set table expire days') do |v|
+      if v < 0
+        $stderr.puts "Table expiration days must be greater or equal to 0."
+        return
+      end
+      params[:expire_days] = v
+    end
+    op.on('--include-v BOOLEAN', TrueClass, 'set include_v flag') {|v| params[:include_v] = v}
+    op.on('--detect-schema BOOLEAN', TrueClass, 'set detect schema flag') {|v| params[:detect_schema] = v}
+    db_name, table_name = op.cmd_parse
+
+    client = get_client
+    res = client.update_table(db_name, table_name, params)
+
+    $stdout.puts res.inspect
   end
 
   def table_expire(op)
