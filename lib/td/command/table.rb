@@ -24,9 +24,15 @@ module Command
       end
       type = s.to_sym
     }
+    op.on('--expire-days DAYS', Integer, 'set table expire days') do |v|
+      if v < 0
+        $stderr.puts "Table expiration days must be greater or equal to 0."
+        return
+      end
+      params[:expire_days] = v
+    end
     op.on('--include-v BOOLEAN', TrueClass, 'set include_v flag') {|v| params[:include_v] = v}
     op.on('--detect-schema BOOLEAN', TrueClass, 'set detect schema flag') {|v| params[:detect_schema] = v}
-    op.on('--expire-days DAYS', Integer, 'set table expiration') {|v| params[:expire_days] = v}
     db_name, table_name = op.cmd_parse
 
     API.validate_table_name(table_name)
