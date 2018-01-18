@@ -348,46 +348,39 @@ text
 
       let(:job_id) { "12345" }
 
-      let :job_class do
-        Struct.new(:job_id,
-                   :status,
-                   :type,
-                   :db_name,
-                   :priority,
-                   :retry_limit,
-                   :result_url,
-                   :query,
-                   :start_at,
-                   :end_at,
-                   :cpu_time,
-                   :result_size,
-                   :duration
-                  )
-      end
-
       let :start_at do
         Time.now
       end
 
+      let :client do
+        double('client')
+      end
+
       let :jobs do
-        [job_class.new(job_id,
-                       nil,
+        [TreasureData::Job.new(client,
+                       job_id,
                        :hive,
-                       "db_name",
-                       1,
-                       1,
-                       "test_url",
                        "test_qury",
-                       start_at,
-                       start_at + 10,
+                       nil,
+                       nil,
+                       nil,
+                       start_at.iso8601,
+                       (start_at + 10).iso8601,
                        1,
                        3,
-                       100
+                       nil,
+                       "test_url",
+                       nil,
+                       1,
+                       1,
+                       nil,
+                       "db_name",
+                       100,
+                       1,
                       )] * 3
       end
 
       before do
-        client = Object.new
         allow(client).to receive(:jobs).and_return(jobs)
         allow(command).to receive(:get_client).and_return(client)
       end
