@@ -349,7 +349,7 @@ module Command
 
   def table_update(op)
     params = {}
-    op.on('--expire-days DAYS', Integer, 'set expire days') do |v|
+    op.on('--expire-days DAYS', Integer, 'set table expire days') do |v|
       if v < 0
         $stderr.puts "Table expiration days must be greater or equal to 0."
         return
@@ -358,7 +358,6 @@ module Command
     end
     op.on('--include-v BOOLEAN', TrueClass, 'set include_v flag') {|v| params[:include_v] = v}
     op.on('--detect-schema BOOLEAN', TrueClass, 'set detect schema flag') {|v| params[:detect_schema] = v}
-    op.on('--expire-days DAYS', Integer, 'set table expiration') {|v| params[:expire_days] = v}
     db_name, table_name = op.cmd_parse
 
     client = get_client
