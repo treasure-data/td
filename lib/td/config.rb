@@ -168,10 +168,14 @@ class Config
     case self.endpoint_domain
     when 'api.treasuredata.com'
       'https://api-workflow.treasuredata.com'
+    when /\Aapi-([^.]*).connect.treasuredata.com\z/
+      "https://api-workflow-#{$1}.connect.treasuredata.com"
     when 'api-staging.treasuredata.com'
       'https://api-staging-workflow.treasuredata.com'
     when 'api.treasuredata.co.jp'
       'https://api-workflow.treasuredata.co.jp'
+    when /\Aapi-([^.]*).connect.treasuredata.co.jp\z/
+      "https://api-workflow-#{$1}.connect.treasuredata.co.jp"
     when 'api-staging.treasuredata.co.jp'
       'https://api-staging-workflow.treasuredata.co.jp'
     else
