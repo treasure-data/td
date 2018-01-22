@@ -1,3 +1,10 @@
+== 2018-01-22 version 0.15.8
+
+* table:update to update table options #196
+* Avoid extra API call on job:list #199
+* td workflow supports non US region and Private Connect #197 #198
+* fix sched:history -p causes missing one record #195
+
 == 2017-10-24 version 0.15.7
 
 * Support workflow on aws tokyo #94
