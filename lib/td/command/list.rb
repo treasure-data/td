@@ -137,7 +137,7 @@ module List
   LIST = []
   COMMAND = {}
   GUESS = {}
-  HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/, /^acl/]
+  HELP_EXCLUDE = [/^help/, /^account/, /^update/, /^user/]
   USAGE_EXCLUDE = [/bulk_import:upload_part\z/, /bulk_import:delete_part\z/]
 
   def self.add_list(name, args, description, examples = [], cmd_req_conn = true)
@@ -323,11 +323,6 @@ module List
   add_list 'user:apikey:remove', %w[name apikey], 'Remove an API key from an user'
   add_list 'user:password:change', %w[name], 'Change password for any user (must be an Administrator)'
 
-  add_list 'acl:list', %w[], 'Show list of access controls'
-  add_list 'acl:grant', %w[subject action scope], 'Grant an access control'
-  add_list 'acl:revoke', %w[subject action scope], 'Revoke an access control'
-  # TODO acl:test
-
   add_list 'server:status', %w[], 'Show status of the Treasure Data server'
   add_list 'server:endpoint', %w[api_endpoint], "Set the Treasure Data API server's endpoint (must be a valid URI)", ["server:endpoint 'https://api.treasuredata.com'"]
 
@@ -414,9 +409,6 @@ module List
   add_alias 'users', 'user:list'
   add_alias 'user:apikey', 'user:apikey:list'
   add_alias 'user:apikeys', 'user:apikey:list'
-
-  add_alias 'acl', 'acl:list'
-  add_alias 'acls', 'acl:list'
 
   add_alias 'apikey', 'apikey:show'
   add_alias 'server', 'server:status'
