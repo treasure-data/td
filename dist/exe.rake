@@ -2,10 +2,10 @@ namespace 'exe' do
   desc "build Windows exe package"
   task 'build' => '^build' do
     create_build_dir('exe') do |dir|
-      install_ruby_version = '2.2.8'
+      install_ruby_version = '2.4.4'
       # create ./installers/
       FileUtils.mkdir_p "installers"
-      installer_path = project_root_path("dist/resources/exe/rubyinstaller-2.2.8.exe")
+      installer_path = project_root_path("dist/resources/exe/rubyinstaller-2.4.4-1-x86.exe")
       FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
       variables = {
