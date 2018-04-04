@@ -7,17 +7,31 @@ module Command
 
   def export_result(op)
     wait = false
+    priority = nil
+    retry_limit = nil
 
     op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
       wait = b
+    }
+    op.on('-P', '--priority PRIORITY', 'set priority') {|s|
+      priority = job_priority_id_of(s)
+      unless priority
+        raise "unknown priority #{s.inspect} should be -2 (very-low), -1 (low), 0 (normal), 1 (high) or 2 (very-high)"
+      end
+    }
+    op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
+      retry_limit = i
     }
 
     target_job_id, result = op.cmd_parse
 
     client = get_ssl_client
 
-    opts = {}
-    opts['result'] = result
+    opts = {
+      result: result,
+      retry_limit: retry_limit,
+      priority: priority,
+    }
     job = client.result_export(target_job_id, opts)
 
     $stderr.puts "result export job #{job.job_id} is queued."
