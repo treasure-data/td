@@ -36,6 +36,7 @@ def install_use_gems(target_dir)
   end
 
   require 'rubygems/gem_runner'
+  require 'rubygems/rdoc' # avoid `Gem.finish_resolve` raises error
 
   # system(env, cmd) doesn't work with ruby 1.8
   ENV['GEM_HOME'] = target_dir
