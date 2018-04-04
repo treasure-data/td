@@ -1,3 +1,3 @@
 module TreasureData
-  TOOLBELT_VERSION = '0.15.8'
+  TOOLBELT_VERSION = '0.15.9'
 end
