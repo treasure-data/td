@@ -221,30 +221,6 @@ module ModuleDefinition
       end
       load('td/updater.rb') # reload updated updater
     end
-
-    # check every hour if the toolbelt can be updated.
-    # => If so, update in the background
-    if File.exists?(last_toolbelt_autoupdate_timestamp)
-      return if (Time.now.to_i - File.mtime(last_toolbelt_autoupdate_timestamp).to_i) < 60 * 60 * 1 # every 1 hours
-    end
-    log_path = File.join(home_directory, '.td', 'autoupdate.log')
-    FileUtils.mkdir_p File.dirname(log_path)
-    td_binary = File.expand_path($0)
-    pid = if defined?(RUBY_VERSION) and RUBY_VERSION =~ /^1\.8\.\d+/
-      fork do
-        exec("#{Shellwords.escape(td_binary)} update &> #{Shellwords.escape(log_path)} 2>&1")
-      end
-    else
-      log_file = File.open(log_path, "w")
-      spawn(td_binary, 'update', :err => log_file, :out => log_file)
-    end
-    Process.detach(pid)
-    FileUtils.mkdir_p File.dirname(last_toolbelt_autoupdate_timestamp)
-    FileUtils.touch last_toolbelt_autoupdate_timestamp
-  end
-
-  def last_toolbelt_autoupdate_timestamp
-    File.join(home_directory, ".td", "autoupdate.last")
   end
 
   #
