@@ -3,7 +3,6 @@ require 'td/command/common'
 require 'td/command/list'
 require 'td/command/export'
 
-$DEBUG=true
 module TreasureData::Command
   describe 'export commands' do
     let(:command) {
