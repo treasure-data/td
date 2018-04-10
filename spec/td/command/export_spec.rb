@@ -137,6 +137,15 @@ module TreasureData::Command
       let(:option) {
         List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, option_list, true)
       }
+      let(:option_with_retry) {
+        List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, ['-R', '3'] + option_list, true)
+      }
+      let(:option_with_priority) {
+        List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, ['-P', '-2'] + option_list, true)
+      }
+      let(:option_with_wrong_priority) {
+        List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, ['-P', '3'] + option_list, true)
+      }
       let(:option_list) { [110, 'mysql://user:pass@host.com/database/table'] }
       let(:job_id)    { 111 }
 
@@ -152,6 +161,24 @@ module TreasureData::Command
         expect {
           command.export_result(option)
         }.not_to raise_exception
+      end
+
+      it 'works with retry option' do
+        expect {
+          command.export_result(option_with_retry)
+        }.not_to raise_exception
+      end
+
+      it 'works with priority option' do
+        expect {
+          command.export_result(option_with_priority)
+        }.not_to raise_exception
+      end
+
+      it 'detects wrong priority option' do
+        expect {
+          command.export_result(option_with_wrong_priority)
+        }.to raise_exception
       end
     end
   end
