@@ -8,7 +8,7 @@ require 'logger'
 
 module TreasureData::Updater
 
- %w(x86_64-darwin14 i386-mingw32).each do |platform|
+ %w(x86_64-darwin14 x64-mingw32).each do |platform|
     describe "RUBY_PLATFORM is '#{platform}'" do
       before do
         stub_const('RUBY_PLATFORM', platform)
