@@ -1,10 +1,17 @@
 == 2018-04-17 version 0.16.1
 
-
+* Use x64 binary #206
+  td-toolbelt on Windows is migrated to x64 version.
+  Now this doesn't work on 32bit version of Windows.
 
 == 2018-04-14 version 0.16.0
 
-* bump version#205
+* Add retry_limit and priority to export:result #203
+* Remove auto td update #204
+  Now `td update` needs manually executed to update td CLI.
+* bump toolbelt version #205
+  v0.16 doesn't support upgrade from v0.15 or prior by `td update`.
+  To use v0.16, please download td-toolbelt package and install with it.
 
 == 2018-04-04 version 0.15.9
 
