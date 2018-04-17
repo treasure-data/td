@@ -5,7 +5,7 @@ namespace 'exe' do
       install_ruby_version = '2.4.4'
       # create ./installers/
       FileUtils.mkdir_p "installers"
-      installer_path = project_root_path("dist/resources/exe/rubyinstaller-2.4.4-1-x86.exe")
+      installer_path = project_root_path("dist/resources/exe/rubyinstaller-2.4.4-1-x64.exe")
       FileUtils.cp installer_path, "installers/rubyinstaller.exe"
 
       variables = {
