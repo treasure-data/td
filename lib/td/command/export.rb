@@ -32,6 +32,13 @@ module Command
       retry_limit: retry_limit,
       priority: priority,
     }
+    if wait
+      job = client.job(target_job_id)
+      if !job.finished?
+        print "target job is still "
+        wait_job(job)
+      end
+    end
     job = client.result_export(target_job_id, opts)
 
     $stderr.puts "result export job #{job.job_id} is queued."
