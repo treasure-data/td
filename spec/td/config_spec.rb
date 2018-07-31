@@ -39,6 +39,14 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-staging.treasuredata.co.jp' }
       it { is_expected.to eq 'https://api-staging-workflow.treasuredata.co.jp' }
     end
+    context 'api-development.treasuredata.com' do
+      let(:api_endpoint){ 'api-development.treasuredata.com' }
+      it { is_expected.to eq 'https://api-development-workflow.treasuredata.com' }
+    end
+    context 'api-development.treasuredata.co.jp' do
+      let(:api_endpoint){ 'api-development.treasuredata.co.jp' }
+      it { is_expected.to eq 'https://api-development-workflow.treasuredata.co.jp' }
+    end
     context 'ybi.jp-east.idcfcloud.com' do
       let(:api_endpoint){ 'ybi.jp-east.idcfcloud.com' }
       it 'raise error' do

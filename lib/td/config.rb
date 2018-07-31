@@ -166,18 +166,8 @@ class Config
 
   def self.workflow_endpoint
     case self.endpoint_domain
-    when 'api.treasuredata.com'
-      'https://api-workflow.treasuredata.com'
-    when /\Aapi-([^.]*).connect.treasuredata.com\z/
-      "https://api-workflow-#{$1}.connect.treasuredata.com"
-    when 'api-staging.treasuredata.com'
-      'https://api-staging-workflow.treasuredata.com'
-    when 'api.treasuredata.co.jp'
-      'https://api-workflow.treasuredata.co.jp'
-    when /\Aapi-([^.]*).connect.treasuredata.co.jp\z/
-      "https://api-workflow-#{$1}.connect.treasuredata.co.jp"
-    when 'api-staging.treasuredata.co.jp'
-      'https://api-staging-workflow.treasuredata.co.jp'
+    when /\Aapi(-(?:staging|development))?(-[a-z]+)?.(connect\.)?treasuredata.(com|co\.jp)\z/
+      "https://api#{$1}-workflow#{$2}.#{$3}treasuredata.#{$4}"
     else
       raise ConfigError, "Workflow is not supported for '#{self.endpoint}'"
     end
