@@ -196,6 +196,7 @@ private
     end
 
     if wait && !job.finished?
+      $stderr.puts "the job #{job.job_id} is still running..."
       wait_job(job)
       if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
         show_result_with_retry(job, output, limit, format, render_opts)
@@ -227,8 +228,6 @@ private
   end
 
   def wait_job(job, first_call = false, wait = nil)
-    $stderr.puts "queued..."
-
     cmdout_lines = 0
     stderr_lines = 0
     max_error_counts = JOB_WAIT_MAX_RETRY_COUNT_ON_NETWORK_ERROR

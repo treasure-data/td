@@ -35,12 +35,12 @@ module Command
     if wait
       job = client.job(target_job_id)
       if !job.finished?
-        print "target job is still "
+        $stderr.puts "target job #{target_job_id} is still running..."
         wait_job(job)
       end
     end
-    job = client.result_export(target_job_id, opts)
 
+    job = client.result_export(target_job_id, opts)
     $stderr.puts "result export job #{job.job_id} is queued."
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
 
