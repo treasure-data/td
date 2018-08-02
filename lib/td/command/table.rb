@@ -348,6 +348,7 @@ module Command
     $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "job:show #{job.job_id}' to show the status."
 
     if wait
+      $stderr.puts "queued..."
       wait_job(job)
       $stdout.puts "Status     : #{job.status}"
     end

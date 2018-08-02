@@ -146,12 +146,15 @@ module TreasureData::Command
       let(:option_with_wrong_priority) {
         List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, ['-P', '3'] + option_list, true)
       }
+      let(:option_with_wait) {
+        List::CommandParser.new("export:result", ["target_job_id", "result_url"], [], nil, ['-w'] + option_list, true)
+      }
       let(:option_list) { [110, 'mysql://user:pass@host.com/database/table'] }
       let(:job_id)    { 111 }
+      let(:client)    { double(:client) }
+      let(:job)       { double(:job, job_id: job_id) }
 
       before do
-        client = double(:client)
-        job = double(:job, job_id: job_id)
         allow(client).to receive(:result_export).and_return(job)
 
         allow(command).to receive(:get_client).and_return(client)
@@ -179,6 +182,18 @@ module TreasureData::Command
         expect {
           command.export_result(option_with_wrong_priority)
         }.to raise_exception
+      end
+
+      it 'detects wait option' do
+        target_job = double('target_job')
+        expect(client).to receive(:job).and_return(target_job)
+        count_target_job_finished_p = 0
+        expect(target_job).to receive(:finished?).and_return(false)
+        allow(target_job).to receive(:wait)
+        allow(target_job).to receive(:status)
+        allow(job).to receive(:wait)
+        allow(job).to receive(:status)
+        command.export_result(option_with_wait)
       end
     end
   end
