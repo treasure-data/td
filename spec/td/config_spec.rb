@@ -23,6 +23,11 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api.treasuredata.co.jp' }
       it { is_expected.to eq 'https://api-workflow.treasuredata.co.jp' }
     end
+    context 'api.eu01.treasuredata.com' do
+      let(:api_endpoint){ 'api.eu01.treasuredata.com' }
+      it { is_expected.to eq 'https://api-workflow.eu01.treasuredata.com' }
+    end
+
     context 'api-hoge.connect.treasuredata.com' do
       let(:api_endpoint){ 'api-hoge.connect.treasuredata.com' }
       it { is_expected.to eq 'https://api-workflow-hoge.connect.treasuredata.com' }
@@ -31,6 +36,7 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-hoge.connect.treasuredata.co.jp' }
       it { is_expected.to eq 'https://api-workflow-hoge.connect.treasuredata.co.jp' }
     end
+
     context 'api-staging.treasuredata.com' do
       let(:api_endpoint){ 'api-staging.treasuredata.com' }
       it { is_expected.to eq 'https://api-staging-workflow.treasuredata.com' }
@@ -39,6 +45,11 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-staging.treasuredata.co.jp' }
       it { is_expected.to eq 'https://api-staging-workflow.treasuredata.co.jp' }
     end
+    context 'api-staging.eu01.treasuredata.com' do
+      let(:api_endpoint){ 'api-staging.eu01.treasuredata.com' }
+      it { is_expected.to eq 'https://api-staging-workflow.eu01.treasuredata.com' }
+    end
+
     context 'api-development.treasuredata.com' do
       let(:api_endpoint){ 'api-development.treasuredata.com' }
       it { is_expected.to eq 'https://api-development-workflow.treasuredata.com' }
@@ -47,6 +58,11 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-development.treasuredata.co.jp' }
       it { is_expected.to eq 'https://api-development-workflow.treasuredata.co.jp' }
     end
+    context 'api-development.eu01.treasuredata.com' do
+      let(:api_endpoint){ 'api-development.eu01.treasuredata.com' }
+      it { is_expected.to eq 'https://api-development-workflow.eu01.treasuredata.com' }
+    end
+
     context 'ybi.jp-east.idcfcloud.com' do
       let(:api_endpoint){ 'ybi.jp-east.idcfcloud.com' }
       it 'raise error' do
