@@ -39,6 +39,7 @@ module Command
     query = nil
     retry_limit = nil
     type = nil
+    engine_version = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -79,6 +80,9 @@ module Command
     op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
       type = s
     }
+    op.on('--engine-version ENGINE_VERSION', 'EXPERIMENTAL: specify query engine version by name') {|s|
+      engine_version = s
+    }
 
     name, cron, sql = op.cmd_parse
 
@@ -109,7 +113,7 @@ module Command
     get_database(client, db_name)
 
     begin
-      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :type=>type)
+      first_time = client.create_schedule(name, :cron=>cron, :query=>sql, :database=>db_name, :result=>result_url, :timezone=>timezone, :delay=>delay, :priority=>priority, :retry_limit=>retry_limit, :type=>type, :engine_version=>engine_version)
     rescue AlreadyExistsError
       cmd_debug_error $!
       $stderr.puts "Schedule '#{name}' already exists."
