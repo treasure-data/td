@@ -27,6 +27,19 @@ module TreasureData::Command
       allow(command).to receive(:get_client).and_return(client)
     end
 
+    describe 'sched_update' do
+      describe 'engine version' do
+        let(:op) { List::CommandParser.new('sched:update', %w[name], %w[], false, ['--engine-version=stable', 'old_name'], false) }
+
+        it 'accepts --engine-version' do
+          expect(client).to receive(:update_schedule).
+            with("old_name", {"engine_version"=>"stable"}).
+            and_return(nil)
+          command.sched_update(op)
+        end
+      end
+    end
+
     describe 'sched_history' do
       before do
         allow(client).to receive(:history).and_return(history)

@@ -153,6 +153,7 @@ module Command
     priority = nil
     retry_limit = nil
     type = nil
+    engine_version = nil
 
     op.on('-n', '--newname NAME', 'change the schedule\'s name') {|n|
       newname = n
@@ -193,6 +194,9 @@ module Command
     op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
       type = s
     }
+    op.on('--engine-version ENGINE_VERSION', 'EXPERIMENTAL: specify query engine version by name') {|s|
+      engine_version = s
+    }
 
     curname = op.cmd_parse
 
@@ -207,6 +211,7 @@ module Command
     params['priority'] = priority.to_s if priority
     params['retry_limit'] = retry_limit.to_s if retry_limit
     params['type'] = type.to_s if type
+    params['engine_version'] = engine_version if engine_version
 
     if params.empty?
       $stderr.puts op.to_s
