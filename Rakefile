@@ -14,10 +14,6 @@ def version
   TreasureData::TOOLBELT_VERSION
 end
 
-task "jar" do
-  system('./build/update-td-import-java.sh')
-end
-
 def project_root_path(path)
   "#{PROJECT_ROOT}/#{path}"
 end
