@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tempfile'
 require 'td/config'
 
 describe TreasureData::Config do
@@ -67,6 +68,28 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'ybi.jp-east.idcfcloud.com' }
       it 'raise error' do
         expect { subject }.to raise_error(TreasureData::ConfigError)
+      end
+    end
+  end
+
+  describe '#read' do
+    it 'sets @conf' do
+      Tempfile.create('td.conf') do |f|
+        f << <<-EOF
+# This is comment
+[section1]
+# This is comment
+key=val
+foo=bar
+        EOF
+
+        f.close
+
+        config = TreasureData::Config.new
+        config.read(f.path)
+
+        expect(config["section1.key"]).to eq "val"
+        expect(config["section1.foo"]).to eq "bar"
       end
     end
   end
