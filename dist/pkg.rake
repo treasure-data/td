@@ -35,7 +35,7 @@ namespace 'pkg' do
       # create ./bundle/Distribution
       install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
-      ruby_version = '2.4.4'
+      ruby_version = '2.4.5'
       sh "pkgutil --expand #{project_root_path("dist/resources/pkg/ruby-#{ruby_version}.pkg")} ruby"
       mv "ruby/ruby-#{ruby_version}.pkg", "bundle/ruby.pkg"
 
