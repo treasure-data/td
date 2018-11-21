@@ -1,3 +1,9 @@
+== 2018-11-21 version 0.16.3
+
+* Support running status of job for td export:result command #207
+* Support eu01 region #211
+* Use Ruby 2.4.5 #215
+
 == 2018-04-24 version 0.16.2
 
 * repackage Windows td-toolbelt (no code change)
