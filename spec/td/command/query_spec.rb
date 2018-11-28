@@ -102,5 +102,15 @@ module TreasureData::Command
         end
       end
     end
+
+    describe 'engine version' do
+      it 'accepts --engine-version' do
+        expect(client).to receive(:query).
+          with("sample_datasets", "SELECT 1;", nil, nil, nil, {"engine_version"=>"stable"}).
+          and_return(job)
+        op = List::CommandParser.new("query", %w[query], %w[], nil, ['--engine-version=stable', '-dsample_datasets', 'SELECT 1;'], false)
+        command.query(op)
+      end
+    end
   end
 end

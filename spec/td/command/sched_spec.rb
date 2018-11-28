@@ -27,6 +27,59 @@ module TreasureData::Command
       allow(command).to receive(:get_client).and_return(client)
     end
 
+    describe 'sched_create' do
+      before do
+        expect(client).to receive(:database).with('sample_datasets')
+      end
+
+      describe 'engine version' do
+        let(:op) {
+          List::CommandParser.new(
+            'sched:create',
+            %w[name cron sql],
+            %w[],
+            false,
+            ['--engine-version=stable', '-dsample_datasets', 'sched1', '0 * * * *', 'select count(*) from table1'],
+            false
+          )
+        }
+
+        it 'accepts --engine-version' do
+          expect(client).to receive(:create_schedule).
+            with(
+              "sched1",
+              {
+                cron: '0 * * * *',
+                query: 'select count(*) from table1',
+                database: 'sample_datasets',
+                result: nil,
+                timezone: nil,
+                delay: 0,
+                priority: nil,
+                retry_limit: nil,
+                type: nil,
+                engine_version: "stable"
+              }
+            ).
+            and_return(nil)
+          command.sched_create(op)
+        end
+      end
+    end
+
+    describe 'sched_update' do
+      describe 'engine version' do
+        let(:op) { List::CommandParser.new('sched:update', %w[name], %w[], false, ['--engine-version=stable', 'old_name'], false) }
+
+        it 'accepts --engine-version' do
+          expect(client).to receive(:update_schedule).
+            with("old_name", {"engine_version"=>"stable"}).
+            and_return(nil)
+          command.sched_update(op)
+        end
+      end
+    end
+
     describe 'sched_history' do
       before do
         allow(client).to receive(:history).and_return(history)

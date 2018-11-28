@@ -21,6 +21,7 @@ module Command
     exclude = false
     pool_name = nil
     domain_key = nil
+    engine_version = nil
 
     op.on('-d', '--database DB_NAME', 'use the database (required)') {|s|
       db_name = s
@@ -90,6 +91,9 @@ module Command
     op.on('--domain-key DOMAIN_KEY', 'optional user-provided unique ID. You can include this ID with your `create` request to ensure idempotence') {|s|
       domain_key = s
     }
+    op.on('--engine-version ENGINE_VERSION', 'EXPERIMENTAL: specify query engine version by name') {|s|
+      engine_version = s
+    }
 
     sql = op.cmd_parse
 
@@ -140,6 +144,7 @@ module Command
     opts['type'] = type if type
     opts['pool_name'] = pool_name if pool_name
     opts['domain_key'] = domain_key if domain_key
+    opts['engine_version'] = engine_version if engine_version
     job = client.query(db_name, sql, result_url, priority, retry_limit, opts)
 
     $stdout.puts "Job #{job.job_id} is queued."
