@@ -1,3 +1,7 @@
+== 2018-12-03 version 0.16.4
+
+* Support engine versions for query and schedule (EXPERIMENTAL) #216
+
 == 2018-11-21 version 0.16.3
 
 * Support running status of job for td export:result command #207
