@@ -166,7 +166,7 @@ class Config
 
   def self.workflow_endpoint
     case self.endpoint_domain
-    when /\Aapi(-(?:staging|development))?(-[a-z]+)?.(connect\.)?(eu01\.)?treasuredata.(com|co\.jp)\z/
+    when /\Aapi(-(?:staging|development))?(-[a-z0-9]+)?\.(connect\.)?(eu01\.)?treasuredata\.(com|co\.jp)\z/i
       "https://api#{$1}-workflow#{$2}.#{$3}#{$4}treasuredata.#{$5}"
     else
       raise ConfigError, "Workflow is not supported for '#{self.endpoint}'"

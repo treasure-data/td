@@ -33,9 +33,9 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-hoge.connect.treasuredata.com' }
       it { is_expected.to eq 'https://api-workflow-hoge.connect.treasuredata.com' }
     end
-    context 'api-hoge.connect.treasuredata.co.jp' do
-      let(:api_endpoint){ 'api-hoge.connect.treasuredata.co.jp' }
-      it { is_expected.to eq 'https://api-workflow-hoge.connect.treasuredata.co.jp' }
+    context 'api-czc21f.connect.treasuredata.co.jp' do
+      let(:api_endpoint){ 'api-czc21f.connect.treasuredata.co.jp' }
+      it { is_expected.to eq 'https://api-workflow-czc21f.connect.treasuredata.co.jp' }
     end
 
     context 'api-staging.treasuredata.com' do
