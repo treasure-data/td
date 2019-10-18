@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "parallel", "~> 1.8"
   gem.add_dependency "td-client", ">= 1.0.6", "< 2"
   gem.add_dependency "td-logger", ">= 0.3.21", "< 2"
-  gem.add_dependency "rubyzip", ">= 1.2.1"
+  gem.add_dependency "rubyzip", ">= 1.3.0"
   gem.add_dependency "zip-zip", "~> 0.3"
   gem.add_dependency "ruby-progressbar", "~> 1.7"
   gem.add_development_dependency "rake"
