@@ -1,3 +1,8 @@
+== 2019-10-19 version 0.16.5
+
+* Bump minimum rubyzip version to 1.3.0 #222
+* Fix workflow_endpoint for Private Connect #219
+
 == 2018-12-03 version 0.16.4
 
 * Support engine versions for query and schedule (EXPERIMENTAL) #216
