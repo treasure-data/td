@@ -137,7 +137,7 @@ module TreasureData
     end
 
     def digdag_base_url(version=nil)
-      base = 'http://toolbelt.treasure-data.com/digdag'
+      base = 'https://toolbelt.treasure-data.com/digdag'
       if version.to_s == ''
         base
       else
@@ -218,7 +218,7 @@ module TreasureData
 
     private
     def jre_url
-      base_url = ENV.fetch('TD_WF_JRE_BASE_URL', 'http://toolbelt.treasuredata.com/digdag/jdk/')
+      base_url = ENV.fetch('TD_WF_JRE_BASE_URL', 'https://toolbelt.treasuredata.com/digdag/jdk/')
       "#{base_url}#{jre_archive}"
     end
 
