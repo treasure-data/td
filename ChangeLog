@@ -1,3 +1,7 @@
+== 2019-11-13 version 0.16.6
+
+* Use HTTPS as default for downloading digdag module #223
+
 == 2019-10-19 version 0.16.5
 
 * Bump minimum rubyzip version to 1.3.0 #222
