@@ -335,6 +335,7 @@ EOF
     let(:config_path){ nil }
     let(:apikey){ nil }
     let(:endpoint){ nil }
+    let(:command_args){ Hash.new }
     before do
       # TreasureData::Command::Runner#run
       if config_path
@@ -348,6 +349,7 @@ EOF
         TreasureData::Config.endpoint = endpoint
         TreasureData::Config.cl_endpoint = true
       end
+      command_args.clear
 
       allow(Kernel).to receive(:system) do |env, *cmd|
         digdag_env.replace env
@@ -365,6 +367,7 @@ EOF
             args[nil] << x
           end
         end
+        args.each { |key, value| command_args[key] = value }
         if args['--config']
           File.foreach(args['--config']) do |line|
             k, v = line.strip.split(/\s*=\s*/, 2)
@@ -402,6 +405,16 @@ EOF
         expect(workflow_config['client.http.headers.authorization']).to eq "TD1 #{apikey}"
         expect(workflow_config['secrets.td.apikey']).to eq apikey
         expect(digdag_env['TREASURE_DATA_WORKFLOW_ENDPOINT']).to eq 'https://api-workflow.treasuredata.co.jp'
+        expect(command_args['-Dclient.http.disable_direct_download']).to be_nil
+      end
+    end
+    context 'endpoint: https://api-hoge.connect.treasuredata.com' do
+      let(:apikey){ '1/deadbeaf' }
+      let(:endpoint){ 'https://api-hoge.connect.treasuredata.com' }
+      it 'add arg to disable direct download workflow logs from Private Connect' do
+        op = List::CommandParser.new("workflow", [], [], nil, ['log', '8000111'], true)
+        command.workflow(op, false, false)
+        expect(command_args['-Dclient.http.disable_direct_download']).to be_truthy
       end
     end
   end
