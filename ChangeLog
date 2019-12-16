@@ -1,3 +1,7 @@
+== 2019-12-16 version 0.16.7
+
+* Disable direct download in Private Connect #225
+
 == 2019-11-13 version 0.16.6
 
 * Use HTTPS as default for downloading digdag module #223
