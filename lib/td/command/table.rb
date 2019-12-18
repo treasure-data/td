@@ -1,5 +1,6 @@
 require 'td/helpers'
 require 'td/command/job'
+require 'td/client/api'
 
 module TreasureData
 module Command
@@ -453,17 +454,18 @@ module Command
     import_params[:table_name] = table_name
     import_params[:paths] = paths
 
-    client = get_client
+    api_client = get_client
+    import_client = get_import_client
 
     if auto_create
-      create_database_and_table_if_not_exist(client, db_name, table_name)
+      create_database_and_table_if_not_exist(api_client, db_name, table_name)
     end
 
-    do_table_import(client, import_params)
+    do_table_import(api_client, import_client, import_params)
   end
 
   private
-  def do_table_import(client, import_params)
+  def do_table_import(api_client, import_client, import_params)
     case import_params[:format]
     when 'json', 'msgpack'
       #unless time_key
@@ -488,7 +490,7 @@ module Command
     end
 
     begin
-      db = client.database(import_params[:db_name])
+      db = api_client.database(import_params[:db_name])
     rescue ForbiddenError => e
       $stdout.puts "Warning: database and table validation skipped - #{e.message}"
     else
@@ -521,7 +523,7 @@ module Command
     #require 'thread'
 
     files.zip(import_params[:paths]).each {|file, path|
-      import_log_file(file, path, client, import_params[:db_name], import_params[:table_name], parser)
+      import_log_file(file, path, import_client, import_params[:db_name], import_params[:table_name], parser)
     }
 
     $stdout.puts "done."
