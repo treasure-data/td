@@ -70,7 +70,12 @@ module Command
   DEFAULT_IMPORT_ENDPOINT = "https://" + TreasureData::API::DEFAULT_IMPORT_ENDPOINT
 
   def get_import_client
-    get_client(endpoint: Config.import_endpoint || DEFAULT_IMPORT_ENDPOINT)
+    import_endpoint = begin
+                        Config.import_endpoint || DEFAULT_IMPORT_ENDPOINT
+                      rescue TreasureData::ConfigNotFoundError
+                        DEFAULT_IMPORT_ENDPOINT
+                      end
+    get_client(endpoint: import_endpoint)
   end
 
   def get_ssl_client(opts={})
