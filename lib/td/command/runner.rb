@@ -6,11 +6,12 @@ class Runner
     @config_path = nil
     @apikey = nil
     @endpoint = nil
+    @import_endpoint = nil
     @prog_name = nil
     @insecure = false
   end
 
-  attr_accessor :apikey, :endpoint, :config_path, :prog_name, :insecure
+  attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure
 
   def run(argv=ARGV)
     require 'td/version'
@@ -73,6 +74,7 @@ EOF
     config_path = @config_path
     apikey = @apikey
     endpoint = @endpoint
+    import_endpoint = @import_endpoint || @endpoint
     insecure = nil
     $verbose = false
     #$debug = false
@@ -92,6 +94,12 @@ EOF
       require 'td/command/common'
       Command.validate_api_endpoint(e)
       endpoint = e
+    }
+
+    op.on('-E', '--import-endpoint API_IMPORT_SERVER', "specify the URL for API Import server to use (default: https://api-import.treasuredata.com).") { |e|
+      require 'td/command/common'
+      Command.validate_api_endpoint(e)
+      import_endpoint = e
     }
 
     op.on('--insecure', "Insecure access: disable SSL (enabled by default)") {|b|
@@ -137,6 +145,10 @@ EOF
         Config.cl_apikey = true
       end
       if endpoint
+        Config.endpoint = endpoint
+        Config.cl_endpoint = true
+      end
+      if import_endpoint
         Config.endpoint = endpoint
         Config.cl_endpoint = true
       end
