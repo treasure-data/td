@@ -246,14 +246,20 @@ EOF
         return false
       end
       if output =~ /openjdk version/ or output =~ /java version/
-        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(?:_(\d+))"/)
+        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(?:_(\d+))?"/)
         if not m or m.size < 4
           return false
         end
-        # Check for at least Java 8. Let digdag itself verify revision.
         major = m[1].to_i
         minor = m[2].to_i
-        if major < 1 or minor < 8
+        # Check for at least Java 8. Let digdag itself verify revision.
+        if major < 1
+          return false
+        elsif major == 1 # suppose the version style: 1.8.10_52 (JDK8 and before)
+          if minor < 8
+            return false
+          end
+        elsif major < 9 # suppose the version style: 11.0.2
           return false
         end
       end
