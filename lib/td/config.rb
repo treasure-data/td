@@ -199,7 +199,7 @@ class Config
     string += " " unless string.empty?
     string += "-e #{@@endpoint}" if @@cl_endpoint
     string += " " unless string.empty?
-    string += "-E #{@@import_endpoint}" if @@cl_import_endpoint
+    string += "-i #{@@import_endpoint}" if @@cl_import_endpoint
     string += " " unless string.empty?
     string
   end

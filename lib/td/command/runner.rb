@@ -96,7 +96,7 @@ EOF
       endpoint = e
     }
 
-    op.on('-E', '--import-endpoint API_IMPORT_SERVER', "specify the URL for API Import server to use (default: https://api-import.treasuredata.com).") { |e|
+    op.on('-i', '--import-endpoint API_IMPORT_SERVER', "specify the URL for API Import server to use (default: https://api-import.treasuredata.com).") { |e|
       require 'td/command/common'
       Command.validate_api_endpoint(e)
       import_endpoint = e
