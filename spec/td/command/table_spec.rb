@@ -302,6 +302,7 @@ module TreasureData::Command
       let(:db_name)    { 'database' }
       let(:table_name) { 'table' }
       let(:client)     { double('client') }
+      let(:import_client)     { double('import-client') }
       let(:command)    { Class.new { include TreasureData::Command }.new }
 
       describe 'auto create table' do
@@ -336,6 +337,7 @@ module TreasureData::Command
       describe 'time key' do
         before do
           allow(command).to receive(:get_client) { client }
+          allow(command).to receive(:get_import_client) { import_client }
           allow(command).to receive(:do_table_import)
         end
         let(:input_params) {{
@@ -355,7 +357,7 @@ module TreasureData::Command
             end
 
             it "with '#{tk_option}' option" do
-              expect(command).to receive(:do_table_import).with(client, input_params)
+              expect(command).to receive(:do_table_import).with(client, import_client, input_params)
               command.table_import(option)
             end
           end
@@ -371,7 +373,7 @@ module TreasureData::Command
           end
 
           it 'without \'-t / --time-key\' option' do
-            expect(command).to receive(:do_table_import).with(client, input_params)
+            expect(command).to receive(:do_table_import).with(client, import_client, input_params)
             command.table_import(option)
           end
         end

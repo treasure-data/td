@@ -21,6 +21,9 @@ class Config
   @@endpoint = ENV['TREASURE_DATA_API_SERVER'] || ENV['TD_API_SERVER']
   @@endpoint = nil if @@endpoint == ""
   @@cl_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line
+  @@import_endpoint = ENV['TREASURE_DATA_API_IMPORT_SERVER'] || ENV['TD_API_IMPORT_SERVER']
+  @@import_endpoint = nil if @@endpoint == ""
+  @@cl_import_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line option
   @@secure = true
   @@retry_post_requests = false
 
@@ -164,6 +167,22 @@ class Config
     @@cl_endpoint = flag
   end
 
+  def self.import_endpoint
+    @@import_endpoint || Config.read['account.import_endpoint']
+  end
+
+  def self.import_endpoint=(endpoint)
+    @@import_endpoint = endpoint
+  end
+
+  def self.cl_import_endpoint
+    @@cl_import_endpoint
+  end
+
+  def self.cl_import_endpoint=(flag)
+    @@cl_import_endpoint = flag
+  end
+
   def self.workflow_endpoint
     case self.endpoint_domain
     when /\Aapi(-(?:staging|development))?(-[a-z0-9]+)?\.(connect\.)?(eu01\.)?treasuredata\.(com|co\.jp)\z/i
@@ -176,10 +195,9 @@ class Config
   # renders the apikey and endpoint options as a string for the helper commands
   def self.cl_options_string
     string = ""
-    string += "-k #{@@apikey}" if @@cl_apikey
-    string += " " unless string.empty?
-    string += "-e #{@@endpoint}" if @@cl_endpoint
-    string += " " unless string.empty?
+    string += "-k #{@@apikey} " if @@cl_apikey
+    string += "-e #{@@endpoint} " if @@cl_endpoint
+    string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
     string
   end
 

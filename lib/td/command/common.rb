@@ -47,7 +47,7 @@ module Command
 
     # optional, if not provided a default is used from the ruby client library
     begin
-      if Config.endpoint
+      if !opts[:endpoint] && Config.endpoint
         opts[:endpoint] = Config.endpoint
       end
     rescue ConfigNotFoundError => e
@@ -65,6 +65,17 @@ module Command
     end
 
     Client.new(apikey, opts)
+  end
+
+  DEFAULT_IMPORT_ENDPOINT = "https://" + TreasureData::API::DEFAULT_IMPORT_ENDPOINT
+
+  def get_import_client
+    import_endpoint = begin
+                        Config.import_endpoint || DEFAULT_IMPORT_ENDPOINT
+                      rescue TreasureData::ConfigNotFoundError
+                        DEFAULT_IMPORT_ENDPOINT
+                      end
+    get_client(endpoint: import_endpoint)
   end
 
   def get_ssl_client(opts={})
