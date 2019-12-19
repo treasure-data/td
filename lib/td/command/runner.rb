@@ -149,8 +149,8 @@ EOF
         Config.cl_endpoint = true
       end
       if import_endpoint
-        Config.endpoint = endpoint
-        Config.cl_endpoint = true
+        Config.import_endpoint = endpoint
+        Config.cl_import_endpoint = true
       end
       if insecure
         Config.secure = false
