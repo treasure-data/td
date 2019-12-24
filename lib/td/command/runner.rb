@@ -149,7 +149,7 @@ EOF
         Config.cl_endpoint = true
       end
       if import_endpoint
-        Config.import_endpoint = endpoint
+        Config.import_endpoint = import_endpoint
         Config.cl_import_endpoint = true
       end
       if insecure
