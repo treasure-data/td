@@ -26,7 +26,7 @@ module Command
     begin
       conf = Config.read
     rescue ConfigError
-      conf = Config.new
+      conf = Config::ConfigFile.new
     end
     conf["account.endpoint"] = endpoint
     conf.save

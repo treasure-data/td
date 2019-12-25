@@ -3,6 +3,25 @@ require 'tempfile'
 require 'td/config'
 
 describe TreasureData::Config do
+  context 'import_endpoint' do
+    before { TreasureData::Config.endpoint = api_endpoint }
+    subject { TreasureData::Config.import_endpoint }
+    context 'api.treasuredata.com' do
+      context 'works without schema' do
+        let(:api_endpoint){ 'api.treasuredata.com' }
+        it { is_expected.to eq 'https://api-import.treasuredata.com' }
+      end
+      context 'works with port number' do
+        let(:api_endpoint){ 'api.treasuredata.com:443' }
+        it { is_expected.to eq 'https://api-import.treasuredata.com' }
+      end
+      context 'works with https schema' do
+        let(:api_endpoint){ 'https://api.treasuredata.com' }
+        it { is_expected.to eq 'https://api-import.treasuredata.com' }
+      end
+    end
+  end
+
   context 'workflow_endpoint' do
     before { TreasureData::Config.endpoint = api_endpoint }
     subject { TreasureData::Config.workflow_endpoint }
@@ -85,8 +104,7 @@ foo=bar
 
         f.close
 
-        config = TreasureData::Config.new
-        config.read(f.path)
+        config = TreasureData::Config.read(f.path)
 
         expect(config["section1.key"]).to eq "val"
         expect(config["section1.foo"]).to eq "bar"

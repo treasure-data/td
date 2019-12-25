@@ -7,11 +7,12 @@ module TreasureData
         @apikey = nil
         @endpoint = nil
         @import_endpoint = nil
+        @workflow_endpoint = nil
         @prog_name = nil
         @insecure = false
       end
 
-      attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure
+      attr_accessor :apikey, :endpoint, :import_endpoint, :workflow_endpoint, :config_path, :prog_name, :insecure
 
       def run(argv=ARGV)
         require 'td/version'
@@ -74,7 +75,8 @@ EOF
         config_path = @config_path
         apikey = @apikey
         endpoint = @endpoint
-        import_endpoint = @import_endpoint || @endpoint
+        import_endpoint = @import_endpoint
+        workflow_endpoint = @workflow_endpoint
         insecure = nil
         $verbose = false
         #$debug = false
@@ -96,10 +98,16 @@ EOF
           endpoint = e
         }
 
-        op.on('--import-endpoint API_IMPORT_SERVER', "specify the URL for API Import server to use (default: https://api-import.treasuredata.com).") { |e|
+        op.on('--import-endpoint IMPORT_SERVER', "specify the URL for Import server to use (default: https://api-import.treasuredata.com).") { |e|
           require 'td/command/common'
           Command.validate_api_endpoint(e)
           import_endpoint = e
+        }
+
+        op.on('--workflow-endpoint WORKFLOW_SERVER', "specify the URL for Workflow server to use (default: https://api-workflow.treasuredata.com).") { |e|
+          require 'td/command/common'
+          Command.validate_api_endpoint(e)
+          workflow_endpoint = e
         }
 
         op.on('--insecure', "Insecure access: disable SSL (enabled by default)") {|b|
@@ -142,15 +150,15 @@ EOF
           end
           if apikey
             Config.apikey = apikey
-            Config.cl_apikey = true
           end
           if endpoint
             Config.endpoint = endpoint
-            Config.cl_endpoint = true
           end
           if import_endpoint
             Config.import_endpoint = import_endpoint
-            Config.cl_import_endpoint = true
+          end
+          if workflow_endpoint
+            Config.workflow_endpoint = workflow_endpoint
           end
           if insecure
             Config.secure = false
