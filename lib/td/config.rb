@@ -11,20 +11,82 @@ module TreasureData
   class Config
     # class variables
     @@path = ENV['TREASURE_DATA_CONFIG_PATH'] || ENV['TD_CONFIG_PATH'] || File.join(ENV['HOME'], '.td', 'td.conf')
+    @@global_config_entries = nil
 
     def self.read(path=Config.path, create=false)
       ConfigFile.new(path)
     end
 
-    @@apikey = ENV['TREASURE_DATA_API_KEY'] || ENV['TD_API_KEY']
-    @@apikey = nil if @@apikey == ""
-    @@cl_apikey = false # flag to indicate whether an apikey has been provided through the command-line
-    @@endpoint = ENV['TREASURE_DATA_API_SERVER'] || ENV['TD_API_SERVER']
-    @@endpoint = nil if @@endpoint == ""
-    @@cl_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line
-    @@import_endpoint = ENV['TREASURE_DATA_API_IMPORT_SERVER'] || ENV['TD_API_IMPORT_SERVER']
-    @@import_endpoint = nil if @@endpoint == ""
-    @@cl_import_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line option
+    def self.configfile_entries
+      @@global_config_entries ||= ConfigFile.new(Config.path)
+    end
+
+    class OptionEntry
+      attr_reader :name
+
+      def initialize(name, envvar_names = [], configfile_entry_name = nil, &default_getter)
+        @name = name
+        @value = nil
+        @envvar_names = envvar_names
+        @configfile_entry_name = configfile_entry_name
+        @default_getter = default_getter
+        @command_line_override = false
+      end
+
+      def override?
+        @command_line_override
+      end
+
+      def get
+        return @value if @value
+        @envvar_names.each do |envvar|
+          value = ENV[envvar]
+          return value if value && value != ""
+        end
+        if @configfile_entry_name && value = Config.configfile_entries[@configfile_entry_name]
+          return value
+        end
+        if @default_getter
+          return @default_getter.call
+        end
+        nil
+      end
+
+      def set(value)
+        @value = value
+        @command_line_override = true
+      end
+    end
+
+    API_ENDPOINT_PATTERN = /\Aapi(-(?:staging|development))?(-[a-z0-9]+)?\.(connect\.)?(eu01\.)?treasuredata\.(com|co\.jp)\z/io
+
+    def self.endpoint_hostname(endpoint)
+      endpoint.sub(%r[https?://], '').sub(%r!\:[0-9]+\z!, '')
+    end
+
+    def self.endpoint_variant(endpoint_type, api_endpoint)
+      if API_ENDPOINT_PATTERN =~ endpoint_hostname(api_endpoint)
+        case endpoint_type
+        when :import
+          "https://api#{$1}-import#{$2}.#{$3}#{$4}treasuredata.#{$5}"
+        when :workflow
+          "https://api#{$1}-workflow#{$2}.#{$3}#{$4}treasuredata.#{$5}"
+        else
+          raise ConfigError, "Invalid endpoint type '#{endpoint_type}'"
+        end
+      else
+        raise ConfigError, "#{endpoint_type.to_s.capitalize} is not supported for '#{self.endpoint}'"
+      end
+    end
+
+    @@apikey = OptionEntry.new(:apikey, ['TREASURE_DATA_API_KEY', 'TD_API_KEY'], 'account.apikey')
+    @@endpoint = OptionEntry.new(:endpoint, ['TREASURE_DATA_API_SERVER', 'TD_API_SERVER'], 'account.endpoint')
+    @@import_endpoint = OptionEntry.new(:import_endpoint) do
+      endpoint_variant(:import, @@endpoint.get)
+    end
+    @@workflow_endpoint = OptionEntry.new(:workflow_endpoint) do
+      endpoint_variant(:workflow, @@endpoint.get)
+    end
     @@secure = true
     @@retry_post_requests = false
 
@@ -34,8 +96,8 @@ module TreasureData
 
     def self.path=(path)
       @@path = path
+      @@global_config_entries = nil
     end
-
 
     def self.secure
       @@secure
@@ -54,72 +116,52 @@ module TreasureData
     end
 
     def self.apikey
-      @@apikey || Config.read['account.apikey']
+      @@apikey.get
     end
 
     def self.apikey=(apikey)
-      @@apikey = apikey
+      @@apikey.set(apikey)
     end
 
     def self.cl_apikey
-      @@cl_apikey
-    end
-
-    def self.cl_apikey=(flag)
-      @@cl_apikey = flag
+      @@apikey.override?
     end
 
     def self.endpoint
-      @@endpoint || Config.read['account.endpoint']
+      @@endpoint.get
     end
 
     def self.endpoint=(endpoint)
-      @@endpoint = endpoint
-    end
-
-    def self.endpoint_domain
-      (self.endpoint || 'api.treasuredata.com').sub(%r[https?://], '')
+      @@endpoint.set(endpoint)
     end
 
     def self.cl_endpoint
-      @@cl_endpoint
-    end
-
-    def self.cl_endpoint=(flag)
-      @@cl_endpoint = flag
+      @@endpoint.override?
     end
 
     def self.import_endpoint
-      @@import_endpoint || Config.read['account.import_endpoint']
+      @@import_endpoint.get
     end
 
     def self.import_endpoint=(endpoint)
-      @@import_endpoint = endpoint
-    end
-
-    def self.cl_import_endpoint
-      @@cl_import_endpoint
-    end
-
-    def self.cl_import_endpoint=(flag)
-      @@cl_import_endpoint = flag
+      @@import_endpoint.set(endpoint)
     end
 
     def self.workflow_endpoint
-      case self.endpoint_domain
-      when /\Aapi(-(?:staging|development))?(-[a-z0-9]+)?\.(connect\.)?(eu01\.)?treasuredata\.(com|co\.jp)\z/i
-        "https://api#{$1}-workflow#{$2}.#{$3}#{$4}treasuredata.#{$5}"
-      else
-        raise ConfigError, "Workflow is not supported for '#{self.endpoint}'"
-      end
+      @@workflow_endpoint.get
+    end
+
+    def self.workflow_endpoint=(endpoint)
+      @@workflow_endpoint.set(endpoint)
     end
 
     # renders the apikey and endpoint options as a string for the helper commands
     def self.cl_options_string
       string = ""
-      string += "-k #{@@apikey} " if @@cl_apikey
-      string += "-e #{@@endpoint} " if @@cl_endpoint
-      string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
+      string += "-k #{@@apikey.get} " if @@apikey.override?
+      string += "-e #{@@endpoint.get} " if @@endpoint.override?
+      string += "--import-endpoint #{@@import_endpoint.get} " if @@import_endpoint.override?
+      string += "--workflow-endpoint #{@@workflow_endpoint.get}" if @@workflow_endpoint.override?
       string
     end
 
