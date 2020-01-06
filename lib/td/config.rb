@@ -61,7 +61,7 @@ module TreasureData
     API_ENDPOINT_PATTERN = /\Aapi(-(?:staging|development))?(-[a-z0-9]+)?\.(connect\.)?(eu01\.)?treasuredata\.(com|co\.jp)\z/io
 
     def self.endpoint_hostname(endpoint)
-      endpoint.sub(%r[https?://], '').sub(%r!\:[0-9]+\z!, '')
+      (endpoint || 'https://api.treasuredata.com').sub(%r[https?://], '').sub(%r!\:[0-9]+\z!, '')
     end
 
     def self.endpoint_variant(endpoint_type, api_endpoint)
