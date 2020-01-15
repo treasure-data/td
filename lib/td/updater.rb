@@ -270,7 +270,7 @@ end # module ModuleDefinition
   extend ModuleDefinition
 
   def maven_repo_root
-    ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "http://central.maven.org"
+    ENV['TD_TOOLBELT_JARUPDATE_ROOT'] || "https://repo1.maven.org"
   end
 
   private

@@ -69,7 +69,7 @@ to process and Bulk load data in the Treasure Data Cloud.
 
 The Bulk Import CLI is downloaded automatically at the first call to any of the command that require it; the use will
 need internet connectivity in order to fetch the Bulk Import CLI JAR file from the
-{Central Maven repository}[http://central.maven.org/maven2/com/treasuredata/td-import/]
+{Central Maven repository}[https://repo1.maven.org/maven2/com/treasuredata/td-import/]
 and take advantage of these advanced features. If you need to setup a proxy, please consult this
 {documentation}[https://support.treasuredata.com/hc/en-us/articles/360001502527-Legacy-Bulk-Import-Tips-and-Tricks#How%20to%20use%20a%20proxy%20server] page.
 
@@ -144,9 +144,9 @@ These are the available hooks:
 
     $ TD_TOOLBELT_UPDATE_ROOT="http://toolbelt.treasuredata.com"
 
-* Specify an alternative endpoint to use updating the JAR file (default: http://central.maven.org):
+* Specify an alternative endpoint to use updating the JAR file (default: https://repo1.maven.org):
 
-    $ TD_TOOLBELT_JARUPDATE_ROOT="http://central.maven.org"
+    $ TD_TOOLBELT_JARUPDATE_ROOT="https://repo1.maven.org"
 
 
 = Copyright
