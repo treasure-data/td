@@ -50,7 +50,7 @@ module Command
       end
     end
 
-    conf ||= Config.new
+    conf ||= Config::ConfigFile.new
     conf.delete("account.user")
     conf["account.apikey"] = apikey
     conf.save

@@ -42,7 +42,7 @@ module TreasureData
               "secrets.td.apikey = #{apikey}"
           ].join($/) + $/)
           cmd << '-Dio.digdag.standards.td.secrets.enabled=false'
-          cmd << "-Dconfig.td.default_endpoint=#{Config.endpoint_domain}"
+          cmd << "-Dconfig.td.default_endpoint=#{Config.endpoint_hostname(Config.endpoint)}"
           if workflow_endpoint.match(/\.connect\./i)
             cmd << '-Dclient.http.disable_direct_download=true'
           end

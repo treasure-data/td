@@ -93,7 +93,7 @@ module Command
 
     $stdout.puts "Authenticated successfully."
 
-    conf ||= Config.new
+    conf ||= Config::ConfigFile.new
     conf["account.user"] = user_name
     conf["account.apikey"] = client.apikey
     conf['account.endpoint'] = endpoint if endpoint
