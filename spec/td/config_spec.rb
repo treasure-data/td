@@ -28,6 +28,10 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api.eu01.treasuredata.com' }
       it { is_expected.to eq 'https://api-workflow.eu01.treasuredata.com' }
     end
+    context 'api.ap02.treasuredata.com' do
+      let(:api_endpoint){ 'api.ap02.treasuredata.com' }
+      it { is_expected.to eq 'https://api-workflow.ap02.treasuredata.com' }
+    end
 
     context 'api-hoge.connect.treasuredata.com' do
       let(:api_endpoint){ 'api-hoge.connect.treasuredata.com' }
@@ -50,6 +54,10 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-staging.eu01.treasuredata.com' }
       it { is_expected.to eq 'https://api-staging-workflow.eu01.treasuredata.com' }
     end
+    context 'api-staging.ap02.treasuredata.com' do
+      let(:api_endpoint){ 'api-staging.ap02.treasuredata.com' }
+      it { is_expected.to eq 'https://api-staging-workflow.ap02.treasuredata.com' }
+    end
 
     context 'api-development.treasuredata.com' do
       let(:api_endpoint){ 'api-development.treasuredata.com' }
@@ -62,6 +70,10 @@ describe TreasureData::Config do
     context 'api-development.eu01.treasuredata.com' do
       let(:api_endpoint){ 'api-development.eu01.treasuredata.com' }
       it { is_expected.to eq 'https://api-development-workflow.eu01.treasuredata.com' }
+    end
+    context 'api-development.ap02.treasuredata.com' do
+      let(:api_endpoint){ 'api-development.ap02.treasuredata.com' }
+      it { is_expected.to eq 'https://api-development-workflow.ap02.treasuredata.com' }
     end
 
     context 'ybi.jp-east.idcfcloud.com' do
