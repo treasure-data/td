@@ -41,7 +41,7 @@ module Command
     if HIVE_RESERVED_KEYWORDS.include?(table_name.upcase)
       $stderr.puts "* WARNING *"
       $stderr.puts "  '#{table_name}' is a reserved keyword in Hive. We recommend renaming the table."
-      $stderr.puts "  For a list of all reserved keywords, see our FAQ: https://support.treasuredata.com/hc/en-us/articles/360009531173/"
+      $stderr.puts "  For a list of all reserved keywords, see our FAQ: https://tddocs.atlassian.net/wiki/spaces/PD/pages/1083623/Hive+0.13+Known+Limitations#Hive%E2%80%99s-reserved-keywords-(Why-do-I-get-a-warning-about-reserved-keywords%3F)"
     end
 
     client = get_client
