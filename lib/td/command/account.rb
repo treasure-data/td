@@ -41,7 +41,7 @@ module Command
       end
     end
 
-    $stdout.puts "Enter your Treasure Data credentials. For Google SSO user, please see https://support.treasuredata.com/hc/en-us/articles/360000720048-Treasure-Data-Toolbelt-Command-line-Interface#Google%20SSO%20Users"
+    $stdout.puts "Enter your Treasure Data credentials. For Google SSO user, please see https://tddocs.atlassian.net/wiki/spaces/PD/pages/1081668/Configuring+Authentication+for+TD+Using+the+TD+Toolbelt#Setting-Up-Google-SSO-Users"
     unless user_name
       begin
         $stdout.print "Email: "

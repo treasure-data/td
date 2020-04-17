@@ -6,9 +6,9 @@
 This CUI utility wraps the {Ruby Client Library td-client-ruby}[https://github.com/treasure-data/td-client-ruby]
 to interact with the REST API in managing databases and jobs on the Treasure Data Cloud.
 
-For more info about Treasure Data, see <http://treasure-data.com/>.
+For more info about Treasure Data, see <https://www.treasuredata.com>.
 
-For full documentation see <https://support.treasuredata.com/hc/en-us>.
+For full documentation see <https://tddocs.atlassian.net/wiki/spaces/PD/overview>.
 
 = Getting Started
 
@@ -71,7 +71,7 @@ The Bulk Import CLI is downloaded automatically at the first call to any of the 
 need internet connectivity in order to fetch the Bulk Import CLI JAR file from the
 {Central Maven repository}[https://repo1.maven.org/maven2/com/treasuredata/td-import/]
 and take advantage of these advanced features. If you need to setup a proxy, please consult this
-{documentation}[https://support.treasuredata.com/hc/en-us/articles/360001502527-Legacy-Bulk-Import-Tips-and-Tricks#How%20to%20use%20a%20proxy%20server] page.
+{documentation}[https://tddocs.atlassian.net/wiki/spaces/PD/pages/1081765/Legacy+Bulk+Import+Tips+and+Tricks#Using-a-Proxy-Server] page.
 
 The log levels and properties of the Bulk Import CLI can be configured in a +logging.properties+ file. A default
 configuration is provided in a file within the gem or Toolbelt folder root, in the +java/+ folder. If you wish to
