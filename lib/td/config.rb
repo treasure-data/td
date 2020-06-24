@@ -148,7 +148,7 @@ class Config
 
 
   def self.endpoint
-    (@@endpoint || Config.read['account.endpoint']).sub(/(\/)+$/, '')
+    (@@endpoint || Config.read['account.endpoint'])&.sub(/(\/)+$/, '')
   end
 
   def self.endpoint=(endpoint)
@@ -156,7 +156,7 @@ class Config
   end
 
   def self.endpoint_domain
-    (self.endpoint || 'api.treasuredata.com').sub(%r[https?://], '')
+    (self.endpoint || 'api.treasuredata.com')&.sub(%r[https?://], '')
   end
 
   def self.cl_endpoint
@@ -168,7 +168,7 @@ class Config
   end
 
   def self.import_endpoint
-    (@@import_endpoint || Config.read['account.import_endpoint']).sub(/(\/)+$/, '')
+    (@@import_endpoint || Config.read['account.import_endpoint'])&.sub(/(\/)+$/, '')
   end
 
   def self.import_endpoint=(endpoint)
