@@ -84,6 +84,56 @@ describe TreasureData::Config do
     end
   end
 
+  describe 'allow endpoint with trailing slash' do
+    context 'self.endpoint' do
+      before { TreasureData::Config.endpoint = api_endpoint }
+      subject { TreasureData::Config.endpoint }
+
+      context 'api.treasuredata.com' do
+        let(:api_endpoint) { 'https://api.treasuredata.com/' }
+        it { is_expected.to eq 'https://api.treasuredata.com' }
+      end
+      context 'api.treasuredata.co.jp' do
+        let(:api_endpoint) { 'https://api.treasuredata.co.jp/' }
+        it { is_expected.to eq 'https://api.treasuredata.co.jp' }
+      end
+      context 'api.eu01.treasuredata.com' do
+        let(:api_endpoint) { 'https://api.eu01.treasuredata.com/' }
+        it { is_expected.to eq 'https://api.eu01.treasuredata.com' }
+      end
+      context 'api.ap02.treasuredata.com' do
+        let(:api_endpoint) { 'https://api.ap02.treasuredata.com/' }
+        it { is_expected.to eq 'https://api.ap02.treasuredata.com' }
+      end
+      context 'api-hoge.connect.treasuredata.com' do
+        let(:api_endpoint){ 'https://api-hoge.connect.treasuredata.com/' }
+        it { is_expected.to eq 'https://api-hoge.connect.treasuredata.com' }
+      end
+    end
+
+    context 'self.import_endpoint' do
+      before { TreasureData::Config.import_endpoint = api_endpoint }
+      subject { TreasureData::Config.import_endpoint }
+
+      context 'api-import.treasuredata.com' do
+        let(:api_endpoint) { 'https://api-import.treasuredata.com/' }
+        it { is_expected.to eq 'https://api-import.treasuredata.com' }
+      end
+      context 'api-import.treasuredata.co.jp' do
+        let(:api_endpoint) { 'https://api-import.treasuredata.co.jp/' }
+        it { is_expected.to eq 'https://api-import.treasuredata.co.jp' }
+      end
+      context 'api-import.eu01.treasuredata.com' do
+        let(:api_endpoint) { 'https://api-import.eu01.treasuredata.com/' }
+        it { is_expected.to eq 'https://api-import.eu01.treasuredata.com' }
+      end
+      context 'api-import.ap02.treasuredata.com' do
+        let(:api_endpoint) { 'https://api-import.ap02.treasuredata.com/' }
+        it { is_expected.to eq 'https://api-import.ap02.treasuredata.com' }
+      end
+    end
+  end
+
   describe '#read' do
     it 'sets @conf' do
       Tempfile.create('td.conf') do |f|
