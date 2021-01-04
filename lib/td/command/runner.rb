@@ -49,6 +49,7 @@ Basic commands:
   schema         # create/delete/modify schemas of tables
   connector      # manage connectors
   workflow       # manage workflows
+  
 
 Additional commands:
 
