@@ -148,7 +148,8 @@ class Config
 
 
   def self.endpoint
-    @@endpoint || Config.read['account.endpoint']
+    endpoint = @@endpoint || Config.read['account.endpoint']
+    endpoint.sub(/(\/)+$/, '') if endpoint
   end
 
   def self.endpoint=(endpoint)
@@ -168,7 +169,8 @@ class Config
   end
 
   def self.import_endpoint
-    @@import_endpoint || Config.read['account.import_endpoint']
+    endpoint = @@import_endpoint || Config.read['account.import_endpoint']
+    endpoint.sub(/(\/)+$/, '') if endpoint
   end
 
   def self.import_endpoint=(endpoint)
