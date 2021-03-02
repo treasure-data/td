@@ -160,6 +160,8 @@ module Command
         rescue TreasureData::NotFoundError => e
         end
       end
+    elsif output
+      $stdout.puts "The output file won't be generated. Require `-w` or `--wait` option in addition."
     end
   end
 
