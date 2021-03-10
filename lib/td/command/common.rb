@@ -107,7 +107,7 @@ module Command
       headers = options[:fields]
       csv_opts = {}
       csv_opts[:col_sep] = "\t" if format == 'tsv'
-      CSV.generate('', csv_opts) { |csv|
+      CSV.generate('', **csv_opts) { |csv|
         csv << headers
         rows.each { |row|
           r = []
