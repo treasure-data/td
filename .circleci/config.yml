@@ -42,17 +42,19 @@ commands:
 jobs:
 
   ruby_25:
-    docker:
-      - image: circleci/ruby:2.5.8-stretch
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.5'
       - run-tests-flow
 
   ruby_26:
-    docker:
-      - image: circleci/ruby:2.6.6-stretch
-    executor: ruby/default
+    machine:
+      image: ubuntu-1604:202004-01
     steps:
+      - ruby/install:
+          version: '2.6'
       - run-tests-flow
 
   ruby_27:
