@@ -78,18 +78,13 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
-      - install_windows_requirements
+      # - install_windows_requirements
       - run:
           name: "Install bundler"
           shell: powershell.exe
           command: gem install bundler
       - run-tests-flow
-  
-  jruby_latest:
-    docker:
-      - image: circleci/jruby:latest
-    steps: 
-      - run-tests-flow
+
 
 workflows:
   tests:
@@ -98,5 +93,4 @@ workflows:
       - ruby_26
       - ruby_27
       - ruby_30
-      - jruby_latest
       - win_ruby
