@@ -1,5 +1,5 @@
 = Treasure Data command line tool
-{<img src="https://travis-ci.org/treasure-data/td.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/treasure-data/td]
+{<img src="https://circleci.com/gh/treasure-data/td.svg?style=svg" alt="Build Status" />}[https://circleci.com/gh/treasure-data/td.svg?style=svg]
 {<img src="https://ci.appveyor.com/api/projects/status/github/treasure-data/td?branch=master&svg=true" alt="appveyor" />}[https://ci.appveyor.com/project/treasure-data/td/branch/master]
 {<img src="https://coveralls.io/repos/treasure-data/td/badge.svg?branch=master&service=github" alt="Coverage Status" />}[https://coveralls.io/github/treasure-data/td?branch=master]
 
