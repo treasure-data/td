@@ -15,10 +15,11 @@ Gem::Specification.new do |gem|
   gem.executables           = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths         = ['lib']
   gem.required_ruby_version = '>= 2.1'
+  gem.licenses              = ["Apache-2.0"]
 
   gem.add_dependency "msgpack"
   gem.add_dependency "rexml"
-  gem.add_dependency "yajl-ruby", "~> 1.1"
+  gem.add_dependency "yajl-ruby", "~> 1.3.1"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 1.8"
   gem.add_dependency "td-client", ">= 1.0.8", "< 2"
