@@ -78,7 +78,7 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
-      # - install_windows_requirements
+      - install_windows_requirements
       - run:
           name: "Install bundler"
           shell: powershell.exe
@@ -93,4 +93,4 @@ workflows:
       - ruby_26
       - ruby_27
       - ruby_30
-      - win_ruby
+      # - win_ruby # Not testing on windows for now due to old version of ridk. Testing in Appveyor instead, will reconsider when CircleCI update ridk in their windows image.
