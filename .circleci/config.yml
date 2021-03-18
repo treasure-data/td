@@ -1,0 +1,96 @@
+version: 2.1
+
+
+orbs:
+  ruby: circleci/ruby@1.1.2 
+  win: circleci/windows@2.4.0
+
+
+commands:
+  install_windows_requirements:
+    description: "Install windows requirements"
+    steps:
+      - run:
+          name: "Install MSYS2"
+          command: choco install msys2
+      - run:
+          name: "Install Ruby devkit"
+          command: ridk install 2 3
+  bundle-install:
+    description: "Install dependencies"
+    steps:
+      - run:
+          name: Which bundler?
+          command: bundle -v
+      - run:
+          name: Bundle install
+          command: bundle install
+  run-tests:
+    description: "Run tests"
+    steps:
+      - run:
+          name: Run tests
+          command: bundle exec rake spec SPEC_OPTS="-fd"
+  run-tests-flow:
+    description: "Single flow for running tests"
+    steps:
+      - checkout
+      - bundle-install
+      - run-tests
+
+
+jobs:
+
+  ruby_25:
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - ruby/install:
+          version: '2.5'
+      - run-tests-flow
+
+  ruby_26:
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - ruby/install:
+          version: '2.6'
+      - run-tests-flow
+
+  ruby_27:
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - ruby/install:
+          version: '2.7'
+      - run-tests-flow
+
+  ruby_30:
+    machine:
+      image: ubuntu-1604:202004-01
+    steps:
+      - ruby/install:
+          version: '3.0'
+      - run-tests-flow
+
+  win_ruby:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - install_windows_requirements
+      - run:
+          name: "Install bundler"
+          shell: powershell.exe
+          command: gem install bundler
+      - run-tests-flow
+
+
+workflows:
+  tests:
+    jobs:
+      - ruby_25
+      - ruby_26
+      - ruby_27
+      - ruby_30
+      # - win_ruby # Not testing on windows for now due to old version of ridk. Testing in Appveyor instead, will reconsider when CircleCI update ridk in their windows image.

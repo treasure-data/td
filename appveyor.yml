@@ -13,5 +13,5 @@ test_script:
   - bundle exec rake spec
 environment:
   matrix:
-    - ruby_version: "22"
-    - ruby_version: "22-x64"
+    - ruby_version: "26"
+    - ruby_version: "26-x64"

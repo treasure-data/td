@@ -18,16 +18,18 @@ Gem::Specification.new do |gem|
   gem.licenses              = ["Apache-2.0"]
 
   gem.add_dependency "msgpack"
+  gem.add_dependency "rexml"
   gem.add_dependency "yajl-ruby", "~> 1.3.1"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 1.8"
-  gem.add_dependency "td-client", ">= 1.0.6", "< 2"
+  gem.add_dependency "td-client", ">= 1.0.8", "< 2"
   gem.add_dependency "td-logger", ">= 0.3.21", "< 2"
   gem.add_dependency "rubyzip", "~> 1.3.0"
   gem.add_dependency "zip-zip", "~> 0.3"
   gem.add_dependency "ruby-progressbar", "~> 1.7"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
+  gem.add_development_dependency 'webrick'
   gem.add_development_dependency "simplecov"
   gem.add_development_dependency 'coveralls'
 end

@@ -96,10 +96,10 @@ module TreasureData
         csv_opts[:quote_char] = opts[:quote_char] if opts[:quote_char]
         begin
           require 'fastercsv'
-          @io = FasterCSV.new(io, csv_opts)
+          @io = FasterCSV.new(io, **csv_opts)
         rescue LoadError => e
           require 'csv'
-          @io = CSV.new(io, csv_opts)
+          @io = CSV.new(io, **csv_opts)
         end
         @error = error
         # @escape_char = opts[:escape_char]
