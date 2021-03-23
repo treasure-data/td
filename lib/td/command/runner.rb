@@ -50,6 +50,7 @@ Basic commands:
   connector      # manage connectors
   users          # show/create/list users
   workflow       # manage workflows
+  user           # manage users  
 
 Additional commands:
 
