@@ -171,7 +171,7 @@ module Command
     if rows.empty?
       if db_name
         if databases.first.permission == :import_only
-          $stderr.puts "Database '#{db_name}' is import only, cannot list or create tables."
+          $stderr.puts "Database '#{db_name}' is import only, cannot list."
         else
           $stderr.puts "Database '#{db_name}' has no tables."
           $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "table:create <db> <table>' to create a table."
