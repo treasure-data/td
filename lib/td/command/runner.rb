@@ -48,7 +48,9 @@ Basic commands:
   sched          # create/delete/list schedules that run a query periodically
   schema         # create/delete/modify schemas of tables
   connector      # manage connectors
+  users          # show/create/list users
   workflow       # manage workflows
+  user           # manage users  
 
 Additional commands:
 

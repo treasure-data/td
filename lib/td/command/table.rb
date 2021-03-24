@@ -41,7 +41,7 @@ module Command
     if HIVE_RESERVED_KEYWORDS.include?(table_name.upcase)
       $stderr.puts "* WARNING *"
       $stderr.puts "  '#{table_name}' is a reserved keyword in Hive. We recommend renaming the table."
-      $stderr.puts "  For a list of all reserved keywords, see our FAQ: https://support.treasuredata.com/hc/en-us/articles/360009531173/"
+      $stderr.puts "  For a list of all reserved keywords, see our FAQ: https://docs.treasuredata.com/display/public/PD/Hive+Reserved+and+Non-Reserved+Keywords"
     end
 
     client = get_client
@@ -171,7 +171,7 @@ module Command
     if rows.empty?
       if db_name
         if databases.first.permission == :import_only
-          $stderr.puts "Database '#{db_name}' is import only, cannot list or create tables."
+          $stderr.puts "Database '#{db_name}' is import only, cannot list."
         else
           $stderr.puts "Database '#{db_name}' has no tables."
           $stderr.puts "Use '#{$prog} " + Config.cl_options_string + "table:create <db> <table>' to create a table."
