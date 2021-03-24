@@ -161,7 +161,7 @@ module Command
         end
       end
     elsif output
-      $stdout.puts "The output file won't be generated. Require `-w` or `--wait` option in addition."
+      $stdout.puts "The output file won't be generated without additional `-w` or `--wait` option."
     end
   end
 
