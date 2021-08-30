@@ -32,6 +32,10 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api.ap02.treasuredata.com' }
       it { is_expected.to eq 'https://api-workflow.ap02.treasuredata.com' }
     end
+    context 'api.ap03.treasuredata.com' do
+      let(:api_endpoint){ 'api.ap03.treasuredata.com' }
+      it { is_expected.to eq 'https://api-workflow.ap03.treasuredata.com' }
+    end
 
     context 'api-hoge.connect.treasuredata.com' do
       let(:api_endpoint){ 'api-hoge.connect.treasuredata.com' }
@@ -58,6 +62,10 @@ describe TreasureData::Config do
       let(:api_endpoint){ 'api-staging.ap02.treasuredata.com' }
       it { is_expected.to eq 'https://api-staging-workflow.ap02.treasuredata.com' }
     end
+    context 'api-staging.ap03.treasuredata.com' do
+      let(:api_endpoint){ 'api-staging.ap03.treasuredata.com' }
+      it { is_expected.to eq 'https://api-staging-workflow.ap03.treasuredata.com' }
+    end
 
     context 'api-development.treasuredata.com' do
       let(:api_endpoint){ 'api-development.treasuredata.com' }
@@ -74,6 +82,10 @@ describe TreasureData::Config do
     context 'api-development.ap02.treasuredata.com' do
       let(:api_endpoint){ 'api-development.ap02.treasuredata.com' }
       it { is_expected.to eq 'https://api-development-workflow.ap02.treasuredata.com' }
+    end
+    context 'api-development.ap03.treasuredata.com' do
+      let(:api_endpoint){ 'api-development.ap03.treasuredata.com' }
+      it { is_expected.to eq 'https://api-development-workflow.ap03.treasuredata.com' }
     end
 
     context 'ybi.jp-east.idcfcloud.com' do
@@ -105,6 +117,10 @@ describe TreasureData::Config do
         let(:api_endpoint) { 'https://api.ap02.treasuredata.com/' }
         it { is_expected.to eq 'https://api.ap02.treasuredata.com' }
       end
+      context 'api.ap03.treasuredata.com' do
+        let(:api_endpoint) { 'https://api.ap03.treasuredata.com/' }
+        it { is_expected.to eq 'https://api.ap03.treasuredata.com' }
+      end
       context 'api-hoge.connect.treasuredata.com' do
         let(:api_endpoint){ 'https://api-hoge.connect.treasuredata.com/' }
         it { is_expected.to eq 'https://api-hoge.connect.treasuredata.com' }
@@ -130,6 +146,10 @@ describe TreasureData::Config do
       context 'api-import.ap02.treasuredata.com' do
         let(:api_endpoint) { 'https://api-import.ap02.treasuredata.com/' }
         it { is_expected.to eq 'https://api-import.ap02.treasuredata.com' }
+      end
+      context 'api-import.ap03.treasuredata.com' do
+        let(:api_endpoint) { 'https://api-import.ap03.treasuredata.com/' }
+        it { is_expected.to eq 'https://api-import.ap03.treasuredata.com' }
       end
     end
   end
