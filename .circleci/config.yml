@@ -2,7 +2,7 @@ version: 2.1
 
 
 orbs:
-  ruby: circleci/ruby@1.1.2 
+  ruby: circleci/ruby@1.1.4 
   win: circleci/windows@2.4.0
 
 

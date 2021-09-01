@@ -67,13 +67,11 @@ module Command
     Client.new(apikey, opts)
   end
 
-  DEFAULT_IMPORT_ENDPOINT = "https://" + TreasureData::API::DEFAULT_IMPORT_ENDPOINT
-
   def get_import_client
     import_endpoint = begin
-                        Config.import_endpoint || DEFAULT_IMPORT_ENDPOINT
+                        Config.import_endpoint || nil
                       rescue TreasureData::ConfigNotFoundError
-                        DEFAULT_IMPORT_ENDPOINT
+                        nil
                       end
     get_client(endpoint: import_endpoint)
   end
