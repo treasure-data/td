@@ -103,8 +103,6 @@ module Command
       raise ArgumentError, "#{s} is not a supported encryption method" unless SUPPORTED_ENCRYPT_METHOD.include?(s)
       encryption = s
     }
-    # Increase the summary_width value from default 32 into 36, to show the options help message properly.
-    op.summary_width = 36
     op.on('-a', '--assume-role ASSUME_ROLE_ARN', 'export with assume role with ASSUME_ROLE_ARN as role arn') {|s|
       assume_role = s
     }
