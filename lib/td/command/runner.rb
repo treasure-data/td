@@ -28,8 +28,6 @@ usage: #{$prog} [options] COMMAND [args]
 options:
 EOF
 
-    # Increase the summary_width value from default 32 into 36, to show the options help message properly.
-    op.summary_width = 36
     op.summary_indent = "  "
 
     (class << self;self;end).module_eval do

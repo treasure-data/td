@@ -67,6 +67,9 @@ module Command
     encryption = nil
     assume_role = nil
 
+    # Increase the summary_width value from default 32 into 36, to show the options help message properly.
+    op.summary_width = 36
+
     op.on('-w', '--wait', 'wait until the job is completed', TrueClass) {|b|
       wait = b
     }
