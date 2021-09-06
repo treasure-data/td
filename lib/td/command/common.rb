@@ -366,12 +366,9 @@ EOS
 
   def self.get_http_class
     # use Net::HTTP::Proxy in place of Net::HTTP if a proxy is provided
-    http_proxy = ENV['HTTP_PROXY']
-    if http_proxy
-      http_proxy = (http_proxy =~ /\Ahttp:\/\/(.*)\z/) ? $~[1] : http_proxy
-      host, port = http_proxy.split(':', 2)
-      port = (port ? port.to_i : 80)
-      return Net::HTTP::Proxy(host, port)
+    if ENV['HTTP_PROXY']
+      uri = URI.parse(ENV['HTTP_PROXY'])
+      return Net::HTTP::Proxy(uri.host, uri.port, uri.user, uri.password)
     else
       return Net::HTTP
     end
