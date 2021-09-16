@@ -1,3 +1,13 @@
+== 2020-09-16 version 0.16.10
+
+* Support proxy with username and password
+* Increase the summary_width value to fix the broken options help message format
+* Support AP03 Region
+* Change old document urls to new document urls
+* Show message to ask -w option in td query
+* Adding users commnad help
+* Allow trailing slash for endpoints
+
 == 2020-04-10 version 0.16.9
 
 * Update new workflow pattern to support ap02 #232
