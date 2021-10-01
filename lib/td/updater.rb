@@ -150,6 +150,7 @@ module ModuleDefinition
   end
 
   def update(autoupdate = false)
+    FileUtils.mkdir_p File.dirname(updating_lock_path)
     wait_for_lock(updating_lock_path, 5) do
       require "td"
       require 'open-uri'
