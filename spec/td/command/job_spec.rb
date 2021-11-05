@@ -271,6 +271,8 @@ text
 
     describe '#job_show' do
       let(:job_id) { "12345" }
+      let(:start_at) { Time.now.strftime('%Y-%m-%d %H:%M:%S UTC') }
+      let(:end_at) { (Time.now + 60).strftime('%Y-%m-%d %H:%M:%S UTC') }
 
       let :job_classs do
         Struct.new(:job_id,
@@ -278,6 +280,8 @@ text
                    :type,
                    :db_name,
                    :priority,
+                   :start_at,
+                   :end_at,
                    :retry_limit,
                    :result_url,
                    :query,
@@ -292,6 +296,8 @@ text
                        :hive,
                        "db_name",
                        1,
+                       start_at,
+                       end_at,
                        1,
                        "test_url",
                        "test_qury",
