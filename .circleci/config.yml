@@ -2,7 +2,7 @@ version: 2.1
 
 
 orbs:
-  ruby: circleci/ruby@1.1.4 
+  ruby: circleci/ruby@1.2.0
   win: circleci/windows@2.4.0
 
 
@@ -42,35 +42,31 @@ commands:
 jobs:
 
   ruby_25:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.5.9
+    executor: ruby/default
     steps:
-      - ruby/install:
-          version: '2.5'
       - run-tests-flow
 
   ruby_26:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.6.8
+    executor: ruby/default
     steps:
-      - ruby/install:
-          version: '2.6'
       - run-tests-flow
 
   ruby_27:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.7.4
+    executor: ruby/default
     steps:
-      - ruby/install:
-          version: '2.7'
       - run-tests-flow
 
   ruby_30:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:3.0.2
+    executor: ruby/default
     steps:
-      - ruby/install:
-          version: '3.0'
       - run-tests-flow
 
   win_ruby:
