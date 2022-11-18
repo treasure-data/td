@@ -1,6 +1,0 @@
-Apr 13, 2022 5:32:42 PM com.treasure_data.td_import.BulkImportCommand doCommand
-INFO: Use td-import-java: 0.5.10
-Apr 13, 2022 5:32:42 PM com.treasure_data.td_import.BulkImportCommand doCommand
-INFO: Use td-client-java: 0.5.5
-Apr 13, 2022 5:32:42 PM com.treasure_data.td_import.BulkImportCommand doUploadCommand
-INFO: Start 'upload' command

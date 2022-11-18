@@ -169,7 +169,7 @@ module TreasureData::Updater
       logger.progname = 'proxy'
       logger.level = Logger::Severity::FATAL  # avoid logging
       @proxy_server = WEBrick::HTTPProxyServer.new(
-        :BindAddress => "localhost",
+        :BindAddress => "127.0.0.1",
         :Logger => logger,
         :Port => 0,
         :AccessLog => []
