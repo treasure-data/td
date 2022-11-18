@@ -183,7 +183,7 @@ module TreasureData::Updater
       logger.progname = 'server'
       logger.level = Logger::Severity::FATAL  # avoid logging
       @server = WEBrick::HTTPServer.new(
-        :BindAddress => "localhost",
+        :BindAddress => "127.0.0.1",
         :Logger => logger,
         :Port => 0,
         :AccessLog => [],
