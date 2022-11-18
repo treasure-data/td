@@ -3,7 +3,7 @@ version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.1.4 
-  win: circleci/windows@2.4.0
+  win: circleci/windows@5.0.0
 
 
 commands:
@@ -41,36 +41,22 @@ commands:
 
 jobs:
 
-  ruby_25:
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:
-      - ruby/install:
-          version: '2.5'
-      - run-tests-flow
-
-  ruby_26:
-    machine:
-      image: ubuntu-1604:202004-01
-    steps:
-      - ruby/install:
-          version: '2.6'
-      - run-tests-flow
-
   ruby_27:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:2.7
     steps:
-      - ruby/install:
-          version: '2.7'
       - run-tests-flow
 
   ruby_30:
-    machine:
-      image: ubuntu-1604:202004-01
+    docker:
+      - image: cimg/ruby:3.0
     steps:
-      - ruby/install:
-          version: '3.0'
+      - run-tests-flow
+
+  ruby_31:
+    docker:
+      - image: cimg/ruby:3.1
+    steps:
       - run-tests-flow
 
   win_ruby:
@@ -89,8 +75,7 @@ jobs:
 workflows:
   tests:
     jobs:
-      - ruby_25
-      - ruby_26
       - ruby_27
       - ruby_30
+      - ruby_31
       # - win_ruby # Not testing on windows for now due to old version of ridk. Testing in Appveyor instead, will reconsider when CircleCI update ridk in their windows image.
