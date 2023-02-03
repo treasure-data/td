@@ -44,7 +44,7 @@ def install_use_gems(target_dir)
       #   and test the 'toolbelt' package without publishing the 'td-client'
       #   gem on rubygems.com
       unless ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM'].nil?
-        unless File.exists? ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']
+        unless File.exist? ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']
           raise "Cannot find gem file with path #{ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']}"
         end
         puts "Copy local gem #{ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']} to #{Dir.pwd}"
@@ -117,7 +117,7 @@ end
 def download_resource(url)
   fname = File.basename(url).gsub(/\?.*$/,'')
   path = project_root_path("build/cache/#{fname}")
-  if File.exists?(path) && Time.now - File.mtime(path) < 24*60*60
+  if File.exist?(path) && Time.now - File.mtime(path) < 24*60*60
     return path
   end
   FileUtils.mkdir_p File.dirname(path)

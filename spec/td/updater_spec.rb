@@ -128,7 +128,7 @@ module TreasureData::Updater
             subject
           end
           tmpfile = File.join(TreasureData::Updater.jarfile_dest_path, 'td-import.jar.new')
-          expect(File.exists?(tmpfile)).to eq false
+          expect(File.exist?(tmpfile)).to eq false
         end
       end
 

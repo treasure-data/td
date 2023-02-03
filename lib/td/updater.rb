@@ -82,7 +82,7 @@ module ModuleDefinition
 
   def wait_for_lock(path, wait_for = 5, check_every = 0.5)
     start = Time.now.to_i
-    while File.exists?(path)
+    while File.exist?(path)
       sleep check_every
       if (Time.now.to_i - start) > wait_for
         raise_error "Unable to acquire update lock"
@@ -306,7 +306,7 @@ end # module ModuleDefinition
     last_updated = existent_jar_updated_time
 
     if updated > last_updated
-      FileUtils.mkdir_p(Updater.jarfile_dest_path) unless File.exists?(Updater.jarfile_dest_path)
+      FileUtils.mkdir_p(Updater.jarfile_dest_path) unless File.exist?(Updater.jarfile_dest_path)
       Dir.chdir(Updater.jarfile_dest_path) do
         status = nil
         indicator = Command::TimeBasedDownloadProgressIndicator.new(
@@ -335,7 +335,7 @@ end # module ModuleDefinition
         else
           $stdout.puts "Update of td-import.jar failed."
           $stdout.puts "Please execute 'td import:jar_update' later to update td-import.jar correctly."
-          File.delete 'td-import.jar.new' if File.exists? 'td-import.jar.new'
+          File.delete 'td-import.jar.new' if File.exist? 'td-import.jar.new'
         end
       end
     else
@@ -360,7 +360,7 @@ end # module ModuleDefinition
         end
       end
 
-      if File.exists?(last_jar_autoupdate_timestamp) && \
+      if File.exist?(last_jar_autoupdate_timestamp) && \
        (Time.now - File.mtime(last_jar_autoupdate_timestamp)).to_i < (60 * 60 * 1) # every hour
         return
       end
