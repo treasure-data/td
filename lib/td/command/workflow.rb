@@ -246,7 +246,7 @@ EOF
         return false
       end
       if output =~ /openjdk version/ or output =~ /java version/
-        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(?:_(\d+))?"/)
+        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(\.\d+)?(?:_(\d+))?"/)
         if not m or m.size < 4
           return false
         end

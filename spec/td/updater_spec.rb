@@ -8,7 +8,7 @@ require 'logger'
 
 module TreasureData::Updater
 
- %w(x86_64-darwin14 x64-mingw32).each do |platform|
+  %w(x86_64-darwin14 x64-mingw32).each do |platform|
     describe "RUBY_PLATFORM is '#{platform}'" do
       before do
         stub_const('RUBY_PLATFORM', platform)
@@ -189,9 +189,9 @@ module TreasureData::Updater
         :AccessLog => [],
         :DocumentRoot => '.',
         :SSLEnable => true,
-        :SSLCACertificateFile => fixture_file('ca.cert'),
-        :SSLCertificate => cert('server.cert'),
-        :SSLPrivateKey => key('server.key')
+        :SSLCACertificateFile => fixture_file('testRootCA.crt'),
+        :SSLCertificate => cert('testServer.crt'),
+        :SSLPrivateKey => key('testServer.key')
       )
       @serverport = @server.config[:Port]
       @server.mount(
