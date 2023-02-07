@@ -43,25 +43,25 @@ jobs:
 
   ruby_27:
     docker:
-      - image: cimg/ruby:2.7
+      - image: cimg/ruby:2.7-browsers
     steps:
       - run-tests-flow
 
   ruby_30:
     docker:
-      - image: cimg/ruby:3.0
+      - image: cimg/ruby:3.0-browsers
     steps:
       - run-tests-flow
 
   ruby_31:
     docker:
-      - image: cimg/ruby:3.1
+      - image: cimg/ruby:3.1-browsers
     steps:
       - run-tests-flow
 
   ruby_32:
     docker:
-      - image: cimg/ruby:3.2
+      - image: cimg/ruby:3.2-browsers
     steps:
       - run-tests-flow
 
