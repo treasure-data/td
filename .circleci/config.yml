@@ -85,4 +85,4 @@ workflows:
       - ruby_30
       - ruby_31
       - ruby_32
-      # - win_ruby # Not testing on windows for now due to old version of ridk. Testing in Appveyor instead, will reconsider when CircleCI update ridk in their windows image.
+      - win_ruby

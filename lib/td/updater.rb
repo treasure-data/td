@@ -21,7 +21,7 @@ module ModuleDefinition
   end
 
   def on_windows?
-    RUBY_PLATFORM =~ /mswin32|mingw32/
+    RUBY_PLATFORM =~ /mswin32|mingw32|mingw-ucrt/
   end
 
   def on_mac?
