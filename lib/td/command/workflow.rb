@@ -96,7 +96,7 @@ module TreasureData
     def workflow_version(op)
       op.cmd_parse # to show help
 
-      unless File.exists?(digdag_cli_path)
+      unless File.exist?(digdag_cli_path)
         $stderr.puts('Workflow module not yet installed.')
         return 1
       end
@@ -246,7 +246,7 @@ EOF
         return false
       end
       if output =~ /openjdk version/ or output =~ /java version/
-        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(?:_(\d+))?"/)
+        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(\.\d+)?(?:_(\d+))?"/)
         if not m or m.size < 4
           return false
         end
@@ -309,7 +309,7 @@ EOF
 
     private
     def download_java
-      if File.exists?(digdag_jre_dir)
+      if File.exist?(digdag_jre_dir)
         return
       end
 
@@ -427,7 +427,7 @@ EOF
     def check_digdag_cli
       check_system_java unless bundled_java?
 
-      unless File.exists?(digdag_cli_path)
+      unless File.exist?(digdag_cli_path)
         $stderr.puts 'Workflow module not yet installed, download now? [Y/n]'
         line = $stdin.gets
         line.strip!
