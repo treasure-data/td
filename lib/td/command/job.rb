@@ -173,6 +173,8 @@ private
     $stdout.puts "Status      : #{job.status}"
     $stdout.puts "Type        : #{job.type}"
     $stdout.puts "Database    : #{job.db_name}"
+    $stdout.puts "Start At    : #{job.start_at}"
+    $stdout.puts "End At      : #{job.end_at}"
     # exclude some fields from bulk_import_perform type jobs
     if [:hive, :pig, :impala, :presto].include?(job.type)
       $stdout.puts "Priority    : #{job_priority_name_of(job.priority)}"
