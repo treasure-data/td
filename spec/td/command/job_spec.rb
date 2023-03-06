@@ -416,7 +416,7 @@ ACTUAL
       end
 
       let(:line_separator) {
-        if RUBY_PLATFORM =~ /mswin32|mingw32/
+        if RUBY_PLATFORM =~ /mswin32|mingw32|mingw-ucrt/
           "\r\n"
         else
           "\n"

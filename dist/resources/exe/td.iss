@@ -22,6 +22,9 @@ Name: custom; Description: "Custom Installation"; flags: iscustom
 Name: "toolbelt"; Description: "Treasure Data Toolbelt"; Types: "client custom"
 Name: "toolbelt/client"; Description: "Treasure Data Client"; Types: "client custom"; Flags: fixed
 
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\vendor"
+
 [Files]
 Source: "td\*.*"; DestDir: "{app}"; Flags: recursesubdirs; Components: "toolbelt/client"
 Source: "installers\rubyinstaller.exe"; DestDir: "{tmp}"; Components: "toolbelt/client"

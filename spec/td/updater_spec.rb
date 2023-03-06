@@ -8,7 +8,7 @@ require 'logger'
 
 module TreasureData::Updater
 
- %w(x86_64-darwin14 x64-mingw32).each do |platform|
+  %w(x86_64-darwin14 x64-mingw32).each do |platform|
     describe "RUBY_PLATFORM is '#{platform}'" do
       before do
         stub_const('RUBY_PLATFORM', platform)
@@ -128,7 +128,7 @@ module TreasureData::Updater
             subject
           end
           tmpfile = File.join(TreasureData::Updater.jarfile_dest_path, 'td-import.jar.new')
-          expect(File.exists?(tmpfile)).to eq false
+          expect(File.exist?(tmpfile)).to eq false
         end
       end
 
@@ -171,7 +171,7 @@ module TreasureData::Updater
       @proxy_server = WEBrick::HTTPProxyServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
-        :Port => 0,
+        :Port => 1000 + rand(1000),
         :AccessLog => []
       )
       @proxy_server_thread = start_server_thread(@proxy_server)
@@ -185,13 +185,13 @@ module TreasureData::Updater
       @server = WEBrick::HTTPServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
-        :Port => 0,
+        :Port => 1000 + rand(1000),
         :AccessLog => [],
         :DocumentRoot => '.',
         :SSLEnable => true,
-        :SSLCACertificateFile => fixture_file('ca.cert'),
-        :SSLCertificate => cert('server.cert'),
-        :SSLPrivateKey => key('server.key')
+        :SSLCACertificateFile => fixture_file('testRootCA.crt'),
+        :SSLCertificate => cert('testServer.crt'),
+        :SSLPrivateKey => key('testServer.key')
       )
       @serverport = @server.config[:Port]
       @server.mount(

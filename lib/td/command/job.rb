@@ -406,7 +406,7 @@ private
       raise "Unknown format #{format.inspect}"
     end
 
-    if tempfile && File.exists?(tempfile)
+    if tempfile && File.exist?(tempfile)
       FileUtils.mv(tempfile, output.respond_to?(:path) ? output.path : output)
     end
   end
