@@ -35,13 +35,14 @@ namespace 'pkg' do
       # create ./bundle/Distribution
       install_erb_resource('pkg/Distribution.erb', 'bundle/Distribution', 0644, variables)
 
-      ruby_version = '2.4.5'
+      ruby_version = '3.0.5'
       sh "pkgutil --expand #{project_root_path("dist/resources/pkg/ruby-#{ruby_version}.pkg")} ruby"
       mv "ruby/ruby-#{ruby_version}.pkg", "bundle/ruby.pkg"
 
       # create td-a.b.c.pkg
       sh "pkgutil --flatten bundle td-#{version}.pkg"
       FileUtils.cp "td-#{version}.pkg", project_root_path("pkg/td-#{version}.pkg")
+      puts "Finished building pkg/td-#{version}.pkg"
     end
   end
 

@@ -50,9 +50,11 @@ def install_use_gems(target_dir)
         puts "Copy local gem #{ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']} to #{Dir.pwd}"
         FileUtils.cp File.expand_path(ENV['TD_TOOLBELT_LOCAL_CLIENT_GEM']), Dir.pwd
       end
-      Gem::GemRunner.new.run ["install", gem, "--no-rdoc", "--no-ri"]
+      Gem::GemRunner.new.run ["install", gem, "--no-document"]
+      # sh "/usr/local/td/ruby/bin/gem install " + gem + " --no-document" # On OSX
     rescue Gem::SystemExitException => e
       unless e.exit_code.zero?
+        puts e, e.backtrace.join("\n")
         raise e
       end
     end
