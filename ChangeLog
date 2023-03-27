@@ -1,4 +1,4 @@
-== 2023-03-15 version 0.16.11
+== 2023-03-15 version 0.17.0
 
 * Show job's start & end time for td job:show [job_id] #253
 * Support Ruby 3.2 by updating deprecated File.exists? to File.exist? #260
