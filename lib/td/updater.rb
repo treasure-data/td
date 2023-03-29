@@ -142,11 +142,11 @@ module ModuleDefinition
   end
 
   def version_endpoint
-    "#{endpoint_root}/latest_version_0_16.#{package_category}"
+    "#{endpoint_root}/latest_version_0_17.#{package_category}"
   end
 
   def update_package_endpoint
-    "#{endpoint_root}/td-update-#{package_category}-0-16.zip"
+    "#{endpoint_root}/td-update-#{package_category}-0-17.zip"
   end
 
   def update(autoupdate = false)

@@ -1,9 +1,11 @@
 .bundle
 .DS_Store
+bundler
 build/td-import-java
 Gemfile.lock
 vendor/*
 /pkg/
 build/*
 coverage/
+dist/resources/pkg/ruby*.pkg
 *~
