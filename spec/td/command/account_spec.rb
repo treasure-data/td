@@ -5,6 +5,7 @@ require "tempfile"
 require 'td/command/common'
 require 'td/command/account'
 require 'td/command/list'
+require 'td/helpers'
 
 module TreasureData::Command
   describe 'account command' do
@@ -22,34 +23,56 @@ module TreasureData::Command
 
     before do
       TreasureData::Config.path = conf_file.path
-      $stdout.puts "conf_file.path " + conf_file.path
     end
 
     it 'is called without any option' do
       expect(STDIN).to receive(:gets).and_return('test@email.com')
-      expect(STDIN).to receive(:gets).and_return('password')
+      if TreasureData::Helpers.on_windows?
+        'password'.chars.each { |c| expect(command).to receive(:get_char).and_return(c) }
+        expect(command).to receive(:get_char).and_return(nil)
+      else
+        expect(STDIN).to receive(:gets).and_return('password')
+      end
       expect(TreasureData::Client).to receive(:authenticate).and_return(client)
       expect(client).to receive(:apikey).and_return("1/xxx")
+
       op = List::CommandParser.new("account", %w[], %w[], false, [], true)
       command.account(op)
+
       expect(File.read(conf_file.path)).to eq(conf_expect)
     end
 
     it 'is called with -f option' do
-      expect(STDIN).to receive(:gets).and_return('password')
+      if TreasureData::Helpers.on_windows?
+        'password'.chars.each { |c| expect(command).to receive(:get_char).and_return(c) }
+        expect(command).to receive(:get_char).and_return(nil)
+      else
+        expect(STDIN).to receive(:gets).and_return('password')
+      end
       expect(TreasureData::Client).to receive(:authenticate).and_return(client)
       expect(client).to receive(:apikey).and_return("1/xxx")
+
       op = List::CommandParser.new("account", %w[-f], %w[], false, ['test@email.com'], true)
       command.account(op)
+
       expect(File.read(conf_file.path)).to eq(conf_expect)
     end
 
     it 'is called with username password mismatched' do
-      expect(STDIN).to receive(:gets).and_return('password').thrice
+      if TreasureData::Helpers.on_windows?
+        3.times do
+          'password'.chars.each { |c| expect(command).to receive(:get_char).and_return(c) }
+          expect(command).to receive(:get_char).and_return(nil)
+        end
+      else
+        expect(STDIN).to receive(:gets).and_return('password').thrice
+      end
       expect(TreasureData::Client).to receive(:authenticate).thrice.and_raise(TreasureData::AuthError)
       expect(STDERR).to receive(:puts).with('User name or password mismatched.').thrice
+
       op = List::CommandParser.new("account", %w[-f], %w[], false, ['test@email.com'], true)
       command.account(op)
+
       expect(File.read(conf_file.path)).to eq("")
     end
   end

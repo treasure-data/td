@@ -27,7 +27,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rubyzip", "~> 1.3.0"
   gem.add_dependency "zip-zip", "~> 0.3"
   gem.add_dependency "ruby-progressbar", "~> 1.7"
-  gem.add_dependency "win32api", "~> 0.1.0"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency 'webrick'
