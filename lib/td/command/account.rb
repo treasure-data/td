@@ -113,12 +113,16 @@ module Command
 
   private
   if Helpers.on_windows?
-    require 'Win32API'
+    require 'fiddle'
 
     def get_char
-      Win32API.new('msvcrt', '_getch', [], 'L').Call
+      msvcrt = Fiddle.dlopen('msvcrt')
+      getch = Fiddle::Function.new(msvcrt['_getch'], [], Fiddle::TYPE_CHAR)
+      getch.call()
     rescue Exception
-      Win32API.new('crtdll', '_getch', [], 'L').Call
+      crtdll = Fiddle.dlopen('crtdll')
+      getch = Fiddle::Function.new(crtdll['_getch'], [], Fiddle::TYPE_CHAR)
+      getch.call()
     end
 
     def get_password
