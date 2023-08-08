@@ -64,7 +64,7 @@ module Command
       lower = ('a'..'z').to_a
       upper = ('A'..'Z').to_a
       digit = ('0'..'9').to_a
-      symbol = %w[_ @ - + ;]
+      symbol = %w[! # $ % - _ = + < >]
 
       r = []
       3.times { r << lower.sort_by{rand}.first }
