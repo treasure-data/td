@@ -12,7 +12,7 @@ def java_available?
   if not status.success?
     return false
   end
-  if output !~ /(openjdk|java) version "1/
+  if output !~ /(openjdk|java) version "(1|2)/
     return false
   end
   return true
