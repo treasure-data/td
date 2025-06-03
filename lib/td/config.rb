@@ -26,6 +26,12 @@ class Config
   @@cl_import_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line option
   @@secure = true
   @@retry_post_requests = false
+  
+  # SSL options
+  @@ssl_verify = ENV['TD_SSL_VERIFY'].nil? ? true : (ENV['TD_SSL_VERIFY'].downcase == 'true')
+  @@ssl_ca_file = ENV['TD_SSL_CA_FILE']
+  @@cl_ssl_verify = false # flag to indicate whether ssl_verify has been provided through the command-line
+  @@cl_ssl_ca_file = false # flag to indicate whether ssl_ca_file has been provided through the command-line
 
   def initialize
     @path = nil
@@ -200,7 +206,64 @@ class Config
     string += "-k #{@@apikey} " if @@cl_apikey
     string += "-e #{@@endpoint} " if @@cl_endpoint
     string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
+    string += "--insecure " if @@cl_ssl_verify && !@@ssl_verify
+    string += "--ssl-ca-file #{@@ssl_ca_file} " if @@cl_ssl_ca_file
     string
+  end
+
+  # SSL options
+  def self.ssl_verify
+    return @@ssl_verify if @@cl_ssl_verify
+    
+    # Check config file
+    begin
+      verify = Config.read['ssl.verify']
+      return verify.downcase == 'true' if verify
+    rescue ConfigNotFoundError
+      # Ignore if config file not found
+    end
+    
+    # Return environment variable or default
+    @@ssl_verify
+  end
+
+  def self.ssl_verify=(verify)
+    @@ssl_verify = verify
+  end
+
+  def self.cl_ssl_verify
+    @@cl_ssl_verify
+  end
+
+  def self.cl_ssl_verify=(flag)
+    @@cl_ssl_verify = flag
+  end
+
+  def self.ssl_ca_file
+    return @@ssl_ca_file if @@cl_ssl_ca_file
+    
+    # Check config file
+    begin
+      ca_file = Config.read['ssl.ca_file']
+      return ca_file if ca_file && !ca_file.empty?
+    rescue ConfigNotFoundError
+      # Ignore if config file not found
+    end
+    
+    # Return environment variable or default
+    @@ssl_ca_file
+  end
+
+  def self.ssl_ca_file=(ca_file)
+    @@ssl_ca_file = ca_file
+  end
+
+  def self.cl_ssl_ca_file
+    @@cl_ssl_ca_file
+  end
+
+  def self.cl_ssl_ca_file=(flag)
+    @@cl_ssl_ca_file = flag
   end
 
 end # class Config

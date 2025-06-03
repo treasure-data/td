@@ -144,10 +144,32 @@ These are the available hooks:
 
     $ TD_TOOLBELT_UPDATE_ROOT="http://toolbelt.treasuredata.com"
 
-* Specify an alternative endpoint to use updating the JAR file (default: https://repo1.maven.org):
+=== SSL Options
 
-    $ TD_TOOLBELT_JARUPDATE_ROOT="https://repo1.maven.org"
+The CLI supports SSL certificate verification options to help with proxy environments:
 
+* Disable SSL certificate verification:
+
+    $ td --insecure ...
+
+* Use a custom CA certificate file:
+
+    $ td --ssl-ca-file /path/to/ca.crt ...
+
+* Configure in ~/.td/td.conf:
+
+    [ssl]
+    verify = false
+    ca_file = /path/to/ca.crt
+
+* Set environment variables:
+
+    $ TD_SSL_VERIFY=false td ...
+    $ TD_SSL_CA_FILE=/path/to/ca.crt td ...
+
+The priority order is: CLI options > environment variables > config file > default.
+
+Note: These options do not apply to the 'td workflow' command, which uses its own HTTP client.
 
 = Copyright
 

@@ -9,9 +9,10 @@ class Runner
     @import_endpoint = nil
     @prog_name = nil
     @insecure = false
+    @ssl_ca_file = nil
   end
 
-  attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure
+  attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure, :ssl_ca_file
 
   def run(argv=ARGV)
     require 'td/version'
@@ -104,8 +105,12 @@ EOF
       import_endpoint = e
     }
 
-    op.on('--insecure', "Insecure access: disable SSL (enabled by default)") {|b|
+    op.on('--insecure', "Insecure access: disable SSL verification (enabled by default)") {|b|
       insecure = true
+    }
+
+    op.on('--ssl-ca-file PATH', "Path to the CA certification file for SSL verification") {|s|
+      ssl_ca_file = s
     }
 
     op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
@@ -113,7 +118,7 @@ EOF
     }
 
     #op.on('-d', '--debug', "debug mode", TrueClass) {|b|
-    #	$debug = b
+    #   $debug = b
     #}
 
     op.on('-h', '--help', "show help") {
@@ -156,6 +161,12 @@ EOF
       end
       if insecure
         Config.secure = false
+        Config.ssl_verify = false
+        Config.cl_ssl_verify = true
+      end
+      if ssl_ca_file
+        Config.ssl_ca_file = ssl_ca_file
+        Config.cl_ssl_ca_file = true
       end
       if retry_post_requests
         Config.retry_post_requests = true
