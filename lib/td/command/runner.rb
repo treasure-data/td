@@ -164,7 +164,6 @@ EOF
         Config.cl_import_endpoint = true
       end
       if insecure
-        Config.secure = false
         Config.ssl_verify = false
         Config.cl_ssl_verify = true
         $stderr.puts "Warning: --insecure option disables SSL certificate verification, which is not recommended for production use."

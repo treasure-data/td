@@ -306,15 +306,9 @@ module Command
 
         # generic URI
         host, port = endpoint.split(':', 2)
-        port = port.to_i
-        # Config.secure = false is the --insecure option was used
-        if Config.secure
-          port = 443 if port == 0
-          ssl = true
-        else
-          port = 80 if port == 0
-          ssl = false
-        end
+        port = port.to_i == 0 ? 443 : port.to_i
+        ssl = true
+
       end
 
       sysprops << "-Dtd.api.server.scheme=#{ssl ? 'https' : 'http'}://"
