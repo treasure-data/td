@@ -44,13 +44,8 @@ module Command
     # SSL verification options
     if Config.ssl_verify == false
       opts[:verify] = false
-      $stderr.puts "Warning: SSL verification is disabled. Use at your own risk." if $verbose
     elsif Config.ssl_ca_file
-      if File.exist?(Config.ssl_ca_file)
-        opts[:verify] = Config.ssl_ca_file
-      else
-        $stderr.puts "Warning: SSL CA file '#{Config.ssl_ca_file}' not found. Using default CA."
-      end
+      opts[:verify] = Config.ssl_ca_file
     end
 
     # apikey is mandatory

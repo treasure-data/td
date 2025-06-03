@@ -9,10 +9,9 @@ class Runner
     @import_endpoint = nil
     @prog_name = nil
     @insecure = false
-    @ssl_ca_file = nil
   end
 
-  attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure, :ssl_ca_file
+  attr_accessor :apikey, :endpoint, :import_endpoint, :config_path, :prog_name, :insecure
 
   def run(argv=ARGV)
     require 'td/version'
@@ -79,6 +78,7 @@ EOF
     endpoint = @endpoint
     import_endpoint = @import_endpoint || @endpoint
     insecure = nil
+    ssl_ca_file = nil
     $verbose = false
     #$debug = false
     retry_post_requests = false
@@ -105,11 +105,15 @@ EOF
       import_endpoint = e
     }
 
-    op.on('--insecure', "Insecure access: disable SSL verification (enabled by default)") {|b|
+    op.on('--insecure', "Insecure access: disable SSL certificate verification (enabled by default)") {|b|
       insecure = true
     }
 
-    op.on('--ssl-ca-file PATH', "Path to the CA certification file for SSL verification") {|s|
+    op.on('--ssl-ca-file PATH', "Path to the CA certification file for SSL") {|s|
+      require 'td/command/common'
+      unless File.exist?(s)
+        raise ParameterConfigurationError, "CA certification file not found: #{s}"
+      end
       ssl_ca_file = s
     }
 
@@ -163,6 +167,7 @@ EOF
         Config.secure = false
         Config.ssl_verify = false
         Config.cl_ssl_verify = true
+        $stderr.puts "Warning: --insecure option disables SSL certificate verification, which is not recommended for production use."
       end
       if ssl_ca_file
         Config.ssl_ca_file = ssl_ca_file
