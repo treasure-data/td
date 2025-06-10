@@ -26,6 +26,11 @@ class Config
   @@cl_import_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line option
   @@secure = true
   @@retry_post_requests = false
+  @@ssl_verify = ENV['TD_SSL_VERIFY'].nil? ? true : (ENV['TD_SSL_VERIFY'].downcase == 'false' ? false : true)
+  @@ssl_ca_file = ENV['TD_SSL_CA_FILE']
+  @@ssl_ca_file = nil if @@ssl_ca_file == ""
+  @@cl_ssl_verify = false # flag to indicate whether ssl verify has been provided through the command-line
+  @@cl_ssl_ca_file = false # flag to indicate whether ssl ca file has been provided through the command-line
 
   def initialize
     @path = nil
@@ -194,12 +199,72 @@ class Config
     end
   end
 
+  def self.ssl_verify
+    if @@cl_ssl_verify
+      return @@ssl_verify
+    end
+
+    begin
+      conf = read
+      if conf['ssl.verify']
+        return conf['ssl.verify'].downcase == 'false' ? false : true
+      end
+    rescue ConfigNotFoundError
+    end
+
+    return @@ssl_verify
+  end
+
+  def self.ssl_verify=(verify)
+    @@ssl_verify = verify
+  end
+
+  def self.cl_ssl_verify
+    @@cl_ssl_verify
+  end
+
+  def self.cl_ssl_verify=(flag)
+    @@cl_ssl_verify = flag
+  end
+
+  def self.ssl_ca_file
+    if @@cl_ssl_ca_file
+      return @@ssl_ca_file
+    end
+
+    begin
+      conf = read
+      if conf['ssl.ca_file']
+        return conf['ssl.ca_file']
+      end
+    rescue ConfigNotFoundError
+    end
+
+    return @@ssl_ca_file
+  end
+
+  def self.ssl_ca_file=(ca_file)
+    @@ssl_ca_file = ca_file
+  end
+
+  def self.cl_ssl_ca_file
+    @@cl_ssl_ca_file
+  end
+
+  def self.cl_ssl_ca_file=(flag)
+    @@cl_ssl_ca_file = flag
+  end
+
   # renders the apikey and endpoint options as a string for the helper commands
   def self.cl_options_string
+    require 'shellwords'
+    
     string = ""
     string += "-k #{@@apikey} " if @@cl_apikey
     string += "-e #{@@endpoint} " if @@cl_endpoint
     string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
+    string += "--insecure " if @@cl_ssl_verify && !@@ssl_verify
+    string += "--ssl-ca-file #{Shellwords.escape(@@ssl_ca_file)} " if @@cl_ssl_ca_file
     string
   end
 

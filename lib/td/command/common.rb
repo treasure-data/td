@@ -41,6 +41,13 @@ module Command
       opts[:retry_post_requests] = Config.retry_post_requests
     end
 
+    # SSL verification options
+    if Config.ssl_verify == false
+      opts[:verify] = false
+    elsif Config.ssl_ca_file
+      opts[:verify] = Config.ssl_ca_file
+    end
+
     # apikey is mandatory
     apikey = Config.apikey
     raise ConfigError, "Account is not configured." unless apikey
