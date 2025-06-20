@@ -263,8 +263,14 @@ class Config
     string += "-k #{@@apikey} " if @@cl_apikey
     string += "-e #{@@endpoint} " if @@cl_endpoint
     string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
-    string += "--insecure " if @@cl_ssl_verify && !@@ssl_verify
-    string += "--ssl-ca-file #{Shellwords.escape(@@ssl_ca_file)} " if @@cl_ssl_ca_file
+    
+    # Handle simplified SSL option
+    if @@cl_ssl_verify && !@@ssl_verify
+      string += "--ssl-verify false "
+    elsif @@cl_ssl_ca_file && @@ssl_ca_file
+      string += "--ssl-verify #{Shellwords.escape(@@ssl_ca_file)} "
+    end
+    
     string
   end
 

@@ -105,16 +105,16 @@ EOF
       import_endpoint = e
     }
 
-    op.on('--insecure', "Insecure access: disable SSL certificate verification (enabled by default)") {|b|
-      insecure = true
-    }
-
-    op.on('--ssl-ca-file PATH', "Path to the CA certification file for SSL") {|s|
+    op.on('--ssl-verify VALUE', "SSL verification: 'false' to disable, or path to CA certificate file (default: true)") {|s|
       require 'td/command/common'
-      unless File.exist?(s)
-        raise ParameterConfigurationError, "CA certification file not found: #{s}"
+      if s.downcase == 'false'
+        insecure = true
+      else
+        unless File.exist?(s)
+          raise ParameterConfigurationError, "CA certification file not found: #{s}"
+        end
+        ssl_ca_file = s
       end
-      ssl_ca_file = s
     }
 
     op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|

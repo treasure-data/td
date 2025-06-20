@@ -150,38 +150,38 @@ ca_file = /config/path/to/ca.crt
         expect(TreasureData::Config.cl_options_string).to include('-k test_apikey')
       end
 
-      it 'includes --insecure when cl_ssl_verify is true and ssl_verify is false' do
+      it 'includes --ssl-verify false when cl_ssl_verify is true and ssl_verify is false' do
         TreasureData::Config.cl_ssl_verify = true
         TreasureData::Config.ssl_verify = false
-        expect(TreasureData::Config.cl_options_string).to include('--insecure')
+        expect(TreasureData::Config.cl_options_string).to include('--ssl-verify false')
       end
 
-      it 'does not include --insecure when cl_ssl_verify is false' do
+      it 'does not include --ssl-verify when cl_ssl_verify is false' do
         TreasureData::Config.cl_ssl_verify = false
-        expect(TreasureData::Config.cl_options_string).not_to include('--insecure')
+        expect(TreasureData::Config.cl_options_string).not_to include('--ssl-verify')
       end
 
-      it 'includes --ssl-ca-file when cl_ssl_ca_file is true' do
+      it 'includes --ssl-verify with CA file path when cl_ssl_ca_file is true' do
         TreasureData::Config.cl_ssl_ca_file = true
         TreasureData::Config.ssl_ca_file = '/path/to/ca.crt'
-        expect(TreasureData::Config.cl_options_string).to include('--ssl-ca-file /path/to/ca.crt')
+        expect(TreasureData::Config.cl_options_string).to include('--ssl-verify /path/to/ca.crt')
       end
 
-      it 'does not include --ssl-ca-file when cl_ssl_ca_file is false' do
+      it 'does not include --ssl-verify when cl_ssl_ca_file is false' do
         TreasureData::Config.cl_ssl_ca_file = false
-        expect(TreasureData::Config.cl_options_string).not_to include('--ssl-ca-file')
+        expect(TreasureData::Config.cl_options_string).not_to include('--ssl-verify')
       end
 
       it 'properly escapes CA file paths with spaces' do
         TreasureData::Config.cl_ssl_ca_file = true
         TreasureData::Config.ssl_ca_file = '/path/with spaces/ca.crt'
-        expect(TreasureData::Config.cl_options_string).to include('--ssl-ca-file /path/with\\ spaces/ca.crt')
+        expect(TreasureData::Config.cl_options_string).to include('--ssl-verify /path/with\\ spaces/ca.crt')
       end
 
       it 'properly escapes CA file paths with special characters' do
         TreasureData::Config.cl_ssl_ca_file = true
         TreasureData::Config.ssl_ca_file = '/path/with$special&chars/ca.crt'
-        expect(TreasureData::Config.cl_options_string).to include('--ssl-ca-file /path/with\\$special\\&chars/ca.crt')
+        expect(TreasureData::Config.cl_options_string).to include('--ssl-verify /path/with\\$special\\&chars/ca.crt')
       end
     end
 
