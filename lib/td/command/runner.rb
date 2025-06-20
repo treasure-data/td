@@ -78,6 +78,7 @@ EOF
     endpoint = @endpoint
     import_endpoint = @import_endpoint || @endpoint
     insecure = nil
+    ssl_ca_file = nil
     $verbose = false
     #$debug = false
     retry_post_requests = false
@@ -104,8 +105,16 @@ EOF
       import_endpoint = e
     }
 
-    op.on('--insecure', "Insecure access: disable SSL (enabled by default)") {|b|
-      insecure = true
+    op.on('--ssl-verify VALUE', "SSL verification: 'false' to disable, or path to CA certificate file (default: true)") {|s|
+      require 'td/command/common'
+      if s.downcase == 'false'
+        insecure = true
+      else
+        unless File.exist?(s)
+          raise ParameterConfigurationError, "CA certification file not found: #{s}"
+        end
+        ssl_ca_file = s
+      end
     }
 
     op.on('-v', '--verbose', "verbose mode", TrueClass) {|b|
@@ -113,7 +122,7 @@ EOF
     }
 
     #op.on('-d', '--debug', "debug mode", TrueClass) {|b|
-    #	$debug = b
+    #   $debug = b
     #}
 
     op.on('-h', '--help', "show help") {
@@ -155,7 +164,13 @@ EOF
         Config.cl_import_endpoint = true
       end
       if insecure
-        Config.secure = false
+        Config.ssl_option = false
+        Config.cl_ssl_option = true
+        $stderr.puts "Warning: --insecure option disables SSL certificate verification, which is not recommended for production use."
+      end
+      if ssl_ca_file
+        Config.ssl_option = ssl_ca_file
+        Config.cl_ssl_option = true
       end
       if retry_post_requests
         Config.retry_post_requests = true
