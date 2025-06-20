@@ -42,10 +42,11 @@ module Command
     end
 
     # SSL verification options
-    if Config.ssl_verify == false
+    ssl_option = Config.ssl_option
+    if ssl_option == false || (ssl_option.is_a?(String) && ssl_option.downcase == 'false')
       opts[:verify] = false
-    elsif Config.ssl_ca_file
-      opts[:verify] = Config.ssl_ca_file
+    elsif ssl_option.is_a?(String) && ssl_option.downcase != 'false'
+      opts[:verify] = ssl_option
     end
 
     # apikey is mandatory

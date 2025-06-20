@@ -164,13 +164,13 @@ EOF
         Config.cl_import_endpoint = true
       end
       if insecure
-        Config.ssl_verify = false
-        Config.cl_ssl_verify = true
+        Config.ssl_option = false
+        Config.cl_ssl_option = true
         $stderr.puts "Warning: --insecure option disables SSL certificate verification, which is not recommended for production use."
       end
       if ssl_ca_file
-        Config.ssl_ca_file = ssl_ca_file
-        Config.cl_ssl_ca_file = true
+        Config.ssl_option = ssl_ca_file
+        Config.cl_ssl_option = true
       end
       if retry_post_requests
         Config.retry_post_requests = true
