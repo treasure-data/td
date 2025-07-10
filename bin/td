@@ -9,7 +9,7 @@ require 'td/updater'
 TreasureData::Updater.disable(<<EOS
 
 `td update` is only available from the Treasure Data Toolbelt.
-You can download and install it from http://toolbelt.treasure-data.com.
+You can download and install it from http://toolbelt.treasuredata.com.
 
 It appers you are running the `td` gem. To update the gem to the latest
 version, please run `gem update td`.

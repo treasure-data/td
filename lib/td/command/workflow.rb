@@ -140,7 +140,7 @@ module TreasureData
     end
 
     def digdag_base_url(version=nil)
-      base = 'https://toolbelt.treasure-data.com/digdag'
+      base = 'https://toolbelt.treasuredata.com/digdag'
       if version.to_s == ''
         base
       else
