@@ -161,7 +161,7 @@ EOF
         expect(TreasureData::Updater).to_not have_received(:stream_fetch).with(
             %r{/java/}, instance_of(File))
         expect(TreasureData::Updater).to have_received(:stream_fetch).with(
-            'https://toolbelt.treasure-data.com/digdag?user=test%40example.com', instance_of(File))
+            'https://toolbelt.treasuredata.com/digdag?user=test%40example.com', instance_of(File))
       end
 
       it 'installs java + digdag and can run a workflow' do
@@ -180,7 +180,7 @@ EOF
         expect(stdout_io.string).to include 'Downloading workflow module'
         expect(File).to exist(File.join(ENV[home_env], '.td', 'digdag', 'digdag'))
         expect(TreasureData::Updater).to have_received(:stream_fetch).with(
-            'https://toolbelt.treasure-data.com/digdag?user=test%40example.com', instance_of(File))
+            'https://toolbelt.treasuredata.com/digdag?user=test%40example.com', instance_of(File))
 
         # Check that java and digdag is not re-installed
         stdout_io.truncate(0)
@@ -228,7 +228,7 @@ EOF
           expect(TreasureData::Updater).to_not have_received(:stream_fetch).with(
               %r{/java/}, instance_of(File))
           expect(TreasureData::Updater).to have_received(:stream_fetch).with(
-              'https://toolbelt.treasure-data.com/digdag?user=test%40example.com', instance_of(File))
+              'https://toolbelt.treasuredata.com/digdag?user=test%40example.com', instance_of(File))
 
           # Check that digdag is not re-installed
           stdout_io.truncate(0)
@@ -250,7 +250,7 @@ EOF
           expect(stdout_io.string).to include 'Downloading workflow module'
           expect(File).to exist(File.join(ENV[home_env], '.td', 'digdag', 'digdag'))
           expect(TreasureData::Updater).to have_received(:stream_fetch).with(
-              'https://toolbelt.treasure-data.com/digdag', instance_of(File))
+              'https://toolbelt.treasuredata.com/digdag', instance_of(File))
         }
       end
 
