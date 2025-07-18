@@ -9,13 +9,26 @@ orbs:
 commands:
   install_windows_requirements:
     description: "Install windows requirements"
+    parameters:
+      ruby_version:
+        type: string
+        default: "latest"
     steps:
       - run:
           name: "Install MSYS2"
+          shell: powershell.exe
           command: choco install msys2 -y
       - run:
           name: "Install Ruby devkit"
+          shell: powershell.exe
           command: ridk install 2 3
+      - run:
+          name: "Install Ruby version"
+          shell: powershell.exe
+          command: choco install ruby --version=<<parameters.ruby_version>>
+      - run:
+          name: "Install bundler"
+          command: gem install bundler
   bundle-install:
     description: "Install dependencies"
     steps:
@@ -70,11 +83,8 @@ jobs:
       name: win/default
       shell: powershell.exe
     steps:
-      - install_windows_requirements
-      - run:
-          name: "Install bundler"
-          shell: powershell.exe
-          command: gem install bundler
+      - install_windows_requirements:
+          ruby_version: "3.4.4.2"
       - run-tests-flow
 
 
