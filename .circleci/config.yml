@@ -78,6 +78,18 @@ jobs:
     steps:
       - run-tests-flow
 
+  ruby_33:
+    docker:
+      - image: cimg/ruby:3.3-browsers
+    steps:
+      - run-tests-flow
+
+  ruby_34:
+    docker:
+      - image: cimg/ruby:3.4-browsers
+    steps:
+      - run-tests-flow
+
   win_ruby:
     executor:
       name: win/default
@@ -95,4 +107,6 @@ workflows:
       - ruby_30
       - ruby_31
       - ruby_32
+      - ruby_33
+      - ruby_34
       - win_ruby
