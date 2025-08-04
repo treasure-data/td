@@ -241,7 +241,6 @@ module List
   add_list 'table:swap', %w[db table1 table2], 'Swap names of two tables', ['table:swap example_db table1 table2']
   add_list 'table:rename', %w[db from_table dest_table], 'rename exist table', ['table:rename example_db table1 table2']
   add_list 'table:tail', %w[db table], 'Get recently imported logs', ['table:tail example_db table1', 'table:tail example_db table1 -n 30']
-  add_list 'table:partial_delete', %w[db table], 'Delete logs from the table within the specified time range', ['table:partial_delete example_db table1 --from 1341000000 --to 1341003600']
   add_list 'table:expire', %w[db table expire_days], 'Expire data in table after specified number of days. Set to 0 to disable the expiration.', ['table:expire example_db table1 30']
   add_list 'table:update', %w[db table], 'Update table options', ['table:update example_db table1 --include-v false']
 
