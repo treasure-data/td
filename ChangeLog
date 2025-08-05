@@ -1,3 +1,7 @@
+== 2025-08-05 version 0.19.0
+
+* Remove partial_delete api.
+
 == 2025-07-18 version 0.18.1
 
 * Use https://toolbelt.treasuredata.com/ for TD Toolbelt's download URL #270
