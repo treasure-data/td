@@ -79,7 +79,6 @@ subcommands=(
     "table\:export":"Dump logs in a table to the specified storage"
     "table\:swap":"Swap names of two tables"
     "table\:tail":"Get recently imported logs"
-    "table\:partial_delete":"Delete logs from the table within the specified time range"
 
     "wf":"Run a workflow command"
     "workflow":"Run a workflow command"
