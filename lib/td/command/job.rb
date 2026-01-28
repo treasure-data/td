@@ -28,6 +28,8 @@ module Command
     /\A[\+]?2\z/ => 2,
   }
 
+  QUERY_JOB_TYPES = [:hive, :pig, :impala, :presto, :trino].freeze
+
   def job_list(op)
     page = 0
     skip = 0
@@ -176,7 +178,7 @@ private
     $stdout.puts "Start At    : #{job.start_at}"
     $stdout.puts "End At      : #{job.end_at}"
     # exclude some fields from bulk_import_perform type jobs
-    if [:hive, :pig, :impala, :presto].include?(job.type)
+    if QUERY_JOB_TYPES.include?(job.type)
       $stdout.puts "Priority    : #{job_priority_name_of(job.priority)}"
       $stdout.puts "Retry limit : #{job.retry_limit}"
       $stdout.puts "Output      : #{job.result_url}"
@@ -192,7 +194,7 @@ private
       if [:hive].include?(job.type)
         $stdout.puts "CPU time    : #{Command.humanize_time(job.cpu_time, true)}"
       end
-      if [:hive, :pig, :impala, :presto].include?(job.type)
+      if QUERY_JOB_TYPES.include?(job.type)
         $stdout.puts "Result size : #{Command.humanize_bytesize(job.result_size, 2)}"
       end
     end
@@ -200,11 +202,11 @@ private
     if wait && !job.finished?
       $stderr.puts "the job #{job.job_id} is still running..."
       wait_job(job)
-      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude
+      if QUERY_JOB_TYPES.include?(job.type) && !exclude
         show_result_with_retry(job, output, limit, format, render_opts)
       end
     else
-      if [:hive, :pig, :impala, :presto].include?(job.type) && !exclude && job.finished?
+      if QUERY_JOB_TYPES.include?(job.type) && !exclude && job.finished?
         show_result_with_retry(job, output, limit, format, render_opts)
       end
 
