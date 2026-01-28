@@ -77,7 +77,7 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
-    op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
+    op.on('-T', '--type TYPE', 'set query type (hive, presto, trino)') {|s|
       type = s
     }
     op.on('--engine-version ENGINE_VERSION', 'EXPERIMENTAL: specify query engine version by name') {|s|
@@ -195,7 +195,7 @@ module Command
     op.on('-R', '--retry COUNT', 'automatic retrying count', Integer) {|i|
       retry_limit = i
     }
-    op.on('-T', '--type TYPE', 'set query type (hive)') {|s|
+    op.on('-T', '--type TYPE', 'set query type (hive, presto, trino)') {|s|
       type = s
     }
     op.on('--engine-version ENGINE_VERSION', 'EXPERIMENTAL: specify query engine version by name') {|s|
