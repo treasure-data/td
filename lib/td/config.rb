@@ -26,6 +26,8 @@ class Config
   @@cl_import_endpoint = false # flag to indicate whether an endpoint has been provided through the command-line option
   @@secure = true
   @@retry_post_requests = false
+  @@ssl_option = ENV['TD_SSL_VERIFY'] || ENV['TD_SSL_CA_FILE'] || true
+  @@cl_ssl_option = false # flag to indicate whether ssl option has been provided through the command-line
 
   def initialize
     @path = nil
@@ -194,12 +196,92 @@ class Config
     end
   end
 
+  def self.ssl_option
+    if @@cl_ssl_option
+      return @@ssl_option
+    end
+
+    begin
+      conf = read
+      if conf['ssl.verify']
+        return conf['ssl.verify'].downcase == 'false' ? false : conf['ssl.verify']
+      elsif conf['ssl.ca_file']
+        return conf['ssl.ca_file']
+      end
+    rescue ConfigNotFoundError
+    end
+
+    return @@ssl_option
+  end
+
+  def self.ssl_option=(option)
+    @@ssl_option = option
+  end
+
+  def self.cl_ssl_option
+    @@cl_ssl_option
+  end
+
+  def self.cl_ssl_option=(flag)
+    @@cl_ssl_option = flag
+  end
+
+  # Compatibility methods for existing code
+  def self.ssl_verify
+    option = ssl_option
+    return false if option == false || (option.is_a?(String) && option.downcase == 'false')
+    return true if option == true || option.nil?
+    return true # if it's a file path, verification is enabled
+  end
+
+  def self.ssl_verify=(verify)
+    self.ssl_option = verify
+  end
+
+  def self.ssl_ca_file
+    option = ssl_option
+    return option if option.is_a?(String) && option.downcase != 'false' && File.exist?(option)
+    return nil
+  end
+
+  def self.ssl_ca_file=(ca_file)
+    self.ssl_option = ca_file
+  end
+
+  def self.cl_ssl_verify
+    @@cl_ssl_option
+  end
+
+  def self.cl_ssl_verify=(flag)
+    @@cl_ssl_option = flag
+  end
+
+  def self.cl_ssl_ca_file
+    @@cl_ssl_option
+  end
+
+  def self.cl_ssl_ca_file=(flag)
+    @@cl_ssl_option = flag
+  end
+
   # renders the apikey and endpoint options as a string for the helper commands
   def self.cl_options_string
+    require 'shellwords'
+    
     string = ""
     string += "-k #{@@apikey} " if @@cl_apikey
     string += "-e #{@@endpoint} " if @@cl_endpoint
     string += "--import-endpoint #{@@import_endpoint} " if @@cl_import_endpoint
+    
+    # Handle simplified SSL option
+    if @@cl_ssl_option && @@ssl_option
+      if @@ssl_option == false || (@@ssl_option.is_a?(String) && @@ssl_option.downcase == 'false')
+        string += "--ssl-verify false "
+      elsif @@ssl_option.is_a?(String)
+        string += "--ssl-verify #{Shellwords.escape(@@ssl_option)} "
+      end
+    end
+    
     string
   end
 

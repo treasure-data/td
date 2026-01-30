@@ -14,6 +14,7 @@
 
 * Update password symbol for user creation #262
 * Add support for td-client-ruby 2.x.x #267
+* Add SSL certificate options (--insecure, --ssl-ca-file) for proxy environments
 
 == 2023-03-18 version 0.17.1
 
