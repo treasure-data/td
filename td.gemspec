@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "yajl-ruby", ">= 1.3.1", "< 2.0"
   gem.add_dependency "hirb", ">= 0.4.5"
   gem.add_dependency "parallel", "~> 1.20.0"
-  gem.add_dependency "td-client", ">= 3.1.0", "< 4"
+  gem.add_dependency "td-client", ">= 1.0.8", "< 4"
   gem.add_dependency "td-logger", ">= 0.3.21", "< 2"
   gem.add_dependency "rubyzip", "~> 3.4"
   gem.add_dependency "ruby-progressbar", "~> 1.7"
@@ -31,5 +31,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec"
   gem.add_development_dependency 'webrick'
   gem.add_development_dependency "simplecov"
-  gem.add_development_dependency 'coveralls_reborn' unless Gem.win_platform?
+  gem.add_development_dependency 'coveralls' unless Gem.win_platform?
 end
