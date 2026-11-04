@@ -171,7 +171,7 @@ module TreasureData::Updater
       @proxy_server = WEBrick::HTTPProxyServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
-        :Port => 0,
+        :Port => 1000 + rand(1000),
         :AccessLog => []
       )
       @proxy_server_thread = start_server_thread(@proxy_server)
@@ -185,7 +185,7 @@ module TreasureData::Updater
       @server = WEBrick::HTTPServer.new(
         :BindAddress => "localhost",
         :Logger => logger,
-        :Port => 0,
+        :Port => 1000 + rand(1000),
         :AccessLog => [],
         :DocumentRoot => '.',
         :SSLEnable => true,
