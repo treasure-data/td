@@ -1,3 +1,7 @@
+== 2026-11-04 version 0.21.0
+
+* Raise minimum version of the td-client to 3.1.0
+
 == 2026-11-04 version 0.20.0
 
 * Patch rubyzip v3.4
