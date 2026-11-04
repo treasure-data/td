@@ -16,7 +16,7 @@ if ENV['SIMPLE_COV']
   end
 end
 
-# Skip Coveralls on Windows because the legacy client's TLS 1.0 uploads fail.
+# Coverage uploads are disabled on Windows.
 unless ENV['APPVEYOR'] || TreasureData::Helpers.on_windows?
   require 'coveralls'
   Coveralls.wear!('rails')
