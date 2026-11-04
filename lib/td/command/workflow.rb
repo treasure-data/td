@@ -246,8 +246,8 @@ EOF
         return false
       end
       if output =~ /openjdk version/ or output =~ /java version/
-        m = output.match(/version "(\d+)\.(\d+)\.(\d+)(\.\d+)?(?:_(\d+))?"/)
-        if not m or m.size < 4
+        m = output.match(/version "(\d+)(?:\.(\d+))?(?:[._+-][^"]*)?"/)
+        if not m
           return false
         end
         major = m[1].to_i
@@ -357,17 +357,20 @@ EOF
     private
     def extract_zip(zip_archive, destination, strip)
       require 'fileutils'
-      require 'zip/zip'
-      Zip::ZipFile.open(zip_archive) { |zip_file|
+      require 'zip'
+      Zip::File.open(zip_archive) { |zip_file|
         zip_file.each { |f|
           stripped = strip_components(f.name, strip)
           if stripped.empty?
             next
           end
-          dest = File.join destination, stripped
+          dest = File.expand_path(stripped, destination)
+          unless dest.start_with?(File.expand_path(destination) + File::SEPARATOR)
+            raise Zip::EntryNameError, f.name
+          end
           FileUtils.rm_rf dest if File.exist? dest
           FileUtils.mkdir_p(File.dirname(dest))
-          zip_file.extract(f, dest)
+          f.extract(stripped, destination_directory: destination)
         }
       }
     end

@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.test_files            = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.executables           = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths         = ['lib']
-  gem.required_ruby_version = '>= 2.1'
+  gem.required_ruby_version = '>= 3.0'
   gem.licenses              = ["Apache-2.0"]
 
   gem.add_dependency "msgpack"
@@ -24,13 +24,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency "parallel", "~> 1.20.0"
   gem.add_dependency "td-client", ">= 1.0.8", "< 4"
   gem.add_dependency "td-logger", ">= 0.3.21", "< 2"
-  gem.add_dependency "rubyzip", "~> 1.3.0"
-  gem.add_dependency "zip-zip", "~> 0.3"
+  gem.add_dependency "rubyzip", "~> 3.4"
   gem.add_dependency "ruby-progressbar", "~> 1.7"
   gem.add_dependency "csv"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency 'webrick'
   gem.add_development_dependency "simplecov"
-  gem.add_development_dependency 'coveralls'
+  gem.add_development_dependency 'coveralls' unless Gem.win_platform?
 end

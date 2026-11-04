@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require "fileutils"
 require "shellwords"
-require "zip/zip"
+require "zip"
 
 module TreasureData
 module Updater
@@ -155,7 +155,7 @@ module ModuleDefinition
       require "td"
       require 'open-uri'
       require "tmpdir"
-      require "zip/zip"
+      require "zip"
 
       latest_version = fetch(version_endpoint)
 
@@ -175,11 +175,14 @@ module ModuleDefinition
           indicator.finish
 
           $stdout.print "Unpacking updated toolbelt package..."
-          Zip::ZipFile.open("#{download_dir}/td-update.zip") do |zip|
+          Zip::File.open("#{download_dir}/td-update.zip") do |zip|
             zip.each do |entry|
-              target = File.join(download_dir, entry.to_s)
+              target = File.expand_path(entry.name, download_dir)
+              unless target.start_with?(File.expand_path(download_dir) + File::SEPARATOR)
+                raise Zip::EntryNameError, entry.name
+              end
               FileUtils.mkdir_p(File.dirname(target))
-              zip.extract(entry, target) { true }
+              entry.extract(destination_directory: download_dir) { true }
             end
           end
           $stdout.print " done\n"
