@@ -93,6 +93,28 @@ module TreasureData::Command
       FileUtils.rm_rf tmpdir
     }
 
+    describe '#detect_system_java' do
+      {
+        '1.8.0_472' => true,
+        '11.0.2' => true,
+        '17.0.17+10-LTS' => true,
+        '21' => true,
+        '25-ea' => true,
+        '1.7.0_80' => false,
+        '8' => false,
+        'invalid' => false,
+      }.each do |version, supported|
+        it "#{supported ? 'accepts' : 'rejects'} Java #{version} for system workflow execution" do
+          status = double(:success? => true)
+          allow(Open3).to receive(:capture2e).with('java', '-version').and_return(
+              ["openjdk version \"#{version}\"", status])
+          with_env('TD_WF_JAVA', '') do
+            expect(command.send(:detect_system_java)).to eq(supported)
+          end
+        end
+      end
+    end
+
     describe '#workflow' do
       let(:empty_option) {
         List::CommandParser.new("workflow", [], [], nil, [], true)

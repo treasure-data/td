@@ -1,17 +1,26 @@
 ---
 version: "{build}"
+image: Visual Studio 2022
 clone_depth: 10
 install:
+  - IF NOT EXIST C:\Ruby%ruby_version%\bin\ruby.exe EXIT /B 1
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - ruby --version
+  - call ridk install 3
+  - call ridk enable
+  - gcc -dumpmachine
   - gem --version
   - bundle --version
+  # Ruby 3.1 callback declarations require pre-C23 semantics with modern GCC.
+  - bundle config set --local build.yajl-ruby "--with-cflags=-std=gnu17"
   - bundle install
 build_script:
   - bundle exec rake build
 test_script:
   - bundle exec rake spec
+on_failure:
+  - ps: Get-Content "C:\Ruby$env:ruby_version\lib\ruby\gems\*\extensions\*\*\msgpack-*\mkmf.log" -ErrorAction SilentlyContinue
 environment:
   matrix:
-    - ruby_version: "26"
-    - ruby_version: "26-x64"
+    - ruby_version: "31"
+    - ruby_version: "31-x64"

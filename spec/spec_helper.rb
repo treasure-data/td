@@ -3,6 +3,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 require 'rspec'
 require 'json'
+require 'td/helpers'
 
 if ENV['SIMPLE_COV']
   # SimpleCov
@@ -15,8 +16,8 @@ if ENV['SIMPLE_COV']
   end
 end
 
-# XXX skip coverage setting if run appveyor. Because, fail to push coveralls in appveyor.
-unless ENV['APPVEYOR']
+# Skip Coveralls on Windows because the legacy client's TLS 1.0 uploads fail.
+unless ENV['APPVEYOR'] || TreasureData::Helpers.on_windows?
   require 'coveralls'
   Coveralls.wear!('rails')
 end

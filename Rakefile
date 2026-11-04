@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler'
-require 'zip/zip'
+require 'zip'
 Bundler::GemHelper.install_tasks
 
 task :default => :build
@@ -133,7 +133,7 @@ def download_resource(url)
 end
 
 def zip_files(zip_name, target_dir)
-  Zip::ZipFile.open(zip_name, Zip::ZipFile::CREATE) do |zip|
+  Zip::File.open(zip_name, create: true) do |zip|
     Dir["#{target_dir}/**/*"].each do |file|
       zipped_path = file[target_dir.length + 1..-1]
       zip.add(zipped_path, file) { true }

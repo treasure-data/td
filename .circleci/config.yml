@@ -19,13 +19,13 @@ commands:
           shell: powershell.exe
           command: choco install msys2 -y
       - run:
+          name: "Install Ruby version"
+          shell: powershell.exe
+          command: choco install ruby --version=<<parameters.ruby_version>> --allow-downgrade --yes
+      - run:
           name: "Install Ruby devkit"
           shell: powershell.exe
           command: ridk install 2 3
-      - run:
-          name: "Install Ruby version"
-          shell: powershell.exe
-          command: choco install ruby --version=<<parameters.ruby_version>>
       - run:
           name: "Install bundler"
           command: gem install bundler
@@ -53,12 +53,6 @@ commands:
 
 
 jobs:
-
-  ruby_27:
-    docker:
-      - image: cimg/ruby:2.7-browsers
-    steps:
-      - run-tests-flow
 
   ruby_30:
     docker:
@@ -103,7 +97,6 @@ jobs:
 workflows:
   tests:
     jobs:
-      - ruby_27
       - ruby_30
       - ruby_31
       - ruby_32
